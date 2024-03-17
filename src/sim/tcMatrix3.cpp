@@ -81,6 +81,7 @@ void tcMatrix3::Test()
 
 void tcMatrix3::SetInverseYawPitchRoll(float yaw_rad, float pitch_rad, float roll_rad)
 {
+
     Eigen::Quaterniond quaternion;
     quaternion =    Eigen::AngleAxisd(yaw_rad, Eigen::Vector3d::UnitZ()) *
             Eigen::AngleAxisd(pitch_rad, Eigen::Vector3d::UnitX()) *

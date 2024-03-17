@@ -89,7 +89,7 @@ tcAABBBoundingBox::~tcAABBBoundingBox()
 void tcAABBBoundingBox::calcAttributes()
 {
     Eigen::Quaterniond quaternion;
-    //沿着正方向顺时针转
+    //沿着正方向逆时针转
     quaternion =Eigen::AngleAxisd(yaw, Eigen::Vector3d::UnitZ()) *
             Eigen::AngleAxisd(roll, Eigen::Vector3d::UnitZ()) *
             Eigen::AngleAxisd(pitch, Eigen::Vector3d::UnitY());

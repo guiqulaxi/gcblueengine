@@ -711,74 +711,77 @@ void tcGame::SetTheater(float lat_deg, float lon_deg)
 */
 void tcGame::SetTimeAccel(long accel)
 {
-    if (mbScenarioEdit)
-    {
-        if ((accel != 0) && (simState->GetTime() == 0))
-        {
-            tcOptions* options = tcOptions::Get();
-            std::string revertFile = options->GetOptionString("ScenarioSavePath"); // full path and file name of last scenario
-            std::string msg;
 
-        }
-        //return;
-    }
+    simState->SetTimeAcceleration(accel);
 
-    if (accel == 0)
-    {
-        mbPaused = true;
-        accelerateTime = 0;
-    }
-    else if ((accel <= 60) || (accel == 120))
-    {
-        mbPaused = false;
-        accelerateTime = accel - 1;
-    }
-    else if (accel == 99)
-    {
-        if (!mbPaused && (accelerateTime > 0))
-        {
-            accelerateTime = NextTimeAccelVal(accelerateTime, false);
-        }
-        else
-        {
-            mbPaused = true;
-            accelerateTime = 0;
-        }
-    }
-    else if (accel == 100)
-    {
-        mbPaused = !mbPaused; // toggle pause
-        accelerateTime = 0;
-    }
-    else if (accel == 101)
-    {
-        if (!mbPaused)
-        {
-            accelerateTime = NextTimeAccelVal(accelerateTime, true);
-        }
-        else
-        {
-            mbPaused = false;
-            accelerateTime = 0;
-        }
-    }
-    else
-    {
-        fprintf(stderr, "tcGame::SetTimeAccel - accel out of range\n");
-        return;
-    }
+//    if (mbScenarioEdit)
+//    {
+//        if ((accel != 0) && (simState->GetTime() == 0))
+//        {
+//            tcOptions* options = tcOptions::Get();
+//            std::string revertFile = options->GetOptionString("ScenarioSavePath"); // full path and file name of last scenario
+//            std::string msg;
 
-    if (simState->IsMultiplayerClient())
-    {
-        long accelRequest = mbPaused ? 0 : accelerateTime + 1;
+//        }
+//        //return;
+//    }
 
-        std::string commandText = strutil::format("//gamespeed %d", accelRequest);
-        //tcMultiplayerInterface::Get()->BroadcastChatText(commandText);
-    }
-    else
-    {
-        simState->SetTimeAcceleration(mbPaused ? 0 : accelerateTime+1);
-    }
+//    if (accel == 0)
+//    {
+//        mbPaused = true;
+//        accelerateTime = 0;
+//    }
+//    else if ((accel <= 60) || (accel == 120))
+//    {
+//        mbPaused = false;
+//        accelerateTime = accel - 1;
+//    }
+//    else if (accel == 99)
+//    {
+//        if (!mbPaused && (accelerateTime > 0))
+//        {
+//            accelerateTime = NextTimeAccelVal(accelerateTime, false);
+//        }
+//        else
+//        {
+//            mbPaused = true;
+//            accelerateTime = 0;
+//        }
+//    }
+//    else if (accel == 100)
+//    {
+//        mbPaused = !mbPaused; // toggle pause
+//        accelerateTime = 0;
+//    }
+//    else if (accel == 101)
+//    {
+//        if (!mbPaused)
+//        {
+//            accelerateTime = NextTimeAccelVal(accelerateTime, true);
+//        }
+//        else
+//        {
+//            mbPaused = false;
+//            accelerateTime = 0;
+//        }
+//    }
+//    else
+//    {
+//        fprintf(stderr, "tcGame::SetTimeAccel - accel out of range\n");
+//        return;
+//    }
+
+//    if (simState->IsMultiplayerClient())
+//    {
+//        long accelRequest = mbPaused ? 0 : accelerateTime + 1;
+
+//        std::string commandText = strutil::format("//gamespeed %d", accelRequest);
+//        //tcMultiplayerInterface::Get()->BroadcastChatText(commandText);
+//    }
+//    else
+//    {
+//        simState->SetTimeAcceleration(mbPaused ? 0 : accelerateTime+1);
+//    }
 }
 
 
@@ -898,6 +901,7 @@ bool tcGame::UpdateFrame()
 
     auto speedMax=(unsigned long)(fps*0.025);//全速最大推演倍数 snFrameCount%speedMax==0才推进就是1倍
     auto delta=speedMax/simState->GetTimeAcceleration();//按指定倍数推进
+    delta=delta==0?1:delta;
     if (!mbPaused&&speedMax>0&&snFrameCount%delta==0)
     {
         gameTime += fdt;

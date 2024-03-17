@@ -424,28 +424,31 @@ GeoPoint tcGameObject::RelPosToLatLonAlt(const tsRelativePosition& rel_pos) cons
 GeoPoint tcGameObject::RelPosToLatLonAlt(const float& dx, 
 										   const float& dy, const float& dz) const
 {
-	GeoPoint p;
+    //先平移再旋转
 
-    tcMatrix3 R;
-    R.SetYawPitchRoll(mcKin.mfHeading_rad, -mcKin.mfPitch_rad, -mcKin.mfRoll_rad);
+    GeoPoint p;
 
-    Vector3d xyz(dx, dy, dz);
-    Vector3d xyz_rot = R * xyz;
+//    tcMatrix3 R;
 
-    p.mfAlt_m = mcKin.mfAlt_m + xyz_rot.y();
+//    R.SetYawPitchRoll(mcKin.mfHeading_rad, -mcKin.mfPitch_rad, -mcKin.mfRoll_rad);
 
-    p.mfLon_rad = mcKin.mfLon_rad + (C_MTORAD / cosf((float)mcKin.mfLat_rad)) * xyz_rot.x();
+//    Vector3d xyz(dx, dy, dz);
+//    Vector3d xyz_rot = R * xyz;
 
-    p.mfLat_rad = mcKin.mfLat_rad + C_MTORAD * xyz_rot.z();
+//    p.mfAlt_m = mcKin.mfAlt_m + xyz_rot.z();
 
- //   float hdg = mcKin.mfHeading_rad;
- //   float cos_hdg = cosf(hdg);
- //   float sin_hdg = sinf(hdg);
+//    p.mfLon_rad = mcKin.mfLon_rad + (C_MTORAD / cosf((float)mcKin.mfLat_rad)) * xyz_rot.x();
 
-	//p.mfAlt_m = mcKin.mfAlt_m + dy;
-	//p.mfLon_rad = (C_MTORAD / cosf((float)mcKin.mfLat_rad)) * 
-	//	(cos_hdg * dx + sin_hdg * dz) + mcKin.mfLon_rad;
-	//p.mfLat_rad = C_MTORAD * (cos_hdg * dz - sin_hdg * dx) + mcKin.mfLat_rad;
+//    p.mfLat_rad = mcKin.mfLat_rad + C_MTORAD * xyz_rot.y();
+
+    float hdg = mcKin.mfHeading_rad;
+    float cos_hdg = cosf(hdg);
+    float sin_hdg = sinf(hdg);
+
+    p.mfAlt_m = mcKin.mfAlt_m + dz;
+    p.mfLon_rad = (C_MTORAD / cosf((float)mcKin.mfLat_rad)) *
+        (cos_hdg * dx + sin_hdg * dy) + mcKin.mfLon_rad;
+    p.mfLat_rad = C_MTORAD * (cos_hdg * dy - sin_hdg * dx) + mcKin.mfLat_rad;
 
 	return p;
 }
