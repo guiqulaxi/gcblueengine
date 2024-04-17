@@ -141,7 +141,7 @@ public:
     double mfLon_rad;              ///< longitude [rad]
     double mfLat_rad;              ///< latitude [rad]
     float mfAlt_m;                 ///< altitude, negative is subsurface depth [m]
-    float mfHeading_rad;           ///< relative to north [rad]
+    float mfHeading_rad;           ///< relative to north [rad] 顺时针
     float mfClimbAngle_rad;        ///< climb angle defines vertical motion vector [rad]
     float mfYaw_rad;               ///< orientation in azimuthal plane
     float mfPitch_rad;             ///< orientation in elevation plane

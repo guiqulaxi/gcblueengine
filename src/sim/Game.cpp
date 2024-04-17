@@ -902,7 +902,7 @@ bool tcGame::UpdateFrame()
     auto speedMax=(unsigned long)(fps*0.025);//全速最大推演倍数 snFrameCount%speedMax==0才推进就是1倍
     auto delta=speedMax/simState->GetTimeAcceleration();//按指定倍数推进
     delta=delta==0?1:delta;
-    if (!mbPaused&&speedMax>0&&snFrameCount%delta==0)
+    if (!mbPaused&&snFrameCount%delta==0)
     {
         gameTime += fdt;
         gameDateTime.AdjustTimeSeconds(fdt*dateTimeScale);

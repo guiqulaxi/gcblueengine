@@ -294,7 +294,7 @@ namespace scriptinterface {
 		/// set target for platform
 		void SetTarget(long anID);
 		/// get platform target, -1 for no target
-		long GetTarget();
+        long GetTarget();
 		/// get range to target in km
 		float GetRangeToTarget();
 		/// get track info object for target

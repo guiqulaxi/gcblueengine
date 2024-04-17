@@ -33,8 +33,19 @@ class tcMatrix3
 {
 public:
     Matrix3d& GetMatrix();
-
+    /**
+     * @brief SetYawPitchRoll
+     * @param yaw_rad 顺时针
+     * @param pitch_rad 顺时针
+     * @param roll_rad 顺时针
+     */
     void SetYawPitchRoll(float yaw_rad, float pitch_rad, float roll_rad);
+    /**
+     * @brief SetInverseYawPitchRoll
+     * @param yaw_rad 顺时针
+     * @param pitch_rad 顺时针
+     * @param roll_rad 顺时针
+     */
     void SetInverseYawPitchRoll(float yaw_rad, float pitch_rad, float roll_rad);
 
     const tcMatrix3& PreMultiply(tcMatrix3& m);

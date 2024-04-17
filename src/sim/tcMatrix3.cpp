@@ -83,9 +83,9 @@ void tcMatrix3::SetInverseYawPitchRoll(float yaw_rad, float pitch_rad, float rol
 {
 
     Eigen::Quaterniond quaternion;
-    quaternion =    Eigen::AngleAxisd(yaw_rad, Eigen::Vector3d::UnitZ()) *
-            Eigen::AngleAxisd(pitch_rad, Eigen::Vector3d::UnitX()) *
-            Eigen::AngleAxisd(roll_rad, Eigen::Vector3d::UnitY());
+    quaternion =    Eigen::AngleAxisd(-yaw_rad, Eigen::Vector3d::UnitZ()) *
+            Eigen::AngleAxisd(-pitch_rad, Eigen::Vector3d::UnitX()) *
+            Eigen::AngleAxisd(-roll_rad, Eigen::Vector3d::UnitY());
     matrix=quaternion.inverse().matrix();
 
 //    cTV_3DMATRIX temp;
@@ -107,13 +107,13 @@ void tcMatrix3::SetYawPitchRoll(float yaw_rad, float pitch_rad, float roll_rad)
 
     //math.TVMatrixRotationYawPitchRoll(&m, yaw_rad, pitch_rad, roll_rad);
 
-//    matrix.makeRotate(yaw_rad,osg::Vector3d(0.0f, 1.0f, 0.0f) ); // 以 Y 轴为旋转轴，旋转 Yaw 度
-//    matrix.makeRotate(pitch_rad,osg::Vector3d(1.0f, 0.0f, 0.0f)); // 以 X 轴为旋转轴，旋转 Pitch 度
-//    matrix.makeRotate(roll_rad,osg::Vector3d(0.0f, 0.0f, 1.0f)); // 以 Z 轴为旋转轴，旋转 Roll 度
+//    matrix.makeRotate(yaw_rad,osg::Vector3d(0.0f, 1.0f, 0.0f) ); // 以 Y 轴为旋转轴，旋转 Yaw 度 顺时针
+//    matrix.makeRotate(pitch_rad,osg::Vector3d(1.0f, 0.0f, 0.0f)); // 以 X 轴为旋转轴，旋转 Pitch 度 顺时针
+//    matrix.makeRotate(roll_rad,osg::Vector3d(0.0f, 0.0f, 1.0f)); // 以 Z 轴为旋转轴，旋转 Roll 度 顺时针
     Eigen::Quaterniond quaternion;
-    quaternion =    Eigen::AngleAxisd(yaw_rad, Eigen::Vector3d::UnitZ()) *
-            Eigen::AngleAxisd(pitch_rad, Eigen::Vector3d::UnitX()) *
-            Eigen::AngleAxisd(roll_rad, Eigen::Vector3d::UnitY());
+    quaternion =    Eigen::AngleAxisd(-yaw_rad, Eigen::Vector3d::UnitZ()) * //以 Z 轴为旋转轴， 顺时针
+            Eigen::AngleAxisd(-pitch_rad, Eigen::Vector3d::UnitX()) *//以 X 轴为旋转轴， 顺时针
+            Eigen::AngleAxisd(-roll_rad, Eigen::Vector3d::UnitY());//以 Y 轴为旋转轴， 顺时针
     matrix=quaternion.matrix();
 }
 

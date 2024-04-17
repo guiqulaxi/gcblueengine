@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 4.11.1, 2024-03-10T22:02:16. -->
+<!-- Written by QtCreator 4.11.1, 2024-04-16T23:49:55. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -322,7 +322,7 @@
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">gcblue</value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.gcblue</value>
     <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">gcblue</value>
-    <value type="QString" key="RunConfiguration.Arguments">SinglePlayer/Modern/Pacific_War_1_Ignition.py 50</value>
+    <value type="QString" key="RunConfiguration.Arguments">Tutorial/SurfaceOperations.py 10</value>
     <value type="bool" key="RunConfiguration.Arguments.multi">false</value>
     <value type="QString" key="RunConfiguration.OverrideDebuggerStartup"></value>
     <value type="bool" key="RunConfiguration.UseCppDebugger">false</value>

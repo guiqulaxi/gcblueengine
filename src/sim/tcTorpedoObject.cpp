@@ -703,6 +703,7 @@ void tcTorpedoObject::UpdateDepthCharge(float dt_s)
 
 /**
 * Assumes that all depth charges have either contact or proximity fuse
+* 假设所有的深水炸弹都装有接触引信或近炸引信
 */
 void tcTorpedoObject::UpdateDepthChargeDetonation()
 {

@@ -728,7 +728,7 @@ object tcFlightPortInterface::GetInterface()
     long tcFlightPortInterface::GetUnitID(int n)
     {
         if (flightport==0) return -1;
-        if ((n<=0)||(n>=(int)flightport->units.size())) return -1;
+        if ((n<0)||(n>=(int)flightport->units.size())) return -1;
         tcAirState* airstate = flightport->units.at(n);
         return airstate->obj->mnID;
     }

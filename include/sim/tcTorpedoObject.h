@@ -122,7 +122,7 @@ public:
 protected:
     virtual void UpdateDrop(float dt_s);
     virtual void UpdateSpeedSimple(float dt_s);
-    void UpdateDetonation();
+    void UpdateDetonation();//起爆
 	void UpdateDetonationUnguided();
     void UpdateDepthCharge(float dt_s);
 	void UpdateDepthChargeDetonation();
