@@ -36,7 +36,7 @@ inline float randf() {return (float)(rand() & RAND_MAX)*(1.0f/(float)RAND_MAX);}
 inline float randf(float afRange) {return afRange*randf();}
 inline float randfc(float afRange) {return afRange*(randf()-0.5f);}
 inline bool randbool() {return (rand() > (RAND_MAX >> 1));}
-unsigned int Poisson(float lambda);
+unsigned int Poisson(float lambda);//泊松分布
 
 /**
 * Singleton class for gaussian random number generation

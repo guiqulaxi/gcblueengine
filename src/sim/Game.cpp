@@ -29,11 +29,11 @@
 //#include "wx/wx.h"
 #endif
 
-#include "game.h"
+#include "Game.h"
 #include "gcb.h"
 #include "AError.h"
-#include <direct.h>
 
+#include <iomanip>
 //#include "wx/datetime.h"
 //#include "wx/progdlg.h"
 //#include <wx/filedlg.h>
@@ -911,7 +911,14 @@ bool tcGame::UpdateFrame()
 
     }
 //    directorTime += fdt; // run director when not in simple brief mode
-
+    std::cout << "\r";
+    std::cout << std::left<<std::setw(10) << simState->GetTime()<<" " ;
+    std::cout << simState->GetDateTime().GetYear()<<"-" ;
+    std::cout << std::left<<std::setw(2)<<simState->GetDateTime().GetMonth()<<"-" ;
+    std::cout << std::left<<std::setw(2)<<simState->GetDateTime().GetDay()<<" " ;
+    std::cout <<std::left<<std::setw(2)<< simState->GetDateTime().GetHour()<<":" ;
+    std::cout << std::left<<std::setw(2)<<simState->GetDateTime().GetMinute()<<":" ;
+    std::cout << std::left<<std::setw(2)<<simState->GetDateTime().GetSecond() ;
     UpdateSharedSimData();
     ProcessCommandList();
 

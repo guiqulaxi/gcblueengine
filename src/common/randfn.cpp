@@ -31,6 +31,10 @@
 #include<cassert>
 unsigned int Poisson(float lambda)
 {
+    if(lambda<=0)
+    {
+        int a=0;
+    }
     assert(lambda > 0);
 
     if (lambda > 8.0)

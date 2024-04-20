@@ -359,13 +359,16 @@ float tcGameObject::GetIRSignature(float az_deg) const
 */
 float tcGameObject::GetSpan() const
 {
+    //设置为最大长宽高的2倍
+    return 2* std::max(std::max(mpDBObject->length_m,mpDBObject->width_m),mpDBObject->height_m);
 //	if (model)
 //	{
 //		return 2.0f*model->GetRadius();
 //	}
 //	else
 	{
-		return 0;
+
+
 	}
 }
 
