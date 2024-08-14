@@ -617,7 +617,9 @@ void tcESMSensor::UpdateSensorMap(const tcGameObject* target, long* emitters, un
 
     if (targetRange_km == 0)
     {
-        targetRange_km = parent->mcKin.RangeToKmAlt(target); // target range may not be updated when multiple emitters on target
+        assert(target != 0);
+        targetRange_km = parent->mcKin.RangeToKmAlt(target->mcKin);// target range may not be updated when multiple emitters on target
+        // targetRange_km = parent->mcKin.RangeToKmAlt(target); // target range may not be updated when multiple emitters on target
     }
 
     // call update to check for this report already in track, or for an empty slot

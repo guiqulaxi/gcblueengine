@@ -122,6 +122,7 @@ public:
     void AttachOptions(tcOptions *pOptions) {mpOptions=pOptions;mnCurrentMapMode=pOptions->mnMapMode;}
     void CreateHighResMapImage(int anMode, UINT32 *apData);
 //    void CreateMapImage(int anMode, int anMapID, std::shared_ptr<tcTexture2D> image);
+     void CreateMapImage(int anMode, int anMapID, UINT32 * apData);
     float GetHRLatSpan() {return 0.5f*mrTheaterView.Height();}
     float GetHRLonSpan() {return 0.5f*mrTheaterView.Width();}
     void GetMapDataInfo(tsMapDataInfo *pMDI);
@@ -223,6 +224,7 @@ private:
     void ReportMapDataError(UINT32 anError);
     void SetDemInfo();
     void InitTiles();
+public:
     void CreateMapArrayHighRes();
     void CreateMapArrayLowRes();
     void CleanupMapArrayHighRes();

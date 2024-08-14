@@ -32,7 +32,7 @@
 #endif // _MSC_VER > 1000
 
 #include <vector>
-
+#include "tcDatabaseObject.h"
 
 class tcStream;
 class tcCommandStream;

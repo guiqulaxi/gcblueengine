@@ -512,10 +512,10 @@ bool tcGameSerializer::LoadSimOther(tcSimState* simState, tcGameStream& stream)
 //        objUpdate->AddAttribute("climb_deg", strutil::format("%.1f", C_180OVERPI*obj->mcKin.mfClimbAngle_rad));
 //    }
 //}
-void tcGameSerializer::SaveToXml(XMLDocument &doc)
+void tcGameSerializer::SaveToXml(tinyxml2::XMLDocument &doc)
 {
 
-    XMLElement* root = doc.RootElement();
+    tinyxml2::XMLElement* root = doc.RootElement();
     if (root == 0)
     {
         doc.LinkEndChild(doc.NewElement( "Root"));
@@ -524,7 +524,7 @@ void tcGameSerializer::SaveToXml(XMLDocument &doc)
     }
 
     tcSimState* simState = tcSimState::Get();
-    XMLElement *update=doc.NewElement("ObjectUpdate");
+    tinyxml2::XMLElement *update=doc.NewElement("ObjectUpdate");
 //    wxXmlNode* update = new wxXmlNode(root, wxXML_ELEMENT_NODE, "ObjectUpdate", "");
     update->Attribute("Time", strutil::format("%.2f", simState->GetTime()).c_str());
 
@@ -533,7 +533,7 @@ void tcGameSerializer::SaveToXml(XMLDocument &doc)
     for (iter.First();iter.NotDone();iter.Next())
     {
         tcGameObject* obj = iter.Get();
-XMLElement* objUpdate=doc.NewElement("Object");
+tinyxml2::XMLElement* objUpdate=doc.NewElement("Object");
 //        wxXmlNode* objUpdate = new wxXmlNode(update, wxXML_ELEMENT_NODE, "Object", "");
 
         long platformId = obj->mnID;

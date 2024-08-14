@@ -40,6 +40,8 @@ namespace database
 
     /**
     * Describes radiated acoustic noise (SL) vs. speed and depth
+    * 辐射声学噪声（SL，Sound Level，即声级）与速度和深度
+    * 声学模型
     */
     class tcAcousticModel
     {

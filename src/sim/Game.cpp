@@ -53,14 +53,14 @@
 //#include "tcDirector.h"
 //#include "tcXmlWindow.h"
 #include "tcMapData.h"
-
+#include "tinyxml2.h"
 #include "network/tcMultiplayerInterface.h"
 #include "network/tcUpdateMessageHandler.h" // for attach
 //#include "tcChatBox.h"
 //#include "tc3DWindow2.h"
 //#include "tcPopupMessage.h"
 //#include "tcLauncherPopup.h"
-#include "tcUserSelectedGroups.h"
+// #include "tcUserSelectedGroups.h"
 
 #include "tcUnits.h"
 #include "tcDateTime.h"
@@ -68,10 +68,12 @@
 #include "tcGameSerializer.h"
 #include "ai/tcMissionManager.h"
 
-#include "network/tcControlMessageHandler.h" // for test
+// #include "network/tcControlMessageHandler.h" // for test
 
 #include "ai/tcMission.h"
 #include "tcScenarioRandomizer.h"
+// #include <QImage>
+#include "json.hpp""
 #if defined(_MSC_VER)
 #endif
 
@@ -447,6 +449,30 @@ void tcGame::Init()
         tcGameObject::SetGameObjectMapData(mapData);
         tcPlatformObject::InitPlatformObject();
 
+// ///////////////////////////////////////////////////////
+// #define K_DEC_LOWRES (int)30
+// #define SCALE_LOWRES (float)120/(float)K_DEC_LOWRES
+// #define SCALE_HIGHRES (float)120.0f
+// #define SCALE_LOOKUP (float)0.5f
+// #define RESLOW_DEG (float)K_DEC_LOWRES/120.0f
+// #define RESHIGH_DEG (float)1.0f/120.0f
+// #define M_LOWRES (int)180*120/K_DEC_LOWRES // latitude cells for low res global map
+// #define N_LOWRES (int)360*120/K_DEC_LOWRES // longitude
+//         size_t  M_HIGHRES =M_LOWRES;
+//         size_t  N_HIGHRES=N_LOWRES;
+//         UINT32 *apData =new UINT32[M_HIGHRES*N_HIGHRES];
+//         mapData->CreateMapArrayHighRes();
+//         mapData->CreateMapImage(0,0,apData);
+//         QImage image(M_HIGHRES,N_HIGHRES,QImage::Format_ARGB32);
+//         for(int m=0;m<M_HIGHRES;m++)
+//         {
+//             for(int n=0;n<M_HIGHRES;n++)
+//             {
+//                 image.setPixel(m,n,apData[(M_HIGHRES-1-m)*N_HIGHRES + n]);
+//             }
+//         }
+//         // QImage image((uchar *)apData, M_HIGHRES, N_HIGHRES, QImage::Format_ARGB32);
+//         image.save("D:/1.png");
         InitSim();
     }
     catch(std::string s)
@@ -651,12 +677,18 @@ void tcGame::LoadScenario(const std::string& filePath, const std::string& captio
     else
     {
         string s =
-                strutil::format("Error in scenario %s (File may be missing, file name may have space in it, or error in scenario). "
-                                "Check log/pyerr.txt for details.",
-                                filePath);
+            strutil::format("Error in scenario %s (File may be missing, file name may have space in it, or error in scenario). "
+                            "Check log/pyerr.txt for details.",
+                            filePath);
         fprintf(stderr, s.c_str());
 
     }
+}
+
+string tcGame::GetOutSimData()
+{
+    std::lock_guard<std::mutex> lock(mtx_outsimdata);
+    return  outsimdata;
 }
 
 
@@ -714,74 +746,74 @@ void tcGame::SetTimeAccel(long accel)
 
     simState->SetTimeAcceleration(accel);
 
-//    if (mbScenarioEdit)
-//    {
-//        if ((accel != 0) && (simState->GetTime() == 0))
-//        {
-//            tcOptions* options = tcOptions::Get();
-//            std::string revertFile = options->GetOptionString("ScenarioSavePath"); // full path and file name of last scenario
-//            std::string msg;
+    //    if (mbScenarioEdit)
+    //    {
+    //        if ((accel != 0) && (simState->GetTime() == 0))
+    //        {
+    //            tcOptions* options = tcOptions::Get();
+    //            std::string revertFile = options->GetOptionString("ScenarioSavePath"); // full path and file name of last scenario
+    //            std::string msg;
 
-//        }
-//        //return;
-//    }
+    //        }
+    //        //return;
+    //    }
 
-//    if (accel == 0)
-//    {
-//        mbPaused = true;
-//        accelerateTime = 0;
-//    }
-//    else if ((accel <= 60) || (accel == 120))
-//    {
-//        mbPaused = false;
-//        accelerateTime = accel - 1;
-//    }
-//    else if (accel == 99)
-//    {
-//        if (!mbPaused && (accelerateTime > 0))
-//        {
-//            accelerateTime = NextTimeAccelVal(accelerateTime, false);
-//        }
-//        else
-//        {
-//            mbPaused = true;
-//            accelerateTime = 0;
-//        }
-//    }
-//    else if (accel == 100)
-//    {
-//        mbPaused = !mbPaused; // toggle pause
-//        accelerateTime = 0;
-//    }
-//    else if (accel == 101)
-//    {
-//        if (!mbPaused)
-//        {
-//            accelerateTime = NextTimeAccelVal(accelerateTime, true);
-//        }
-//        else
-//        {
-//            mbPaused = false;
-//            accelerateTime = 0;
-//        }
-//    }
-//    else
-//    {
-//        fprintf(stderr, "tcGame::SetTimeAccel - accel out of range\n");
-//        return;
-//    }
+    //    if (accel == 0)
+    //    {
+    //        mbPaused = true;
+    //        accelerateTime = 0;
+    //    }
+    //    else if ((accel <= 60) || (accel == 120))
+    //    {
+    //        mbPaused = false;
+    //        accelerateTime = accel - 1;
+    //    }
+    //    else if (accel == 99)
+    //    {
+    //        if (!mbPaused && (accelerateTime > 0))
+    //        {
+    //            accelerateTime = NextTimeAccelVal(accelerateTime, false);
+    //        }
+    //        else
+    //        {
+    //            mbPaused = true;
+    //            accelerateTime = 0;
+    //        }
+    //    }
+    //    else if (accel == 100)
+    //    {
+    //        mbPaused = !mbPaused; // toggle pause
+    //        accelerateTime = 0;
+    //    }
+    //    else if (accel == 101)
+    //    {
+    //        if (!mbPaused)
+    //        {
+    //            accelerateTime = NextTimeAccelVal(accelerateTime, true);
+    //        }
+    //        else
+    //        {
+    //            mbPaused = false;
+    //            accelerateTime = 0;
+    //        }
+    //    }
+    //    else
+    //    {
+    //        fprintf(stderr, "tcGame::SetTimeAccel - accel out of range\n");
+    //        return;
+    //    }
 
-//    if (simState->IsMultiplayerClient())
-//    {
-//        long accelRequest = mbPaused ? 0 : accelerateTime + 1;
+    //    if (simState->IsMultiplayerClient())
+    //    {
+    //        long accelRequest = mbPaused ? 0 : accelerateTime + 1;
 
-//        std::string commandText = strutil::format("//gamespeed %d", accelRequest);
-//        //tcMultiplayerInterface::Get()->BroadcastChatText(commandText);
-//    }
-//    else
-//    {
-//        simState->SetTimeAcceleration(mbPaused ? 0 : accelerateTime+1);
-//    }
+    //        std::string commandText = strutil::format("//gamespeed %d", accelRequest);
+    //        //tcMultiplayerInterface::Get()->BroadcastChatText(commandText);
+    //    }
+    //    else
+    //    {
+    //        simState->SetTimeAcceleration(mbPaused ? 0 : accelerateTime+1);
+    //    }
 }
 
 
@@ -869,9 +901,9 @@ bool tcGame::UpdateFrame()
     {
         auto curRealTime = std::chrono::system_clock::now();
         auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(
-               curRealTime-prevRealTime
-           );
-       diff_ms= diff.count();
+            curRealTime-prevRealTime
+            );
+        diff_ms= diff.count();
     }
 
     if(diff_ms>=1000)//隔一秒统计一遍帧数
@@ -910,7 +942,7 @@ bool tcGame::UpdateFrame()
         simState->SetDateTime(gameDateTime);
 
     }
-//    directorTime += fdt; // run director when not in simple brief mode
+    //    directorTime += fdt; // run director when not in simple brief mode
     std::cout << "\r";
     std::cout << std::left<<std::setw(10) << simState->GetTime()<<" " ;
     std::cout << simState->GetDateTime().GetYear()<<"-" ;
@@ -919,7 +951,9 @@ bool tcGame::UpdateFrame()
     std::cout <<std::left<<std::setw(2)<< simState->GetDateTime().GetHour()<<":" ;
     std::cout << std::left<<std::setw(2)<<simState->GetDateTime().GetMinute()<<":" ;
     std::cout << std::left<<std::setw(2)<<simState->GetDateTime().GetSecond() ;
-    UpdateSharedSimData();
+    //更新输出数据
+    UpdateOutSimData();
+    //处理命令
     ProcessCommandList();
 
 
@@ -967,7 +1001,7 @@ void tcGame::UpdateOptions()
         tcGameSerializer serializer;
         lastUpdateTime = t;
 
-        XMLDocument doc;
+        tinyxml2::XMLDocument doc;
         serializer.SaveToXml(doc);
         std::string fileName = strutil::format("log/unit_state.xml");
         doc.SaveFile(fileName.c_str());
@@ -985,9 +1019,9 @@ bool tcGame::Finish()
 {
     //	tcSound::Get()->UnInit();
 
-    //	if (director) delete director;
+//	if (director) delete director;
 
-    //tcMultiplayerInterface::Get()->LogOutAllPlayers();
+//tcMultiplayerInterface::Get()->LogOutAllPlayers();
 
 #ifdef _DEBUG
     tcSimPythonInterface::Get()->FlushLogs();
@@ -1107,28 +1141,30 @@ int tcGame::NextTimeAccelVal(int current, bool goFaster) const
 
 void tcGame::ProcessCommandList()
 {
-//    if(!commandStringMemory.attach(QSharedMemory::ReadWrite))//将shareMemory与该进程绑定使之可以访问shareMemory里的内容
-//    {
-//        std::cerr<<("can't attach share memory");
-//        std::cerr<<commandStringMemory.errorString().toStdString();
-//        return  ;
-//    }
-    commandStringMemory.lock();//给shareMemory枷锁
-    const char *from = (char*)commandStringMemory.data();
-    char *to = (char*)&commandStringData;
-    memcpy(to,from,sizeof(unsigned long));//数据从该进程中拷贝到共享数据内存中
-    from+=sizeof (unsigned int);
-    to+=sizeof (unsigned int);
-    memcpy(to,from,commandStringData.length+1);//数据从该进程中拷贝到共享数据内存中
-    ((CommandString*)commandStringMemory.data())->length=0;
-     ((CommandString*)commandStringMemory.data())->str[0]=0;
-    commandStringMemory.unlock();
-//    commandStringMemory.detach();//将shareMemeory与该进程分离
+    //    if(!commandStringMemory.attach(QSharedMemory::ReadWrite))//将shareMemory与该进程绑定使之可以访问shareMemory里的内容
+    //    {
+    //        std::cerr<<("can't attach share memory");
+    //        std::cerr<<commandStringMemory.errorString().toStdString();
+    //        return  ;
+    //    }
+    // commandStringMemory.lock();//给shareMemory枷锁
+    // const char *from = (char*)commandStringMemory.data();
+    // char *to = (char*)&commandStringData;
+    // memcpy(to,from,sizeof(unsigned long));//数据从该进程中拷贝到共享数据内存中
+    // from+=sizeof (unsigned int);
+    // to+=sizeof (unsigned int);
+    // memcpy(to,from,commandStringData.length+1);//数据从该进程中拷贝到共享数据内存中
+    // ((CommandString*)commandStringMemory.data())->length=0;
+    //  ((CommandString*)commandStringMemory.data())->str[0]=0;
+    // commandStringData.unlock();
+    //    commandStringMemory.detach();//将shareMemeory与该进程分离
     //执行
-    if(commandStringData.length>=1)
-    {
-          py::exec(to);
+
+    std::lock_guard<std::mutex> lock(mtx_cmds);
+    for (auto &cmd:cmds) {
+        py::exec(cmd);
     }
+    cmds.clear();
 
 }
 
@@ -1554,7 +1590,7 @@ void tcGame::ProcessTextCommand(tsCommandInfo cmd_info)
     std::string s = cmd_info.mzString;
 
     std::map<std::string, commandFunctionPtr>::iterator iter =
-            textCommands.find(s);
+        textCommands.find(s);
 
     if (iter != textCommands.end())
     {
@@ -1665,6 +1701,12 @@ void tcGame::ProcessTextCommand(tsCommandInfo cmd_info)
     }
 #endif
 
+}
+
+void tcGame::AddCommand(const std::string &cmd)
+{
+    std::lock_guard<std::mutex> lock(mtx_cmds);
+    this->cmds.push_back(cmd);
 }
 
 
@@ -1845,8 +1887,8 @@ void tcGame::ValidateHooked()
 */
 tcGame::tcGame()
     :
-      messageCenter(0),
-      enableClientSync(true)
+    messageCenter(0),
+    enableClientSync(true)
 {
 
 
@@ -1885,26 +1927,26 @@ tcGame::tcGame()
     meEditControlState = ECS_NONE;
     mbSwitchToPlay = false;
     gameTime = 0;
-//    nLastCount = 0;
+    //    nLastCount = 0;
     multiplayerMode = 0; // single-player default
 
     togglePopup = false;
 
     std::cout << "Game constructor success" << std::endl;
 
-    sharedSimDataMemory.setKey("SharedSimData");
-    if(sharedSimDataMemory.isAttached())
-    {
-        sharedSimDataMemory.detach();//将该进程与共享内存段分离
-    }
-    sharedSimDataMemory.create(sizeof (SharedSimData), QSharedMemory::ReadWrite);
+    // sharedSimDataMemory.setKey("SharedSimData");
+    // if(sharedSimDataMemory.isAttached())
+    // {
+    //     sharedSimDataMemory.detach();//将该进程与共享内存段分离
+    // }
+    // sharedSimDataMemory.create(sizeof (SharedSimData), QSharedMemory::ReadWrite);
 
-    commandStringMemory.setKey("CommandString");//设置标志一定要与共享内存的标志一样
-    if(commandStringMemory.isAttached())
-    {
-        commandStringMemory.detach();//将该进程与共享内存段分离
-    }
-    commandStringMemory.create(sizeof (CommandString), QSharedMemory::ReadWrite);
+    // commandStringMemory.setKey("CommandString");//设置标志一定要与共享内存的标志一样
+    // if(commandStringMemory.isAttached())
+    // {
+    //     commandStringMemory.detach();//将该进程与共享内存段分离
+    // }
+    // commandStringMemory.create(sizeof (CommandString), QSharedMemory::ReadWrite);
 }
 
 /**
@@ -1918,8 +1960,13 @@ tcGame::~tcGame()
     Finish();
 }
 
-void tcGame::UpdateSharedSimData()
+void tcGame::UpdateOutSimData()
 {
+    nlohmann::json outsimdatejson;
+
+    outsimdatejson["mfSimTime"]=simState->GetTime();
+    outsimdatejson["dateTime"]=simState->GetDateTime().GetTimeT();
+    nlohmann::json unitinfosJson;
     tcGameObject *obj;
     long cmappos = simState->maPlatformState.GetStartPosition();
     int nSize = simState->maPlatformState.GetCount();
@@ -1927,36 +1974,44 @@ void tcGame::UpdateSharedSimData()
 
     // needs to be re-written to use the toLaunch queue
     //时间
-    sharedSimData.simTime.mfSimTime=simState->GetTime();
-    sharedSimData.simTime.dateTime=simState->GetDateTime().GetTimeT();
+    // sharedSimData.simTime.mfSimTime=simState->GetTime();
+    // sharedSimData.simTime.dateTime=simState->GetDateTime().GetTimeT();
     //遍历对象更新
-    sharedSimData.count=nSize;
+    // sharedSimData.count=nSize;
     for (int i=0;i<nSize;i++)
     {
+        nlohmann::json unitinfo;
         simState->maPlatformState.GetNextAssoc(cmappos,nKey,obj);
-        sharedSimData.unitInfos[i].mnID=obj->mnID;
-        sharedSimData.unitInfos[i].mnModelType=obj->mnModelType;
-        strcpy(sharedSimData.unitInfos[i].mzUnit,obj->GetName());
-        strcpy(sharedSimData.unitInfos[i].mzClass,obj->mzClass.c_str());
-        sharedSimData.unitInfos[i].alliance=obj->GetAlliance();
-        sharedSimData.unitInfos[i] .mfLon_rad=obj->mcKin.mfLon_rad;              ///< longitude [rad]
-        sharedSimData.unitInfos[i].mfLat_rad=obj->mcKin.mfLat_rad;              ///< latitude [rad]
-        sharedSimData.unitInfos[i]. mfAlt_m=obj->mcKin.mfAlt_m;                 ///< altitude, negative is subsurface depth [m]
-        sharedSimData.unitInfos[i]. mfHeading_rad=obj->mcKin.mfHeading_rad;           ///< relative to north [rad]
-        sharedSimData.unitInfos[i]. mfClimbAngle_rad=obj->mcKin.mfClimbAngle_rad;        ///< climb angle defines vertical motion vector [rad]
-        sharedSimData.unitInfos[i]. mfYaw_rad=obj->mcKin.mfYaw_rad;               ///< orientation in azimuthal plane
-        sharedSimData.unitInfos[i]. mfPitch_rad=obj->mcKin.mfPitch_rad;             ///< orientation in elevation plane
-        sharedSimData.unitInfos[i]. mfRoll_rad=obj->mcKin.mfRoll_rad;			   ///< orienation about roll axis
-        sharedSimData.unitInfos[i]. mfSpeed_kts=obj->mcKin.mfSpeed_kts;             ///< [kts]
+        unitinfo["mnID"]=obj->mnID;
+        unitinfo["mnModelType"]=obj->mnModelType;
+        unitinfo["mzUnit"]=obj->GetName();
+        unitinfo["mzClass"]=obj->mzClass.c_str();
+        unitinfo["alliance"]=obj->GetAlliance();
+        unitinfo["mfLon_rad"]=obj->mcKin.mfLon_rad;              ///< longitude [rad]
+        unitinfo["mfLat_rad"]=obj->mcKin.mfLat_rad;              ///< latitude [rad]
+        unitinfo["mfAlt_m"]=obj->mcKin.mfAlt_m;                 ///< altitude, negative is subsurface depth [m]
+        unitinfo["mfHeading_rad"]=obj->mcKin.mfHeading_rad;           ///< relative to north [rad]
+        unitinfo["mfClimbAngle_rad"]=obj->mcKin.mfClimbAngle_rad;        ///< climb angle defines vertical motion vector [rad]
+        unitinfo["mfYaw_rad"]=obj->mcKin.mfYaw_rad;               ///< orientation in azimuthal plane
+        unitinfo["mfPitch_rad"]=obj->mcKin.mfPitch_rad;             ///< orientation in elevation plane
+        unitinfo["mfRoll_rad"]=obj->mcKin.mfRoll_rad;			   ///< orienation about roll axis
+        unitinfo["mfSpeed_kts"]=obj->mcKin.mfSpeed_kts;             ///< [kts]
         assert((obj->mcKin.mfLon_rad >= -C_PI) && (obj->mcKin.mfLon_rad < C_PI));
         assert((obj->mcKin.mfLat_rad >= -C_PIOVER2) && (obj->mcKin.mfLat_rad <= C_PIOVER2));
+        unitinfosJson.push_back(unitinfo);
+    }
+    outsimdatejson["unitinfo"]=unitinfosJson;
+    {
+        std::lock_guard<std::mutex> lock(mtx_outsimdata);
+        outsimdata=outsimdatejson.dump();
     }
 
 
-    sharedSimDataMemory.lock();
-    char *to = (char*)sharedSimDataMemory.data();
-    const char *from = (char*)&sharedSimData;
-    memcpy(to,from, sizeof(sharedSimData.count)+sharedSimData.count*sizeof(UnitInfo));//数据从该进程中拷贝到共享数据内存中
-    sharedSimDataMemory.unlock();//共享内层解锁
+
+    // sharedSimDataMemory.lock();
+    // char *to = (char*)sharedSimDataMemory.data();
+    // const char *from = (char*)&sharedSimData;
+    // memcpy(to,from, sizeof(sharedSimData.count)+sharedSimData.count*sizeof(UnitInfo));//数据从该进程中拷贝到共享数据内存中
+    // sharedSimDataMemory.unlock();//共享内层解锁
 
 }

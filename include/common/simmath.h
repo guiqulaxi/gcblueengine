@@ -42,7 +42,7 @@
 #include "tcRect.h"
 #include "tcString.h"
 #include "gctypes.h"
-#include "tcDatabaseObject.h"
+// #include "tcDatabaseObject.h"
 #include "tcTrack.h"
 #include <Dense>
 using Eigen::Vector3d;
@@ -54,7 +54,7 @@ typedef unsigned char UINT8;
 class tcStream;
 class tcGameStream;
 class tcUpdateStream;
-class tcGameObject;
+// class tcGameObject;
 
 class tcPoint 
 {
@@ -170,7 +170,7 @@ public:
     float RangeToKmAlt(const tcKinematics& k) const;
     float RangeToKmAlt(const tcTrack& track) const;
     float RangeToKmAlt(float lon_rad, float lat_rad, float alt_m) const;
-    float RangeToKmAlt(const tcGameObject* obj) const;
+    // float RangeToKmAlt(const tcGameObject* obj) const;
 
     //float InterceptHeadingToTrack(tcTrack& track, float& afTimeToIntercept);
     void GetInterceptData2D(const tcTrack& track, float& rfHeading_rad, 

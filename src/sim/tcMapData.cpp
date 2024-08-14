@@ -1451,122 +1451,196 @@ WTL("tcMapData::CreateDefaultTile - success");
 
 }
 */
+void tcMapData::CreateMapImage(int anMode, int anMapID, UINT32 * apData)
+{
+        size_t m,n,M,N;
+        long pval;
 
+        if (anMapID==0)
+        {
+            M = M_LOWRES;
+            N = N_LOWRES;
+        }
+        else
+        {
+            M = M_HIGHRES;
+            N = N_HIGHRES;
+        }
+
+       bool arrayAllocated = ((anMapID == 0)&&(maGlobal != 0)) || ((anMapID == 1)&&(maTheater != 0));
+
+
+        UINT32 (tcMapData::*MapOperator)(long) const = 0;
+        switch (anMode)
+        {
+        case 0: MapOperator = &tcMapData::CopperBlueMap; break;
+        case 1: MapOperator = &tcMapData::YellowBlueMap; break;
+        case 2: MapOperator = &tcMapData::BlackBlueMap; break;
+        default:
+            assert(false);
+            fprintf(stderr, "tcMapData::CreateMapImage -- bad mode (%d)\n", anMode);
+            return;
+        }
+
+
+
+        // create map image using map data
+
+
+       size_t pixel_idx = 0;
+        if (anMapID == 0) // global map
+        {
+            for(m=0; m<M; m++)
+            {
+                for(n=0; n<N; n++)
+                {
+                    pval = maGlobal[pixel_idx];
+                    apData[(M-1-m)*N + n]=pval;
+                   pixel_idx++;
+                }
+            }
+        }
+        else // theater map
+        {
+            for(m=0; m<M; m++)
+            {
+                for(n=0; n<N; n++)
+                {
+                    pval = maGlobal[pixel_idx];
+                    apData[(M-1-m)*N + n]=pval;
+                    pixel_idx++;
+                }
+            }
+        }
+
+        // for low res map, darken the unavailable tiles
+        if (anMapID == 0)
+        {
+             //DarkenLowResUnavailable(image);
+
+        }
+
+        //LabelLowRes(); // TODO: add country and geopol labels
+
+       // image->Unlock();
+
+        fprintf(stdout, "tcMapData - CreateMapImage - success\n");
+}
 /**
 * assumes apData is M_HIGHRES x N_HIGHRES UINT32 array
 * Why is this used instead of CreateMapImage?
 * @see tcMapData::CreateMapImage
 */
-//void tcMapData::CreateHighResMapImage(int anMode, UINT32 *apData) {
-//	size_t m,n,M,N;
-//	long pval;
-//	UINT32 nAlphaOffset = 0xFF000000;
+void tcMapData::CreateHighResMapImage(int anMode, UINT32 *apData) {
+    size_t m,n,M,N;
+    long pval;
+    UINT32 nAlphaOffset = 0xFF000000;
 
-//	M = M_HIGHRES;
-//	N = N_HIGHRES;
+    M = M_HIGHRES;
+    N = N_HIGHRES;
 
-//	if (apData == NULL) {return;}
+    if (apData == NULL) {return;}
 
-//    size_t pixel_idx = 0;
+    size_t pixel_idx = 0;
 
-//	// create map image using map data
-//	switch (anMode)
-//	{
-//	case 0:
-//		for(m=0;m<M;m++)
-//		{
-//			for(n=0;n<N;n++)
-//			{
-//				pval = maTheater[pixel_idx];
-//				if (pval <= 0)
-//				{
-//					if (pval == MISSING_DATA_VAL)
-//					{
-//						pval = 0x000000;
-//					}
-//					else
-//					{
-//						pval = 0x700000;
-//					}
-//				}
-//				else
-//				{
-//					pval = pval/20;
-//					if (pval > 115)
-//					{
-//						pval = 115;
-//					}
-//					pval = 0x010102*pval + 0x252515;
-//				}
-//				apData[(M-1-m)*N + n] = pval + nAlphaOffset;
+    // create map image using map data
+    switch (anMode)
+    {
+    case 0:
+        for(m=0;m<M;m++)
+        {
+            for(n=0;n<N;n++)
+            {
+                pval = maTheater[pixel_idx];
+                if (pval <= 0)
+                {
+                    if (pval == MISSING_DATA_VAL)
+                    {
+                        pval = 0x000000;
+                    }
+                    else
+                    {
+                        pval = 0x700000;
+                    }
+                }
+                else
+                {
+                    pval = pval/20;
+                    if (pval > 115)
+                    {
+                        pval = 115;
+                    }
+                    pval = 0x010102*pval + 0x252515;
+                }
+                apData[(M-1-m)*N + n] = pval + nAlphaOffset;
 
-//                pixel_idx++;
-//			}
-//		}
-//		break;
-//	case 1:
-//		int nPaletteIndex;
-//		for(m=0;m<M;m++)
-//		{
-//			for(n=0;n<N;n++)
-//			{
-//				pval = maTheater[pixel_idx];
-//				nPaletteIndex = (pval/10) + 100;
-//				if (nPaletteIndex > 1023) {nPaletteIndex = 1023;}
-//				if (nPaletteIndex < 0) {nPaletteIndex = 0;}
-//				if (pval == MISSING_DATA_VAL)
-//				{
-//					apData[(M-1-m)*N + n] = 0x00000000 + nAlphaOffset;
-//				}
-//				else
-//				{
-//					pval = maPalette1[nPaletteIndex];
-//					apData[(M-1-m)*N + n] = pval + nAlphaOffset;
-//				}
-//                pixel_idx++;
-//			}
-//		}
-//		break;
-//	case 2:
-//		for(m=0;m<M;m++)
-//		{
-//			for(n=0;n<N;n++)
-//			{
-//				pval = maTheater[pixel_idx];
-//				if (pval < 0)
-//				{
-//					if (pval == MISSING_DATA_VAL) // set missing data to red
-//					{
-//						apData[(M-1-m)*N + n] = 0x00000040 + nAlphaOffset;
-//					}
-//					else
-//					{
-//						apData[(M-1-m)*N + n] = 0x00BF2010 + nAlphaOffset;
-//					}
-//				}
-//				else
-//				{
-//					apData[(M-1-m)*N + n] = 0x00000000 + nAlphaOffset;
-//				}
-//                pixel_idx++;
-//			}
-//		}
-//		break;
-//	default:
-//		break;
-//	}
+                pixel_idx++;
+            }
+        }
+        break;
+    case 1:
+        int nPaletteIndex;
+        for(m=0;m<M;m++)
+        {
+            for(n=0;n<N;n++)
+            {
+                pval = maTheater[pixel_idx];
+                nPaletteIndex = (pval/10) + 100;
+                if (nPaletteIndex > 1023) {nPaletteIndex = 1023;}
+                if (nPaletteIndex < 0) {nPaletteIndex = 0;}
+                if (pval == MISSING_DATA_VAL)
+                {
+                    apData[(M-1-m)*N + n] = 0x00000000 + nAlphaOffset;
+                }
+                else
+                {
+                    pval = maPalette1[nPaletteIndex];
+                    apData[(M-1-m)*N + n] = pval + nAlphaOffset;
+                }
+                pixel_idx++;
+            }
+        }
+        break;
+    case 2:
+        for(m=0;m<M;m++)
+        {
+            for(n=0;n<N;n++)
+            {
+                pval = maTheater[pixel_idx];
+                if (pval < 0)
+                {
+                    if (pval == MISSING_DATA_VAL) // set missing data to red
+                    {
+                        apData[(M-1-m)*N + n] = 0x00000040 + nAlphaOffset;
+                    }
+                    else
+                    {
+                        apData[(M-1-m)*N + n] = 0x00BF2010 + nAlphaOffset;
+                    }
+                }
+                else
+                {
+                    apData[(M-1-m)*N + n] = 0x00000000 + nAlphaOffset;
+                }
+                pixel_idx++;
+            }
+        }
+        break;
+    default:
+        break;
+    }
 
-//	/*
-//	// draw longitude and latitude points for debug
-//	for(m=0;m<M;m+=(M/18)) {
-//	for(n=0;n<N;n+=(N/36)) {
-//	apWindow->SetPixel(n,m,pval + 0xFE00FF00);
-//	}
-//	}
-//	*/
+    /*
+    // draw longitude and latitude points for debug
+    for(m=0;m<M;m+=(M/18)) {
+    for(n=0;n<N;n+=(N/36)) {
+    apWindow->SetPixel(n,m,pval + 0xFE00FF00);
+    }
+    }
+    */
 
-//	WTL("tcMapData - CreateHighResMapImage - success");
-//}
+    WTL("tcMapData - CreateHighResMapImage - success");
+}
 
 /**
 * Uses the high res map to get the terrain height. This does

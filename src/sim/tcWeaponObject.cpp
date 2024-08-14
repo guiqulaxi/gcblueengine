@@ -556,7 +556,9 @@ void tcWeaponObject::UpdateDatalinkStatus()
 
     if (tcGameObject* source = simState->GetObject(launchingPlatform))
     {
-        float range_km = mcKin.RangeToKmAlt(source);
+        assert(source != 0);
+        float range_km = mcKin.RangeToKmAlt(source->mcKin);
+        // float range_km = mcKin.RangeToKmAlt(source);
 
         float radioHorizon_km = C_RADARHOR * (sqrtf(mcKin.mfAlt_m) + sqrtf(std::max(source->mcKin.mfAlt_m, source->GetZmax()-3.0f)));
 

@@ -31,7 +31,7 @@
 #include <string>
 #include <vector>
 #include "tinyxml2.h"
-using namespace tinyxml2;
+// using namespace tinyxml2;
 
 
 
@@ -200,9 +200,9 @@ public:
 
     static tcOptions* Get(); ///< accessor for singleton instance
 
-private:   
-    XMLDocument *optionsXml; ///< XML options file
-    XMLNode* rootNode; ///< root node for XML options file
+private:
+    tinyxml2::XMLDocument *optionsXml; ///< XML options file
+    tinyxml2::XMLNode* rootNode; ///< root node for XML options file
 
     int Init();
     void AddLightingOptions();

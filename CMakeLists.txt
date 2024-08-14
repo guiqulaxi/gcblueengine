@@ -8,7 +8,7 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(PYTHON_EXECUTABLE "C:/Users/93551/.conda/envs/test_pybind11/python.exe")
 set(PYTHON_INCLUDE_DIR "C:/Users/93551/.conda/envs/test_pybind11/include")
@@ -20,8 +20,9 @@ link_directories(${PYTHON_LIBRARY})
 find_package(Python REQUIRED)
 find_package(pybind11 REQUIRED)
 
-find_package(Qt5Core)
-find_package(Qt5Network)
+# find_package(Qt6Core)
+# find_package(Qt6Network)
+# find_package(Qt6Gui)
 
 include_directories(
     ${PROJECT_SOURCE_DIR}/include/ai
@@ -39,6 +40,8 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/3rd/pybind11/include
     ${PROJECT_SOURCE_DIR}/3rd/sqlite/include
     ${PROJECT_SOURCE_DIR}/3rd/date/include
+    ${PROJECT_SOURCE_DIR}/3rd/nlohmann/include
+    ${PROJECT_SOURCE_DIR}/3rd/httplib/include
     C:/ProgramData/anaconda3/include
 )
 
@@ -75,6 +78,7 @@ SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR})
 # 配置wxWidgets库地址，用于find_package
 #set(wxWidgets_ROOT_DIR ${PROJECT_SOURCE_DIR}/3rd/wxWidgets)
 #set(wxWidgets_LIB_DIR ${PROJECT_SOURCE_DIR}/3rd/wxWidgets/lib)
-target_link_libraries(gcblue  python3.lib python312.lib )
+target_link_libraries(gcblue  python3.lib python312.lib
+$<$<BOOL:${MINGW}>:ws2_32>)
 #target_link_libraries(gcblue  python3.lib python312.lib ${wxWidgets_LIBRARIES})
-target_link_libraries(gcblue Qt5::Core Qt5::Network)
+# target_link_libraries(gcblue Qt6::Core Qt6::Network Qt6::Gui)

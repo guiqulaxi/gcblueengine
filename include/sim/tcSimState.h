@@ -50,7 +50,7 @@
 #include "tcESMSensor.h"
 #include "tcRadar.h"
 #include "tcDateTime.h"
-#include <QSharedMemory>
+// #include <QSharedMemory>
 #ifndef SCENARIO_PATH
 #define SCENARIO_PATH "scenarios"
 #endif

@@ -167,7 +167,7 @@ public:
 
     bool ReadAARInfo(AARInfo& info, const std::string& fileName) const;
     bool ReadAAR(AARSummary& summary, const std::string& fileName) const;
-    bool ReadAARAllianceNode(unsigned int alliance, XMLElement* node, std::vector<DamageReport2>& damage, std::vector<EquipmentReport2>& equipment, std::vector<std::string>& goalStatus) const;
+    bool ReadAARAllianceNode(unsigned int alliance, tinyxml2::XMLElement* node, std::vector<DamageReport2>& damage, std::vector<EquipmentReport2>& equipment, std::vector<std::string>& goalStatus) const;
 
     tcUpdateStream& operator<<(tcUpdateStream& stream);
     tcUpdateStream& operator>>(tcUpdateStream& stream);

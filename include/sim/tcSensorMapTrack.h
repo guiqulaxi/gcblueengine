@@ -41,7 +41,7 @@
 class tcSimState;
 class tcUpdateStream;
 class tcGameStream;
-
+class tcGameObject;
 namespace database
 {
 	class tcDatabase;

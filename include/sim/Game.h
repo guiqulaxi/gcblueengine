@@ -38,9 +38,9 @@
 
 #include "wxcommands.h"
 #include "tcDateTime.h"
-#include <QSharedMemory>
-
-
+// #include <QSharedMemory>
+#include <atomic>
+#include <mutex>
 class tcCommandQueue;
 class tcHookInfo;
 //class tcOOBView;
@@ -172,6 +172,7 @@ public:
     void NewHook(long hookID);
     void ProcessCommandList();
     void ProcessTextCommand(tsCommandInfo cmd_info);
+    void AddCommand(const std::string& cmd);///< 添加命令
 
 	void SetScenarioEdit(bool state);
 
@@ -211,47 +212,52 @@ public:
     */
     void LoadScenario(const std::string& filePath, const std::string& caption, bool startInEditMode);
 
+    std::string GetOutSimData();
     tcGame();
     ~tcGame();
 private:
 
-    struct UnitInfo{
-        long mnID;
-        int alliance;
-        unsigned int  mnModelType;              ///< class MTYPE_ identifier
-        char mzUnit[128];
-        char mzClass[128];
-        double mfLon_rad;              ///< longitude [rad]
-        double mfLat_rad;              ///< latitude [rad]
-        float mfAlt_m;                 ///< altitude, negative is subsurface depth [m]
-        float mfHeading_rad;           ///< relative to north [rad]
-        float mfClimbAngle_rad;        ///< climb angle defines vertical motion vector [rad]
-        float mfYaw_rad;               ///< orientation in azimuthal plane
-        float mfPitch_rad;             ///< orientation in elevation plane
-        float mfRoll_rad;			   ///< orienation about roll axis
-        float mfSpeed_kts;             ///< [kts]
-    };
-    struct SimTime
-    {
-        double mfSimTime;
-        uint64_t dateTime;
-    };
-    struct SharedSimData
-    {
-        SimTime simTime;
-        unsigned long count;
-        UnitInfo unitInfos[N_GAME_OBJECTS];
-    };
-    struct CommandString
-    {
-        unsigned int length;
-        char str[MAX_COMMAND_STRING_LEN+1];
-    };
-    QSharedMemory sharedSimDataMemory;
-    SharedSimData sharedSimData;
+    // struct UnitInfo{
+    //     long mnID;
+    //     int alliance;
+    //     unsigned int  mnModelType;              ///< class MTYPE_ identifier
+    //     char mzUnit[128];
+    //     char mzClass[128];
+    //     double mfLon_rad;              ///< longitude [rad]
+    //     double mfLat_rad;              ///< latitude [rad]
+    //     float mfAlt_m;                 ///< altitude, negative is subsurface depth [m]
+    //     float mfHeading_rad;           ///< relative to north [rad]
+    //     float mfClimbAngle_rad;        ///< climb angle defines vertical motion vector [rad]
+    //     float mfYaw_rad;               ///< orientation in azimuthal plane
+    //     float mfPitch_rad;             ///< orientation in elevation plane
+    //     float mfRoll_rad;			   ///< orienation about roll axis
+    //     float mfSpeed_kts;             ///< [kts]
+    // };
+    // struct SimTime
+    // {
+    //     double mfSimTime;
+    //     uint64_t dateTime;
+    // };
+    // struct SharedSimData
+    // {
+    //     SimTime simTime;
+    //     unsigned long count;
+    //     UnitInfo unitInfos[N_GAME_OBJECTS];
+    // };
+    // struct CommandString
+    // {
+    //     unsigned int length;
+    //     char str[MAX_COMMAND_STRING_LEN+1];
+    // };
+    // QSharedMemory sharedSimDataMemory;
+    // SharedSimData sharedSimData;
 
-    QSharedMemory commandStringMemory;
-    CommandString  commandStringData;
-    void UpdateSharedSimData();
+    // QSharedMemory commandStringMemory;
+    // CommandString  commandStringData;
+    std::vector<std::string> cmds;//存储要执行的命令
+    std::mutex mtx_cmds;
+    std::string outsimdata;//存储仿真数据
+    std::mutex mtx_outsimdata;
+    void UpdateOutSimData();
 };
 #endif

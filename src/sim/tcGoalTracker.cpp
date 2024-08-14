@@ -47,8 +47,8 @@
 #include <tinyxml2.h>
 #ifdef _DEBUG
 #define new DEBUG_NEW
-#endif 
-using namespace tinyxml2;
+#endif
+// using namespace tinyxml2;
 /**
 * Singleton accessor
 */
@@ -1066,16 +1066,16 @@ bool tcGoalTracker::ReadAAR(AARSummary& summary, const std::string& fileName) co
     summary.equipmentSummary.clear();
     summary.playerGoalStatus.clear();
 
-    XMLDocument doc;
+    tinyxml2::XMLDocument doc;
     doc.LoadFile(fileName.c_str());
 if(doc.Error())return false;
 //    wxXmlDocument doc(fileName);
 //    if (!doc.IsOk()) return false;
-XMLElement  * root=doc.RootElement();
+tinyxml2::XMLElement  * root=doc.RootElement();
 
 //    wxXmlNode* root = doc.GetRoot();
     if (root == nullptr) return false;
-XMLElement* child=root->FirstChildElement();
+tinyxml2::XMLElement* child=root->FirstChildElement();
 //    wxXmlNode* child = root->GetChildren();
 
     while (child != nullptr)
@@ -1122,13 +1122,13 @@ XMLElement* child=root->FirstChildElement();
 
 bool tcGoalTracker::ReadAARAllianceNode(unsigned int alliance, XMLElement* node, std::vector<DamageReport2>& damage, std::vector<EquipmentReport2>& equipment, std::vector<std::string>& goalStatus) const
 {
-    XMLElement* child = node->FirstChildElement();
+    tinyxml2::XMLElement* child = node->FirstChildElement();
 
     while (child != 0)
     {
         if (child->Value() == std::string("damage_report"))
         {
-            XMLElement* child2 = child->FirstChildElement();
+            tinyxml2::XMLElement* child2 = child->FirstChildElement();
             while (child2 != 0)
             {
                 if (child2->Value() == std::string("damage"))
@@ -1167,7 +1167,7 @@ unsigned long landed=std::stoul(child2->Attribute("landed","0"));
         }
         else if (child->Value() == std::string("equipment_report"))
         {
-            XMLElement* child2 = child->FirstChildElement();
+            tinyxml2::XMLElement* child2 = child->FirstChildElement();
             while (child2 != 0)
             {
                 if (child2->Value() == std::string("equipment"))
@@ -1190,7 +1190,7 @@ unsigned long landed=std::stoul(child2->Attribute("landed","0"));
         }
         else if (child->Value() == std::string("goal_summary"))
         {
-            XMLElement* child2 = child->FirstChildElement();
+            tinyxml2::XMLElement* child2 = child->FirstChildElement();
             while (child2 != 0)
             {
                 if (child2->Value() == std::string("line"))
@@ -1212,15 +1212,15 @@ unsigned long landed=std::stoul(child2->Attribute("landed","0"));
 
 bool tcGoalTracker::ReadAARInfo(AARInfo& info, const std::string& fileName) const
 {
-    XMLDocument doc;
+    tinyxml2::XMLDocument doc;
     doc.LoadFile(fileName.c_str());
     if(doc.Error())return false;
 //    wxXmlDocument doc(fileName);
 //    if (!doc.IsOk()) return false;
 
-    XMLElement  * root=doc.RootElement();
+    tinyxml2::XMLElement  * root=doc.RootElement();
     if(root==nullptr) return false;
-XMLElement * child=root->FirstChildElement();
+tinyxml2::XMLElement * child=root->FirstChildElement();
 //    wxXmlNode* root = doc.GetRoot();
 //    if (root == 0) return false;
 
@@ -1285,9 +1285,9 @@ void tcGoalTracker::SetAllianceROE(int alliance, ROEStatus roeStatus)
 */
 void tcGoalTracker::WriteAAR(const std::string& fileName)
 {
-    XMLDocument  doc;
+    tinyxml2::XMLDocument  doc;
     doc.NewComment("AAR");
-    XMLElement *root = doc.NewElement("AAR");
+    tinyxml2::XMLElement *root = doc.NewElement("AAR");
     doc.LinkEndChild(root);
 //    wxXmlNode* root = new wxXmlNode(wxXML_ELEMENT_NODE, "AAR");
    
@@ -1317,7 +1317,7 @@ alliance_n->LinkEndChild(goalSummaryNode);
         GetAllianceGoalStatusDescription(allianceList[n], goalSummary);
         for (size_t line_idx=0; line_idx<goalSummary.size(); line_idx++)
         {
-            XMLElement * lineNode= doc.NewElement("line");
+            tinyxml2::XMLElement * lineNode= doc.NewElement("line");
             goalSummaryNode->LinkEndChild(lineNode);
             lineNode->SetValue(goalSummary[goalSummary.size()-line_idx-1].c_str());
 //            wxXmlNode* lineNode = new wxXmlNode(goalSummaryNode, wxXML_ELEMENT_NODE, "line");
@@ -1326,7 +1326,7 @@ alliance_n->LinkEndChild(goalSummaryNode);
         }
 
         // write damage report
-        XMLElement * damage_report= doc.NewElement("damage_report");
+        tinyxml2::XMLElement * damage_report= doc.NewElement("damage_report");
         alliance_n->LinkEndChild(damage_report);
 //        wxXmlNode* damage_report = new wxXmlNode(alliance_n, wxXML_ELEMENT_NODE, "damage_report");
 
@@ -1335,7 +1335,7 @@ alliance_n->LinkEndChild(goalSummaryNode);
 
         for (size_t k=0; k<damageSummary.size(); k++)
         {
-            XMLElement * nodek= doc.NewElement("damage_report");
+            tinyxml2::XMLElement * nodek= doc.NewElement("damage_report");
             damage_report->LinkEndChild(nodek);
             nodek->SetAttribute("unit", std::string(damageSummary[k].unitName.c_str()).c_str());
             nodek->SetAttribute("db", std::string(damageSummary[k].databaseClass.c_str()).c_str());
@@ -1370,7 +1370,7 @@ alliance_n->LinkEndChild(goalSummaryNode);
         
         for (size_t k=0; k<equipmentSummary.size(); k++)
         {
-            XMLElement * nodek= doc.NewElement("equipment");
+            tinyxml2::XMLElement * nodek= doc.NewElement("equipment");
             equipment_report->LinkEndChild(nodek);
 nodek->SetAttribute("db", equipmentSummary[k].databaseClass.c_str());
 nodek->SetAttribute("quantity", strutil::format("%d", equipmentSummary[k].quantity).c_str());
@@ -1386,7 +1386,7 @@ nodek->SetAttribute("quantity", strutil::format("%d", equipmentSummary[k].quanti
     // add general scenario information
     tcSimState* simState = tcSimState::Get();
     tcUserInfo* userInfo = tcUserInfo::Get();
-    XMLElement * scenario= doc.NewElement("scenario");
+    tinyxml2::XMLElement * scenario= doc.NewElement("scenario");
     root->LinkEndChild(scenario);
     scenario->SetAttribute("name", simState->GetScenarioName());
     scenario->SetAttribute("player_alliance", strutil::format("%d", userInfo->GetOwnAlliance()).c_str());

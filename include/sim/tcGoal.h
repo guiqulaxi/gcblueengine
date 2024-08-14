@@ -37,6 +37,7 @@
 
 class tcSimState;
 class tcGameStream;
+class tcGameObject;
 //class tcMapOverlay;
 
 //namespace boost

@@ -394,7 +394,9 @@ void tcRadar::CounterMeasureTest(double t)
 
     
     float targetRangeRate_mps = parent->mcKin.CalculateRangeRate(target->mcKin);
-    float targetRange_km = parent->mcKin.RangeToKmAlt(target);
+    assert(target != 0);
+    float targetRange_km = parent->mcKin.RangeToKmAlt(target->mcKin);
+    // float targetRange_km = parent->mcKin.RangeToKmAlt(target);
 
     float targetHeight_m = 0; // equivalent height of target for radar horizon
     float fTargetAz_rad = 0;

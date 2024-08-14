@@ -34,6 +34,7 @@
 #include "math_constants.h"
 #include <cmath>
 #include <cassert>
+#include <cstdio>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif

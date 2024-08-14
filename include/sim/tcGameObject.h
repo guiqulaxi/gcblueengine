@@ -40,6 +40,7 @@
 #include "tcControllableObject.h"
 #include "tcAABBBoundingBox.h"
 #include "tcOBBBoundingBox.h"
+#include "tcDatabaseObject.h"
 ////#include "tv_types.h"
 #include <Dense>
 using Eigen::Vector3d;

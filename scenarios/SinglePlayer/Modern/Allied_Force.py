@@ -6757,14 +6757,14 @@ def CreateScenario(SM):
     ##############################
     ### Overlay Graphics
     ##############################
-    SM.OverlayText('Novi Sod', 19.4550, 45.1534, '0x000000FF')
-    SM.OverlayText('Prishtina', 21.1280, 42.4177, '0x000000FF')
-    SM.OverlayText('Zagreb', 15.5848, 45.4828, '0x000000FF')
-    SM.OverlayText('Belgrade', 20.2835, 44.4977, '0x000000FF')
-    SM.OverlayText('Budva', 19.0177, 42.1442, '0x000000FF')
-    SM.OverlayText('Hercog Novi', 18.6231, 42.4416, '0x000000FF')
-    SM.OverlayText('Banja Luka', 17.1083, 44.4486, '0x000000FF')
-    SM.OverlayText('Neum', 17.4467, 43.0369, '0x000000FF')
+    # SM.OverlayText('Novi Sod', 19.4550, 45.1534, '0x000000FF')
+    # SM.OverlayText('Prishtina', 21.1280, 42.4177, '0x000000FF')
+    # SM.OverlayText('Zagreb', 15.5848, 45.4828, '0x000000FF')
+    # SM.OverlayText('Belgrade', 20.2835, 44.4977, '0x000000FF')
+    # SM.OverlayText('Budva', 19.0177, 42.1442, '0x000000FF')
+    # SM.OverlayText('Hercog Novi', 18.6231, 42.4416, '0x000000FF')
+    # SM.OverlayText('Banja Luka', 17.1083, 44.4486, '0x000000FF')
+    # SM.OverlayText('Neum', 17.4467, 43.0369, '0x000000FF')
     ##############################
     ### Randomization Info
     ##############################

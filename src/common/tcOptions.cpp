@@ -1231,13 +1231,13 @@ void tcOptions::AddOption(OptionInfo& oi)
 */
 const char* tcOptions::GetOptionString(const char* optionName)
 {
-    XMLNode* node = rootNode->FirstChildElement(optionName);
+    tinyxml2::XMLNode* node = rootNode->FirstChildElement(optionName);
     if (!node)
     {
         node = rootNode->InsertEndChild(optionsXml->NewElement(optionName));
     }
 
-    XMLNode* child = node->FirstChild();
+    tinyxml2::XMLNode* child = node->FirstChild();
     if (!child)
     {
         child = node->InsertEndChild(optionsXml->NewText("default"));
@@ -1251,7 +1251,7 @@ const char* tcOptions::GetOptionString(const char* optionName)
 */
 bool tcOptions::OptionStringExists(const char* optionName) const
 {
-    XMLElement* node = rootNode->FirstChildElement(optionName);
+    tinyxml2::XMLElement* node = rootNode->FirstChildElement(optionName);
 
     return (node != 0);
 }
@@ -1261,13 +1261,13 @@ bool tcOptions::OptionStringExists(const char* optionName) const
 */
 void tcOptions::SetOptionString(const char* optionName, const char* optionValue)
 {
-    XMLNode* node = rootNode->FirstChildElement(optionName);
+    tinyxml2::XMLNode* node = rootNode->FirstChildElement(optionName);
     if (!node)
     {
         node = rootNode->InsertEndChild(optionsXml->NewElement(optionName));
     }
 
-    XMLNode* child = node->FirstChildElement();
+    tinyxml2::XMLNode* child = node->FirstChildElement();
     if (child)
     {
         child->SetValue(optionValue);
@@ -1295,9 +1295,9 @@ void tcOptions::Serialize(int abRead)
         for (size_t k=0; k<maOptionInfo.size(); k++)
         {
             const char* xmlTag = maOptionInfo[k].xmlTag.c_str();
-            if (XMLNode* node = rootNode->FirstChildElement(xmlTag))
+            if (tinyxml2::XMLNode* node = rootNode->FirstChildElement(xmlTag))
             {
-                if (XMLElement* elt = node->ToElement())
+                if (tinyxml2::XMLElement* elt = node->ToElement())
                 {
                     if (maOptionInfo[k].meType != OptionInfo::OT_SLIDER)
                     {
@@ -1323,7 +1323,7 @@ void tcOptions::Serialize(int abRead)
             else
             {
                 node = rootNode->InsertEndChild(optionsXml->NewElement(xmlTag));
-                if (XMLElement* elt = node->ToElement())
+                if (tinyxml2::XMLElement* elt = node->ToElement())
                 {
                     if (maOptionInfo[k].meType != OptionInfo::OT_SLIDER)
                     {
@@ -1344,8 +1344,8 @@ void tcOptions::Serialize(int abRead)
         // write options to XML
         for (size_t k=0; k<maOptionInfo.size(); k++)
         {
-            XMLNode* node = rootNode->FirstChildElement(maOptionInfo[k].xmlTag.c_str());
-            if (XMLElement* elt = node->ToElement())
+            tinyxml2::XMLNode* node = rootNode->FirstChildElement(maOptionInfo[k].xmlTag.c_str());
+            if (tinyxml2::XMLElement* elt = node->ToElement())
             {
                 if (maOptionInfo[k].meType != OptionInfo::OT_SLIDER)
                 {
@@ -1400,8 +1400,8 @@ void tcOptions::Synchronize()
 */
 tcOptions::tcOptions() 
 {
-    optionsXml = new XMLDocument;
-    if (XMLError::XML_SUCCESS!=optionsXml->LoadFile("xml/options.xml"))
+    optionsXml = new tinyxml2::XMLDocument;
+    if (tinyxml2::XMLError::XML_SUCCESS!=optionsXml->LoadFile("xml/options.xml"))
     {
         std::cout << "Created empty XML options file " << std::endl;
         optionsXml->SaveFile("xml/options.xml");

@@ -36,7 +36,7 @@ class tcGameStream;
 //class tcWorldMapView;
 //class wxXmlDocument;
 #include "tinyxml2.h"
-using namespace tinyxml2;
+// using namespace tinyxml2;
 class tcGameSerializer
 {
 public:
@@ -45,7 +45,7 @@ public:
     void SaveToBinary(const char* fileName);
 
 //    void SaveToXml(wxXmlDocument& doc);
-     void SaveToXml(XMLDocument& doc);
+    void SaveToXml(tinyxml2::XMLDocument& doc);
 
 //    static void AttachMapViews(tcTacticalMapView* tactical, tcWorldMapView* world);
 
