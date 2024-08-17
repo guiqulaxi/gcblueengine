@@ -104,10 +104,16 @@ namespace database
 
 			s.Format("Class%d", i+1);
             std::string item =  entry.GetString(s.GetBuffer());
-
-            // 25 JUL 2009, modified this to allow semicolon delimited list of items
-            std::string itemsToParse(item.c_str());
-            compatibleItems=strutil::split(itemsToParse,';');
+            if(item!="")
+            {
+                // 25 JUL 2009, modified this to allow semicolon delimited list of items
+                std::string itemsToParse(item.c_str());
+                auto items=strutil::split(itemsToParse,';');
+                for(auto s:items)
+                {
+                    compatibleItems.push_back(s);
+                }
+            }
 
 //            while (!itemsToParse.IsEmpty())
 //            {

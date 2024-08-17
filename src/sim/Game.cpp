@@ -449,30 +449,30 @@ void tcGame::Init()
         tcGameObject::SetGameObjectMapData(mapData);
         tcPlatformObject::InitPlatformObject();
 
-// ///////////////////////////////////////////////////////
-// #define K_DEC_LOWRES (int)30
-// #define SCALE_LOWRES (float)120/(float)K_DEC_LOWRES
-// #define SCALE_HIGHRES (float)120.0f
-// #define SCALE_LOOKUP (float)0.5f
-// #define RESLOW_DEG (float)K_DEC_LOWRES/120.0f
-// #define RESHIGH_DEG (float)1.0f/120.0f
-// #define M_LOWRES (int)180*120/K_DEC_LOWRES // latitude cells for low res global map
-// #define N_LOWRES (int)360*120/K_DEC_LOWRES // longitude
-//         size_t  M_HIGHRES =M_LOWRES;
-//         size_t  N_HIGHRES=N_LOWRES;
-//         UINT32 *apData =new UINT32[M_HIGHRES*N_HIGHRES];
-//         mapData->CreateMapArrayHighRes();
-//         mapData->CreateMapImage(0,0,apData);
-//         QImage image(M_HIGHRES,N_HIGHRES,QImage::Format_ARGB32);
-//         for(int m=0;m<M_HIGHRES;m++)
-//         {
-//             for(int n=0;n<M_HIGHRES;n++)
-//             {
-//                 image.setPixel(m,n,apData[(M_HIGHRES-1-m)*N_HIGHRES + n]);
-//             }
-//         }
-//         // QImage image((uchar *)apData, M_HIGHRES, N_HIGHRES, QImage::Format_ARGB32);
-//         image.save("D:/1.png");
+        // ///////////////////////////////////////////////////////
+        // #define K_DEC_LOWRES (int)30
+        // #define SCALE_LOWRES (float)120/(float)K_DEC_LOWRES
+        // #define SCALE_HIGHRES (float)120.0f
+        // #define SCALE_LOOKUP (float)0.5f
+        // #define RESLOW_DEG (float)K_DEC_LOWRES/120.0f
+        // #define RESHIGH_DEG (float)1.0f/120.0f
+        // #define M_LOWRES (int)180*120/K_DEC_LOWRES // latitude cells for low res global map
+        // #define N_LOWRES (int)360*120/K_DEC_LOWRES // longitude
+        //         size_t  M_HIGHRES =M_LOWRES;
+        //         size_t  N_HIGHRES=N_LOWRES;
+        //         UINT32 *apData =new UINT32[M_HIGHRES*N_HIGHRES];
+        //         mapData->CreateMapArrayHighRes();
+        //         mapData->CreateMapImage(0,0,apData);
+        //         QImage image(M_HIGHRES,N_HIGHRES,QImage::Format_ARGB32);
+        //         for(int m=0;m<M_HIGHRES;m++)
+        //         {
+        //             for(int n=0;n<M_HIGHRES;n++)
+        //             {
+        //                 image.setPixel(m,n,apData[(M_HIGHRES-1-m)*N_HIGHRES + n]);
+        //             }
+        //         }
+        //         // QImage image((uchar *)apData, M_HIGHRES, N_HIGHRES, QImage::Format_ARGB32);
+        //         image.save("D:/1.png");
         InitSim();
     }
     catch(std::string s)
@@ -1983,7 +1983,7 @@ void tcGame::UpdateOutSimData()
         nlohmann::json unitinfo;
         simState->maPlatformState.GetNextAssoc(cmappos,nKey,obj);
         unitinfo["mnID"]=obj->mnID;
-        unitinfo["mnModelType"]=obj->mnModelType;
+        unitinfo["mnModelType"]=mnModelType2String(obj->mnModelType);
         unitinfo["mzUnit"]=obj->GetName();
         unitinfo["mzClass"]=obj->mzClass.c_str();
         unitinfo["alliance"]=obj->GetAlliance();
@@ -2000,7 +2000,7 @@ void tcGame::UpdateOutSimData()
         assert((obj->mcKin.mfLat_rad >= -C_PIOVER2) && (obj->mcKin.mfLat_rad <= C_PIOVER2));
         unitinfosJson.push_back(unitinfo);
     }
-    outsimdatejson["unitinfo"]=unitinfosJson;
+    outsimdatejson["unitInfo"]=unitinfosJson;
     {
         std::lock_guard<std::mutex> lock(mtx_outsimdata);
         outsimdata=outsimdatejson.dump();
@@ -2013,5 +2013,87 @@ void tcGame::UpdateOutSimData()
     // const char *from = (char*)&sharedSimData;
     // memcpy(to,from, sizeof(sharedSimData.count)+sharedSimData.count*sizeof(UnitInfo));//数据从该进程中拷贝到共享数据内存中
     // sharedSimDataMemory.unlock();//共享内层解锁
+
+}
+
+string tcGame::mnModelType2String(int mnModelType)
+{
+    std::string str="OBJECT";
+    switch (mnModelType) {
+
+    case MTYPE_OBJECT:
+        str="MTYPE_OBJECT";
+        break;
+    case MTYPE_SURFACE:
+        str="MTYPE_SURFACE";
+        break;
+    case MTYPE_CARRIER:
+        str="MTYPE_CARRIER";
+        break;
+    case MTYPE_AIR :
+        str="MTYPE_AIR";
+        break;
+    case MTYPE_FIXEDWING:
+        str="MTYPE_FIXEDWING";
+        break;
+    case MTYPE_MISSILE:
+        str="MTYPE_MISSILE";
+        break;
+    case MTYPE_HELO:
+        str="MTYPE_HELO";
+        break;
+    case MTYPE_SUBSURFACE:
+        str="MTYPE_SUBSURFACE";
+        break;
+    case MTYPE_SUBMARINE:
+        str="MTYPE_SUBMARINE";
+        break;
+    case MTYPE_TORPEDO :
+        str="MTYPE_TORPEDO";
+        break;
+    case MTYPE_FIXED :
+        str="MTYPE_FIXED";
+        break;
+    case MTYPE_PLATFORM :
+        str="MTYPE_PLATFORM";
+        break;
+    case MTYPE_FIXEDWINGX :
+        str="MTYPE_FIXEDWINGX";
+        break; // model with more realism
+    case MTYPE_AIRFIELD :
+        str="MTYPE_AIRFIELD";
+        break;
+    case MTYPE_BALLISTIC :
+        str="MTYPE_BALLISTIC";
+        break;
+    case MTYPE_SONOBUOY :
+        str="MTYPE_SONOBUOY";
+        break;
+    case MTYPE_AIRCM :
+        str="MTYPE_AIRCM";
+        break;// air countermeasure model
+    case MTYPE_GROUNDVEHICLE :
+        str="MTYPE_GROUNDVEHICLE";
+        break;// e.g. ground mobile SAM
+    case MTYPE_FUELTANK :
+        str="MTYPE_FUELTANK";
+        break;
+    case MTYPE_LASERGUIDEDBOMB:
+        str="LASERGUIDEDBOMB";
+        break;
+    case MTYPE_WATERCM:
+        str="MTYPE_WATERCM";
+        break; // water countermeasure model
+    case MTYPE_BALLISTICMISSILE :
+        str="BALLISTICMISSILE";
+        break;
+    case MTYPE_ROCKET :
+        str="MTYPE_ROCKET";
+        break;
+    default:
+        str="MTYPE_OBJECT";
+        break;
+    }
+    return str;
 
 }
