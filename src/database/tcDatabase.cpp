@@ -778,9 +778,14 @@ void tcDatabase::LoadPlatformTables()
                 std::string fireControl = tableData.getstring(8);
                 std::string fireControl2 = tableData.getstring(9);
                 bool isReloadable = tableData.getint(10) != 0;
-
-                platformData->maLauncherClass.push_back(launcherClass);
-                platformData->launcherId.push_back(launcherId);
+                //按launcherId 排序插入
+                //找到launcherId合适插入的位置
+                auto it = std::lower_bound(platformData->launcherId.begin(), platformData->launcherId.end(), launcherId);
+                size_t insertindex = std::distance(platformData->launcherId.begin(), it);
+                 platformData->launcherId.insert(platformData->launcherId.begin()+insertindex, launcherId);
+                platformData->maLauncherClass.insert(platformData->maLauncherClass.begin()+insertindex,launcherClass);
+                // platformData->maLauncherClass.push_back(launcherClass);
+                // platformData->launcherId.push_back(launcherId);
                 platformData->launcherDescription.push_back(launcherDescription);
                 platformData->launcherName.push_back(launcherName);
                 platformData->launcherFOV_deg.push_back(launcherFOV_deg);
@@ -814,8 +819,18 @@ void tcDatabase::LoadPlatformTables()
             {
                 std::string magazineClass = tableData.getstring(1);
                 unsigned int magId = tableData.getint(2);
-                platformData->maMagazineClass.push_back(magazineClass);
-                platformData->magazineId.push_back(magId);
+
+                auto it = std::lower_bound(platformData->magazineId.begin(),
+                                           platformData->magazineId.end(),
+                                           magId);
+                size_t insertindex = std::distance(platformData->magazineId.begin(), it);
+                platformData->magazineId.insert(platformData->magazineId.begin()+insertindex,
+                                                magId);
+                platformData->maMagazineClass.insert(platformData->maMagazineClass.begin()+insertindex,
+                                                     magazineClass);
+
+                // platformData->maMagazineClass.push_back(magazineClass);
+                // platformData->magazineId.push_back(magId);
                 platformData->mnNumMagazines++;
             }
             assert(platformData->maMagazineClass.size() == platformData->magazineId.size());
@@ -1290,7 +1305,6 @@ void tcDatabase::LoadRecordOtherTables(long key)
         platformData->maMagazineClass.clear();
         platformData->magazineId.clear();
         platformData->mnNumMagazines = 0;
-
         {   // add launchers
             std::string command =
                     strutil::format("select * from platform_launcher where DatabaseClass=\"%s\";",
@@ -1311,8 +1325,13 @@ void tcDatabase::LoadRecordOtherTables(long key)
                 bool isReloadable = tableData.getint(10) != 0;
 
 
-                platformData->maLauncherClass.push_back(launcherClass);
-                platformData->launcherId.push_back(launcherId);
+                auto it = std::lower_bound(platformData->launcherId.begin(), platformData->launcherId.end(), launcherId);
+                size_t insertindex = std::distance(platformData->launcherId.begin(), it);
+                platformData->launcherId.insert(platformData->launcherId.begin()+insertindex, launcherId);
+                platformData->maLauncherClass.insert(platformData->maLauncherClass.begin()+insertindex,launcherClass);
+
+                // platformData->maLauncherClass.push_back(launcherClass);
+                // platformData->launcherId.push_back(launcherId);
                 platformData->launcherDescription.push_back(launcherDescription);
                 platformData->launcherName.push_back(launcherName);
                 platformData->launcherFOV_deg.push_back(launcherFOV_deg);
@@ -1340,11 +1359,24 @@ void tcDatabase::LoadRecordOtherTables(long key)
             sqlite3_reader tableData = sqlCmd.executereader();
             while ((platformData->mnNumMagazines < platformData->MAXMAGAZINES) && tableData.read())
             {
-                std::string magazineClass = tableData.getstring(1);
-                platformData->maMagazineClass.push_back(magazineClass);
 
+                std::string magazineClass = tableData.getstring(1);
                 unsigned int magId = tableData.getint(2);
-                platformData->magazineId.push_back(magId);
+
+                auto it = std::lower_bound(platformData->magazineId.begin(),
+                                           platformData->magazineId.end(),
+                                           magId);
+                size_t insertindex = std::distance(platformData->magazineId.begin(), it);
+                platformData->magazineId.insert(platformData->magazineId.begin()+insertindex,
+                                                magId);
+                platformData->maMagazineClass.insert(platformData->maMagazineClass.begin()+insertindex,
+                                                     magazineClass);
+
+                // std::string magazineClass = tableData.getstring(1);
+                // platformData->maMagazineClass.push_back(magazineClass);
+
+                // unsigned int magId = tableData.getint(2);
+                // platformData->magazineId.push_back(magId);
 
                 platformData->mnNumMagazines++;
             }
