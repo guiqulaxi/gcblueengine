@@ -1,10 +1,12 @@
-//#include <QCoreApplication>
+﻿//#include <QCoreApplication>
 
 #include "Game.h"
 #include <thread>
-#include <chrono>
+#include <string>
+// #include <chrono>
 // #include "tinyxml2.h"
-#include <windows.h>
+// #include <windows.h>
+#include "cmdline.h"
 #include "httplib.h"
 void serverFunc( const std::string &ip, int port ,tcGame  *game) {
     httplib::Server svr;
@@ -29,17 +31,36 @@ void serverFunc( const std::string &ip, int port ,tcGame  *game) {
 int main(int argc, char *argv[])
 {
 
+    // create a parser
+    cmdline::parser a;
+    a.add<std::string>("scenario", 's', "scenario path", true, "");
+    a.add<int>("times", 't', "run times", false, 1, cmdline::range(1, 10000));
+    a.add<std::string>("runmode", 'r', "runmode", false, "normal", cmdline::oneof<std::string>("normal", "debug"));
+    a.add<std::string>("ip", 'h', "http ip", false, "127.0.0.1");
+    a.add<int>("port", 'p', "http port", false, 80, cmdline::range(1, 65535));
+    a.parse_check(argc, argv);
+
+
     tcGame  *game = new tcGame();
     game->Init();
     game->InitSim();
-    game->LoadScenario(argv[1],"",false);
-    game->SetTimeAccel(std::stol(argv[2]));
-    std::string ip=std::string(argv[3]);
-    int port=std::stoi(argv[4]);
-    std::thread serverThread(serverFunc,ip,port,game);
+    game->LoadScenario( a.get<std::string>("scenario"),"",false);
+    game->SetTimeAccel(a.get<int>("times"));
+
+    std::string runmode=a.get<std::string>("runmode");
+    if(runmode=="normal")
+    {
+        std::string ip=a.get<std::string>("ip");
+        int port=a.get<int>("port");
+        std::thread serverThread(serverFunc,ip,port,game);
+        serverThread.detach();
+
+    }
     while (!game->UpdateFrame()) {
     }
-    serverThread.join();
+
+
+
     return  0;
 
 }

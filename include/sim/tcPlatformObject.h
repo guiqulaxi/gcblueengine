@@ -102,7 +102,7 @@ public:
     std::vector<tcStores*> magazines;
 
     //int mnSensors;
-    tcGuidanceState mcGS;
+    tcGuidanceState mcGS;///<目标 运动状态
     Brain* brain;
     tcLaunchRequest mcLaunchRequest;
     GeoPoint msTargetDatum;

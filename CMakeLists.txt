@@ -42,6 +42,7 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/3rd/date/include
     ${PROJECT_SOURCE_DIR}/3rd/nlohmann/include
     ${PROJECT_SOURCE_DIR}/3rd/httplib/include
+    ${PROJECT_SOURCE_DIR}/3rd/cmdline/include
     C:/ProgramData/anaconda3/include
 )
 
