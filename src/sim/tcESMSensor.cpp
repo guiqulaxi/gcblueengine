@@ -205,97 +205,111 @@ bool tcESMSensor::IsDetectedRadar(const tcRadar* emitter, float& az_rad)
  */
 bool tcESMSensor::IsDetected(const tcSensorState* emitter, float ERP_dBW, float& az_rad)
 {
+    // 断言确保emitter指针不为空
     assert(emitter);
+    // 断言确保emitter的parent指针不为空
     assert(emitter->parent);
 
+    // 重置目标范围（单位：公里）
     targetRange_km = 0;
+    // 重置最后计算的余量（单位：dB）
     last_margin_dB = -99.0f;
+    // 重置最后使用的ERP（单位：dBW）
     last_ERP_dBW = -99.0f;
 
-	if ((!mbActive) || (!emitter->IsActive())) return false;
+    // 如果传感器或发射器不处于活动状态，则直接返回false
+    if ((!mbActive) || (!emitter->IsActive())) return false;
 
+    // 获取发射器的频率（单位：Hz）
     float emitterFreq_Hz = emitter->mpDBObj->averageFrequency_Hz;
-    bool inBand = (mpDBObj->minFrequency_Hz <= emitterFreq_Hz) && 
+    // 检查发射器频率是否在传感器的检测频段内
+    bool inBand = (mpDBObj->minFrequency_Hz <= emitterFreq_Hz) &&
                   (mpDBObj->maxFrequency_Hz >= emitterFreq_Hz);
+    // 如果不在频段内，则直接返回false
     if (!inBand)
     {
         return false;
     }
 
+    // 获取发射器的运动学状态
     const tcKinematics& emitter_kin = emitter->parent->mcKin;
 
+    // 使用传入的ERP值
     float emitterERP_dBW = ERP_dBW;
     last_ERP_dBW = ERP_dBW;
+    // 计算发射器的视场角（单位：弧度）
     float emitterFOV_rad = C_PIOVER180*emitter->mpDBObj->mfFieldOfView_deg;
 
-    // look az is az relative to north, might have to change later
-//    float lookAz_rad = parent->mcKin.mfHeading_rad + mountAz_rad;
+    // 计算发射器相对于北方的方位角（可能需要调整）
+    // 注意：这里注释掉的代码可能是旧方案
+    // float lookAz_rad = parent->mcKin.mfHeading_rad + mountAz_rad;
+    // 计算发射器自身的方位角
     float emitterAz_rad = emitter_kin.mfHeading_rad + emitter->mountAz_rad;
 
-
-    float fTargetAz_rad; 
+    // 初始化目标方位角等变量
+    float fTargetAz_rad;
     float fCoverageAz1, fCoverageAz2;
-    bool bInSearchVolume = false;
-    bool bInEmitterScan = false;
+    bool bInSearchVolume = false; // 是否在传感器的搜索范围内
+    bool bInEmitterScan = false; // 是否在发射器的扫描范围内
 
+    // 断言确保mpDBObj和parent不为空
     assert(mpDBObj);
     assert(parent);
 
-    const tcKinematics& sensor_kin = parent->mcKin; // kinematic state of parent object
+    // 获取传感器的运动学状态
+    const tcKinematics& sensor_kin = parent->mcKin;
 
+    // 计算从传感器到发射器的方位角
     fTargetAz_rad = nsNav::GCHeadingApprox_rad(sensor_kin.mfLat_rad, sensor_kin.mfLon_rad,
-        emitter_kin.mfLat_rad, emitter_kin.mfLon_rad);
+                                               emitter_kin.mfLat_rad, emitter_kin.mfLon_rad);
+    // 更新外部传入的方位角变量
     az_rad = fTargetAz_rad;
+    // 如果方位角为负，则调整到0到2π之间
     if (az_rad < 0) {az_rad += C_TWOPI;}
 
+    // 如果传感器的视场角大于等于360度，则认为发射器在搜索范围内
     if (mpDBObj->mfFieldOfView_deg >= 360.0f)
     {
         bInSearchVolume = true;
     }
-    else 
+    else
     {
+        // 计算传感器的搜索范围
         float lookAz_rad = sensor_kin.mfHeading_rad + mountAz_rad;
         float fHalfFOV_rad = 0.5f*C_PIOVER180*mpDBObj->mfFieldOfView_deg;
         fCoverageAz1 = lookAz_rad - fHalfFOV_rad;
         fCoverageAz2 = lookAz_rad + fHalfFOV_rad;
+        // 检查发射器是否在搜索范围内
         bInSearchVolume = AngleWithinRange(fTargetAz_rad, fCoverageAz1, fCoverageAz2) != 0;
-        if (!bInSearchVolume) {return false;}
-    }
 
-    // check same for emitter
-    if (emitterFOV_rad >= C_TWOPIM) 
-    {
-        bInEmitterScan = true;
-    }
-    else 
-    {
-        float esmBearing_rad = fTargetAz_rad + C_PI; // bearing of ESM platform relative to emitter
-        if (esmBearing_rad > C_TWOPI) {esmBearing_rad -= C_TWOPI;}
-        float fHalfFOV_rad = 0.5f * emitterFOV_rad;
-        fCoverageAz1 = emitterAz_rad - fHalfFOV_rad;
-        fCoverageAz2 = emitterAz_rad + fHalfFOV_rad;
-        bInEmitterScan = AngleWithinRange(esmBearing_rad, fCoverageAz1, fCoverageAz2) != 0;
+
         if (!bInEmitterScan) {return false;}
     }
 
+    // 计算雷达的地平线距离，基于发射器和传感器的海拔高度
     float fRadarHorizon = C_RADARHOR*(sqrtf(emitter_kin.mfAlt_m + emitter->mfSensorHeight_m) + sqrtf(sensor_kin.mfAlt_m + mfSensorHeight_m));
+
+    // 计算目标距离（以公里为单位），基于发射器和传感器的经纬度
     targetRange_km = C_RADTOKM*nsNav::GCDistanceApprox_rad(
-        sensor_kin.mfLat_rad, sensor_kin.mfLon_rad,
-        emitter_kin.mfLat_rad, emitter_kin.mfLon_rad);
+                         sensor_kin.mfLat_rad, sensor_kin.mfLon_rad, // 传感器的经纬度
+                         emitter_kin.mfLat_rad, emitter_kin.mfLon_rad); // 发射器的经纬度
 
-    if (targetRange_km > fRadarHorizon) 
+    // 如果目标距离超过了雷达的地平线距离，则无法检测到目标
+    if (targetRange_km > fRadarHorizon)
     {
-        return false;
+        return false; // 返回false，表示目标不在雷达的探测范围内
     }
+    // 检查是否存在视线（LOS）障碍
+    if (!HasLOS(emitter->parent)) return false; // 如果视线被阻挡，返回false
+    // 计算信号的信噪比（SNR），基于发射器的等效辐射功率（ERP）和目标距离
+    float fSNR = emitterERP_dBW // 发射器的等效辐射功率（dBW）
+                 + 20.0f*(log10f(mpDBObj->mfRefRange_km)-log10f(targetRange_km)); // 使用自由空间路径损耗模型计算SNR
 
-    if (!HasLOS(emitter->parent)) return false;
-
-    float fSNR = emitterERP_dBW 
-        + 20.0f*(log10f(mpDBObj->mfRefRange_km)-log10f(targetRange_km));
-
+    // 更新最后的SNR（信噪比）边际值
     last_margin_dB = fSNR;
 
-	return RandomDetect(fSNR);
+    // 根据SNR值随机判断是否检测到目标
+    return RandomDetect(fSNR); // 调用RandomDetect函数，根据SNR和可能的随机因素判断是否检测到目标
 }
 
 

@@ -171,148 +171,152 @@ float tcSonar::CalculateSimpleDetectionRange(tcGameObject* target, float& NL, fl
 */
 bool tcSonar::CanDetectTarget(const tcGameObject* target, float& range_km, bool useRandom)
 {
-    float fCoverageAz1, fCoverageAz2;
-    bool isInSearchVolume = false;
-    last_snr_excess = -99.9f;
-    last_TL = -99.9f;
-    range_km = 0;
-    emitterId = -1;
+    float fCoverageAz1, fCoverageAz2; // 声纳覆盖范围的起始和结束方位角（弧度）
+    bool isInSearchVolume = false; // 目标是否在搜索体积内
+    last_snr_excess = -99.9f; // 上次检测的SNR余量，初始化为无效值
+    last_TL = -99.9f; // 上次检测的传输损失，初始化为无效值
+    range_km = 0; // 目标距离（公里），初始化为0
+    emitterId = -1; // 发射器ID，初始化为-1表示无发射器
 
+    // 确保数据库对象不为空
     assert(mpDBObj);
 
+    // 如果声纳未激活，则无法检测目标
     if (!mbActive) return false;
 
-    const tcKinematics *par_kin = &parent->mcKin;  // kinematic state of sonar parent object
-    const tcKinematics *tgt_kin = &target->mcKin;  // state of target object
+    // 获取声纳父对象和目标的运动学状态
+    const tcKinematics *par_kin = &parent->mcKin;
+    const tcKinematics *tgt_kin = &target->mcKin;
 
-
+    // 尝试将目标转换为tcWaterDetectionDBObject类型，以获取目标相关的声纳信息
     tcWaterDetectionDBObject* targetData = dynamic_cast<tcWaterDetectionDBObject*>(target->mpDBObject);
-    if (targetData == 0) return false;
+    if (targetData == 0) return false; // 如果转换失败，表示目标不是水下检测对象，无法检测
 
+    // 尝试将父对象转换为tcWaterDetectionDBObject类型，以获取父对象相关的声纳信息
     tcWaterDetectionDBObject* parentData = dynamic_cast<tcWaterDetectionDBObject*>(parent->mpDBObject);
     if (parentData == 0)
     {
+        // 如果父对象不是水下检测数据库对象，则断言失败并打印错误信息
         assert(false);
         fprintf(stderr, "tcSonar::CanDetectTarget - invalid parent database type\n");
         return false;
     }
 
-	float targetAz_rad = nsNav::GCHeadingApprox_rad(par_kin->mfLat_rad, par_kin->mfLon_rad,
-            tgt_kin->mfLat_rad, tgt_kin->mfLon_rad);
+    // 计算目标相对于声纳父对象的方位角（弧度）
+    float targetAz_rad = nsNav::GCHeadingApprox_rad(par_kin->mfLat_rad, par_kin->mfLon_rad, tgt_kin->mfLat_rad, tgt_kin->mfLon_rad);
 
+    // 计算目标相对于自身航向的方位角（考虑声纳和目标之间的相对位置）
     float targetAspect_rad = targetAz_rad - tgt_kin->mfHeading_rad + C_PI;
+    // 调整targetAspect_rad到[-π, π]区间
     targetAspect_rad += (float(targetAspect_rad >= C_TWOPI))*(-C_TWOPI) + (float(targetAspect_rad < -C_TWOPI))*C_TWOPI;
+    // 将方位角从弧度转换为度
     float targetAspect_deg = C_180OVERPI * targetAspect_rad;
 
-    float SLp = -999.0f; // passive source level
-    float NL = parentData->GetNoiseLevelForSpeedKts(par_kin->mfSpeed_kts); // noise level of parent
+    float SLp = -999.0f; // 被动源级，初始化为无效值
+    float NL = parentData->GetNoiseLevelForSpeedKts(par_kin->mfSpeed_kts); // 父对象的噪声级
 
-	if (isPassive)
-	{
-		SLp = target->GetSonarSourceLevel(targetAspect_deg);
-	}
+    // 如果是被动声纳
+    if (isPassive)
+    {
+        // 获取目标在给定方位角下的声源级
+        SLp = target->GetSonarSourceLevel(targetAspect_deg);
+    }
 
-
-
+    // 如果声纳的视场大于等于360度，则默认目标在搜索体积内
     if (mpDBObj->mfFieldOfView_deg >= 360.0f)
     {
         isInSearchVolume = true;
     }
-	else 
-	{
-		float lookAz_rad = parent->mcKin.mfHeading_rad + mountAz_rad;
-
-        // 24NOV2009 old code below, couldn't see why not always use mount az as above? old version maybe had no mount az?
-		//if (!mpDBObj->isTowed) // blind area to the rear
-		//{
-		//	lookAz_rad = parent->mcKin.mfHeading_rad + mountAz_rad;
-		//}
-		//else // towed array has blind area in direction of bow
-		//{
-		//	lookAz_rad = parent->mcKin.mfHeading_rad - C_PI;
-		//}
-
-		float fHalfFOV_rad = 0.5f*C_PIOVER180*mpDBObj->mfFieldOfView_deg;
-
-		fCoverageAz1 = lookAz_rad - fHalfFOV_rad;
-		fCoverageAz2 = lookAz_rad + fHalfFOV_rad;
-
-		isInSearchVolume = AngleWithinRange(targetAz_rad, fCoverageAz1, fCoverageAz2) != 0;
-	}        
-
-
-    last_az_rad = targetAz_rad;
-
-	if (!isInSearchVolume) 
-	{
-		return false;
-	}
-    
-    range_km = C_RADTOKM * nsNav::GCDistanceApprox_rad(par_kin->mfLat_rad, par_kin->mfLon_rad,
-        tgt_kin->mfLat_rad, tgt_kin->mfLon_rad);
-    float range_m = 1000.0f * range_km;
-
-
-
-    float sonarAlt_m = (par_kin->mfAlt_m == 0) ? -5.0f : par_kin->mfAlt_m;
-    float targetAlt_m = (tgt_kin->mfAlt_m == 0) ? -5.0f : tgt_kin->mfAlt_m;
-
-    // if parent or target airborne, assume helo dipping sonar and subtract scope_m from alt
-    if (sonarAlt_m > 0)
+    // 否则，计算声纳的覆盖范围并检查目标是否在范围内
+    else
     {
-        sonarAlt_m -= scope_m; 
-        if (sonarAlt_m > 0) return false; // sonar out of water
+        float lookAz_rad = parent->mcKin.mfHeading_rad + mountAz_rad; // 声纳的指向方位角（考虑安装角）
+
+        // 计算声纳覆盖范围的一半（弧度）
+        float fHalfFOV_rad = 0.5f*C_PIOVER180*mpDBObj->mfFieldOfView_deg;
+
+        // 计算声纳覆盖范围的起始和结束方位角（弧度）
+        fCoverageAz1 = lookAz_rad - fHalfFOV_rad;
+        fCoverageAz2 = lookAz_rad + fHalfFOV_rad;
+
+        // 检查目标是否在声纳的覆盖范围内
+		isInSearchVolume = AngleWithinRange(targetAz_rad, fCoverageAz1, fCoverageAz2) != 0;
+    }
+    // 更新最后一次计算的目标方位角（弧度）
+    last_az_rad = targetAz_rad;
+    // 如果不在搜索范围内，则直接返回false
+    if (!isInSearchVolume)
+    {
+        return false;
     }
 
+    // 计算两个点（平台和目标）之间的近似距离（公里）
+    range_km = C_RADTOKM * nsNav::GCDistanceApprox_rad(par_kin->mfLat_rad, par_kin->mfLon_rad,
+
+                                                       tgt_kin->mfLat_rad, tgt_kin->mfLon_rad);
+    // 将距离从公里转换为米
+    float range_m = 1000.0f * range_km;
+    // 如果平台或目标的海拔高度为0，则假设为-5米（可能是表示在水下或未知高度）
+    float sonarAlt_m = (par_kin->mfAlt_m == 0) ? -5.0f : par_kin->mfAlt_m;
+    float targetAlt_m = (tgt_kin->mfAlt_m == 0) ? -5.0f : tgt_kin->mfAlt_m;
+    // 如果平台是机载的，且在水上，则减去声呐的作用范围（模拟直升机下潜声呐）
+    if (sonarAlt_m > 0)
+    {
+        sonarAlt_m -= scope_m;
+        if (sonarAlt_m > 0) return false; // 如果声呐不在水下，则返回false
+    }
+    // 如果目标是机载的，则进行特殊处理
     if (targetAlt_m > 0)
     {
+        // 尝试将目标转换为直升机对象
         const tcHeloObject* helo = dynamic_cast<const tcHeloObject*>(target);
         if (helo != 0)
         {
+            // 获取直升机下潜声呐的高度
             targetAlt_m = helo->GetDippingSonarAlt();
-            if (targetAlt_m > 0) return false; // sonar out of water
-            
+            if (targetAlt_m > 0) return false; // 如果声呐不在水下，则返回false
+            // 获取直升机最强的活动声呐，并获取其发射器ID
             const tcSonar* sonar = helo->GetStrongestActiveSonar();
             emitterId = sonar->mpDBObj->mnKey;
         }
         else
         {
-            return false; // e.g. sonobuoy not in the water yet
+            return false; // 例如，如果声呐浮标还未在水下，则返回false
         }
     }
-
-    // use average bottom depth of parent platform and target
+    // 使用平台和目标的平均底部深度
     float averageBottom_m = -0.5f*(parent->mcTerrain.mfHeight_m + target->mcTerrain.mfHeight_m);
-    //averageBottom_m = std::max(averageBottom_m, 
-
+    // 获取传输损失（TL），考虑了多种因素如声呐深度、范围、目标深度、底部深度等
     long key = sensorId;
     float TL = tcSonarEnvironment::Get()->GetTL(key, parent->mfStatusTime, -sonarAlt_m, range_m, -targetAlt_m, averageBottom_m);
-    TL += mpDBObj->alpha * range_km;   // add freq based atten here (not in tcSonarEnvironment yet)
+    // 加上基于频率的衰减（目前不在tcSonarEnvironment中处理）
+    TL += mpDBObj->alpha * range_km;
     last_TL = TL;
-
-    // ambient noise (flawed as is because assumes target signal is always centered in sonar passband)
+    // 获取环境背景噪声（假设目标信号始终位于声呐通带中心，这是有缺陷的）
     float NL_background_dB = tcSonarEnvironment::Get()->GetAmbientNL(mpDBObj->averageFreq_Hz);
+    // 累加背景噪声和已有的噪声（如果有的话）
     NL = Add_dB(NL_background_dB, NL);
 
-
+    // 计算信噪比余量
     float excessSNR;
-
-	if (isPassive)
-	{
-		// add additional loss if towed array isn't fully deployed
-		float scopeLoss_dB = 0;
-		if (mpDBObj->isTowed && (scope_m < mpDBObj->maxScope_m))
-		{
-			scopeLoss_dB = -10.0f*log10f(scope_m / mpDBObj->maxScope_m);
-		}
-
-		excessSNR = SLp - TL + mpDBObj->DI - NL - scopeLoss_dB - DT;  // DT now set at init with tcSonar::DT
-	}
-    else
+    // 如果是被动声呐
+    if (isPassive)
     {
-        float TS = targetData->GetTargetStrength(targetAspect_deg); // target strength for active case
-
-        excessSNR = mpDBObj->SL - 2.0f*TL + TS + mpDBObj->DI - NL - DT; /// DT now set at init with tcSonar::DT
+        // 如果拖曳阵列未完全展开，则添加额外的损失
+        float scopeLoss_dB = 0;
+        if (mpDBObj->isTowed && (scope_m < mpDBObj->maxScope_m))
+        {
+            scopeLoss_dB = -10.0f*log10f(scope_m / mpDBObj->maxScope_m);
+        }
+        // 计算被动声呐的信噪比余量
+        excessSNR = SLp - TL + mpDBObj->DI - NL - scopeLoss_dB - DT;  // DT在tcSonar::DT中初始化
+    }
+    else // 如果是主动声呐
+    {
+        // 获取目标强度（针对主动声呐）
+        float TS = targetData->GetTargetStrength(targetAspect_deg);
+        // 计算主动声呐的信噪比余量
+        excessSNR = mpDBObj->SL - 2.0f*TL + TS + mpDBObj->DI - NL - DT;
     }
     last_snr_excess = excessSNR;
     last_range_km = range_km;

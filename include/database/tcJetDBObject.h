@@ -51,21 +51,21 @@ namespace database
     class tcJetDBObject : public tcAirDBObject 
     {
     public:
-        float militaryThrust_N;             ///< [N] max static engine thrust, 100% military power
+        float militaryThrust_N;             ///< [N] max static engine thrust, 100% military power 最大静态发动机推力
         float militaryThrustSpeedSlope;     ///< Tmil = Tmil0 * (1 + militaryThrustSpeedSlope * v_mps)
-        float mfAfterburnThrust_N;          ///< [N] afterburners engine thrust
+        float mfAfterburnThrust_N;          ///< [N] afterburners engine thrust 加力燃烧器发动机推力
         float abThrustSpeedSlope;           ///< Tab = Tab0 * (1 + abThrustSpeedSlope * v_mps)
-        float mfAfterburnFuelRate_kgps;     ///< [kg/s] with afterburners
-        float mfCdpsub;                     ///< parasitic "flat plate" drag area, subsonic
-        float mfCdptran;                    ///< transonic drag area
-        float mfCdpsup;                     ///< supersonic drag area
-        float mfMcm;                        ///< critical mach number
-        float mfMsupm;                      ///< supersonic mach number
-        float cruiseSpeed_mps;              ///< [m/s] cruise speed ias
-        float stallSpeed_mps;               ///< [m/s] stall speed at sea level
+        float mfAfterburnFuelRate_kgps;     ///< [kg/s] with afterburners 使用加力燃烧器时的燃料消耗率
+        float mfCdpsub;                     ///< parasitic "flat plate" drag area, subsonic 亚音速下的寄生“平板”阻力面积
+        float mfCdptran;                    ///< transonic drag area 跨音速阻力面积
+        float mfCdpsup;                     ///< supersonic drag area 超音速阻力面积
+        float mfMcm;                        ///< critical mach number 临界马赫数
+        float mfMsupm;                      ///< supersonic mach number 超音速马赫数
+        float cruiseSpeed_mps;              ///< [m/s] cruise speed ias 巡航速度指示空速
+        float stallSpeed_mps;               ///< [m/s] stall speed at sea level 海平面失速速度
         
-        static double rho_sealevel;         ///< [kg/m3] air density at sea level
-        static double inv_rho_sealevel;     ///< inverse of air density at sea level
+        static double rho_sealevel;         ///< [kg/m3] air density at sea level 海平面空气密度
+        static double inv_rho_sealevel;     ///< inverse of air density at sea level 海平面空气密度倒数
 
 
         float GetParasiticDragCoefficient(float vmach) const;
@@ -93,9 +93,9 @@ namespace database
         float invMachRange; ///< 1 / (width of transonic)
         float Cdi; ///< induced drag param Fdi = Cdi / (rho*v^2)
 		
-		std::vector<float> thrustTable; ///< vector of thrust factor vs. altitude point
-		std::vector<float> fuelEfficiencyTable; ///< vector of fuel efficiency vs. altitude point
-		static std::vector<float> tableAltitudes; ///< altitudes for thrust and fuel efficiency tables
+        std::vector<float> thrustTable; ///< vector of thrust factor vs. altitude point 推力因子与高度点的向量
+        std::vector<float> fuelEfficiencyTable; ///< vector of fuel efficiency vs. altitude point  燃料效率与高度点的向量
+        static std::vector<float> tableAltitudes; ///< altitudes for thrust and fuel efficiency tables  推力和燃料效率表的高度
 
         void CalculateParams();
 		static void InitializeTableAltitudes();

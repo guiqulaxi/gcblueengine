@@ -540,21 +540,36 @@ bool tcSensorState::IsOptical() const
 */
 bool tcSensorState::RandomDetect(float margin_dB)
 {
-	const float snr_window_dB = 3.0f;
-	const float pd_scale = 0.1666f;
-	if (margin_dB < -snr_window_dB)
-	{
-		return false;
-	}
-	else if (margin_dB >= snr_window_dB)
-	{
-		return true;
-	}
-	else
-	{
-		return ( randf() <= (pd_scale * (margin_dB + snr_window_dB)) );
-	}
+    // 定义SNR的窗口大小，用于调整检测概率（Pd）的线性变化范围
+    const float snr_window_dB = 3.0f;
 
+    // 定义Pd随SNR margin变化的斜率，用于计算在不同margin下的Pd值
+    // 注意：这里的斜率是根据Pd = 0.5 at 0 dB margin 和 window 大小为 3 dB 计算的，
+    // 使得在 margin_dB = -3 dB 时 Pd = 0, 在 margin_dB = 3 dB 时 Pd = 1（但实际情况受限于随机数生成）
+    const float pd_scale = 0.1666f; // 等于 1 / (2 * snr_window_dB)，用于将margin_dB映射到0到1之间的Pd值
+
+    // 如果SNR margin小于-snr_window_dB，则检测概率太低，直接返回未检测到
+    if (margin_dB < -snr_window_dB)
+    {
+        return false;
+    }
+
+    // 如果SNR margin大于或等于snr_window_dB，则检测概率足够高，直接返回检测到
+    else if (margin_dB >= snr_window_dB)
+    {
+        return true;
+    }
+
+    // 对于SNR margin在-snr_window_dB和snr_window_dB之间的情况，
+    // 使用随机数来模拟检测的不确定性
+    // 使用pd_scale将margin_dB映射到一个0到1之间的Pd值，并与随机数比较
+    // 如果随机数小于或等于计算出的Pd值，则认为检测到目标
+    else
+    {
+        // 假设randf()是一个返回0到1之间浮点数的随机数生成函数
+        // 注意：这里假设randf()是存在的，实际中可能需要使用其他方式生成随机数，如std::uniform_real_distribution
+        return ( randf() <= (pd_scale * (margin_dB + snr_window_dB)) );
+    }
 }
 
 /**

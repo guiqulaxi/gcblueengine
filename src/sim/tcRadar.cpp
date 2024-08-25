@@ -24,7 +24,6 @@
 */
 
 //#include "stdwx.h"
-#include "aerror.h"
 #include "tcCommandQueue.h"
 #include "nsNav.h"
 #include "tcRadar.h"
@@ -33,14 +32,12 @@
 #include "tcAirfieldObject.h"
 #include "tcAirObject.h"
 #include "tcBallisticWeapon.h"
-#include "tcGroundObject.h"
+
 #include "tcMissileObject.h"
 #include "tcSubObject.h"
-#include "tcSubDBObject.h"
 #include "tcSurfaceObject.h"
 #include "tcAirCM.h"
 
-#include "tcPlatformDBObject.h"
 #include "tcMissileDBObject.h"
 #include "tcCounterMeasureDBObject.h"
 #include "tcSimState.h"
@@ -484,52 +481,51 @@ void tcRadar::UpdateJammingDegradation()
 
 float tcRadar::CalculateTargetRCS_dBsm(const tcGameObject* target, float& targetAz_rad, float& targetHeight_m) const
 {
-    assert(target != 0);
+    assert(target != 0); // 确保目标对象不为空
 
-    const tcKinematics *rdr_kin = &parent->mcKin;  // kinematic state of radar parent object
-    const tcKinematics *tgt_kin = &target->mcKin;  // state of target object
+    const tcKinematics *rdr_kin = &parent->mcKin;  // 雷达父对象的运动状态
+    const tcKinematics *tgt_kin = &target->mcKin;  // 目标对象的运动状态
 
-    targetHeight_m = tgt_kin->mfAlt_m;
+    targetHeight_m = tgt_kin->mfAlt_m; // 获取目标对象的高度
 
-    if (const tcAirDetectionDBObject* detectionData = dynamic_cast<const tcAirDetectionDBObject*>(target->mpDBObject))
+    if (const tcAirDetectionDBObject* detectionData = dynamic_cast<const tcAirDetectionDBObject*>(target->mpDBObject)) // 如果目标对象是飞机探测数据库对象
     {
-        // calc target az from sensor platform and target aspect considering tgt heading
+        // 计算目标方位角，考虑目标航向
         targetAz_rad = nsNav::GCHeadingApprox_rad(rdr_kin->mfLat_rad, rdr_kin->mfLon_rad,
-            tgt_kin->mfLat_rad, tgt_kin->mfLon_rad);
+                                                  tgt_kin->mfLat_rad, tgt_kin->mfLon_rad);
 
-        float aspect_rad = targetAz_rad - tgt_kin->mfHeading_rad + C_PI;
+        float aspect_rad = targetAz_rad - tgt_kin->mfHeading_rad + C_PI; // 计算目标相对雷达的方位角
         aspect_rad += (float(aspect_rad >= C_TWOPI))*(-C_TWOPI) + (float(aspect_rad < -C_TWOPI))*C_TWOPI;
         //if (aspect_rad >= C_TWOPI) aspect_rad -= C_TWOPI;
 
-        float rcs_dBsm = detectionData->GetRCS_dBsm(C_180OVERPI*aspect_rad);
-        targetHeight_m += detectionData->effectiveHeight_m;
+        float rcs_dBsm = detectionData->GetRCS_dBsm(C_180OVERPI*aspect_rad); // 获取目标的雷达散射截面（RCS）值
+        targetHeight_m += detectionData->effectiveHeight_m; // 加上目标的有效高度
 
-        // adjust RCS for radarblind speed
+        // 根据雷达盲速调整RCS值
         if (mpDBObj->blindSpeed_mps > 0)
         {
-            // target radial speed (unsigned)
+            // 目标径向速度（无符号）
             float radial_mps = fabsf(C_KTSTOMPS*target->mcKin.mfSpeed_kts*cosf(aspect_rad));
 
-            float radial_fraction = radial_mps * mpDBObj->invBlindSpeed_mps; // 1.0 if at blind speed
+            float radial_fraction = radial_mps * mpDBObj->invBlindSpeed_mps; // 1.0如果达到盲速
 
-            // perhaps unnecessary optimization to avoid branches
+            // 可能不必要的优化，避免分支
             float underBlindSpeed = float(radial_fraction < 1.0f);
             float nearBlindSpeed = float((radial_fraction >= 1.0f) && (radial_fraction < 2.0f));
 
-            // 24 dB penalty if < blindSpeed, 0 to 24 dB for 2*blindspeed to blindspeed
+            // 如果速度小于盲速，则减去24 dB的惩罚；如果速度在2倍盲速到盲速之间，则减去0到24 dB的惩罚
             float speedPenalty = 24.0f*(underBlindSpeed + nearBlindSpeed*(2.0f - radial_fraction));
             rcs_dBsm -= speedPenalty;
         }
 
-        return rcs_dBsm;
+        return rcs_dBsm; // 返回调整后的RCS值
     }
     else
     {
-        return -999.0f;
+        return -999.0f; // 如果目标不是飞机探测数据库对象，则返回-999.0f
     }
 
 }
-
 /**
 * @return dB adjustment to RCS based on elevation angle to target and terrain type under target
 */
@@ -619,157 +615,141 @@ bool tcRadar::TargetInElevationCoverageWeapon(const tcGameObject* target, float 
 bool tcRadar::CanDetectTarget(const tcGameObject* target, float& range_km, bool useRandom)
 {
 
-    float fTargetRange_km;
-    float fCoverageAz1, fCoverageAz2;
-    bool bInSearchVolume = false;
-    last_snr_margin_dB = -99.0f;
-    lastTargetElevation_rad = 1.72787596f; // 99 deg
+    float fTargetRange_km; // 目标距离（千米）
+    float fCoverageAz1, fCoverageAz2; // 覆盖角度
+    bool bInSearchVolume = false; // 是否在搜索区域内
+    last_snr_margin_dB = -99.0f; // 上次信噪比边际（分贝）
+    lastTargetElevation_rad = 1.72787596f; // 上次目标仰角（弧度）
 
-    assert((mpDBObj != 0) && (target != 0));
+    assert((mpDBObj != 0) && (target != 0)); // 确保传感器和目标对象有效
 
-    if (!mbActive && !isCommandReceiver) return false;
+    if (!mbActive && !isCommandReceiver) return false; // 如果传感器不活跃或不是指令接收器，返回false
 
-    float illuminatorTargetRange_km = 1e8;
+    float illuminatorTargetRange_km = 1e8; // 照明器目标范围（千米）
     if (isSemiactive || isCommandReceiver)
     {
-        tcRadar* illum = GetFireControlRadar();
-        if (illum == NULL) return false;
-        if (!illum->CanDetectTarget(target, illuminatorTargetRange_km, false)) return false; // assume illuminator receiver is missile, so no random detection
-        if (isCommandReceiver) return true; 
+        tcRadar* illum = GetFireControlRadar(); // 获取火控雷达
+        if (illum == NULL) return false; // 如果雷达为空，返回false
+        if (!illum->CanDetectTarget(target, illuminatorTargetRange_km, false)) return false; // 假设照明器接收器是导弹，因此不做随机检测
+        if (isCommandReceiver) return true; // 如果指令接收器，则返回true
     }
 
-    lastTargetRCS_dBsm = -999.0f;
+    lastTargetRCS_dBsm = -999.0f; // 上次目标RCS（分贝平方米）
 
-    const tcKinematics *rdr_kin = &parent->mcKin;  // kinematic state of radar parent object
-    const tcKinematics *tgt_kin = &target->mcKin;  // state of target object
+    const tcKinematics *rdr_kin = &parent->mcKin; // 雷达父对象的运动状态
+    const tcKinematics *tgt_kin = &target->mcKin; // 目标对象的状态
 
-    float targetHeight_m = 0; // equivalent height of target for radar horizon
-    float fTargetAz_rad = 0;
+    float targetHeight_m = 0; // 目标高度的等效值，用于雷达地平线计算
+    float fTargetAz_rad = 0; // 目标方位角（弧度）
 
-    float rcs_dBsm = CalculateTargetRCS_dBsm(target, fTargetAz_rad, targetHeight_m);
+    float rcs_dBsm = CalculateTargetRCS_dBsm(target, fTargetAz_rad, targetHeight_m); // 计算目标RCS（分贝平方米）
 
-    if ((targetHeight_m < 0) || (rcs_dBsm < -100.0f))
+    if ((targetHeight_m < 0) || (rcs_dBsm < -100.0f)) // 如果目标高度低于零或RCS小于-100分贝平方米，返回false
     {
-        return false; // submerged sub || not detectable by radar
+        return false; // 水下潜艇或雷达无法探测到的目标返回false
     }
 
-    lastTargetRCS_dBsm = rcs_dBsm;
+    lastTargetRCS_dBsm = rcs_dBsm; // 更新最后的目标RCS
 
-    //#define PTYPE_UNKNOWN 0x0000
-    //#define PTYPE_SURFACE 0x0010
-    //#define PTYPE_SMALLSURFACE 0x0011
-    //#define PTYPE_LARGESURFACE 0x0012
-    //#define PTYPE_CARRIER 0x0014
-    //#define PTYPE_AIR 0x0020
-    //#define PTYPE_FIXEDWING 0x0021
-    //#define PTYPE_HELO 0x0022
-    //#define PTYPE_MISSILE 0x0040
-    //#define PTYPE_SUBSURFACE 0x0080
-    //#define PTYPE_SUBMARINE 0x0081
-    //#define PTYPE_TORPEDO 0x0082
-    //#define PTYPE_SONOBUOY 0x0084
-    //#define PTYPE_GROUND 0x0100
-    //#define PTYPE_AIRFIELD 0x0101
-    //#define PTYPE_BALLISTIC 0x0200
+    // PTYPE常量定义不同类型目标的标志位，如：表面、小型表面、大型表面、飞机等。
+    unsigned int classification = target->mpDBObject->mnType; // 获取目标的类型标志位
 
-    unsigned int classification = target->mpDBObject->mnType;
+    bool isSurface = ((classification & PTYPE_SURFACE) != 0) || (classification == PTYPE_AIRCM); // 如果标志位包含表面类型，则为真。否则根据其他条件判断。
+    bool isAir = (classification & PTYPE_AIR) != 0; // 如果标志位包含空气类型，则为真。否则根据其他条件判断。
+    bool isMissile = (classification & PTYPE_MISSILE) != 0; // 如果标志位包含导弹类型，则为真。否则根据其他条件判断。
+    bool isGround = (classification & PTYPE_GROUND) != 0; // 如果标志位包含地面类型，则为真。否则根据其他条件判断。
+    bool isSub = (classification & PTYPE_SUBSURFACE) != 0; // 如果标志位包含潜艇类型，则为真。否则根据其他条件判断。
 
-    bool isSurface = ((classification & PTYPE_SURFACE) != 0) || (classification == PTYPE_AIRCM);
-    bool isAir = (classification & PTYPE_AIR) != 0;
-	bool isMissile = (classification & PTYPE_MISSILE) != 0;
-	bool isGround = (classification & PTYPE_GROUND) != 0;
-    bool isSub = (classification & PTYPE_SUBSURFACE) != 0;
-
-    if (isMissile && (target->mcKin.mfSpeed_kts < 600.0f))
+    if (isMissile && (target->mcKin.mfSpeed_kts < 600.0f)) // 如果目标是导弹且速度低于约1马赫，则视为空中目标，为真。否则根据其他条件判断。
     {
-        isAir = true; // consider missile an air target if moving under about Mach 1
+        isAir = true; // 如果导弹的速度达到约1马赫，则视为空中目标，为真。否则根据其他条件判断。
     }
 
-    if (isSub) isSurface = true; // treat surfaced sub as surface
+    if (isSub) isSurface = true; // 如果目标是一个潜射物体，则将其视为表面目标，为真。否则根据其他条件判断。
 
-    if (mpDBObj->mfFieldOfView_deg >= 360.0f) 
+    if (mpDBObj->mfFieldOfView_deg >= 360.0f) // 如果视场角大于等于360度，则为真。否则根据其他条件判断。
     {
-        bInSearchVolume = true;
+        bInSearchVolume = true; // 如果目标在搜索区域内，则为真。否则根据其他条件判断。
     }
-    else 
+    else
     {
-        float lookAz_rad = parent->mcKin.mfHeading_rad + mountAz_rad;
-        float fHalfFOV_rad = 0.5f*C_PIOVER180*mpDBObj->mfFieldOfView_deg;
-        fCoverageAz1 = lookAz_rad - fHalfFOV_rad;
-        fCoverageAz2 = lookAz_rad + fHalfFOV_rad;
-        bInSearchVolume = AngleWithinRange(fTargetAz_rad,fCoverageAz1,fCoverageAz2) != 0;
-        if (!bInSearchVolume) {range_km=0;return false;}
+        float lookAz_rad = parent->mcKin.mfHeading_rad + mountAz_rad;  // 计算传感器的视场中心线相对于北的方位角
+        float fHalfFOV_rad = 0.5f*C_PIOVER180*mpDBObj->mfFieldOfView_deg;  // 计算半视场宽度（弧度）
+        fCoverageAz1 = lookAz_rad - fHalfFOV_rad;  // 计算覆盖范围的起始方位角
+        fCoverageAz2 = lookAz_rad + fHalfFOV_rad;  // 计算覆盖范围的结束方位角
+        bInSearchVolume = AngleWithinRange(fTargetAz_rad,fCoverageAz1,fCoverageAz2) != 0;  // 判断目标是否在传感器搜索范围内
+        if (!bInSearchVolume) {range_km=0;return false;}  // 如果不在搜索范围内，返回false
     }
 
-    float clutterHorizon_km = C_RADARHOR * sqrtf(rdr_kin->mfAlt_m + mfSensorHeight_m); // break up radar horizon for clutter degradation calc later
-    float fRadarHorizon = C_RADARHOR*sqrtf(targetHeight_m) + clutterHorizon_km;
+    float clutterHorizon_km = C_RADARHOR * sqrtf(rdr_kin->mfAlt_m + mfSensorHeight_m);  // 计算雷达杂波地平线距离
+    float fRadarHorizon = C_RADARHOR*sqrtf(targetHeight_m) + clutterHorizon_km;  // 计算雷达地平线距离
 
-    fTargetRange_km = C_RADTOKM*nsNav::GCDistanceApprox_rad(rdr_kin->mfLat_rad, rdr_kin->mfLon_rad,
-		tgt_kin->mfLat_rad,tgt_kin->mfLon_rad, rdr_kin->mfAlt_m, tgt_kin->mfAlt_m);
-    range_km = fTargetRange_km;
-	last_range_km = range_km;
+    fTargetRange_km = C_RADTOKM*nsNav::GCDistanceApprox_rad(rdr_kin->mfLat_rad, rdr_kin->mfLon_rad,  // 计算目标到传感器的距离
+                                                              tgt_kin->mfLat_rad,tgt_kin->mfLon_rad, rdr_kin->mfAlt_m, tgt_kin->mfAlt_m);
+    range_km = fTargetRange_km;  // 更新距离值
+    last_range_km = range_km;  // 记录上一次的距离值
 
-    if (fTargetRange_km > fRadarHorizon) 
+    if (fTargetRange_km > fRadarHorizon)  // 如果目标距离大于雷达地平线距离
     {
-        return false;
+        return false;  // 返回false
     }
 
-    float targetEl_rad = 0;
-    bool inElevationCoverage = TargetInElevationCoverage(target, fTargetRange_km, targetEl_rad);
+    float targetEl_rad = 0;  // 初始化目标俯仰角为0
+    bool inElevationCoverage = TargetInElevationCoverage(target, fTargetRange_km, targetEl_rad);  // 判断目标是否在俯仰覆盖范围内
 
-    if (!inElevationCoverage || !HasLOS(target)) return false;
+    if (!inElevationCoverage || !HasLOS(target)) return false;  // 如果不在俯仰覆盖范围或没有视线，返回false
 
     // adjustment for "look-down" geometry, can also apply to targets near horizon for surface based radars
-    if (fTargetRange_km <= clutterHorizon_km)
+    if (fTargetRange_km <= clutterHorizon_km)  // 如果目标距离小于等于雷达杂波地平线距离
     {
-        float clutterAdjustment_dB = CalculateClutterAdjustment_dB(target, targetEl_rad);
-        rcs_dBsm += clutterAdjustment_dB;
-        lastTargetRCS_dBsm = rcs_dBsm;
+        float clutterAdjustment_dB = CalculateClutterAdjustment_dB(target, targetEl_rad);  // 计算杂波调整值
+        rcs_dBsm += clutterAdjustment_dB;  // 更新雷达散射截面积
+        lastTargetRCS_dBsm = rcs_dBsm;  // 记录上一次的雷达散射截面积
     }
 
-    bool bTargetTypeMatch = (mpDBObj->mbDetectsAir && isAir) ||
-		(mpDBObj->mbDetectsMissile && isMissile) ||
-        (mpDBObj->mbDetectsSurface && isSurface) ||
-		(mpDBObj->mbDetectsGround && isGround);
+    bool bTargetTypeMatch = (mpDBObj->mbDetectsAir && isAir) ||  // 判断目标类型是否匹配
+                            (mpDBObj->mbDetectsMissile && isMissile) ||
+                            (mpDBObj->mbDetectsSurface && isSurface) ||
+                            (mpDBObj->mbDetectsGround && isGround);
 
-	if (bTargetTypeMatch == false) return false;
+    if (bTargetTypeMatch == false) return false;  // 如果目标类型不匹配，返回false
 
-	float margin_dB; // SNR margin
+    float margin_dB; // SNR margin
 
-    if (isSemiactive)
+    if (isSemiactive)  // 如果是半主动雷达
     {
-		margin_dB = 
-            20.0f*(2.0f*log10f(mpDBObj->mfRefRange_km) 
-            - log10f(fTargetRange_km)
-            - log10f(illuminatorTargetRange_km)
-            ) + rcs_dBsm ;
+        margin_dB =
+            20.0f*(2.0f*log10f(mpDBObj->mfRefRange_km)
+                     - log10f(fTargetRange_km)
+                     - log10f(illuminatorTargetRange_km)
+                     ) + rcs_dBsm;  // 计算信噪比余量
     }
     else
     {
-		margin_dB = 
-            40.0f*(log10f(mpDBObj->mfRefRange_km) - log10f(fTargetRange_km)) + rcs_dBsm;
+        margin_dB =
+            40.0f*(log10f(mpDBObj->mfRefRange_km) - log10f(fTargetRange_km)) + rcs_dBsm;  // 计算信噪比余量
     }
 
-    float targetJammingDegradation_dB = 
-            CalculateJammingDegradation2(fTargetAz_rad, targetEl_rad);
-    if (targetJammingDegradation_dB >= jammingDegradation_dB)
+    float targetJammingDegradation_dB =
+        CalculateJammingDegradation2(fTargetAz_rad, targetEl_rad);  // 计算目标干扰衰减值
+    if (targetJammingDegradation_dB >= jammingDegradation_dB)  // 如果目标干扰衰减值大于等于当前干扰衰减值
     {
-        jammingDegradation_dB = targetJammingDegradation_dB;
-        isJammed = (jammingDegradation_dB > 0);
-        jamTime_s = target->mfStatusTime; // not sure if tcSensorState::mfLastScan is updated at this point so use target time
+        jammingDegradation_dB = targetJammingDegradation_dB;  // 更新干扰衰减值
+        isJammed = (jammingDegradation_dB > 0);  // 判断是否被干扰
+        jamTime_s = target->mfStatusTime; // not sure if tcSensorState::mfLastScan is updated at this point so use target time  // 记录干扰时间
     }
 
-    margin_dB = margin_dB - targetJammingDegradation_dB;
-    last_snr_margin_dB = margin_dB;
+    margin_dB = margin_dB - targetJammingDegradation_dB;  // 更新信噪比余量
+    last_snr_margin_dB = margin_dB;  // 记录上一次的信噪比余量
 
     // don't do random detections for missiles (problem where launched with lock that disappears in transition region)
-    if (((mnMode == SSMODE_SURVEILLANCE) || (mnMode == SSMODE_SEEKERSEARCH)) && useRandom)
+    if (((mnMode == SSMODE_SURVEILLANCE) || (mnMode == SSMODE_SEEKERSEARCH)) && useRandom)  // 如果模式为监视或搜索且使用随机检测
     {
-        return RandomDetect(margin_dB);
+        return RandomDetect(margin_dB);  // 进行随机检测并返回结果
     }
     else
     {
-        return margin_dB >= 0;
+        return margin_dB >= 0;  // 如果信噪比余量大于等于0，返回true，否则返回false
     }
 }
 

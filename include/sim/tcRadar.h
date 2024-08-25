@@ -117,7 +117,7 @@ protected:
         float az_rad; ///< az of jammer
         float el_rad; ///< el of jammer
     };
-    bool isSemiactive;
+    bool isSemiactive;///<半主动的
 	float last_range_km; ///< [km] target range from last call to CanDetectTarget
 
 	float target_x_offset_m; ///< offset for seeker target point in model coords

@@ -107,12 +107,12 @@ private:
 		THROTTLE_CMD = 0x0001
 	};
 	tcCommandObject commandObj;
-    float throttleFraction; ///< throttle setting from 0 to 1 military, greater than 1 to use afterburners
-    float levelThrottleFraction; ///< if this is non-zero, set throttle to this when in level flight again
-	float levelThrust_N;
-    float angleOfAttack; ///< angle of attack in radians, solved assuming level flight
-	float lastThrust_N; ///< saved for updating throttle to maintain speed in climb
-	float lastWeight_N; ///< saved for updating throttle to maintain speed in climb
+    float throttleFraction; ///< throttle setting from 0 to 1 military, greater than 1 to use afterburners 油门设置，范围从0到1（军事用途），大于1时使用加力燃烧器
+    float levelThrottleFraction; ///< if this is non-zero, set throttle to this when in level flight again  如果此值不为零，当处于水平飞行时将油门设置为这个值
+    float levelThrust_N; ///< 水平飞行时的推力，单位为牛顿
+    float angleOfAttack; ///< angle of attack in radians, solved assuming level flight 攻角，以弧度为单位，假设处于水平飞行状态进行求解
+    float lastThrust_N; ///< saved for updating throttle to maintain speed in climb 保存上一次的推力，用于在爬升过程中保持速度
+    float lastWeight_N; ///< saved for updating throttle to maintain speed in climb 保存上一次的重量，用于在爬升过程中保持速度
 
     static float GetFuelRate(float throttle, float efficiencyFactor, float thrustFactor, float damageLevel, const tcJetDBObject* airData);
     static float GetThrust(float throttle, float thrustFactor, float speed_mps, const tcJetDBObject* airData);

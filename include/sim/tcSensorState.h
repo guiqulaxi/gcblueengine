@@ -73,23 +73,23 @@ public:
 	tcSensorPlatform* sensorPlatform; ///< parent should always be a sensor plat, this is a down-cast for convenience
     long mnDBKey; 
     tcSensorDBObject* mpDBObj;
-    double mfLastScan;
+    double mfLastScan; //记录上一次扫描的时间。
     float mfCurrentScanPeriod_s;
     short int mnMode;
     tcTrack mcTrack;
     //GeoPoint msCurrentPos; ///< current true position of sensor
     //float mfLookAz_rad;      ///< azimuth of center of coverage relative to north
-    float mountAz_rad;       ///< mounted azimuth of boresight relative to nose/bow of platform
-    float mfSensorHeight_m;     ///< height of sensor relative to platform altitude
+    float mountAz_rad;       ///< mounted azimuth of boresight relative to nose/bow of platform 安装方位角，这是瞄准镜安装后的方位角，相对于平台的机头/船头。
+    float mfSensorHeight_m;     ///< height of sensor relative to platform altitude 传感器高度，即传感器相对于平台高度的高度差
 
     static void AttachDatabase(tcDatabase* db) {database = db;}
     static void AttachSimState(tcSimState* ss) {simState = ss;}
-    static void AttachLOS();
+    static void AttachLOS();//附加视线
 	virtual bool CanDetectTarget(const tcGameObject* target, float& range_km, bool useRandom=true);
 
-    tcRadar* GetFireControlRadar();
-    tcOpticalSensor* GetLaserDesignator();
-	tcSensorState* GetFireControlSensor();
+    tcRadar* GetFireControlRadar(); //获取火控雷达
+    tcOpticalSensor* GetLaserDesignator(); //获取激光指示器
+    tcSensorState* GetFireControlSensor(); //获取火控传感器
     void GetTestArea(tcRect& region);
 	bool GetTrack(tcTrack& track_);
     long GetFireControlPlatform() const;
@@ -107,8 +107,8 @@ public:
 	bool IsDamaged() const;
     bool IsHidden() const;
     
-	virtual bool IsECM() const;
-    virtual bool IsESM() const;
+    virtual bool IsECM() const; //是否是电子对抗措施
+    virtual bool IsESM() const; //是否是电子支援措施
     virtual bool IsRadar() const;
     virtual bool IsSonar() const;
     virtual bool IsOptical() const;

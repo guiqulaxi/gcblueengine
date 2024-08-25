@@ -46,14 +46,14 @@ namespace database
     public:
         enum {IRMODELA = 0, IRMODELB = 1, IRMODELC = 2};
         
-        float RCS_dBsm;						///< base radar cross section, [dBsm]
-        std::string RCS_Model;              ///< aspect variation model
-		float opticalCrossSection_dBsm;	    
-		float irSignature_dB;			    ///< IR emissions for passive IR detection
-        std::string IR_ModelA;              ///< basic model
-        std::string IR_ModelB;              ///< ADDITIONAL signature for afterburners
-        std::string IR_ModelC;              ///< signature for supersonic flight
-        float effectiveHeight_m;            ///< effective height for horizon test
+        float RCS_dBsm;						///< base radar cross section, [dBsm] 基本雷达散射截面
+        std::string RCS_Model;              ///< aspect variation model 雷达散射截面随角度变化的模型
+        float opticalCrossSection_dBsm;	    ///< 光学散射截面，单位为分贝平方米
+        float irSignature_dB;			    ///< IR emissions for passive IR detection
+        std::string IR_ModelA;              ///< basic model 基本红外特征模型 用于被动红外探测的红外发射强度
+        std::string IR_ModelB;              ///< ADDITIONAL signature for afterburners 加力燃烧后的附加红外特征
+        std::string IR_ModelC;              ///< signature for supersonic flight 超音速飞行时的红外特征
+        float effectiveHeight_m;            ///< effective height for horizon test 用于地平线测试的有效高度，单位为米
 
 		static void AddSqlColumns(std::string& columnString);
 		void ReadSql(tcSqlReader& entry);
