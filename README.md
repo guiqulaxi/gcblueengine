@@ -1,4 +1,4 @@
-##战役级的作战仿真引擎  
+## 战役级的作战仿真引擎  
 从[gcblue
 ](https://github.com/WarfareCode/gcblue)剥离  
 1. 去除前端的依赖,纯C/C++,如WxWidget,boost,TVM；  
