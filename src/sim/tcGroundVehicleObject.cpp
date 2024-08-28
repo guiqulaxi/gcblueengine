@@ -36,7 +36,7 @@
 //#include "tcParticleEffect.h"
 //#include "tc3DModel.h"
 #include "common/tcGameStream.h"
-
+#include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif

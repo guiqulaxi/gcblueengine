@@ -47,7 +47,7 @@
 #include "nsNav.h"
 #include "tcFloatCompressor.h"
 #include "tcScenarioRandomizer.h"
-
+#include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif

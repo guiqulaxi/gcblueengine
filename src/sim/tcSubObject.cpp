@@ -41,7 +41,7 @@
 #include "common/tcGameStream.h"
 #include "ai/brain.h"
 #include "ai/task.h"
-
+#include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif

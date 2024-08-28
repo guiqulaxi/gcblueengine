@@ -32,7 +32,7 @@
 #include "tcGameObjIterator.h"
 #include "tcGameObject.h"
 #include "tcSimState.h"
-
+#include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif

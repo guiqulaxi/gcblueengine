@@ -50,7 +50,7 @@
 #include "tcScenarioLogger.h"
 #include "tcSimState.h"
 #include <limits>
-
+#include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif

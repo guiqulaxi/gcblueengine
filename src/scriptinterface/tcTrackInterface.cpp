@@ -35,7 +35,7 @@
 #include "tcTrackInterface.h"
 #include "tcSensorMap.h"
 #include "tcAllianceSensorMap.h"
-
+#include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif 

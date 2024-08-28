@@ -36,7 +36,7 @@
 #include "tcGameObjIterator.h"
 #include "tcSimState.h"
 ////#include "tcMessageInterface.h"
-
+#include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif

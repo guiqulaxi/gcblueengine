@@ -40,7 +40,7 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/3rd/pybind11/include
     ${PROJECT_SOURCE_DIR}/3rd/sqlite/include
     ${PROJECT_SOURCE_DIR}/3rd/date/include
-    ${PROJECT_SOURCE_DIR}/3rd/nlohmann/include
+    ${PROJECT_SOURCE_DIR}/3rd/rapidjson/include
     ${PROJECT_SOURCE_DIR}/3rd/httplib/include
     ${PROJECT_SOURCE_DIR}/3rd/cmdline/include
     C:/ProgramData/anaconda3/include

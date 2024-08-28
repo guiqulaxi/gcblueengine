@@ -35,7 +35,7 @@
 #include "common/tcGameStream.h"
 #include "tcDamageModel.h"
 #include "tcLauncher.h"
-
+#include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif

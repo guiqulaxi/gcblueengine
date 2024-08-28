@@ -37,6 +37,7 @@
 #include "tcDatabaseIterator.h"
 //#include "tc3DModel.h"
 #include "nsNav.h"
+#include <cassert>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

@@ -24,7 +24,7 @@
 */
 
 #pragma warning (disable : 4996) // 'strdup' was declared deprecated
-
+#include <cassert>
 #include "simmath.h"
 #include "nsNav.h"
 #include "tcMapData.h"
@@ -33,7 +33,7 @@
 #include "tcGameObject.h"
 #include "tcFloatCompressor.h"
 #include "common/tcObjStream.h"
-
+#include <cassert>
 
 
 float Add_dB(float x_dB, float y_dB)

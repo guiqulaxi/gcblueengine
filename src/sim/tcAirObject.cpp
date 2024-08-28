@@ -45,7 +45,7 @@
 #include "tcFloatCompressor.h"
 #include "tcFuelTankDBObject.h"
 #include "tcBallisticDBObject.h"
-
+#include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif

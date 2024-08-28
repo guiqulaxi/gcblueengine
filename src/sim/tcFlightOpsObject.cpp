@@ -42,7 +42,7 @@
 #include "ai/tcMissionManager.h"
 #include "tcDatabase.h"
 #include "tcSimState.h"
-
+#include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif

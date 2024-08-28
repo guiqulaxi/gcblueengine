@@ -43,7 +43,7 @@
 #include "tcESMSensor.h"
 #include "tcAero.h"
 #include <sstream>
-
+#include <cassert>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

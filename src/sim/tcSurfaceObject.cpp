@@ -41,7 +41,7 @@
 #include "ai/Task.h"
 #include <math.h>
 #include "tcSonarEnvironment.h"
-
+#include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif

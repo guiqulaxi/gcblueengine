@@ -40,7 +40,7 @@
 //#include "tcWorldMapView.h"
 //#include "tcMapOverlay.h"
 #include "tcSonarEnvironment.h"
-
+#include <cassert>
 //#include <wx/xml/xml.h>
 
 #ifdef _DEBUG

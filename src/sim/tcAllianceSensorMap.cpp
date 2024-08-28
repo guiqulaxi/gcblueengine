@@ -36,7 +36,7 @@
 #include "tcDatabaseIterator.h"
 #include "tcAllianceInfo.h"
 #include "tcSensorTrackIterator.h"
-
+#include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif

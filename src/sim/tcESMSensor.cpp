@@ -40,7 +40,7 @@
 #include "tcSimState.h"
 ////#include "tcMessageInterface.h"
 #include "tcEventManager.h"
-
+#include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif

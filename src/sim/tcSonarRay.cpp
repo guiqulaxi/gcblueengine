@@ -26,7 +26,7 @@
 //#include "stdwx.h"
 
 #include "tcSonarRay.h"
-
+#include <cassert>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

@@ -40,7 +40,7 @@
 #include "tcSensorDBObject.h"
 #include "tcSensorState.h"
 #include "tcLauncher.h"
-
+#include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif

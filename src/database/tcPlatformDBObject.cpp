@@ -41,7 +41,7 @@
 #include "database/tcSqlReader.h"
 #include <sstream>
 #include "tcStoresDBObject.h"
-
+#include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif

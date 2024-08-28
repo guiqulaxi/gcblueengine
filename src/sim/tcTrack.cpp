@@ -32,7 +32,7 @@
 #include "nsNav.h"
 #include "tcMapData.h"
 #include "tcFloatCompressor.h"
-
+#include <cassert>
 /**
 * Load state from stream
 */

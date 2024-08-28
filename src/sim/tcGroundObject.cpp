@@ -34,7 +34,7 @@
 #include "tcGroundDBObject.h"
 #include "ai/Brain.h"
 #include "ai/Task.h"
-
+#include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif

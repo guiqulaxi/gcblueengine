@@ -45,6 +45,7 @@
 #include "simmath.h"
 #include "tcEventManager.h"
 #include "strutil.h"
+#include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif 

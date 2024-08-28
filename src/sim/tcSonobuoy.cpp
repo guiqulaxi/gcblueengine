@@ -39,7 +39,7 @@
 #include "tcSimState.h"
 #include "tcSonobuoyDBObject.h"
 #include "common/tcGameStream.h"
-
+#include <cassert>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

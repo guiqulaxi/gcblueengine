@@ -34,7 +34,7 @@
 #include "tcAirObject.h"
 #include "tcSimState.h"
 #include "common/tcGameStream.h"
-
+#include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif

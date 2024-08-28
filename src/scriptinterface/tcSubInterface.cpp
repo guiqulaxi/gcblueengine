@@ -36,7 +36,7 @@
 #include "tcSimState.h"
 //#include "tcSound.h"
 #include "tcSubObject.h"
-
+#include <cassert>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

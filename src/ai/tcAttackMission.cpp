@@ -45,6 +45,7 @@
 #include "strutil.h"
 #include <iomanip>
 #include <chrono>
+#include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif

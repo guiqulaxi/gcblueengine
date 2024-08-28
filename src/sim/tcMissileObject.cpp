@@ -43,7 +43,7 @@
 #include "tc3DPoint.h"
 #include "tcSubObject.h"
 #include "tcTorpedoObject.h"
-
+#include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif

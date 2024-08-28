@@ -44,7 +44,7 @@
 #include "common/tcString.h"
 #include "tcMissileObject.h"
 #include "tcScenarioLogger.h"
-
+#include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif

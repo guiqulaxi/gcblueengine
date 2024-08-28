@@ -46,7 +46,7 @@
 #include "tcEventManager.h"
 #include "tcSonarEnvironment.h"
 //#include "tcMessageInterface.h"
-
+#include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif

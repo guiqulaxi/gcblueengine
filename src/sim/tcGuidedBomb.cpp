@@ -41,7 +41,7 @@
 #include "tc3DPoint.h"
 #include "tcOpticalSensor.h"
 #include "tcGameObjIterator.h"
-
+#include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif

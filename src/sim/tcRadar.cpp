@@ -47,7 +47,7 @@
 #include "tcGameStream.h"
 #include "tcAllianceInfo.h"
 #include "tcEventManager.h"
-
+#include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif

@@ -40,7 +40,7 @@
 #include "tcDamageModel.h"
 ////#include "tcMessageInterface.h"
 //#include "tc3DModel.h"
-
+#include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif

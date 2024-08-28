@@ -38,7 +38,7 @@
 //#include "tcMapOverlay.h"
 //#include "tcGoalAreaEditObject.h"
 #include "tcGameObjIterator.h"
-
+#include <cassert>
 /***** expose classes to boost python *****/
 
 //#include <boost/python.hpp>

@@ -33,7 +33,7 @@
 #include "tcAirDBObject.h"
 #include "tcSonarDBObject.h"
 #include "tcSonar.h"
-
+#include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif

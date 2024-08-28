@@ -40,7 +40,7 @@
 #include "tcDamageModel.h"
 #include "tcLOS.h"
 #include "tcFloatCompressor.h"
-
+#include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif

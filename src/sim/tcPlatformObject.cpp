@@ -51,6 +51,7 @@
 #include "tcDatabase.h"
 #include "tcEventManager.h"
 #include <Dense>
+#include <cassert>
 using  Eigen::Vector2d;
 #ifdef _DEBUG
 #define new DEBUG_NEW

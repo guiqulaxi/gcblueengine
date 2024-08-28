@@ -45,6 +45,7 @@
 #include <sstream>
 #include <iomanip>
 #include <tinyxml2.h>
+#include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif

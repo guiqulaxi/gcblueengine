@@ -34,7 +34,7 @@
 #include "common/tcObjStream.h"
 #include "common/tcGameStream.h"
 #include "tcDamageModel.h"
-
+#include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
