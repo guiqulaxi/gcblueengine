@@ -36,6 +36,7 @@
 #include "tcAeroAirObject.h"
 #include "tcAirfieldObject.h"
 #include "tcCarrierObject.h"
+#include "tcSpaceObject.h"
 #include "tcDatabase.h"
 //#include "tcDirector.h"
 //#include "tcDirectorEvent.h"
@@ -73,6 +74,7 @@
 #include "tcStringTable.h"
 #include <ctime>
 #include <iomanip>
+
 using namespace std;
 //using namespace boost::python;
 using ai::Brain;
@@ -92,6 +94,19 @@ namespace scriptinterface
         lon = lon_deg;
         lat = lat_deg;
         alt = alt_m;
+    }
+
+    void tcScenarioUnit::SetOrbit(double a_km, double e, double i_deg,
+                                  double Omega_deg, double omega_deg,
+                                  double M_deg, double tp)
+    {
+        this-> a=a;             // 半长轴 千米 输入
+        this-> e=e;             // 偏心率  输入
+        this-> i=i;             // 轨道倾角 输入
+        this-> Omega=Omega;         // 升交点经度 输入
+        this-> omega=omega;         // 近地点幅角 输入
+        this-> M=M;             // 初始平近点角 输入
+        this-> tp=tp;            // 过近地点时间
     }
 
     /**
@@ -469,6 +484,16 @@ object tcScenarioInterface::GetInterface()
 			kin.mfAlt_m += 
 				mapData->GetTerrainHeight(unit.lon, unit.lat, 0);
 		}
+        if (tcSpaceObject* space = dynamic_cast<tcSpaceObject*>(gameObj))
+        {
+            space->SetA(unit.a);
+            space->Sete(unit.e);
+            space->SetI(unit.i*C_PIOVER180);
+            space->SetOmega(unit.Omega*C_PIOVER180);
+            space->Setomega(unit.omega*C_PIOVER180);
+            space->SetTp(unit.tp);
+            space->SetM(unit.M);
+        }
 
 		gameObj->mfStatusTime = simState->GetTime();
         simState->AddPlatform(gameObj);

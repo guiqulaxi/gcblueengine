@@ -23,7 +23,7 @@
 
 #include "network/tcTextMessageHandler.h"
 #include "network/tcMultiplayerInterface.h"
-//#include "tcMessageInterface.h"
+#include "tcMessageInterface.h"
 
 BEGIN_NAMESPACE(network)
 
@@ -31,7 +31,7 @@ BEGIN_NAMESPACE(network)
 * Creates text message.
 * @param maxSize maximum size of string to send not including terminating null
 */
-void tcTextMessageHandler::CreateMessage(unsigned& messageSize, char *data,
+void tcTextMessageHandler::CreateMessage(unsigned& messageSize, unsigned char *data, 
         std::string text, unsigned maxSize)
 {
     messageSize = (unsigned int)text.length(); 
@@ -44,11 +44,11 @@ void tcTextMessageHandler::CreateMessage(unsigned& messageSize, char *data,
 }
 
 
-void tcTextMessageHandler::Handle(int connectionId, unsigned messageSize, const char *data)
+void tcTextMessageHandler::Handle(int connectionId, unsigned messageSize, const unsigned char *data)
 {
     std::string text((char*)data);
 
-    tcMultiplayerInterface* multiplayerInterface = //tcMultiplayerInterface::Get();
+    tcMultiplayerInterface* multiplayerInterface = tcMultiplayerInterface::Get();
     if (multiplayerInterface->IsServer())
     {
         // create string with name prepended to text to identify source

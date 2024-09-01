@@ -60,29 +60,29 @@ namespace database
             MAXANIMATIONS = 4,
             MAXMAGAZINES = 5
         };
-        float mfMaxSpeed_kts;               ///< max speed, [kts]
-        float mfAccel_ktsps;                ///< [kts/s] acceleration, simple model
-        float mfTurnRate_degps;             ///< [deg/s]
-        float mfFuelCapacity_kg;            ///< [kg], 0 is infinite fuel
-        float mfFuelRate_kgps;              ///< [kg/s] at max thrust, simple model for now
-        float mfToughness;                  ///< 0 - 100 for now, survivability
-        std::string damageEffect;           ///< advanced damage model "toughness"
+        float mfMaxSpeed_kts;               ///< max speed, [kts] 最大速度，单位：[节]
+        float mfAccel_ktsps;                ///< [kts/s] acceleration, simple model 加速度，单位：[节/秒]，简化模型
+        float mfTurnRate_degps;             ///< [deg/s] 转弯率，单位：[度/秒]
+        float mfFuelCapacity_kg;            ///< [kg], 0 is infinite fuel 燃料容量，单位：[千克]，0 表示无限燃料
+        float mfFuelRate_kgps;              ///< [kg/s] at max thrust, simple model for now 最大推力下的燃料消耗率，单位：[千克/秒]，目前为简化模型
+        float mfToughness;                  ///< 0 - 100 for now, survivability 坚固度，目前范围：0 - 100，表示生存能力
+        std::string damageEffect;           ///< advanced damage model "toughness" 高级损伤模型中的“坚固度”效果描述
 
-        int mnNumLaunchers;
-        int mnNumMagazines;
-        std::vector<std::string> maLauncherClass;  
-        std::vector<std::string> maMagazineClass;
-        std::vector<unsigned int> magazineId; // id for each magazine
-        std::vector<unsigned int> launcherId; // id for each launcher
+        int mnNumLaunchers; //发射器数量
+        int mnNumMagazines;//弹仓数量
+        std::vector<std::string> maLauncherClass;  //发射器类别
+        std::vector<std::string> maMagazineClass;//弹仓类别
+        std::vector<unsigned int> magazineId; // id for each magazine 每个弹仓的ID
+        std::vector<unsigned int> launcherId; // id for each launcher 每个发射器的ID
         
-        std::vector<std::string> launcherDescription;
-        std::vector<std::string> launcherName; ///< display names of launchers, e.g. "Tube 1"
-        std::vector<float> launcherFOV_deg;
-        std::vector<float> launcherAz_deg;
-        std::vector<float> launcherEl_deg;
-        std::vector<std::string> launcherFireControl; ///< fire control sensors for launchers (empty for none)
-        std::vector<std::string> launcherFireControl2; ///< fire control sensors for launchers, second option (empty for none)
-        std::vector<bool> launcherIsReloadable; ///< true if launcher is reloadable
+        std::vector<std::string> launcherDescription; ///发射器描述
+        std::vector<std::string> launcherName; ///< display names of launchers, e.g. "Tube 1" 发射器显示名称
+        std::vector<float> launcherFOV_deg;/// 发射器视野角度，单位：[度]
+        std::vector<float> launcherAz_deg; ///发射器方位角，单位：[度]
+        std::vector<float> launcherEl_deg; //发射器仰角，单位：[度]
+        std::vector<std::string> launcherFireControl; ///< fire control sensors for launchers (empty for none) 发射器的火控传感器（无则为空）
+        std::vector<std::string> launcherFireControl2; ///< fire control sensors for launchers, second option (empty for none) 发射器的第二个火控传感器选项（无则为空）
+        std::vector<bool> launcherIsReloadable; ///< true if launcher is reloadable 如果发射器可重新装填则为true
 
 //        std::vector<animationDBInfo> animationInfo;
 

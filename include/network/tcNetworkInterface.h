@@ -28,9 +28,9 @@
 #pragma once
 #endif
 
-//#include "wx/wx.h"
-//#include "wx/socket.h"
-//#include "wx/event.h"
+#include "wx/wx.h"
+#include "wx/socket.h"
+#include "wx/event.h"
 #include <list>
 #include <vector>
 #include <queue>
@@ -39,16 +39,13 @@
 #include "tcConnectionData.h"
 #include "tcMessage.h"
 #include "gctypes.h"
-#include <QTcpServer>
-#include <QTcpSocket>
-#include <QUdpSocket>
+
 #define BEGIN_NAMESPACE(x) namespace x {
 #define END_NAMESPACE }
 
 BEGIN_NAMESPACE(network)
 
-//class tcNetworkInterface : public wxEvtHandler
-class tcNetworkInterface
+class tcNetworkInterface : public wxEvtHandler
 {
     friend class tcConnectionData;
 public:
@@ -79,14 +76,14 @@ public:
     void MakeClient();
     void MakeServer();
     
-    void OpenConnection(std::string hostName);
+    void OpenConnection(wxString hostName);
     void CloseConnection();
     void RemoveConnection(int id);
     
-      char* ReceiveMessage(int connectionId, int& messageId, unsigned& messageSize,
+    const unsigned char* ReceiveMessage(int connectionId, int& messageId, unsigned& messageSize, 
         int protocol = TCP);
     bool SendMessage(int connectionId, int messageId, unsigned messageSize, 
-        const char *data, int protocol = TCP);
+        const unsigned char *data, int protocol = TCP);
         
     void SetPingTime(int connectionId, float ping_s);
 
@@ -106,17 +103,11 @@ private:
     int connectionIndex; ///< counter used to assigned connection id
     bool isServer; ///< true if this interface is acting as a server, false if client
     UINT32 connectionStartTime;
-    QHostAddress hostAddress;
+    wxIPV4address hostAddress;
 
-    QTcpSocket *clientSock; ///< single socket that will be used in client mode
-    QTcpServer *serverSock; ///< server socket for server mode
-    QUdpSocket *datagramSock; ///< UDP socket
-
-//    wxIPV4address hostAddress;
-
-//    wxSocketClient *clientSock; ///< single socket that will be used in client mode
-//    wxSocketServer *serverSock; ///< server socket for server mode
-//    wxDatagramSocket *datagramSock; ///< UDP socket
+    wxSocketClient *clientSock; ///< single socket that will be used in client mode
+    wxSocketServer *serverSock; ///< server socket for server mode
+    wxDatagramSocket *datagramSock; ///< UDP socket
 
 	/// map of (connection id, connection data), access (and delete) in log time
     std::map<int, tcConnectionData*> connectionData;
@@ -127,8 +118,7 @@ private:
 
     std::map<std::string, int> peerMap; ///< another lookup (peername, connectionData idx)
 
-//    void AddConnection(wxSocketBase *socket); // adds new connection using socket
-    void AddConnection(QAbstractSocket *socket); // adds new connection using socket
+    void AddConnection(wxSocketBase *socket); // adds new connection using socket
 
 
     void ClearConnectionMessages(int id);
@@ -136,10 +126,10 @@ private:
 
 
     tcConnectionData* GetConnection(const std::string& peerName);
-    QUdpSocket* GetDatagramSocket() {return datagramSock;}
+    wxDatagramSocket* GetDatagramSocket() {return datagramSock;}
     void InitializeUDP();
 
-//    void OnSocketEvent(wxSocketEvent& event);
+    void OnSocketEvent(wxSocketEvent& event);
     void RemoveDeadConnections();
     void RemoveBadConnections();
     void ResetMessageBuffer();
@@ -153,7 +143,7 @@ private:
 
     void UpdateServer();
 
-//    DECLARE_EVENT_TABLE()
+    DECLARE_EVENT_TABLE()
 };
 
 END_NAMESPACE

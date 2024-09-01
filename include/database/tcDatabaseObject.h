@@ -108,6 +108,7 @@ void ClassificationToString(UINT16 anType, char *azString);
 #define MTYPE_WATERCM 22 // water countermeasure model
 #define MTYPE_BALLISTICMISSILE 23
 #define MTYPE_ROCKET 24
+#define MTYPE_SPACE 25 //卫星
 
     /**
     * Requirements for weapon launch

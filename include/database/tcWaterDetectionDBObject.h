@@ -45,10 +45,10 @@ namespace database
     class tcWaterDetectionDBObject
     {
     public:
-        float TS;                           ///< Target strength for active sonar detection
-        std::string TS_Model;               ///< aspect variation model for acoustic backscatter
-        std::string acousticModel;          ///< acoustic model for SL vs speed
-        std::string SL_Model;               ///< aspect variation model for radiated noise
+        float TS;                           ///< Target strength for active sonar detection // 主动声纳探测的目标强度
+        std::string TS_Model;               ///< aspect variation model for acoustic backscatter 声学反向散射的方位变化模型
+        std::string acousticModel;          ///< acoustic model for SL vs speed 声级（SL）与速度之间的声学模型
+        std::string SL_Model;               ///< aspect variation model for radiated noise 辐射噪声的方位变化模型
 
         
 		static void AddSqlColumns(std::string& columnString);

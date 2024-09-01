@@ -36,7 +36,7 @@
 #include "tcPlatformInterface.h"
 #include "tcWeaponInterface.h"
 #include "tcSimState.h"
-#include "network/tcMultiplayerInterface.h"
+// #include "network/tcMultiplayerInterface.h"
 //#include "tcCommandQueue.h"
 
 #ifdef _DEBUG
@@ -263,7 +263,7 @@ namespace scriptinterface
 	{
         if (groupUnits.size() == 0) return;
 
-		using network::tcMultiplayerInterface;
+        // using network::tcMultiplayerInterface;
 
         std::vector<long> availableIds;
 

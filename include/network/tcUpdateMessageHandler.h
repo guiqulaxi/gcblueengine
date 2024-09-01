@@ -36,7 +36,7 @@
 #include <string>
 
 #include "network/tcMessageHandler.h"
-//#include "tcMPGameView.h"
+#include "tcMPGameView.h"
 
 class tcGameObject;
 class tcFlightOpsObject;
@@ -79,7 +79,7 @@ public:
 
     };
 
-//	static tcMPGameView* mpGameView;
+	static tcMPGameView* mpGameView;
 
 	static void AddBriefingText(long alliance, tcStream& stream);
     static void AddCommandAck(tcGameObject* obj, tcCommandStream& stream);
@@ -97,11 +97,11 @@ public:
     static bool AddUpdate(tcGameObject* obj, tcUpdateStream& stream);
     static void AddAirMissionUpdate(tcFlightOpsObject* obj, tcUpdateStream& stream);
 
-//	static void AttachMPGameView(tcMPGameView* p);
+	static void AttachMPGameView(tcMPGameView* p);
 
     static void InitializeMessage(int messageType, tcStream& stream);
 
-    virtual void Handle(int connectionId, unsigned messageSize, const char *data);
+    virtual void Handle(int connectionId, unsigned messageSize, const unsigned char *data);
     void HandleAirMissionUpdate(tcUpdateStream& stream);
 	void HandleBriefingText(tcStream& stream);
     void HandleCommandAck(tcCommandStream& stream); ///< command ack
@@ -119,17 +119,17 @@ public:
 	void HandleTeamStatus(tcStream& stream);
     void HandleUpdate(tcUpdateStream& stream, int connectionId);
 
-//	static std::vector<tcMPGameView::TeamInfo>& GetLatestTeamList();
+	static std::vector<tcMPGameView::TeamInfo>& GetLatestTeamList();
     static bool EntityUpdateReceived();
 
     tcUpdateMessageHandler();
     virtual ~tcUpdateMessageHandler();
 
 private:
-//	static std::vector<tcMPGameView::TeamInfo> latestTeamList; ///< got to be a better place to do this!
+	static std::vector<tcMPGameView::TeamInfo> latestTeamList; ///< got to be a better place to do this!
     static bool entityUpdateReceived; ///< set true when entity update received
 
-//	static void UpdateTeamList(std::vector<tcMPGameView::TeamInfo>& teamList);
+	static void UpdateTeamList(std::vector<tcMPGameView::TeamInfo>& teamList);
 
 };
 

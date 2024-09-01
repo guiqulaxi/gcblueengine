@@ -63,10 +63,10 @@ public:
     };
 
 
-    static void CreateControlMessage(int messageCode, unsigned& messageSize,  char *data,
+    static void CreateControlMessage(int messageCode, unsigned& messageSize, unsigned char *data,
         int param = 0);
 
-    virtual void Handle(int connectionId, unsigned messageSize, const  char *data);
+    virtual void Handle(int connectionId, unsigned messageSize, const unsigned char *data);
 
     tcControlMessageHandler();
     virtual ~tcControlMessageHandler();

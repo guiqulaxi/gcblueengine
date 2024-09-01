@@ -30,16 +30,13 @@
 #pragma once
 #endif
 
-//#include "wx/wx.h"
-//#include "wx/socket.h"
+#include "wx/wx.h"
+#include "wx/socket.h"
 
 #include <deque>
 #include <list>
 #include <queue>
 #include <vector>
-#include <string>
-#include<QHostAddress>
-#include <QAbstractSocket>
 
 #include "network/tcMessage.h"
 
@@ -56,7 +53,7 @@ class tcConnectionData
 public:
     static tcNetworkInterface *networkInterface; ///< pointer to network interface
 
-    std::string idString; ///< identifier string for source of message
+    wxString idString; ///< identifier string for source of message
     unsigned int timestamp; ///< start time (tcTime 30 Hz counter) for connection
     int id; ///< identifier number for source of message, -1 for not assigned
     std::queue<unsigned int> readQueueTCP; ///< fifo of TCP received message indices
@@ -73,12 +70,10 @@ public:
     // free all queued messages
     void ClearAllMessages();
 	const char* GetIdString() const;
-    const QHostAddress& GetPeerAddress() const;
-//	const wxIPV4address& GetPeerAddress() const;
+	const wxIPV4address& GetPeerAddress() const;
     unsigned long GetReadCount() const;
 	unsigned int GetResentCount() const;
-    QAbstractSocket *GetSocket();
-//	wxSocketBase* GetSocket();
+	wxSocketBase* GetSocket();
     unsigned long GetWriteCount() const;
     unsigned int GetReadCountSec() const;
     unsigned int GetWriteCountSec() const; 
@@ -86,12 +81,11 @@ public:
     unsigned int GetPingCount() const;
     
     void ReadNextMessageTCP();
-    void ReadNextMessageUDP(unsigned int messageSize,  char *buffer);
+    void ReadNextMessageUDP(unsigned int messageSize, unsigned char *buffer);
     void SendTCP(unsigned int idx);
     void SendUDP(unsigned int idx);
     void SetPingTime(float ping_s);
-    void SetSocket(QAbstractSocket* sock);
-//    void SetSocket(wxSocketBase* sock);
+    void SetSocket(wxSocketBase* sock);
 
     void Update(); ///< read and write data from socket
     void WriteQueuedMessages();
@@ -102,7 +96,7 @@ public:
 private:
     enum {DUPLICATE_HISTORY = 16}; ///< number of UDP packets to keep history for duplicate checking
 
-    QAbstractSocket *socket;   ///< socket associated with this connection
+    wxSocketBase *socket;   ///< socket associated with this connection
     tcMessage tempMessage; ///< message to use for temporary storage
     unsigned long lastReadCount; ///< read count at last second mark
     unsigned long lastWriteCount; ///< write count at last second mark
@@ -113,8 +107,8 @@ private:
 	unsigned int resentCount_sec; ///< bytes resent over last full second
     float pingTime_s; ///< last ping time for this connection
     unsigned int pingCount; ///< number of times ping has been updated
-    QHostAddress UDPaddress;
-	std::string peerName;
+    wxIPV4address UDPaddress;
+	wxString peerName;
 	unsigned int lastCountUpdate;
 	unsigned int lastResendUpdate;
 	unsigned long resentCount; ///< number of packets resent because of ack timeout

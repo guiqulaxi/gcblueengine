@@ -62,7 +62,7 @@
 #include "tcLauncherState.h"
 #include "tcLauncher.h"
 ////#include "tcMessageInterface.h"
-#include "network/tcMultiplayerInterface.h"
+// #include "network/tcMultiplayerInterface.h"
 #include "tcStores.h"
 //#include "tcTacticalMapView.h"
 #include "ai/Brain.h"
@@ -3184,7 +3184,7 @@ namespace scriptinterface {
 	{
         if (mpPlatformObj == 0) return;
 
-		using network::tcMultiplayerInterface;
+        // using network::tcMultiplayerInterface;
 		if (mpPlatformObj->IsControlled())
 		{
 //            if (tcMultiplayerInterface::Get()->IsServer())
@@ -3203,7 +3203,7 @@ namespace scriptinterface {
 	{
         if (mpPlatformObj == 0) return;
 
-		using network::tcMultiplayerInterface;
+        // using network::tcMultiplayerInterface;
 		if (mpPlatformObj->IsAvailable())
 		{
 //            if (tcMultiplayerInterface::Get()->IsServer())

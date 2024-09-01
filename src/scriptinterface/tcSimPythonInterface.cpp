@@ -42,7 +42,7 @@
 //#include "tcDirector.h"
 ////#include "tcMessageInterface.h"
 #include "tcTime.h"
-#include "network/tcMultiplayerInterface.h"
+// #include "network/tcMultiplayerInterface.h"
 
 #include "ai/ScriptedTask.h"
 #include "ai/ScriptedTaskInterface.h"
@@ -66,7 +66,7 @@ using namespace py;
 
 //using namespace boost::python;
 using namespace ai;
-using namespace network;
+// using namespace network;
 
 namespace scriptinterface 
 {
@@ -253,9 +253,11 @@ tcCommandStream& tcSimPythonInterface::operator<<(tcCommandStream& stream)
 //        return stream;
 //    }
 //    tcPlayerStatus playerStatus = multiplayerInterface->GetPlayerStatus(connId);
-    tcPlayerStatus playerStatus;
-    playerStatus.alliance=1;
-    tcAllianceSensorMap* playerSensorMap = mpSimState->GetSensorMap()->GetMap(playerStatus.alliance);
+    // tcPlayerStatus playerStatus;
+    // playerStatus.alliance=1;
+    // tcAllianceSensorMap* playerSensorMap = mpSimState->GetSensorMap()->GetMap(playerStatus.alliance);
+    tcAllianceSensorMap* playerSensorMap = mpSimState->GetSensorMap()->GetMap(1);
+
     if (playerSensorMap == 0)
     {
 //        fprintf(stderr, "tcSimPythonInterface::operator<< - Player has no sensor map, bad alliance? (%s, %d)\n",
@@ -266,7 +268,7 @@ tcCommandStream& tcSimPythonInterface::operator<<(tcCommandStream& stream)
     tcTrackInterface::SetSensorMap(playerSensorMap);
 
     unsigned char prevAlliance = mpSimState->mpUserInfo->GetOwnAlliance();
-    mpSimState->mpUserInfo->SetOwnAlliance(playerStatus.alliance);
+    mpSimState->mpUserInfo->SetOwnAlliance(1);
 
 	unsigned char nCommands;
 	stream >> nCommands;

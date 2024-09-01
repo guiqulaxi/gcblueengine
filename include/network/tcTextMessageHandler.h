@@ -49,10 +49,10 @@ BEGIN_NAMESPACE(network)
 class tcTextMessageHandler : public tcMessageHandler
 {
 public:
-    static void CreateMessage(unsigned& messageSize, char *data,
+    static void CreateMessage(unsigned& messageSize, unsigned char *data, 
         std::string text, unsigned maxSize);
 
-    virtual void Handle(int connectionId, unsigned messageSize, const  char *data);
+    virtual void Handle(int connectionId, unsigned messageSize, const unsigned char *data);
 
     tcTextMessageHandler(std::queue<std::string>& _chatText);
     virtual ~tcTextMessageHandler();

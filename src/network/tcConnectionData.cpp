@@ -23,10 +23,10 @@
 **  IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-//#include "stdwx.h" // precompiled header file
+#include "stdwx.h" // precompiled header file
 
 #ifndef WX_PRECOMP
-////#include "wx/wx.h" 
+#include "wx/wx.h" 
 #endif
 
 #include "network/tcConnectionData.h"
@@ -34,7 +34,7 @@
 #include "tcTime.h"
 #include <iostream>
 #include <math.h>
-#include <cassert>
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -56,7 +56,7 @@ void tcConnectionData::AttachAckRider(tcMessage* message)
     unsigned int maxAcks = (tcMessage::MESSAGE_SIZE - messageSize) / sizeof(unsigned short);
     unsigned int nAcks = (unsigned int)sendAck.size();
     
-     char* data = message->GetMessageData();
+	unsigned char* data = message->GetMessageData();
 	data += messageSize; // advance to end
 
 	unsigned int riderSize = 0;
@@ -94,7 +94,7 @@ void tcConnectionData::ProcessAckRider(tcMessage* message)
 	unsigned int messageSize = message->GetMessageSize(); // not including header
 	unsigned int nAcks = riderSizeBytes / sizeof(unsigned short);
 
-     char* data = message->GetMessageData();
+	unsigned char* data = message->GetMessageData();
 	data += (messageSize - riderSizeBytes); // advance to beginning of rider
 
 	for (unsigned int n=0; n<nAcks; n++)
@@ -143,7 +143,7 @@ void tcConnectionData::ProcessAckRider(tcMessage* message)
 
 void tcConnectionData::ClearAllMessages()
 {
-    assert(networkInterface);
+    wxASSERT(networkInterface);
     
     networkInterface->ReturnMessagesFromQueue(readQueueTCP);
     networkInterface->ReturnMessagesFromQueue(readQueueUDP); 
@@ -167,7 +167,7 @@ const char* tcConnectionData::GetIdString() const
 	return idString.c_str();
 }
 
-const QHostAddress& tcConnectionData::GetPeerAddress() const
+const wxIPV4address& tcConnectionData::GetPeerAddress() const
 {
 	return UDPaddress;
 }
@@ -203,7 +203,7 @@ unsigned int tcConnectionData::GetResentCount() const
 	return resentCount;
 }
 
-QAbstractSocket* tcConnectionData::GetSocket()
+wxSocketBase* tcConnectionData::GetSocket()
 {
 	return socket;
 }
@@ -231,14 +231,14 @@ unsigned int tcConnectionData::GetWriteCountSec() const
 * the idx is stored in the appropriate receive queue.
 */
 void tcConnectionData::ReadNextMessageTCP()
-{
-    assert(socket);
+{    
+    wxASSERT(socket);
 
     // read size field first
     if (tempMessage.bufferIdx == 0)
     {
-        tempMessage.bufferIdx +=socket->read(tempMessage.data.buffer, (quint64)tcMessage::SIZE_SIZE);
-//        tempMessage.bufferIdx += socket->LastCount();
+        socket->Read(tempMessage.data.buffer, tcMessage::SIZE_SIZE);
+        tempMessage.bufferIdx += socket->LastCount();
     }
 
     if (tempMessage.bufferIdx == 0)
@@ -250,10 +250,10 @@ void tcConnectionData::ReadNextMessageTCP()
 
 
     // Read message
-    tempMessage.bufferIdx +=socket->read(tempMessage.data.buffer + tempMessage.bufferIdx,
+    socket->Read(tempMessage.data.buffer + tempMessage.bufferIdx, 
         tempMessage.data.header.messageSize - tempMessage.bufferIdx);
-//    tempMessage.bufferIdx += socket->LastCount();
-
+    tempMessage.bufferIdx += socket->LastCount();
+    
     if (tempMessage.bufferIdx >= tempMessage.data.header.messageSize)
     {
     }
@@ -272,12 +272,12 @@ void tcConnectionData::ReadNextMessageTCP()
 
     /*
     tempMessage.buffer[256] = 0;
-    //wxMessageBox(testString.c_str(),"Message",wxOK);
+    wxMessageBox(testString.c_str(),"Message",wxOK);
     */
 
     int bufferIdx = networkInterface->CheckoutMessage();
     tcMessage *message = networkInterface->GetMessage(bufferIdx);
-    if (message == NULL)
+    if (message == NULL) 
     {
         std::cerr << "Error - Message buffer full, receive message lost" << std::endl;
         tempMessage.Reset();
@@ -293,7 +293,7 @@ void tcConnectionData::ReadNextMessageTCP()
 #ifdef _DEBUG
     /*
     fprintf(stdout, " Received message, size: %d, id:%d, t:%d data:%s\n",
-        message->GetMessageSize(), message->GetMessageId(),
+        message->GetMessageSize(), message->GetMessageId(), 
         message->GetMessageTimestamp(), testString.c_str());
     */
 #endif
@@ -302,84 +302,12 @@ void tcConnectionData::ReadNextMessageTCP()
 
 }
 
-//void tcConnectionData::ReadNextMessageTCP()
-//{
-//    assert(socket);
-
-//    // read size field first
-//    if (tempMessage.bufferIdx == 0)
-//    {
-//        socket->Read(tempMessage.data.buffer, tcMessage::SIZE_SIZE);
-//        tempMessage.bufferIdx += socket->LastCount();
-//    }
-
-//    if (tempMessage.bufferIdx == 0)
-//    {
-//        std::cerr << "Warning - tcConnectionData::ReadNextMessage() called with empty read buffer"
-//            << std::endl;
-//        return;
-//    }
-
-
-//    // Read message
-//    socket->Read(tempMessage.data.buffer + tempMessage.bufferIdx,
-//        tempMessage.data.header.messageSize - tempMessage.bufferIdx);
-//    tempMessage.bufferIdx += socket->LastCount();
-    
-//    if (tempMessage.bufferIdx >= tempMessage.data.header.messageSize)
-//    {
-//    }
-//    else
-//    {
-//#ifdef _DEBUG
-//        fprintf(stdout, " Read partial message: %d bytes of data\n", tempMessage.bufferIdx);
-//#endif
-//        return;
-//    }
-
-
-
-//    std::string testString;
-//    testString = (const char*)tempMessage.GetMessageData();
-
-//    /*
-//    tempMessage.buffer[256] = 0;
-//    //wxMessageBox(testString.c_str(),"Message",wxOK);
-//    */
-
-//    int bufferIdx = networkInterface->CheckoutMessage();
-//    tcMessage *message = networkInterface->GetMessage(bufferIdx);
-//    if (message == NULL)
-//    {
-//        std::cerr << "Error - Message buffer full, receive message lost" << std::endl;
-//        tempMessage.Reset();
-//        return;
-//    }
-
-//    *message = tempMessage;
-//    message->StampTime();
-
-//    readQueueTCP.push(bufferIdx);
-
-//    readCount += message->GetMessageSize();
-//#ifdef _DEBUG
-//    /*
-//    fprintf(stdout, " Received message, size: %d, id:%d, t:%d data:%s\n",
-//        message->GetMessageSize(), message->GetMessageId(),
-//        message->GetMessageTimestamp(), testString.c_str());
-//    */
-//#endif
-
-//    tempMessage.Reset();
-
-//}
-
 /**
 * Read messageSize bytes from buffer, create message
 * and add to UDP receive queue.
 */
-void tcConnectionData::ReadNextMessageUDP(unsigned int messageSize,
-                                          char *buffer)
+void tcConnectionData::ReadNextMessageUDP(unsigned int messageSize, 
+                                          unsigned char *buffer)
 {
     if (messageSize == 0)
     {
@@ -471,7 +399,7 @@ void tcConnectionData::ResendFailedAcks()
     {
         unsigned int bufferId = *iter;
         tcMessage* msg = networkInterface->GetMessage(bufferId);
-        assert(msg);
+        wxASSERT(msg);
         if ((msg->GetMessageTimestamp() - t) > ackTimeout)
         {
             if ((msg->resendCount < maxResends) && (resentCount_sec < resendLimit_sec))
@@ -533,17 +461,16 @@ void tcConnectionData::SetPingTime(float ping_s)
     pingCount++;
 }
 
-void tcConnectionData::SetSocket(QAbstractSocket * sock)
+void tcConnectionData::SetSocket(wxSocketBase* sock)
 {
 	socket = sock;
-	assert(socket);
+	wxASSERT(socket);
 
-    UDPaddress =socket->peerAddress();
+	
+    socket->GetPeer(UDPaddress);
+    UDPaddress.Service(tcNetworkInterface::UDP_PORT);
 
-//    socket->GetPeer(UDPaddress);
-//    UDPaddress.Service(tcNetworkInterface::UDP_PORT);
-
-    peerName = sock->peerName().toShort();
+    peerName = UDPaddress.IPAddress().c_str();
 }
 
 /**
@@ -551,7 +478,7 @@ void tcConnectionData::SetSocket(QAbstractSocket * sock)
 */
 void tcConnectionData::Update()
 {
-    assert(networkInterface);
+    wxASSERT(networkInterface);
 
     //ReadNextMessage();
     WriteQueuedMessages();
@@ -628,25 +555,24 @@ void tcConnectionData::WriteTCP()
 
     //socket->SetFlags(wxSOCKET_WAITALL);
 
-   qint64 lastCount=socket->write(message->data.buffer + message->bufferIdx,
+    socket->Write(message->data.buffer + message->bufferIdx, 
         message->data.header.messageSize - message->bufferIdx);
 
-    if (socket->error()!=QAbstractSocket::UnknownSocketError)
+    if (socket->Error())
     {
         socketErrorCount++;
-        QAbstractSocket::SocketError err = socket->error();
+        wxSocketError err = socket->LastError();
         fprintf(stderr, "Error - TCP SocketError %d\n", err);
 
-//        if ((err == wxSOCKET_WOULDBLOCK) && (socketErrorCount > 32))
+        if ((err == wxSOCKET_WOULDBLOCK) && (socketErrorCount > 32))
         {
             fprintf(stderr, "     socket->Discard(), flushing buffer\n");
-            socket->close(); // flush buffer
+            socket->Discard(); // flush buffer
             socketErrorCount = 0;
         }
     }
-    message->bufferIdx += lastCount;
 
-//    message->bufferIdx += socket->LastCount();
+    message->bufferIdx += socket->LastCount();
 
     // pop message from queue and return message buffer if entire
     // message has been written
@@ -672,7 +598,7 @@ void tcConnectionData::WriteUDP()
 {
     if (writeQueueUDP.empty()) return;
 
-    assert(networkInterface->GetDatagramSocket());
+    wxASSERT(networkInterface->GetDatagramSocket());
 
     unsigned int bufferId = writeQueueUDP.front();
 
@@ -684,40 +610,40 @@ void tcConnectionData::WriteUDP()
         writeQueueTCP.pop();
         return;
     }
+    
+	// cancel ack if maxWaitingForAck has been exceeded
+	if (message->GetAck() && (waitForAck.size() > maxWaitingForAck))
+	{
+		message->SetAck(false);
 
-    // cancel ack if maxWaitingForAck has been exceeded
-    if (message->GetAck() && (waitForAck.size() > maxWaitingForAck))
-    {
-        message->SetAck(false);
-
-        static unsigned errorCount = 0;
-        if (errorCount++ < 8)
-        {
-            fprintf(stderr, "tcConnectionData::WriteUDP() - Ack canceled due to overload (id:%d)\n",
-                message->GetId());
-        }
-    }
+		static unsigned errorCount = 0;
+		if (errorCount++ < 8)
+		{
+			fprintf(stderr, "tcConnectionData::WriteUDP() - Ack canceled due to overload (id:%d)\n",
+				message->GetId());
+		}
+	}
 
     // attach rider to message with ids of packets to ack
     AttachAckRider(message);
-
-    QUdpSocket *datagramSock = networkInterface->GetDatagramSocket();
+    
+    wxDatagramSocket *datagramSock = networkInterface->GetDatagramSocket();
     if (datagramSock == NULL)
     {
         std::cerr << "Error - NULL datagram socket" << std::endl;
         return;
     }
-    datagramSock->writeDatagram(
-                message->data.buffer, message->data.header.messageSize,UDPaddress,tcNetworkInterface::UDP_PORT);
-    if (socket->error()!=QAbstractSocket::UnknownSocketError)
+    datagramSock->SendTo(UDPaddress, message->data.buffer, message->data.header.messageSize);
+    if (datagramSock->Error())
     {
         socketErrorCount++;
-       QAbstractSocket::SocketError err = socket->error();        fprintf(stderr, "Error - UDP SocketError %d\n", err);
+        wxSocketError err = socket->LastError();
+        fprintf(stderr, "Error - UDP SocketError %d\n", err);
 
-//        if ((err == wxSOCKET_WOULDBLOCK) && (socketErrorCount > 32))
+        if ((err == wxSOCKET_WOULDBLOCK) && (socketErrorCount > 32))
         {
             fprintf(stderr, "     socket->Discard(), flushing buffer\n");
-            socket->close(); // flush buffer
+            socket->Discard(); // flush buffer
             socketErrorCount = 0;
         }
     }
@@ -740,79 +666,6 @@ void tcConnectionData::WriteUDP()
     }
 
 }
-
-//void tcConnectionData::WriteUDP()
-//{
-//    if (writeQueueUDP.empty()) return;
-
-//    assert(networkInterface->GetDatagramSocket());
-
-//    unsigned int bufferId = writeQueueUDP.front();
-
-//    tcMessage *message = networkInterface->GetMessage((int)bufferId);
-
-//    if (message == 0)
-//    {
-//        std::cerr << "Error - bad message buffer idx." << std::endl;
-//        writeQueueTCP.pop();
-//        return;
-//    }
-    
-//	// cancel ack if maxWaitingForAck has been exceeded
-//	if (message->GetAck() && (waitForAck.size() > maxWaitingForAck))
-//	{
-//		message->SetAck(false);
-
-//		static unsigned errorCount = 0;
-//		if (errorCount++ < 8)
-//		{
-//			fprintf(stderr, "tcConnectionData::WriteUDP() - Ack canceled due to overload (id:%d)\n",
-//				message->GetId());
-//		}
-//	}
-
-//    // attach rider to message with ids of packets to ack
-//    AttachAckRider(message);
-    
-//    wxDatagramSocket *datagramSock = networkInterface->GetDatagramSocket();
-//    if (datagramSock == NULL)
-//    {
-//        std::cerr << "Error - NULL datagram socket" << std::endl;
-//        return;
-//    }
-//    datagramSock->SendTo(UDPaddress, message->data.buffer, message->data.header.messageSize);
-//    if (datagramSock->Error())
-//    {
-//        socketErrorCount++;
-//        wxSocketError err = socket->LastError();
-//        fprintf(stderr, "Error - UDP SocketError %d\n", err);
-
-//        if ((err == wxSOCKET_WOULDBLOCK) && (socketErrorCount > 32))
-//        {
-//            fprintf(stderr, "     socket->Discard(), flushing buffer\n");
-//            socket->Discard(); // flush buffer
-//            socketErrorCount = 0;
-//        }
-//    }
-
-//    writeCount += message->GetMessageSize();
-//    //fprintf(stdout,"Sent UDP packet to %s, size:%d, id:%d, t:%d\n",
-//    //    peerName.c_str(), message->GetMessageSize(), message->GetMessageId(), tcTime::Get()->Get30HzCount());
-
-//    writeQueueUDP.pop();
-
-//    if (message->GetAck())
-//    {
-//        // if message needs ack, put id in waitForAck
-//        waitForAck.push_back(bufferId);
-//    }
-//    else
-//    {
-//        // otherwise return the message buffer
-//        networkInterface->ReturnMessage(bufferId);
-//    }
-
-//}
 
 
 tcConnectionData::tcConnectionData()

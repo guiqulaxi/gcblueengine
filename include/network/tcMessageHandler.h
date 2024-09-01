@@ -45,7 +45,7 @@ public:
     static void SetAsServer();
     static void SetAsClient();
 
-    virtual void Handle(int connectionId, unsigned messageSize,  const char *data) = 0;
+    virtual void Handle(int connectionId, unsigned messageSize, const unsigned char *data) = 0;
 
     virtual ~tcMessageHandler() {}
 protected:

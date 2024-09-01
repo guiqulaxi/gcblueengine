@@ -23,13 +23,13 @@
 **  IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-//#include "stdwx.h" // precompiled header file
+#include "stdwx.h" // precompiled header file
 
 #ifndef WX_PRECOMP
-////#include "wx/wx.h" 
+#include "wx/wx.h" 
 #endif
-//#include "wx/string.h"
-//#include "wx/event.h"
+#include "wx/string.h"
+#include "wx/event.h"
 
 #include "network/tcControlMessageHandler.h"
 #include "network/tcMultiplayerInterface.h"
@@ -51,7 +51,7 @@ BEGIN_NAMESPACE(network)
 * @param param -- an optional parameter used for some control messages
 */
 void tcControlMessageHandler::CreateControlMessage(int messageCode, 
-                                                   unsigned& messageSize, char *data,
+                                                   unsigned& messageSize, unsigned char *data,
                                                    int param)
 {
     switch (messageCode)
@@ -143,7 +143,7 @@ void tcControlMessageHandler::CreateControlMessage(int messageCode,
     }
 }
 
-void tcControlMessageHandler::Handle(int connectionId, unsigned messageSize, const char *data)
+void tcControlMessageHandler::Handle(int connectionId, unsigned messageSize, const unsigned char *data)
 {
 
     int messageCode;
@@ -240,7 +240,7 @@ void tcControlMessageHandler::Handle(int connectionId, unsigned messageSize, con
             unsigned int t0;
             stream >> t0;
             
-            //tcMultiplayerInterface::Get()->
+            tcMultiplayerInterface::Get()->
                 SendControlMessageUDP(connectionId, CM_PONG, int(t0));
         }
         break;
@@ -252,38 +252,38 @@ void tcControlMessageHandler::Handle(int connectionId, unsigned messageSize, con
             unsigned int t = tcTime::Get()->GetUpdated30HzCount();
             unsigned int pingTime = t - t0;  
             float ping_s = (1.0f/30.0f) * float(pingTime);
-            //tcMultiplayerInterface::Get()->
+            tcMultiplayerInterface::Get()->
                SetPingTime(connectionId, ping_s);
         }
         break;
     case CM_INGAME: // notification to server that client wants state updates
         {
-            tcPlayerStatus& player = //tcMultiplayerInterface::Get()->GetPlayerStatus(connectionId);
+            tcPlayerStatus& player = tcMultiplayerInterface::Get()->GetPlayerStatus(connectionId);
             player.SetInGame(true);
         }
         break;
     case CM_OUTGAME: // notification to server that client doesn't need state updates
         {
-            tcPlayerStatus& player = //tcMultiplayerInterface::Get()->GetPlayerStatus(connectionId);
+            tcPlayerStatus& player = tcMultiplayerInterface::Get()->GetPlayerStatus(connectionId);
             player.SetInGame(false);
         }
         break;
     case CM_ENDGAME:
         if (isServer)
         {
-            tcPlayerStatus& player = //tcMultiplayerInterface::Get()->GetPlayerStatus(connectionId);
+            tcPlayerStatus& player = tcMultiplayerInterface::Get()->GetPlayerStatus(connectionId);
             player.SetGameEnd(true);
         }
         break;
     case CM_SURRENDER:
         {
-            tcPlayerStatus& player = //tcMultiplayerInterface::Get()->GetPlayerStatus(connectionId);
+            tcPlayerStatus& player = tcMultiplayerInterface::Get()->GetPlayerStatus(connectionId);
             player.SetSurrender(true);
         }
         break;
     default:
         {
-            assert(false);
+            wxASSERT(false);
             fprintf(stderr, "Warning - Unrecognized control message "
                 "received by server or client (src:%d, id:%d)\n", connectionId, messageCode);
             return; 
@@ -291,7 +291,7 @@ void tcControlMessageHandler::Handle(int connectionId, unsigned messageSize, con
     }
 
     /*
-    //wxMessageBox(strutil::format("Received control message %d", messageCode),
+    wxMessageBox(wxString::Format("Received control message %d", messageCode),
     "Msg received", wxOK);
     */
     

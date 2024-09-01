@@ -32,6 +32,7 @@
 #include "simmath.h"
 #include "aerror.h"
 //#include <wx/datetime.h>
+#include <tcSpaceDBObject.h>
 #include <vector>
 #include "tcFile.h"
 #include "tcSimPythonInterface.h"
@@ -81,7 +82,7 @@
 #include "common/tcStream.h"
 //#include "tcMessageInterface.h"
 #include "tcPositionRegistry.h"
-#include "network/tcMultiplayerInterface.h"
+// #include "network/tcMultiplayerInterface.h"
 #include "tcScenarioLogger.h"
 #//include "tv_types.h"
 #include "tcAllianceInfo.h"
@@ -91,6 +92,7 @@
 #include "tcLOS.h"
 #include "tcWeaponTester.h"
 #include "tcEventManager.h"
+#include "tcSpaceObject.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -2382,6 +2384,11 @@ tcGameObject* tcSimState::CreateGameObject(tcDatabaseObject *apDBObject)
     {
         return new tcBallisticMissile(bmData);
     }
+    else if(tcSpaceDBObject *spData=dynamic_cast<tcSpaceDBObject*>(apDBObject))
+    {
+        return new tcSpaceObject(spData);
+    }
+
     else
     {
         assert(false);

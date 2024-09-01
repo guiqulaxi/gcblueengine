@@ -23,13 +23,13 @@
 **  IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-//#include "stdwx.h" // precompiled header file
+#include "stdwx.h" // precompiled header file
 
 #ifndef WX_PRECOMP
-////#include "wx/wx.h" 
+#include "wx/wx.h" 
 #endif
-//#include "wx/string.h"
-//#include "wx/event.h"
+#include "wx/string.h"
+#include "wx/event.h"
 
 #include "network/tcAuthenticationMessageHandler.h"
 #include "network/tcMultiplayerInterface.h"
@@ -46,7 +46,7 @@ BEGIN_NAMESPACE(network)
 /**
 * A request for authentication from server to client
 */
-void tcAuthenticationMessageHandler::CreateAuthenticationRequest(unsigned& messageSize, char *data)
+void tcAuthenticationMessageHandler::CreateAuthenticationRequest(unsigned& messageSize, unsigned char *data)
 {
 	int messageCode = AM_REQUEST;
 
@@ -61,7 +61,7 @@ void tcAuthenticationMessageHandler::CreateAuthenticationRequest(unsigned& messa
 * Obtaining the account database does not allow access to the account.
 */
 void tcAuthenticationMessageHandler::CreateAuthenticationResponse(const std::string& username, const std::string& hash, 
-		                                     unsigned& messageSize, char *data)
+		                                     unsigned& messageSize, unsigned char *data)
 {
 	int messageCode = AM_RESPONSE;
 
@@ -77,7 +77,7 @@ void tcAuthenticationMessageHandler::CreateAuthenticationResponse(const std::str
 }
 
 
-void tcAuthenticationMessageHandler::Handle(int connectionId, unsigned messageSize, const char *data)
+void tcAuthenticationMessageHandler::Handle(int connectionId, unsigned messageSize, const unsigned char *data)
 {
     if (messageSize < sizeof(int))
     {
@@ -117,7 +117,7 @@ void tcAuthenticationMessageHandler::Handle(int connectionId, unsigned messageSi
     {
     case AM_REQUEST:
         {
-			//tcMultiplayerInterface::Get()->SendAuthResponse(connectionId);
+			tcMultiplayerInterface::Get()->SendAuthResponse(connectionId);
         }
         break;
     case AM_RESPONSE:
@@ -128,7 +128,7 @@ void tcAuthenticationMessageHandler::Handle(int connectionId, unsigned messageSi
 			std::string passwordHash;
 			stream >> passwordHash;
 
-			//tcMultiplayerInterface::Get()->AuthenticatePlayer(connectionId, username, passwordHash);
+			tcMultiplayerInterface::Get()->AuthenticatePlayer(connectionId, username, passwordHash);
         }
         break;
     

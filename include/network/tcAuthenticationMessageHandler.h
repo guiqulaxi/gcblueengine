@@ -56,12 +56,12 @@ public:
     };
 
 
-    static void CreateAuthenticationRequest(unsigned& messageSize, char *data);
+    static void CreateAuthenticationRequest(unsigned& messageSize, unsigned char *data);
 
 	static void CreateAuthenticationResponse(const std::string& username, const std::string& hash, 
-                                             unsigned& messageSize, char *data);
+		                                     unsigned& messageSize, unsigned char *data);
 
-    virtual void Handle(int connectionId, unsigned messageSize, const char *data);
+    virtual void Handle(int connectionId, unsigned messageSize, const unsigned char *data);
 
     tcAuthenticationMessageHandler();
     virtual ~tcAuthenticationMessageHandler();

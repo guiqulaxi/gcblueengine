@@ -49,17 +49,17 @@ namespace database
     class tcShipDBObject :  public tcPlatformDBObject, public tcAirDetectionDBObject, public tcWaterDetectionDBObject
     {
     public:
-        float draft_m; ///< max navigational draft
-        float length_m; ///< vessel Length at Waterline
-        float beam_m; ///< vessel Beam
-        float PowerPlantType; ///< vessel powerplant type
-        float TotalShaft_HP; ///< vessel propulsion power
-        float ExhaustStacks; ///< vessel exhaust stacks
-        float PropulsionShafts; ///< vessel drive shafts
-        float PropulsiveEfficiency; ///< vessel power efficiency
-        float CivilianPaintScheme; ///< vessel has civilian paint job
-        float FlashyPaintScheme; ///< vessel has flashy paintjob
-        tcDBString flightportClass; ///< database class name of flightport (or empty if none)
+        float draft_m; ///< max navigational draft 最大航行吃水深度
+        float length_m; ///< vessel Length at Waterline 船体水线长度
+        float beam_m; ///< vessel Beam  船体宽度（即船宽）
+        float PowerPlantType; ///< vessel powerplant type 船舶动力装置类型（注意：这里使用float可能不太合适，通常应该是一个枚举或整型来表示类型）
+        float TotalShaft_HP; ///< vessel propulsion power 船舶推进总马力
+        float ExhaustStacks; ///< vessel exhaust stacks 船舶排气烟囱数量（注意：这里同样使用float可能不太合适，应为整型
+        float PropulsionShafts; ///< vessel drive shafts 船舶驱动轴数量（同样，float可能不是最佳选择）
+        float PropulsiveEfficiency; ///< vessel power efficiency  船舶推进效率
+        float CivilianPaintScheme; ///< vessel has civilian paint job  船舶是否具有民用涂装（这里使用float可能不恰当，应为布尔型或整型表示有/无
+        float FlashyPaintScheme; ///< vessel has flashy paintjob 船舶是否具有醒目的涂装（同样，float可能不是最佳选择）
+        tcDBString flightportClass; ///< database class name of flightport (or empty if none) 飞行港（或如果没有则为空）的数据库类名
 
 		tcDatabaseObject* AsDatabaseObject();
         virtual const char* GetClassName() const {return "Ship";} ///< returns class name of database object

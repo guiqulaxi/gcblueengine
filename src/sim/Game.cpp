@@ -54,8 +54,8 @@
 //#include "tcXmlWindow.h"
 #include "tcMapData.h"
 #include "tinyxml2.h"
-#include "network/tcMultiplayerInterface.h"
-#include "network/tcUpdateMessageHandler.h" // for attach
+// #include "network/tcMultiplayerInterface.h"
+// #include "network/tcUpdateMessageHandler.h" // for attach
 //#include "tcChatBox.h"
 //#include "tc3DWindow2.h"
 //#include "tcPopupMessage.h"
@@ -86,7 +86,7 @@
 
 
 using namespace std;
-using network::tcMultiplayerInterface;
+// using network::tcMultiplayerInterface;
 
 
 
@@ -563,7 +563,7 @@ bool tcGame::InitSim()
 
     tcSensorMapTrack::AttachDatabase(database);
 
-    simState->AttachWeaponTester(); // dev mode feature
+    // simState->AttachWeaponTester(); // dev mode feature
 
     tcFlightPort::InitTransitionTimes();
 

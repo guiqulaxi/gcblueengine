@@ -21,17 +21,16 @@
 **  IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-//#include "stdwx.h" // precompiled header file
+#include "stdwx.h" // precompiled header file
 
 #ifndef WX_PRECOMP
-////#include "wx/wx.h" 
+#include "wx/wx.h" 
 #endif
 
 #include "network/tcMessage.h"
 #include "tcTime.h"
 #include <iostream>
-#include <cassert>
-#include "strutil.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -49,7 +48,7 @@ unsigned int tcMessage::GetMaxMessageSize()
 
 void tcMessage::ClearRider()
 {
-    assert(data.header.messageSize > data.header.riderSize);
+    wxASSERT(data.header.messageSize > data.header.riderSize);
     
     data.header.messageSize -= data.header.riderSize;
     data.header.riderSize = 0;
@@ -70,7 +69,7 @@ unsigned int tcMessage::GetAckId() const
 /**
 * @return pointer to start of message data portion of message (follows header)
 */
-char *tcMessage::GetMessageData()
+unsigned char * tcMessage::GetMessageData()
 {
     return (data.buffer + HEADER_SIZE);
 }
@@ -96,7 +95,7 @@ unsigned int tcMessage::GetMessageSize() const
     }
     else
     {
-        assert(data.header.messageSize >= HEADER_SIZE);
+        wxASSERT(data.header.messageSize >= HEADER_SIZE);
         return 0;
     }
 }
@@ -119,16 +118,15 @@ unsigned int tcMessage::GetMessageTimestamp() const
 */
 void tcMessage::PopulateMessage(int sourceId, int messageType, unsigned messageId,
         unsigned int ack, unsigned int messageSize, 
-        const char *messageData)
+        const unsigned char *messageData)     
 {
     if (messageSize > tcMessage::MESSAGE_SIZE)
     {
-        std::string text=strutil::format("Error - Attempted to send oversized message (%d/%d), truncating.\n",
-                                         messageSize, tcMessage::MESSAGE_SIZE);
-//        text.Printf("Error - Attempted to send oversized message (%d/%d), truncating.\n",
-//            messageSize, tcMessage::MESSAGE_SIZE);
+        wxString text;
+        text.Printf("Error - Attempted to send oversized message (%d/%d), truncating.\n", 
+            messageSize, tcMessage::MESSAGE_SIZE);
         fprintf(stderr, text.c_str());
-        //wxMessageBox(text);
+        wxMessageBox(text);
         messageSize = tcMessage::MESSAGE_SIZE;
     }
     bufferIdx = 0;    
@@ -159,7 +157,7 @@ void tcMessage::Reset()
     data.header.id = -1;
     data.header.sourceId = -1;
     data.header.ackFlag = 0;
-    data.header.msgId = (unsigned int)(-1);
+    data.header.msgId = unsigned int(-1);
 }
 
 /**
@@ -196,7 +194,7 @@ tcMessage::tcMessage(const tcMessage& source)
 
     data.header.sourceId = source.data.header.sourceId;
     data.header.messageSize = source.data.header.messageSize;
-    assert(data.header.messageSize <= BUFFER_SIZE);
+    wxASSERT(data.header.messageSize <= BUFFER_SIZE);
     if (data.header.messageSize > BUFFER_SIZE) data.header.messageSize = BUFFER_SIZE;
     memcpy(data.buffer, source.data.buffer, data.header.messageSize);
 }
@@ -214,7 +212,7 @@ const tcMessage& tcMessage::operator=(const tcMessage& rhs)
     data.header.sourceId = rhs.data.header.sourceId;
 
     data.header.messageSize = rhs.data.header.messageSize;
-    assert(data.header.messageSize <= BUFFER_SIZE);
+    wxASSERT(data.header.messageSize <= BUFFER_SIZE);
     if (data.header.messageSize > BUFFER_SIZE) data.header.messageSize = BUFFER_SIZE;
     memcpy(data.buffer, rhs.data.buffer, data.header.messageSize);
 

@@ -30,8 +30,6 @@
 #pragma once
 #endif
 
-//#include "wx/wx.h"
-
 #include <list>
 #include <map>
 #include <queue>
@@ -42,12 +40,12 @@
 #define BEGIN_NAMESPACE(x) namespace x {
 #define END_NAMESPACE }
 
-//class wxEvtHandler;
+class wxEvtHandler;
 class tcStream;
-//class tcConsoleBox;
+class tcConsoleBox;
 class tcGameObject;
-//class tcMPGameView;
-//class tcScenarioSelectView;
+class tcMPGameView;
+class tcScenarioSelectView;
 
 /**
 * Multiplayer network code.
@@ -145,9 +143,9 @@ public:
     static bool EntityUpdateReceived();
 
 
-//    void AddChatSubscriber(tcConsoleBox* subscriber);
-//	void AttachMPGameView(tcMPGameView* gv);
-//	void AttachScenarioSelectView(tcScenarioSelectView* ssv);
+    void AddChatSubscriber(tcConsoleBox* subscriber);
+	void AttachMPGameView(tcMPGameView* gv);
+	void AttachScenarioSelectView(tcScenarioSelectView* ssv);
 
     void AddMessageHandler(int messageId, tcMessageHandler* handler);
 	void AuthenticatePlayer(int connectionId, const std::string& username,
@@ -163,7 +161,7 @@ public:
 	const std::vector<int>& GetConnectionVector() const;
     const std::string& GetConnectionStatus(int connectionId);
 
-//    wxEvtHandler* GetEvtHandler() const;
+    wxEvtHandler* GetEvtHandler() const;
     const std::string& GetName() const;
     unsigned int GetNumConnections();
 	const std::string& GetPassword() const;
@@ -177,7 +175,7 @@ public:
 	bool IsConnecting() const;
     bool IsServer() const;
 	int LogInPlayer(const std::string& username, int connectionId, 
-		   tcPlayerStatus& playerStatus, std::string& msg);
+		   tcPlayerStatus& playerStatus, wxString& msg);
 	void LogOutPlayer(const std::string& username);
 	void LogOutAllPlayers();
     void SetAllReadyState(bool state);
@@ -186,14 +184,14 @@ public:
     unsigned GetTeamGameSpeed() const;
     unsigned GetFastestGameSpeed() const;
 
-    bool IsGameOver(std::string& message) const;
+    bool IsGameOver(wxString& message) const;
 
     void MakeClient();
     void MakeServer();
     void OpenConnection(const std::string& hostName);
     void ProcessCommandClient(int connectionId, const std::string& text);
     void ProcessCommandServer(const std::string& text);
-//    void RemoveChatSubscriber(tcConsoleBox* subscriber);
+    void RemoveChatSubscriber(tcConsoleBox* subscriber);
 	void Reset();
 	void ResetGame();
 	void SendAuthRequest(int destination);
@@ -219,7 +217,7 @@ public:
 	void SendUpdateMessageTCP(int destination, tcStream& stream);
 	void SetAcceptAllClients(bool state);
     void SetChatProtocol(int code); 
-//    void SetEvtHandler(wxEvtHandler *eh);
+    void SetEvtHandler(wxEvtHandler *eh);
     void SetName(const std::string& name);
 	void SetPassword(const std::string& plainText);
 	void SetPingTime(int connectionId, float ping_s);
@@ -232,9 +230,9 @@ public:
 private:
     tcNetworkInterface *networkInterface;
     std::queue<std::string> chatText; ///< chat text to display
-//    std::vector<tcConsoleBox*> chatSubscribers;
-//	tcMPGameView* mpGameView; ///< to populate team list on server
-//	tcScenarioSelectView* scenarioSelectView; ///< for scenario selection commands
+    std::vector<tcConsoleBox*> chatSubscribers;
+	tcMPGameView* mpGameView; ///< to populate team list on server
+	tcScenarioSelectView* scenarioSelectView; ///< for scenario selection commands
 
     std::string myName; ///< name to identify player (username)
 	std::string passwordHash; ///< hashed password
@@ -246,12 +244,12 @@ private:
     bool allowAllTeamChanges; ///< true to always allow team changes
     tcPlayerStatus errorPlayerStatus; ///< status to return if player not found
     tcPlayerStatus serverPlayerStatus; ///< status to use for server actions
-//    wxEvtHandler* evtHandler; ///< wxWidgets event handler for posting messages to application
+    wxEvtHandler* evtHandler; ///< wxWidgets event handler for posting messages to application
 
     // data for html status log
     std::string logFilePath;
-    std::vector<std::string> recentEvents;
-    std::vector<std::string> recentChat;
+    wxArrayString recentEvents;
+    wxArrayString recentChat;
     std::string versionString; // for reporting server version
 
     const unsigned int entityUpdateInterval; ///< 30 Hz tics
@@ -270,27 +268,27 @@ private:
         unsigned int& updatePeriod, unsigned int& detailedUpdatePeriod) const;
     bool IsNewPlayer(int id);
 
-    void ProcessAllianceCommand(tcPlayerStatus& player, const std::string& args);
-	void ProcessChangeCommander(tcPlayerStatus& player, const std::string& args);
-	void ProcessChangeReady(tcPlayerStatus& player, const std::string& args);
-    void ProcessEndGame(tcPlayerStatus& player, const std::string& args);
-    void ProcessGameSpeed(tcPlayerStatus& player, const std::string& args);
-    void ProcessGameMasterCommand(tcPlayerStatus& player, const std::string& args);    
-	void ProcessGMAddAccount(const std::string& args, std::string& msg);
-	void ProcessGMCreate(const std::string& args, std::string& msg);
-	void ProcessGMKick(const std::string& args, std::string& msg);
-	void ProcessGMMove(const std::string& args, std::string& msg);
-    void ProcessGMSetController(const std::string& args, std::string& msg);
-    void ProcessGMSetTeamChanges(const std::string& args, std::string& msg);
+    void ProcessAllianceCommand(tcPlayerStatus& player, const wxString& args);
+	void ProcessChangeCommander(tcPlayerStatus& player, const wxString& args);
+	void ProcessChangeReady(tcPlayerStatus& player, const wxString& args);
+    void ProcessEndGame(tcPlayerStatus& player, const wxString& args);
+    void ProcessGameSpeed(tcPlayerStatus& player, const wxString& args);
+    void ProcessGameMasterCommand(tcPlayerStatus& player, const wxString& args);    
+	void ProcessGMAddAccount(const wxString& args, wxString& msg);
+	void ProcessGMCreate(const wxString& args, wxString& msg);
+	void ProcessGMKick(const wxString& args, wxString& msg);
+	void ProcessGMMove(const wxString& args, wxString& msg);
+    void ProcessGMSetController(const wxString& args, wxString& msg);
+    void ProcessGMSetTeamChanges(const wxString& args, wxString& msg);
     void ProcessMessage(int messageId, int connectionId, 
-                    unsigned messageSize,   char *data);
+                    unsigned messageSize, const unsigned char *data);
 
     void ProcessReceiveMessages();
-	void ProcessScenarioCommand(tcPlayerStatus& player, const std::string& args);
-	void ProcessStartGame(tcPlayerStatus& player, const std::string& args);
-    void ProcessSurrender(tcPlayerStatus& player, const std::string& args);
-	void ProcessTeamChat(const tcPlayerStatus& player, const std::string& msg);
-	void ProcessWho(tcPlayerStatus& player, const std::string& args);
+	void ProcessScenarioCommand(tcPlayerStatus& player, const wxString& args);
+	void ProcessStartGame(tcPlayerStatus& player, const wxString& args);
+    void ProcessSurrender(tcPlayerStatus& player, const wxString& args);
+	void ProcessTeamChat(const tcPlayerStatus& player, const wxString& msg);
+	void ProcessWho(tcPlayerStatus& player, const wxString& args);
     void UpdateDestroyedEntities(tcPlayerStatus& pstatus);
     void UpdateNewAndExistingEntities(tcPlayerStatus& pstatus);
     void UpdateEntitiesXml(tcPlayerStatus& pstatus);

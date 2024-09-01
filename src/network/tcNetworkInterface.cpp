@@ -21,107 +21,69 @@
 **  IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-//#include "stdwx.h" // precompiled header file
+#include "stdwx.h" // precompiled header file
 
 #ifndef WX_PRECOMP
-////#include "wx/wx.h" 
+#include "wx/wx.h" 
 #endif
 
 #include "network/tcNetworkInterface.h"
 #include "network/tcTextMessageHandler.h"
 #include "tcTime.h"
 #include <iostream>
-#include <cassert>
-#include "strutil.h"
-#include <QNetworkDatagram>
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 
 BEGIN_NAMESPACE(network)
 
-//BEGIN_EVENT_TABLE(tcNetworkInterface, wxEvtHandler)
-//    EVT_SOCKET(-1, tcNetworkInterface::OnSocketEvent)
-//END_EVENT_TABLE()
+BEGIN_EVENT_TABLE(tcNetworkInterface, wxEvtHandler)
+    EVT_SOCKET(-1, tcNetworkInterface::OnSocketEvent)
+END_EVENT_TABLE()
 
-void tcNetworkInterface::AddConnection(QAbstractSocket *socket)
+
+/**
+* Creates new connection using <socket>
+* A new id is assigned. The new connection is added to the peerMap
+* and connectionList.
+*/
+void tcNetworkInterface::AddConnection(wxSocketBase *socket)
 {
     tcConnectionData* cdata = new tcConnectionData;
 
-    cdata->SetSocket(socket);
+	cdata->SetSocket(socket);
 
-    QHostAddress addr=socket->peerAddress();
-    quint16 port=socket->peerPort();
-    if (addr.isNull())
+    wxIPV4address addr;
+    if (socket->GetPeer(addr)==false)
     {
         std::cerr << "Error getting peer address" << std::endl;
         cdata->idString = "Err2";
     }
     else
     {
-       // cdata->idString = strutil::format("%s:%d",addr.Hostname().c_str(), addr.Service());
-        cdata->idString = strutil::format("%s",addr.toString().toStdString());
+       // cdata->idString = wxString::Format("%s:%d",addr.Hostname().c_str(), addr.Service());
+        cdata->idString = wxString::Format("%s",addr.IPAddress().c_str());
     }
 
     cdata->timestamp = tcTime::Get()->Get30HzCount();
     cdata->id = connectionIndex++;
-//   socket->setSocketOption(QAbstractSocket, true);
-//    socket->SetEventHandler(*this, cdata->id);
-//    socket->SetNotify(wxSOCKET_INPUT_FLAG | wxSOCKET_CONNECTION_FLAG);
-//    socket->Notify(TRUE);
-//    socket->SetFlags(wxSOCKET_NOWAIT);
+
+    socket->SetEventHandler(*this, cdata->id);
+    socket->SetNotify(wxSOCKET_INPUT_FLAG | wxSOCKET_CONNECTION_FLAG);
+    socket->Notify(TRUE);
+    socket->SetFlags(wxSOCKET_NOWAIT);
 
     connectionData[cdata->id] = cdata;
-
-    peerMap[std::string(cdata->idString.c_str())] = cdata->id;
+    
+	peerMap[std::string(cdata->idString.c_str())] = cdata->id;
 
     connectionList.push_back(cdata->id);
 
 
-    fprintf(stdout, "New connection: %s : %d\n", addr.toString().toStdString().c_str(), port);
+    fprintf(stdout, "New connection: %s : %d\n", addr.IPAddress().c_str(), addr.Service());
     connectState = IS_CONNECTED;
 }
-/**
-* Creates new connection using <socket>
-* A new id is assigned. The new connection is added to the peerMap
-* and connectionList.
-*/
-//void tcNetworkInterface::AddConnection(QAbstractSocket *socket)
-//{
-//    tcConnectionData* cdata = new tcConnectionData;
-
-//	cdata->SetSocket(socket);
-
-//    wxIPV4address addr;
-//    if (socket->GetPeer(addr)==false)
-//    {
-//        std::cerr << "Error getting peer address" << std::endl;
-//        cdata->idString = "Err2";
-//    }
-//    else
-//    {
-//       // cdata->idString = strutil::format("%s:%d",addr.Hostname().c_str(), addr.Service());
-//        cdata->idString = strutil::format("%s",addr.IPAddress().c_str());
-//    }
-
-//    cdata->timestamp = tcTime::Get()->Get30HzCount();
-//    cdata->id = connectionIndex++;
-
-//    socket->SetEventHandler(*this, cdata->id);
-//    socket->SetNotify(wxSOCKET_INPUT_FLAG | wxSOCKET_CONNECTION_FLAG);
-//    socket->Notify(TRUE);
-//    socket->SetFlags(wxSOCKET_NOWAIT);
-
-//    connectionData[cdata->id] = cdata;
-    
-//	peerMap[std::string(cdata->idString.c_str())] = cdata->id;
-
-//    connectionList.push_back(cdata->id);
-
-
-//    fprintf(stdout, "New connection: %s : %d\n", addr.IPAddress().c_str().AsChar(), addr.Service());
-//    connectState = IS_CONNECTED;
-//}
 
 void tcNetworkInterface::RemoveConnection(int id)
 {
@@ -163,9 +125,9 @@ void tcNetworkInterface::RemoveConnection(int id)
 	// re-init client sock if client
 	if (!isServer)
 	{
-        clientSock = new QTcpSocket(); // leaks
+		clientSock = new wxSocketClient(); // leaks
 		// subscribe to no events, use polling
-
+		clientSock->Notify(FALSE);
 		InitializeUDP();
 	}
     
@@ -189,13 +151,13 @@ void tcNetworkInterface::Clear()
     if (clientSock)
     {
         // if connected, clientSock is already deleted in connectionData
-        if (connectState == IS_CONNECTING) clientSock->deleteLater();
+        if (connectState == IS_CONNECTING) clientSock->Destroy();
         clientSock = 0;
     }
     
     if (serverSock)
     {
-        serverSock->deleteLater();
+        serverSock->Destroy();
         serverSock = 0;
     }
 
@@ -212,7 +174,7 @@ void tcNetworkInterface::ClearConnectionMessages(int id)
 {
 	tcConnectionData* connection = GetConnection(id);
 
-    assert(connection);
+    wxASSERT(connection);
 	if (connection == 0)
 	{
         fprintf(stderr, "Error - Bad id (%d) passed to ClearConnectionMessages\n", id);
@@ -247,7 +209,7 @@ void tcNetworkInterface::CloseConnection()
 
 const std::list<int>& tcNetworkInterface::GetConnectionList() const
 {
-    assert(connectionList.size() == connectionData.size());
+    wxASSERT(connectionList.size() == connectionData.size());
     return connectionList;
 }
 
@@ -269,7 +231,7 @@ const std::string& tcNetworkInterface::GetConnectionStatus(int id, int detailLev
 
     if (connectState == IS_CONNECTING)
     {
-        std::string status = strutil::format("Connecting to %s ", hostAddress.toString().toStdString().c_str());
+        wxString status = wxString::Format("Connecting to %s ", hostAddress.IPAddress().c_str());
 
         // display "animated" dots while connecting to indicate something is happening
         unsigned animateCount = timeCount % 40;
@@ -284,7 +246,7 @@ const std::string& tcNetworkInterface::GetConnectionStatus(int id, int detailLev
     //if (connectionIdx >= GetNumConnections()) return "Error";
 
     tcConnectionData* connData = GetConnection(id);
-	assert(connData);
+	wxASSERT(connData);
 	if (connData == 0)
 	{
 		s = "Error";
@@ -303,20 +265,20 @@ const std::string& tcNetworkInterface::GetConnectionStatus(int id, int detailLev
 	{
 		if (dt_sec < 300.0f)
 		{
-			std::string status = strutil::format("(%.0f s) ping %.0f ms", 
+			wxString status = wxString::Format("(%.0f s) ping %.0f ms", 
 				dt_sec, ping_ms);
 			s = status.c_str();
 		}
 		else // show connection time in minutes
 		{
-			std::string status = strutil::format("(%.0f m) ping %.0f ms", 
+			wxString status = wxString::Format("(%.0f m) ping %.0f ms", 
 				0.0166667f * dt_sec, ping_ms);
 			s = status.c_str();
 		}
 	}
 	else
 	{
-		std::string status = strutil::format("(%.0f) %04d %04d %03d %.0f", 
+		wxString status = wxString::Format("(%.0f) %04d %04d %03d %.0f", 
 			dt_sec, bytesIn, bytesOut, resentCount, ping_ms);
 		s = status.c_str();
 	}
@@ -393,8 +355,8 @@ unsigned int tcNetworkInterface::GetNumConnections()
         if (connectState == IS_CONNECTED)
         {
             // client mode has one connection to server if connected
-            assert(connectionData.size() == 1);
-            assert(connectionList.size() == 1);
+            wxASSERT(connectionData.size() == 1);
+            wxASSERT(connectionList.size() == 1);
             return 1;
         }
         else if (connectState == NOT_CONNECTED)
@@ -407,7 +369,7 @@ unsigned int tcNetworkInterface::GetNumConnections()
         }
         else
         {
-            assert(false);
+            wxASSERT(false);
             return 0;
         }
     }
@@ -421,31 +383,30 @@ void tcNetworkInterface::InitializeUDP()
 {
     if (datagramSock) return; // already initialized
 
-    QHostAddress addr(QHostAddress::Any);
-//    if (!addr.AnyAddress())
-//    {
-//        std::cerr << "Error - error configuring datagram socket." << std::endl;
-//        return;
-//    }
-//    addr.Service(UDP_PORT);
+    wxIPV4address addr;
+    if (!addr.AnyAddress())
+    {
+        std::cerr << "Error - error configuring datagram socket." << std::endl;
+        return;
+    }
+    addr.Service(UDP_PORT);
 
-//    datagramSock = new QUdpSocket(addr, wxSOCKET_NOWAIT);
-    datagramSock->bind(addr,UDP_PORT);
+    datagramSock = new wxDatagramSocket(addr, wxSOCKET_NOWAIT);
     //datagramSocket->SetTimeout(1);
-//    datagramSock->SetEventHandler(*this, UDP_EVENT_ID);
-//    datagramSock->SetNotify(wxSOCKET_INPUT_FLAG);
-//    datagramSock->Notify(TRUE);
+    datagramSock->SetEventHandler(*this, UDP_EVENT_ID);
+    datagramSock->SetNotify(wxSOCKET_INPUT_FLAG);
+    datagramSock->Notify(TRUE);
 
-//    datagramSock->GetLocal(addr);
-//    if (!datagramSock->Ok())
-//    {
-//        fprintf(stderr, "Error - Dgram sock cannot listen at port %d\n",
-//            addr.Service());
-//        return;
-//    }
+    datagramSock->GetLocal(addr);
+    if (!datagramSock->Ok())
+    {
+        fprintf(stderr, "Error - Dgram sock cannot listen at port %d\n",
+            addr.Service());
+        return;
+    }
 
     fprintf(stdout, "Created datagram socket on port %d\n",
-        UDP_PORT);
+        addr.Service());
 }
 
 
@@ -474,10 +435,10 @@ void tcNetworkInterface::MakeClient()
     isServer = false;
     
     // create the socket
-    clientSock = new QTcpSocket();
+    clientSock = new wxSocketClient();
 
     // subscribe to no events, use polling
-//    clientSock->Notify(FALSE);
+    clientSock->Notify(FALSE);
 
     InitializeUDP();
 }
@@ -488,129 +449,121 @@ void tcNetworkInterface::MakeServer()
 
     isServer = true;
 
-//    if (hostAddress.Service(TCPIP_PORT) == FALSE)
-//    {
-//        fprintf(stderr, "Error - Invalid port: %d \n", TCPIP_PORT);
-//        return;
-//    }
+    if (hostAddress.Service(TCPIP_PORT) == FALSE)
+    {
+        fprintf(stderr, "Error - Invalid port: %d \n", TCPIP_PORT);
+        return;
+    }
 
-    serverSock = new QTcpServer;
+    serverSock = new wxSocketServer(hostAddress);
 
-//    // We use Ok() here to see if the server is really listening
-//    if (!serverSock->Ok())
-//    {
-//        fprintf(stderr, "Server could not listen at port %d\n", hostAddress.Service());
-//        return;
-//    }
-//    else
-//    {
-//        fprintf(stdout, "Server listening at port %d\n", hostAddress.Service());
-//    }
+    // We use Ok() here to see if the server is really listening
+    if (!serverSock->Ok())
+    {
+        fprintf(stderr, "Server could not listen at port %d\n", hostAddress.Service());
+        return;
+    }
+    else
+    {
+        fprintf(stdout, "Server listening at port %d\n", hostAddress.Service());
+    }
 
-     if (!serverSock->listen(QHostAddress::Any, TCPIP_PORT)) {
-         fprintf(stderr, "Server could not listen at port %d\n", TCPIP_PORT);
-         return;
-     }else
-     {
-         fprintf(stdout, "Server listening at port %d\n", TCPIP_PORT);
-
-     }
-//    serverSock->SetEventHandler(*this, 27);
-//    serverSock->SetNotify(wxSOCKET_INPUT_FLAG | wxSOCKET_CONNECTION_FLAG);
-//    serverSock->Notify(TRUE);
-//    //serverSock->Notify(FALSE);
-//    serverSock->SetFlags(wxSOCKET_NOWAIT);
+    serverSock->SetEventHandler(*this, 27);
+    serverSock->SetNotify(wxSOCKET_INPUT_FLAG | wxSOCKET_CONNECTION_FLAG);
+    serverSock->Notify(TRUE);
+    //serverSock->Notify(FALSE);
+    serverSock->SetFlags(wxSOCKET_NOWAIT);
 
     InitializeUDP();
 }
 
-//void tcNetworkInterface::OnSocketEvent(wxSocketEvent& event)
-//{
-//#ifdef _DEBUG
-//    // std::cout << "Socket event: ";
-//#endif
+void tcNetworkInterface::OnSocketEvent(wxSocketEvent& event)
+{
+#ifdef _DEBUG
+    // std::cout << "Socket event: ";
+#endif
 
-//    switch(event.GetSocketEvent())
-//    {
-//    case wxSOCKET_INPUT:
-//        {
-//            //if (event.m_id == UDP_EVENT_ID) // 2.6.3 code
-//            if (event.GetId() == UDP_EVENT_ID)
-//            {
-//#ifdef _DEBUG
-//                // std::cout << "wxSOCKET_INPUT - UDP";
-//#endif
-//                RouteUDP();
-//            }
-//            else
-//            {
-//#ifdef _DEBUG
-//                // std::cout << "wxSOCKET_INPUT - TCP";
-//#endif
-//                int connectionId = event.GetId(); // event.m_id; 2.6.3
-//                tcConnectionData *conn = GetConnection(connectionId);
-//                if (conn)
-//                {
-//                    conn->ReadNextMessageTCP();
-//                }
-//            }
+    switch(event.GetSocketEvent())
+    {
+    case wxSOCKET_INPUT:
+        {
+            //if (event.m_id == UDP_EVENT_ID) // 2.6.3 code
+            if (event.GetId() == UDP_EVENT_ID)
+            {
+#ifdef _DEBUG
+                // std::cout << "wxSOCKET_INPUT - UDP"; 
+#endif
+                RouteUDP();
+            }
+            else
+            {
+#ifdef _DEBUG
+                // std::cout << "wxSOCKET_INPUT - TCP"; 
+#endif
+                int connectionId = event.GetId(); // event.m_id; 2.6.3
+                tcConnectionData *conn = GetConnection(connectionId);
+                if (conn) 
+                {
+                    conn->ReadNextMessageTCP();
+                }
+            }
 
-//        }
-//        break;
-//    case wxSOCKET_LOST:
-//        std::cout << "wxSOCKET_LOST" << std::endl;
-//        break;
-//    case wxSOCKET_CONNECTION:
-//        std::cout << "wxSOCKET_CONNECTION" << std::endl;
-//        break;
-//    default:
-//        std::cout << "Unexpected event!" << std::endl;
-//        break;
-//    }
-//}
+        }
+        break;
+    case wxSOCKET_LOST: 
+        std::cout << "wxSOCKET_LOST" << std::endl; 
+        break;
+    case wxSOCKET_CONNECTION: 
+        std::cout << "wxSOCKET_CONNECTION" << std::endl; 
+        break;
+    default: 
+        std::cout << "Unexpected event!" << std::endl; 
+        break;
+    }
+}
 
 /**
 * Opens connection with server specified by hostName.
 * @param hostName server address--can be a host name or an IP-style address in dot notation (a.b.c.d)
 */
-void tcNetworkInterface::OpenConnection(std::string hostName)
+void tcNetworkInterface::OpenConnection(wxString hostName)
 {
-//    if (isServer)
-//    {
-//        std::cerr << "Error - tcNetworkInterface::OpenConnection called in server mode." << std::endl;
-//        return;
-//    }
-//    if (connectState != NOT_CONNECTED)
-//    {
-//        std::cerr <<
-//            "Error - tcNetworkInterface::OpenConnection called while connected or connecting."
-//            << std::endl;
-//        return;
-//    }
-//    if (clientSock == NULL)
-//    {
-//        std::cerr <<
-//            "Error - tcNetworkInterface::OpenConnection called with NULL clientSock."
-//            << std::endl;
-//        return;
-//    }
+    if (isServer)
+    {
+        std::cerr << "Error - tcNetworkInterface::OpenConnection called in server mode." << std::endl;
+        return;
+    }
+    if (connectState != NOT_CONNECTED)
+    {
+        std::cerr << 
+            "Error - tcNetworkInterface::OpenConnection called while connected or connecting."
+            << std::endl;
+        return;
+    }
+    if (clientSock == NULL)
+    {
+        std::cerr << 
+            "Error - tcNetworkInterface::OpenConnection called with NULL clientSock."
+            << std::endl;
+        return;
+    }
 
-//    if (hostAddress.Hostname(hostName)==FALSE)
-//    {
-//        fprintf(stderr, "Error - Invalid hostname: %s \n", hostName.c_str().AsChar());
-//    }
-//    if (hostAddress.Service(TCPIP_PORT)==FALSE)
-//    {
-//        fprintf(stderr, "Error - Invalid port: %d \n", TCPIP_PORT);
-//    }
+    if (hostAddress.Hostname(hostName)==FALSE)
+    {
+        fprintf(stderr, "Error - Invalid hostname: %s \n", hostName.c_str());
+    }
+    if (hostAddress.Service(TCPIP_PORT)==FALSE)
+    {
+        fprintf(stderr, "Error - Invalid port: %d \n", TCPIP_PORT);
+    }
 
-//    connectState = IS_CONNECTING;
-//    connectionStartTime = tcTime::Get()->Get30HzCount();
+    connectState = IS_CONNECTING;
+    connectionStartTime = tcTime::Get()->Get30HzCount();
 
 
-//    clientSock->Connect(hostAddress, FALSE); // non-blocking connection request
-//    fprintf(stdout, "Connecting to %s : %d\n",
-//        hostName.c_str().AsChar(), TCPIP_PORT);
+    clientSock->Connect(hostAddress, FALSE); // non-blocking connection request
+    fprintf(stdout, "Connecting to %s : %d\n", 
+        hostName.c_str(), TCPIP_PORT);
 }
 
 
@@ -628,7 +581,7 @@ void tcNetworkInterface::RemoveBadConnections()
     for( ; iter != connectionData.end(); ++iter)
     {
         tcConnectionData* connection = iter->second;
-        assert(connection != 0);
+        wxASSERT(connection != 0);
 
         unsigned tics = timeCount - connection->timestamp;
         
@@ -662,8 +615,8 @@ void tcNetworkInterface::RemoveDeadConnections()
     for( ; iter != connectionData.end(); ++iter)
     {
         tcConnectionData* connection = iter->second;
-        assert(connection->GetSocket());
-        if (!connection->GetSocket()->isOpen())
+        wxASSERT(connection->GetSocket());
+        if (!connection->GetSocket()->IsConnected())
         {
             deadConnections.push_back(iter->first);
         }
@@ -724,7 +677,7 @@ void tcNetworkInterface::ReturnMessagesFromQueue(std::queue<unsigned int>& q)
 /**
 * @return pointer to message data, data should be immediately used or copied to store
 */
-char *tcNetworkInterface::ReceiveMessage(int connectionId, int& messageId,
+const unsigned char* tcNetworkInterface::ReceiveMessage(int connectionId, int& messageId, 
                                               unsigned& messageSize, int protocol)
 {
     tcConnectionData *conn = GetConnection(connectionId);
@@ -770,28 +723,28 @@ char *tcNetworkInterface::ReceiveMessage(int connectionId, int& messageId,
 void tcNetworkInterface::RouteUDP()
 {    
     static unsigned char buff[MAX_UDP_SIZE];
-//    QHostAddress peerAddr;
+    wxIPV4address peerAddr;
     unsigned int messageSize;
 
     messageSize = MAX_UDP_SIZE;
-    QNetworkDatagram dg=datagramSock->receiveDatagram( MAX_UDP_SIZE);
-    std::string peerName = datagramSock->peerName().toStdString();
 
-    unsigned readCount = dg.data().size();
+    datagramSock->RecvFrom(peerAddr, buff, MAX_UDP_SIZE);
+    wxString peerName = peerAddr.IPAddress();
+    unsigned readCount = datagramSock->LastCount();
 
 #ifdef _DEBUG
     // fprintf(stdout, " Received UDP from %s, size: %d, data: %s\n",
     //     peerName.c_str(), readCount, (char*)buff);
 #endif
 
-    tcConnectionData *conn = GetConnection(peerName);
+    tcConnectionData *conn = GetConnection(peerName.ToStdString());
     if (conn == NULL)
     {
         std::cerr << "Error - RouteUDP() peer name not found"
             << std::endl;
         return;
     }
-    conn->ReadNextMessageUDP(readCount, dg.data().data());
+    conn->ReadNextMessageUDP(readCount, buff);
 }
 
 /**
@@ -805,18 +758,18 @@ void tcNetworkInterface::SendChatText(int destination, const std::string& messag
 
     int protocol = tcNetworkInterface::TCP;
 
-    tcTextMessageHandler::CreateMessage(messageLength, (char*)buff, message, 255);
+    tcTextMessageHandler::CreateMessage(messageLength, (unsigned char*)buff, message, 255);
    
     // MSG_CHATTEXT == 1
     SendMessage(destination, 1, 
-        messageLength, (char*)buff, protocol);
+        messageLength, (unsigned char*)buff, protocol);
 }
 
 
 bool tcNetworkInterface::SendMessage(int connectionId, int messageId, unsigned messageSize, 
-                                     const char *data, int protocol)
+                                     const unsigned char *data, int protocol)
 {
-    assert((protocol == TCP)||(protocol == UDP)||(protocol == UDP_ACK));
+    wxASSERT((protocol == TCP)||(protocol == UDP)||(protocol == UDP_ACK));
 
 	tcConnectionData* connection = GetConnection(connectionId);
 
@@ -848,7 +801,7 @@ bool tcNetworkInterface::SendMessage(int connectionId, int messageId, unsigned m
     }
     else
     {
-        assert(false);
+        wxASSERT(false);
         fprintf(stderr, "tcNetworkInterface::SendMessage - bad protocol\n");
         ReturnMessage(bufferIdx);
     }
@@ -912,29 +865,29 @@ void tcNetworkInterface::UpdateClient()
 
 void tcNetworkInterface::UpdateClientConnection()
 {
-//    assert (connectState == IS_CONNECTING);
-//    bool timedOut = tcTime::Get()->GetUpdated30HzCount() - connectionStartTime > 30*5;
-//    if (timedOut)
-//    {
-//        connectState = NOT_CONNECTED;
-//        std::cerr << "Error - Connection timed out." << std::endl;
-//        return;
-//    }
-//    if (clientSock->WaitOnConnect(0, 10) == FALSE) return; // still trying
-//    if (clientSock->isOpen())
-//    {
-//        connectState = IS_CONNECTED; // success
-//        AddConnection(clientSock);
-//        return;
-//    }
-//    else
-//    {
-//        connectState = NOT_CONNECTED;
+    wxASSERT (connectState == IS_CONNECTING);
+    bool timedOut = tcTime::Get()->GetUpdated30HzCount() - connectionStartTime > 30*5;
+    if (timedOut)
+    {
+        connectState = NOT_CONNECTED;
+        std::cerr << "Error - Connection timed out." << std::endl;
+        return;
+    }
+    if (clientSock->WaitOnConnect(0, 10) == FALSE) return; // still trying
+    if (clientSock->IsConnected())
+    {
+        connectState = IS_CONNECTED; // success
+        AddConnection(clientSock);
+        return;
+    }
+    else
+    {
+        connectState = NOT_CONNECTED;
 
-//        fprintf(stderr, "Error - Connection with %s refused.\n",
-//            hostAddress.IPAddress().c_str().AsChar());
-//        return;
-//    }
+        fprintf(stderr, "Error - Connection with %s refused.\n",
+            hostAddress.IPAddress());
+        return;
+    }
 }
 
 void tcNetworkInterface::UpdateConnections()
@@ -951,33 +904,33 @@ void tcNetworkInterface::UpdateConnections()
 
 void tcNetworkInterface::UpdateServer()
 {
-//	static unsigned lastBadCheck = 0;
+	static unsigned lastBadCheck = 0;
     
-//    unsigned t = tcTime::Get()->Get30HzCount();
+    unsigned t = tcTime::Get()->Get30HzCount();
 
-//    RemoveDeadConnections();
+    RemoveDeadConnections();
 
-//    if (t - lastBadCheck > 150)
-//    {
-//        RemoveBadConnections();
-//        lastBadCheck = t;
-//    }
+    if (t - lastBadCheck > 150)
+    {
+        RemoveBadConnections();
+        lastBadCheck = t;
+    }
 
-//	//unsigned t1 = tcTime::Get()->GetUpdated30HzCount();
+	//unsigned t1 = tcTime::Get()->GetUpdated30HzCount();
 
-//    // check for new connections
-//    QAbstractSocket *socket = serverSock->Accept(FALSE);
+    // check for new connections
+    wxSocketBase *socket = serverSock->Accept(FALSE);
 
-//	//unsigned t2 = tcTime::Get()->GetUpdated30HzCount();
+	//unsigned t2 = tcTime::Get()->GetUpdated30HzCount();
 
-//    if (socket)
-//    {
-//        AddConnection(socket);
-//    }
+    if (socket)
+    {
+        AddConnection(socket);
+    }
 
-//	//unsigned t3 = tcTime::Get()->GetUpdated30HzCount();
+	//unsigned t3 = tcTime::Get()->GetUpdated30HzCount();
 
-//    UpdateConnections();
+    UpdateConnections();
 
 	//unsigned t4 = tcTime::Get()->GetUpdated30HzCount();
 

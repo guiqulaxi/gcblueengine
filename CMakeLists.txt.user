@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 13.0.1, 2024-08-28T21:49:50. -->
+<!-- Written by QtCreator 13.0.1, 2024-09-01T23:03:33. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -428,7 +428,7 @@
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.gcblue</value>
     <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">gcblue</value>
     <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">true</value>
-    <value type="QString" key="RunConfiguration.Arguments">--scenario scenarios/SinglePlayer/Modern/Odyssey_Dawn.py --times 10 --runmode normal --ip  0.0.0.0 --port 8081</value>
+    <value type="QString" key="RunConfiguration.Arguments">--scenario scenarios/SinglePlayer/Modern/Odyssey_Dawn.py --times 1000 --runmode normal --ip  0.0.0.0 --port 8081</value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
     <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>

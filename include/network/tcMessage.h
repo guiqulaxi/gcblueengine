@@ -57,20 +57,20 @@ public:
             unsigned int riderSize : 10; ///< size in bytes of "rider" message at end
             int id : 6; ///< functional id of message, message type
         } header;
-       char buffer[BUFFER_SIZE];
+        unsigned char buffer[BUFFER_SIZE]; 
     } data;
 
     void ClearRider();
 	bool GetAck() const;
 	unsigned int GetAckId() const;
 	
-     char* GetMessageData();
+    unsigned char* GetMessageData();
     int GetId() const;
     unsigned int GetMessageSize() const;
     unsigned int GetMessageTimestamp() const;
     void PopulateMessage(int sourceId, int messageType, unsigned messageId,
         unsigned int ack, unsigned int messageSize, 
-        const char *messageData);
+        const unsigned char *messageData);
     void Reset();
 	void SetAck(bool state);
     void StampTime();
