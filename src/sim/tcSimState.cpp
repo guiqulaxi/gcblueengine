@@ -826,6 +826,7 @@ void tcSimState::Update()
         weaponTester->Update(); // relevant in dev mode only
     }
     UpdateLaunch();
+
     mcSensorMap.Update(mfSimTime);
 
     if (multiplayerMode != MM_CLIENT)
@@ -2954,6 +2955,7 @@ bool tcSimState::GetTrack(long id, unsigned alliance, tcSensorMapTrack& track)
     tcGameObject* obj = GetObject(id);
 
     // return truth data if own alliance or we're in edit mode
+    //如果是自己一方或编辑模式返回真值
     if ((obj != 0) && ((alliance == obj->GetAlliance()) || (tcGameObject::IsEditMode())))
     {
         tcKinematics *kin = &obj->mcKin;

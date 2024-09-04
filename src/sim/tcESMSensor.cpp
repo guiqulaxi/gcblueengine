@@ -552,58 +552,85 @@ void tcESMSensor::UpdateTrack(const tcGameObject* target, double t)
 
 
 
-
+// 定义tcESMSensor类的ProcessESMDetection成员函数，用于处理ESM（电子支援措施）检测
 void tcESMSensor::ProcessESMDetection(tcGameObject* target, double t)
 {
+    // 定义一个枚举常量，表示最大发射器数量
     enum {MAX_EMITTERS=4};
+    // 初始化方位角（弧度）为0
     float fAz_rad = 0;
 
-	assert(parent);
+    // 断言确保父对象存在
+    assert(parent);
 
+    // 如果父对象和目标的联盟相同，则直接返回
     if (parent->GetAlliance() == target->GetAlliance()) return;
 
+    // 初始化检测标志为false
     bool bDetected = false;
+    // 用于存储检测到的发射器数据库键的数组
     long maEmitter[MAX_EMITTERS];
+    // 初始化检测到的发射器数量为0
     int nEmitters = 0;
 
-    if (tcMissileObject *pMissileObj = dynamic_cast<tcMissileObject*>(target)) 
+    // 尝试将目标动态转换为tcMissileObject类型
+    if (tcMissileObject *pMissileObj = dynamic_cast<tcMissileObject*>(target))
     {
-        if (tcRadar* emitter = pMissileObj->GetSeekerRadar()) // some AGMs have no sensor
+        // 如果导弹对象搜寻雷达
+        if (tcRadar* emitter = pMissileObj->GetSeekerRadar()) // 有些空对地导弹没有传感器
         {
+            // 检测是否检测到雷达
             bDetected = IsDetectedRadar(emitter, fAz_rad);
-            if ((bDetected) && (nEmitters < MAX_EMITTERS)) 
+            // 如果检测到且未超过最大发射器数量
+            if ((bDetected) && (nEmitters < MAX_EMITTERS))
             {
+                // 记录发射器的数据库键
                 maEmitter[nEmitters++] = emitter->mnDBKey;
             }
+            // 如果RWR（雷达告警接收机）更新且检测到，则设置告警级别为2
             if (rwrUpdate && bDetected) rwrWarningLevel = 2;
         }
     }
+    // 尝试将目标动态转换为tcPlatformObject类型（平台对象，如飞机、舰船等）
     else if (tcPlatformObject *pPlatformObj = dynamic_cast<tcPlatformObject*>(target))
     {
+        // 如果平台对象没有辐射电磁波，则返回
         if (!pPlatformObj->IsRadiating()) return;
 
+        // 获取平台对象的传感器数量
         unsigned nSensors = pPlatformObj->GetSensorCount();
-        for (unsigned n=0; n<nSensors; n++) 
+        // 遍历所有传感器
+        for (unsigned n=0; n<nSensors; n++)
         {
+            // 获取当前传感器
             const tcSensorState* sensor = pPlatformObj->GetSensor(n);
-            if (const tcRadar* emitter = dynamic_cast<const tcRadar*>(sensor)) 
+            // 尝试将传感器动态转换为tcRadar类型
+            if (const tcRadar* emitter = dynamic_cast<const tcRadar*>(sensor))
             {
-                if (IsDetectedRadar(emitter, fAz_rad)) 
+                // 如果检测到雷达
+                if (IsDetectedRadar(emitter, fAz_rad))
                 {
+                    // 设置检测标志为true
                     bDetected = true;
-                    if (nEmitters < MAX_EMITTERS) 
+                    // 如果未超过最大发射器数量，记录发射器的数据库键
+                    if (nEmitters < MAX_EMITTERS)
                     {
                         maEmitter[nEmitters++] = emitter->mnDBKey;
                     }
+                    // 如果RWR更新且之前未设置告警级别，则设置告警级别为1
                     if (rwrUpdate && (rwrWarningLevel == 0)) rwrWarningLevel = 1;
                 }
             }
+            // 尝试将传感器动态转换为tcECM类型（电子对抗设备）
             else if (const tcECM* emitter = dynamic_cast<const tcECM*>(sensor))
             {
-                if (IsDetectedECM(emitter, fAz_rad)) 
+                // 如果检测到ECM
+                if (IsDetectedECM(emitter, fAz_rad))
                 {
+                    // 设置检测标志为true
                     bDetected = true;
-                    if (nEmitters < MAX_EMITTERS) 
+                    // 如果未超过最大发射器数量，记录发射器的数据库键
+                    if (nEmitters < MAX_EMITTERS)
                     {
                         maEmitter[nEmitters++] = emitter->mnDBKey;
                     }
@@ -612,22 +639,22 @@ void tcESMSensor::ProcessESMDetection(tcGameObject* target, double t)
         }
     }
 
+    // 如果没有检测到任何发射器，则返回
     if (!bDetected) {return;}
 
-	UpdateSensorMap(target, maEmitter, nEmitters, fAz_rad, t);
+    // 更新传感器映射信息
+    UpdateSensorMap(target, maEmitter, nEmitters, fAz_rad, t);
 }
-
-
 /**
 * Called after ESM detection to update sensor map
 */
 void tcESMSensor::UpdateSensorMap(const tcGameObject* target, long* emitters, unsigned int nEmitters,
-								  float az_rad, double t)
+                                  float az_rad, double t)
 {
     tcSensorMapTrack *pSMTrack = 0;
 
-	assert(simState);
-	assert(emitters);
+    assert(simState);
+    assert(emitters);
 
     if (targetRange_km == 0)
     {
@@ -637,10 +664,11 @@ void tcESMSensor::UpdateSensorMap(const tcGameObject* target, long* emitters, un
     }
 
     // call update to check for this report already in track, or for an empty slot
-    tcSensorReport* report = 
+    tcSensorReport* report =
         simState->mcSensorMap.GetOrCreateReport(parent->mnID, mpDBObj->mnKey, target->mnID, pSMTrack, parent->GetAlliance());
 
     // update passive report if available
+    // 如果报告存在，则更新被动报告
     if (report != 0)
     {
         //bool bNewReport = report->IsNew();
@@ -648,19 +676,18 @@ void tcESMSensor::UpdateSensorMap(const tcGameObject* target, long* emitters, un
         //{
         //    // RWR reports jump to classify and range info much quicker
         //    report->startTime = rwrUpdate ? t - 60.0f : t;
-        //} 
-        
+        //}
         tcSensorState::UpdatePassiveReport(report, t, az_rad, targetRange_km, pSMTrack);
 
         double trackLife = report->GetTrackLife();
 
         unsigned int nClassification = target->mpDBObject->mnType;
-        bool isMissile = (nClassification & PTYPE_MISSILE) != 0;
+        bool isMissile = (nClassification & PTYPE_MISSILE) != 0; // 判断目标是否为导弹
         bool updateClassification = (isMissile || (trackLife > 30.0));
 
         // TODO: problem here with radar and ESM updates competing
         // need to merge updates vs. taking first one only
-        if (updateClassification) 
+        if (updateClassification)
         {
             report->classification = nClassification & 0xFFF0;
             if (isMissile)
@@ -669,7 +696,7 @@ void tcESMSensor::UpdateSensorMap(const tcGameObject* target, long* emitters, un
             }
 
             //tcAllianceInfo::Affiliation eAffil = tcAllianceInfo::UNKNOWN;
-            //if (isMissile) 
+            //if (isMissile)
             //{
             //    eAffil = tcAllianceInfo::HOSTILE;
             //}
@@ -679,17 +706,17 @@ void tcESMSensor::UpdateSensorMap(const tcGameObject* target, long* emitters, un
         }
         else
         {
-            report->classification = 0;
+            report->classification = 0; // 如果不需要更新分类，则清除分类信息
         }
-
+        // 检查是否为新检测
         bool bNewDetection = pSMTrack->IsNew();
-        if (bNewDetection) 
+        if (bNewDetection)
         {
             pSMTrack->UpdateTrack(0);
 
             tcEventManager::Get()->NewContact(parent->GetAlliance(), pSMTrack);
 
-            if (simState->mpUserInfo->IsOwnAlliance(parent->GetAlliance())) 
+            if (simState->mpUserInfo->IsOwnAlliance(parent->GetAlliance()))
             {
 //                tcSound::Get()->PlayEffect("Ping");
             }
@@ -700,14 +727,14 @@ void tcESMSensor::UpdateSensorMap(const tcGameObject* target, long* emitters, un
         }
 
         /* this section is called even if no free reports are available, (?)
-        ** so that ESM can update classification and emitters 
+        ** so that ESM can update classification and emitters
         */
 
         // update emitter info
         report->emitterList.clear();
         if (last_margin_dB >= mpDBObj->idThreshold_dB)
         {
-            for (unsigned int n=0; n<nEmitters; n++) 
+            for (unsigned int n=0; n<nEmitters; n++)
             {
                 report->emitterList.push_back(emitters[n]);
             }

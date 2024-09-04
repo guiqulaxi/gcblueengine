@@ -1098,35 +1098,41 @@ void tcSensorMapTrack::UpdateGenericModel()
 
 
 /**
-* check if reporting sensor has reported, if so update report
-* if not add new report if slots are free
-*/
-bool tcSensorMapTrack::AddReport(const tcSensorReport& report) 
+ * AddReport 函数用于检查指定的传感器是否已报告数据，如果已报告则更新报告，
+ * 如果没有报告且有空余位置，则添加新的报告。
+ *
+ * @param report 传入的传感器报告，类型为tcSensorReport
+ * @return 如果报告被添加或更新，则返回true；如果达到最大报告数，则返回false。
+ */
+bool tcSensorMapTrack::AddReport(const tcSensorReport& report)
 {
-    size_t nContributors = maSensorReport.size();
+    size_t nContributors = maSensorReport.size(); // 获取当前已存储的报告数量
 
-    // search for existing match
-    for(size_t n=0; n<nContributors; n++) 
+    // 遍历已存在的报告，查找是否有匹配的传感器报告
+    for(size_t n=0; n<nContributors; n++)
     {
-        tcSensorReport *pSensorReport = &maSensorReport[n];
-        //bool bActivePassiveMatch = (pSensorReport->mnFlags & report.mnFlags & TRACK_BEARING_ONLY);
+        tcSensorReport *pSensorReport = &maSensorReport[n]; // 获取当前遍历到的报告的指针
+        // 注释掉的代码是尝试检查活动/被动匹配，这里暂时不使用
+        // bool bActivePassiveMatch = (pSensorReport->mnFlags & report.mnFlags & TRACK_BEARING_ONLY);
+
+        // 检查平台ID和传感器ID是否匹配
         if ((pSensorReport->platformID == report.platformID) &&
-            (pSensorReport->sensorID == report.sensorID)) 
+            (pSensorReport->sensorID == report.sensorID))
         {
-            *pSensorReport = report;
-            return true;
+            *pSensorReport = report; // 如果找到匹配项，则更新该报告
+            return true; // 更新成功，返回true
         }
     }
 
-    // add new report if there is room
-    if (nContributors < MAX_SENSOR_REPORTS) 
+    // 检查是否还有空余的位置添加新的报告
+    if (nContributors < MAX_SENSOR_REPORTS)
     {
-        maSensorReport.push_back(report);
-        return true;
+        maSensorReport.push_back(report); // 将新报告添加到列表中
+        return true; // 添加成功，返回true
     }
 
-    // no room
-    return false;
+    // 如果没有空余位置，则无法添加新报告
+    return false; // 返回false，表示没有添加新报告
 }
 
 /**
@@ -1168,6 +1174,13 @@ void tcSensorMapTrack::UpdateAlwaysVisible()
 * @param linearTime_s time in seconds to assume linear track behavior
 * @param defaultSpeed_mps default speed to assume for this class of track
 * @param defaultClimbAngle_rad climb angle to assume for alt error when no better data
+*
+    linearTime_s: 假设目标在直线路径上行为的时间（秒）。
+    defaultSpeed_mps: 目标的默认速度（米/秒）。
+    defaultClimbAngle_rad: 目标爬升或下降的默认角度（弧度）。
+    accel_mps2: 目标的加速度（米/秒^2）。
+    climbRate_radps: 目标爬升角度的变化率（弧度/秒）。
+    headingRate_radps: 目标航向的变化率（弧度/秒）。
 */
 void tcSensorMapTrack::GetModelParameters(float& linearTime_s, float& defaultSpeed_mps, float& defaultClimbAngle_rad,
                                           float& accel_mps2, float& climbRate_radps, float& headingRate_radps)
@@ -1285,98 +1298,113 @@ void tcSensorMapTrack::GetModelParameters(float& linearTime_s, float& defaultSpe
     }
 }
 
+// 定义函数，用于预测传感器的报告
 void tcSensorMapTrack::PredictReport(double t, const tcSensorReport& base, tcSensorReport& prediction)
 {
+    // 计算预测时间点和基础报告时间点的差值
     double dt_s = t - base.timeStamp;
-    assert(dt_s >= 0); // prediction should be into future
+    // 确保预测是面向未来的
+    assert(dt_s >= 0);
 
+    // 初始化预测报告为基础报告
     prediction = base;
 
+    // 检查是否为固定地面目标，且速度有效且为0
     bool isFixedGround = tcTrack::IsGround() && tcTrack::IsSpeedValid() && (tcTrack::mfSpeed_kts == 0);
-    if ((dt_s <= 0) || isFixedGround) return; // no prediction required
+    // 如果时间差为0或目标为固定地面目标，则不需要预测
+    if ((dt_s <= 0) || isFixedGround) return;
 
+    // 初始化模型参数
     float trackLinearTime_s = 0;
     float defaultSpeed_mps = 0;
     float defaultClimbAngle_rad = 0;
     float accel_mps2 = 0;
-    float climbRate_radps = 0; // rate of climb angle
-    float headingRate_radps = 0;
-    GetModelParameters(trackLinearTime_s, defaultSpeed_mps, defaultClimbAngle_rad, 
+    float climbRate_radps = 0; // 爬升角变化率
+    float headingRate_radps = 0; // 航向变化率
+    //获得默认的运动参数
+    GetModelParameters(trackLinearTime_s, defaultSpeed_mps, defaultClimbAngle_rad,
                        accel_mps2, climbRate_radps, headingRate_radps);
 
-    // use mixture of report linear track and random movement
+    // 检查基础报告中的各个字段是否有效
     bool reportLonLatValid = (base.validFlags & tcSensorReport::LONLAT_VALID) != 0;
     bool reportHeadingValid = (base.validFlags & tcSensorReport::HEADING_VALID) != 0;
     bool reportSpeedValid = (base.validFlags & tcSensorReport::SPEED_VALID) != 0;
     bool reportAltValid = (base.validFlags & tcSensorReport::ALT_VALID) != 0;
     bool reportClimbValid = (base.validFlags & tcSensorReport::CLIMB_VALID) != 0;
 
+    // 如果航向无效，则不使用线性跟踪时间
     if (!reportHeadingValid) trackLinearTime_s = 0;
 
+    // 根据报告或默认值计算速度
     float speed_mps = reportSpeedValid ? base.speedEstimate_mps : defaultSpeed_mps;
-    float speed_radps = C_MTORAD * speed_mps;
-    float invcos_factor = (1.0 / cosf(base.latEstimate_rad));
+    float speed_radps = C_MTORAD * speed_mps; // 速度转换为弧度/秒
+    float invcos_factor = (1.0 / cosf(base.latEstimate_rad)); // 纬度校正因子
 
+    // 更新经纬度预测
     if (reportLonLatValid)
     {
         if (dt_s <= trackLinearTime_s)
         {
+            // 在线性跟踪时间内更新经纬度
             float dist_rad = speed_radps * dt_s;
             prediction.lonEstimate_rad += invcos_factor * dist_rad * sinf(base.headingEstimate_rad);
             prediction.latEstimate_rad += dist_rad * cosf(base.headingEstimate_rad);
         }
         else
         {
+            // 超过线性跟踪时间后的预测，包含误差估计
             float dist_rad = speed_radps * trackLinearTime_s;
             prediction.lonEstimate_rad += invcos_factor * dist_rad * sinf(base.headingEstimate_rad);
             prediction.latEstimate_rad += dist_rad * cosf(base.headingEstimate_rad);
 
             float errorTime_s = dt_s - trackLinearTime_s;
-            float errorSigma_rad = 0.5f * speed_radps * errorTime_s; // take speed as a 2-sigma number
+            float errorSigma_rad = 0.5f * speed_radps * errorTime_s; // 速度作为2-sigma的估计
             float errorVar_rad2 = errorSigma_rad * errorSigma_rad;
-            prediction.C11 += invcos_factor * errorVar_rad2; // lon component
-            prediction.C22 += errorVar_rad2; // lat component
+            prediction.C11 += invcos_factor * errorVar_rad2; // 经度方向的协方差
+            prediction.C22 += errorVar_rad2; // 纬度方向的协方差
         }
     }
 
-    // update altitude prediction
+    // 更新高度预测
     if (reportAltValid)
     {
         if (reportClimbValid)
         {
+            // 如果有有效的爬升角，则更新高度估计
             prediction.altEstimate_m += sinf(base.climbEstimate_rad) * speed_mps * std::min((float)dt_s, trackLinearTime_s);
         }
-        float altitudeError_m = 0.5f * sinf(defaultClimbAngle_rad) * speed_mps * dt_s; // 0.5 for 2-sigma
+        // 计算高度误差
+        float altitudeError_m = 0.5f * sinf(defaultClimbAngle_rad) * speed_mps * dt_s; // 0.5为2-sigma
         prediction.altVariance += altitudeError_m * altitudeError_m;
-        prediction.altVariance = std::min(prediction.altVariance, 4e6f); // max 1-sigma of 2000 m
+        prediction.altVariance = std::min(prediction.altVariance, 4e6f); // 高度误差的1-sigma限制为2000米
     }
 
-    // update speed prediction
+    // 更新速度预测
     if (reportSpeedValid)
     {
-        float speedError_mps = 0.5 * accel_mps2 * dt_s;
+        float speedError_mps = 0.5 * accel_mps2 * dt_s; // 基于加速度计算速度误差
         prediction.speedVariance += speedError_mps * speedError_mps;
+        // 如果时间差大于30秒，则假设速度为0
         if (dt_s > 30.0f)
         {
             prediction.speedEstimate_mps = 0;
         }
     }
 
-    // update heading prediction
+    // 更新航向预测
     if (reportHeadingValid)
     {
-        float headingError_rad = 0.5 * headingRate_radps * dt_s;
+        float headingError_rad = 0.5 * headingRate_radps * dt_s; // 基于航向变化率计算航向误差
         prediction.headingVariance += headingError_rad * headingError_rad;
     }
 
-    // update climbAngle prediction
+    // 更新爬升角预测
     if (reportClimbValid)
     {
-        float climbAngleError_rad = 0.5 * climbRate_radps * dt_s;
+        float climbAngleError_rad = 0.5 * climbRate_radps * dt_s; // 基于爬升角变化率计算爬升角误差
         prediction.climbVariance += climbAngleError_rad * climbAngleError_rad;
     }
 }
-
 void tcSensorMapTrack::SetAffiliation(tcAllianceInfo::Affiliation affil)
 {
     if (tcTrack::mnAffiliation == 0)
@@ -1388,17 +1416,19 @@ void tcSensorMapTrack::SetAffiliation(tcAllianceInfo::Affiliation affil)
 /**
 * @param tCoast_s time to predict to, if later than most recent report time
 * check for update reports and update track
+* 要预测到的时间（秒），如果晚于最新的报告时间，则检查更新报告并更新跟踪。
 */
 void tcSensorMapTrack::UpdateTrack(double tCoast_s) 
 {
+    // 总是更新可视性状态
     UpdateAlwaysVisible();
-
+// 如果是多人游戏客户端或跟踪对象已被销毁，则直接返回
     if (simState->IsMultiplayerClient() || IsDestroyed()) return;
-
+    // 更新发射器信息
     UpdateEmitters();
-
+    // 修剪（删除旧的或无效的）报告
     PruneReports();
-
+    // 找到最新的报告时间
     double mostRecentReportTime_s = 0;
     size_t nContributors = maSensorReport.size();
     for (size_t n=0; n<nContributors; n++)
@@ -1406,7 +1436,7 @@ void tcSensorMapTrack::UpdateTrack(double tCoast_s)
         tcSensorReport* report = &maSensorReport[n];
         mostRecentReportTime_s = std::max(report->timeStamp, mostRecentReportTime_s);
     }
-
+    // 如果最新的报告时间或预测时间都不晚于当前跟踪时间戳，则无需更新
     if ((mostRecentReportTime_s <= tcTrack::mfTimestamp) && (tCoast_s <= tcTrack::mfTimestamp)) return; // no update required
 
     double invC11sum = 0;
@@ -1435,14 +1465,16 @@ void tcSensorMapTrack::UpdateTrack(double tCoast_s)
     double tPredict_s = std::max(mostRecentReportTime_s, tCoast_s);
     const double min_det = 1e-32;
 
+    // 预测每个报告在tPredict_s时间点的状态
     tcSensorReport predicted;
     for (size_t n=0; n<nContributors; n++)
     {
         tcSensorReport* report = &maSensorReport[n];
-
+        // 根据预测结果更新位置和其他参数的估计值
         PredictReport(tPredict_s, *report, predicted);
 
         // update combined estimate for each contributor with valid lat/lon
+        //报告包含经纬度
         if ((report->validFlags & tcSensorReport::LONLAT_VALID) != 0)
         {
             double det = (predicted.C11*predicted.C22) - (predicted.C12*predicted.C12);

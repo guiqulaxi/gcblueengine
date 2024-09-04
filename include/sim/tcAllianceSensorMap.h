@@ -70,6 +70,11 @@ public:
 
 	void Update(double statusTime);
     void UpdateMultiplayerClient(double statusTime);
+    /**
+     * @brief GetSensorMapTrack
+     * @param anTrackID 就是目标ID
+     * @return
+     */
 	tcSensorMapTrack* GetSensorMapTrack(long anTrackID);
 	bool GetTrack(long anTrackID, tcTrack& track);
 	int Serialize(tcFile& file, bool mbLoad);
@@ -86,7 +91,7 @@ public:
 	virtual ~tcAllianceSensorMap();
 private:
 	tcPool<tcSensorMapTrack,MAX_SMTRACKS> maTrack;
-	long maTrackToSensorTrack[MAX_TRACKS];
+    long maTrackToSensorTrack[MAX_TRACKS];//每个对象对应一个 tcSensorMapTrack
 	double mfPreviousStatusTime;
 	double lastEngagementsUpdate;
 	const unsigned int alliance;

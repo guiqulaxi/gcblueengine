@@ -488,23 +488,30 @@ void tcAllianceSensorMap::UpdateMultiplayerClient(double statusTime)
 #endif
 }
 
-void tcAllianceSensorMap::Update(double statusTime) 
+// 更新传感器地图状态
+void tcAllianceSensorMap::Update(double statusTime)
 {
-    if ((statusTime - mfPreviousStatusTime) < 1.0f) {return;}
+    // 如果状态时间间隔小于1秒，则不执行更新
+    if ((statusTime - mfPreviousStatusTime) < 1.0f) {
+        return;
+    }
+    // 更新上一次状态时间
     mfPreviousStatusTime = statusTime;
 
+    // 如果是多人游戏的客户端，则更新客户端特定的逻辑
     if (tcSimState::Get()->IsMultiplayerClient())
     {
         UpdateMultiplayerClient(statusTime);
         return;
     }
 
+    // 获取追踪列表的起始位置和大小
     long cmappos = maTrack.GetStartPosition();
     long nSize = maTrack.GetCount();
     long nKey;
     tcSensorMapTrack *psmtrack;
 
-
+    // 检查是否需要更新交战信息
     bool updateEngagements = false;
     if (statusTime - lastEngagementsUpdate > 8.0f)
     {
@@ -512,26 +519,33 @@ void tcAllianceSensorMap::Update(double statusTime)
         lastEngagementsUpdate = statusTime;
     }
 
-
-    for (long i=0; i<nSize; i++) 
+    // 遍历所有追踪项
+    for (long i=0; i<nSize; i++)
     {
         maTrack.GetNextAssoc(cmappos,nKey,psmtrack);
 
-        bool freshReport = false; // true if at least one report isn't stale
+        // 标记是否有非陈旧报告
+        bool freshReport = false;
 
+        // 用于存储需要移除的报告索引
         std::vector<size_t> reportsToRemove;
 
+        // 获取追踪的陈旧时间和过期时间
         float staleTime = psmtrack->GetStaleTime();
         float ageOutTime = psmtrack->GetAgeOutTime();
 
+        // 遍历所有贡献者（可能是传感器报告）
         size_t nContributors = psmtrack->GetContributorCount();
-        for (size_t n=0; n<nContributors; n++) 
+        for (size_t n=0; n<nContributors; n++)
         {
+            // 计算自上次更新以来的时间
             double timeSinceUpdate = statusTime - psmtrack->maSensorReport[n].timeStamp;
-            if (timeSinceUpdate >= ageOutTime) 
+            // 如果报告已过期，则添加到移除列表
+            if (timeSinceUpdate >= ageOutTime)
             {
                 reportsToRemove.push_back(n);
             }
+            // 如果报告陈旧但未过期，且目标已销毁且时间足够长，也添加到移除列表
             else if (timeSinceUpdate >= staleTime)
             {
                 if (psmtrack->IsDestroyed() && (timeSinceUpdate >= staleTime + 10.0))
@@ -539,52 +553,57 @@ void tcAllianceSensorMap::Update(double statusTime)
                     reportsToRemove.push_back(n);
                 }
             }
+            // 否则，标记为有新鲜报告
             else
             {
                 freshReport = true;
             }
         }
 
+        // 移除需要移除的报告
         if (reportsToRemove.size() > 0)
         {
             psmtrack->RemoveReports(reportsToRemove);
         }
 
+        // 如果没有新鲜报告，则定期更新追踪以使其保持活动状态（可能用于多人游戏客户端）
         if (!freshReport)
         {
-            // periodically coast stale tracks so they get reported to multiplayer clients
             if (statusTime - psmtrack->mfTimestamp > 10.0f)
             {
                 psmtrack->UpdateTrack(statusTime);
             }
-
-            psmtrack->MarkStale(); // note can get stale cleared in UpdateTrack
+            psmtrack->MarkStale(); // 注意：UpdateTrack中可能会清除陈旧状态
         }
 
-
+        // 检查是否应删除追踪项（无贡献者且非始终可见）
         bool dropTrack = (psmtrack->GetContributorCount() == 0) && (!psmtrack->alwaysVisible);
 
-
+        // 如果需要删除追踪项
         if (dropTrack)
         {
-            if (psmtrack->mnID >= 0) 
+            // 清理与追踪ID相关的映射（如果存在）
+            if (psmtrack->mnID >= 0)
             {
-                maTrackToSensorTrack[psmtrack->mnID] = NULL_INDEX; // used to be = maTrack.GetPoolSize();
+                maTrackToSensorTrack[psmtrack->mnID] = NULL_INDEX; // 注意：这里之前可能是设置为maTrack.GetPoolSize()，但现在是NULL_INDEX
             }
 
+            // 从追踪列表中移除该追踪项
             maTrack.RemoveKey(nKey);
-            
+
+            // 调试信息
 #ifdef _DEBUG
             char zBuff[128];
             sprintf(zBuff,"Dropped track %d at time %.1f",psmtrack->mnID,statusTime);
-            WTL(zBuff);
+            WTL(zBuff); // 假设WTL是某种日志或跟踪函数
 #endif
 
         }
-        else 
+        else
         {
-            // check for new data and update
+            // 如果有新数据或需要更新，则更新追踪项
             psmtrack->UpdateTrack(0);
+            // 如果需要更新交战信息
             if (updateEngagements)
             {
                 psmtrack->UpdateEngagements();
@@ -593,12 +612,11 @@ void tcAllianceSensorMap::Update(double statusTime)
         }
     }
 
-
+    // 调试断言，检查追踪列表是否损坏
 #ifdef _DEBUG
     assert(maTrack.CheckForCorruption()==false);
 #endif
 }
-
 unsigned int tcAllianceSensorMap::GetAlliance() const
 {
 	return alliance;

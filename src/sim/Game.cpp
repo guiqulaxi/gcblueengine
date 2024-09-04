@@ -1967,6 +1967,7 @@ void tcGame::UpdateOutSimData()
 
     rapidjson::Document document;
     document.SetObject();
+    //更新对象位置
     tcGameObject *obj;
     long cmappos = simState->maPlatformState.GetStartPosition();
     int nSize = simState->maPlatformState.GetCount();
@@ -2028,8 +2029,12 @@ void tcGame::UpdateOutSimData()
         rapidjson::Value mfSpeed_ktsValue(rapidjson::kNumberType);
         mfSpeed_ktsValue.SetFloat(obj->mcKin.mfSpeed_kts); // 使用文档的分配器来分配内存
         unitinfo.AddMember("mfSpeed_kts",mfSpeed_ktsValue,document.GetAllocator());
+
         unitinfos.PushBack(unitinfo,document.GetAllocator());
     }
+    //每个平台探测的目标
+    //某一方的目标
+
     document.AddMember("unitInfo",unitinfos,document.GetAllocator());
     {
         std::lock_guard<std::mutex> lock(mtx_outsimdata);

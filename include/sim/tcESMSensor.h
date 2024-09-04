@@ -44,7 +44,7 @@ class tcUpdateStream;
 using namespace database;
 
 /**
- *
+ * 电子支援措施（ESM）是频谱空间中的“侦察兵”。依靠高灵敏度的接收机，电子支援系统可以截获周边的雷达信号，测定辐射源的工作频率、方位、脉冲宽度、脉冲重复频率等参数。
  */
 class tcESMSensor : public tcSensorState
 {

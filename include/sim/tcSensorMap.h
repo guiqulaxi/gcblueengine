@@ -68,6 +68,16 @@ public:
 	bool MapExists(UINT8 alliance) const;
     size_t GetMapCount() const; ///< @return number of sensor maps created
 
+    //传感器探测后调用用来更新
+    /**
+     * @brief GetOrCreateReport
+     * @param platformID
+     * @param sensorID
+     * @param trackID 就是Target ID
+     * @param pSMTrack
+     * @param alliance
+     * @return
+     */
     tcSensorReport* GetOrCreateReport(long platformID, long sensorID, long trackID, tcSensorMapTrack*& pSMTrack, unsigned int alliance);
 
     void AddAlwaysVisibleTrack(const std::string& unitName);
@@ -78,6 +88,12 @@ public:
 	void Clear();
 
 	void Update(double afStatusTime);
+    /**
+     * @brief GetSensorMapTrack
+     * @param anTrackID 就是objID targetID
+     * @param anAlliance
+     * @return
+     */
 	tcSensorMapTrack* GetSensorMapTrack(long anTrackID, UINT8 anAlliance);
 	bool GetTrack(unsigned long anTrackID, tcTrack& track, UINT8 anAlliance);
 	int Serialize(tcFile& file, bool mbLoad);

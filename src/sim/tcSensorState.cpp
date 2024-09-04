@@ -757,79 +757,92 @@ void tcSensorState::UpdateActiveReport(tcSensorReport* report, double t, float a
 
 
 
-void tcSensorState::UpdatePassiveReport(tcSensorReport* report, double t, float az_rad, float range_km, 
-										const tcSensorMapTrack* track)
-{    
+// 更新被动报告的函数
+void tcSensorState::UpdatePassiveReport(tcSensorReport* report, double t, float az_rad, float range_km,
+                                        const tcSensorMapTrack* track)
+{
+    // 检查报告是否是新生成的
     bool newReport = report->IsNew();
-    if (newReport) 
+    if (newReport)
     {
+        // 如果是新报告，则设置开始时间为当前时间
         report->startTime = t;
     }
+    // 更新报告的时间戳
     report->timeStamp = t;
 
+    // 计算方位角的误差
     float azError = mpDBObj->angleError_rad *
-        tcSensorState::GetErrorFactor(parent->mnID, mpDBObj->mnKey, az_rad);
+                    tcSensorState::GetErrorFactor(parent->mnID, mpDBObj->mnKey, az_rad);
+    // 计算带误差的方位角估计值
     float azEstimate_rad = az_rad + azError;
 
-    float effectiveRangeError = mpDBObj->rangeError; // range error with close range mod
-    float rangeEstimate_km = range_km;
-    float rangeError_km = 0;
+    // 初始化有效距离误差
+    float effectiveRangeError = mpDBObj->rangeError; // 带有近距离修正的距离误差
+    float rangeEstimate_km = range_km; // 原始距离估计值
+    float rangeError_km = 0; // 距离误差
 
-    // interpret range error as a fractional error of true range
+    // 解释距离误差为真实距离的一个分数误差
     if ((mpDBObj->rangeError > 0) && (mpDBObj->rangeError <= 0.5))
     {
-        // added this to simulate better accuracy at close range from ESM cueing
-        // pilot's vision (so RWR has better utility)
+        // 如果传感器是ESM类型且在近距离内，则减小距离误差
         tcESMSensor* esm = dynamic_cast<tcESMSensor*>(this);
         if ((esm != 0) && (range_km < 3.0))
         {
             effectiveRangeError = 0.5f*mpDBObj->rangeError;
         }
 
+        // 这里原本有计算距离尺度误差的代码，现在被注释掉了
         // +100 to get an independent error
         // scale factor error is range_error^([-1,1])
-        //rangeScaleError = powf(1.0f - effectiveRangeError, 
+        //rangeScaleError = powf(1.0f - effectiveRangeError,
         //    tcSensorState::GetErrorFactor(parent->mnID + 100, mpDBObj->mnKey, az_rad));
         //rangeEstimate_km = rangeScaleError*range_km;
-
+        // 计算距离误差
         rangeError_km = range_km * effectiveRangeError;
+        // 计算随机距离误差
         float randomError_km = rangeError_km * tcSensorState::GetErrorFactor(parent->mnID + 100, mpDBObj->mnKey, az_rad);
-
+        // 计算带随机误差的距离估计值
         rangeEstimate_km = range_km + randomError_km;
     }
-    else // "bearing only" case
+    else // "仅方位"的情况
     {
+        // 假设距离误差大于0.5且小于等于1.0
         assert((mpDBObj->rangeError > 0.5f) && (mpDBObj->rangeError <= 1.0f));
+        // 计算最大可能的距离误差
         float maxRangeError_km = range_km * (4.0f + randf(4.0f));
+        // 限制距离估计值不超过200公里
         rangeEstimate_km = std::min(200.0f, maxRangeError_km);
 
-		// extra step to use tcSensorMapTrack range if multiple contributors exist.
-		// This is to improve accuracy of triangulation, solution with long ellipses wasn't reducing to correct error box
-		if ((track != 0) && (track->GetContributorCount() > 1))
-		{
-			rangeEstimate_km = parent->mcKin.RangeToKm(*track);
-		}
+        // 如果存在多个贡献者，则使用tcSensorMapTrack的距离来提高精度
+        if ((track != 0) && (track->GetContributorCount() > 1))
+        {
+            rangeEstimate_km = parent->mcKin.RangeToKm(*track);
+        }
 
+        // 在这种情况下，距离误差等于距离估计值
         rangeError_km = rangeEstimate_km;
     }
 
+    // 使用估计的距离和方位角来计算地理坐标
     GeoPoint p(parent->mcKin.mfLon_rad, parent->mcKin.mfLat_rad, 0);
     p.Offset(rangeEstimate_km, azEstimate_rad);
 
+    // 更新报告的经纬度估计值
     report->lonEstimate_rad = (float)p.mfLon_rad;
     report->latEstimate_rad = (float)p.mfLat_rad;
 
-    float sigmaDownRange_m = 1000.0f * C_U2GSIG * rangeError_km;
-    float sigmaCrossRange_m = 1000.0f * C_U2GSIG * rangeEstimate_km * mpDBObj->angleError_rad;
+    // 计算沿距离方向和跨距离方向的标准差
+    float sigmaDownRange_m = 1000.0f * C_U2GSIG * rangeError_km; // 向下距离的标准差
+    float sigmaCrossRange_m = 1000.0f * C_U2GSIG * rangeEstimate_km * mpDBObj->angleError_rad; // 跨距离的标准差
 
+    // 计算经纬度协方差
     CalculateLonLatCovariance(azEstimate_rad, report->latEstimate_rad, sigmaCrossRange_m, sigmaDownRange_m,
-        report->C11, report->C22, report->C12);
+                              report->C11, report->C22, report->C12);
 
-
+    // 标记报告的经纬度为有效
     report->validFlags = tcSensorReport::LONLAT_VALID;
-}
-
-
+}// 函数结束
 /**
  *
  *
