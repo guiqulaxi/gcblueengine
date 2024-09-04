@@ -34,6 +34,7 @@
 #include "AError.h"
 
 #include <iomanip>
+#include <tcSensorTrackIterator.h>
 //#include "wx/datetime.h"
 //#include "wx/progdlg.h"
 //#include <wx/filedlg.h>
@@ -563,7 +564,7 @@ bool tcGame::InitSim()
 
     tcSensorMapTrack::AttachDatabase(database);
 
-    // simState->AttachWeaponTester(); // dev mode feature
+     simState->AttachWeaponTester(); // dev mode feature
 
     tcFlightPort::InitTransitionTimes();
 
@@ -2032,8 +2033,22 @@ void tcGame::UpdateOutSimData()
 
         unitinfos.PushBack(unitinfo,document.GetAllocator());
     }
-    //每个平台探测的目标
-    //某一方的目标
+    //遍历每一方的探测目标
+    tcAllianceInfo* allianceInfo = tcAllianceInfo::Get();
+    auto allianceList =allianceInfo->GetAllianceList();
+    for(auto alliance :allianceList)
+    {
+
+        tcSensorTrackIterator iter(alliance, 0xFFFF);
+
+        for (iter.First();iter.NotDone();iter.Next())
+        {
+            tcSensorMapTrack* track = iter.Get();
+            track->mnID;//航迹对应的真实目标ID
+
+        }
+    }
+
 
     document.AddMember("unitInfo",unitinfos,document.GetAllocator());
     {

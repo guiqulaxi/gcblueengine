@@ -1417,6 +1417,7 @@ void tcSensorMapTrack::SetAffiliation(tcAllianceInfo::Affiliation affil)
 * @param tCoast_s time to predict to, if later than most recent report time
 * check for update reports and update track
 * 要预测到的时间（秒），如果晚于最新的报告时间，则检查更新报告并更新跟踪。
+* 类似融合模块，基于所有的传感器上报融合出一个融合目标
 */
 void tcSensorMapTrack::UpdateTrack(double tCoast_s) 
 {
