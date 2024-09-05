@@ -2250,9 +2250,7 @@ void tcGame::UpdateOutSimData()
         //  std::cout << buffer.GetString() << std::endl;
         // exit(0);
         outsimdata=buffer.GetString();
-        std::cout << buffer.GetString() << std::endl;
-        exit(0);
-        int a=0;
+
     }
 
 
