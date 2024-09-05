@@ -259,6 +259,6 @@ private:
     std::string outsimdata;//存储仿真数据
     std::mutex mtx_outsimdata;
     void UpdateOutSimData();
-     std::string mnModelType2String(int mnModelType);
+
 };
 #endif

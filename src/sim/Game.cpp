@@ -1962,119 +1962,7 @@ tcGame::~tcGame()
 
     Finish();
 }
-
-void tcGame::UpdateOutSimData()
-{
-
-    rapidjson::Document document;
-    document.SetObject();
-    //更新对象位置
-    tcGameObject *obj;
-    long cmappos = simState->maPlatformState.GetStartPosition();
-    int nSize = simState->maPlatformState.GetCount();
-    long nKey;
-    //遍历对象更新
-    // sharedSimData.count=nSize;
-
-    rapidjson::Value mfSimTimeValue(rapidjson::kNumberType);
-    mfSimTimeValue.Set(simState->GetTime()); // 使用文档的分配器来分配内存
-    document.AddMember("mfSimTime",mfSimTimeValue,document.GetAllocator());
-
-    rapidjson::Value dateTimeValue(rapidjson::kNumberType);
-    dateTimeValue.Set(simState->GetDateTime().GetTimeT()); // 使用文档的分配器来分配内存
-    document.AddMember("dateTime",dateTimeValue,document.GetAllocator());
-
-    rapidjson::Value unitinfos(rapidjson::kArrayType);
-    for (int i=0;i<nSize;i++)
-    {
-        simState->maPlatformState.GetNextAssoc(cmappos,nKey,obj);
-        // 创建一个 Value 对象，用来存储字符串 "hello"
-        rapidjson::Value unitinfo(rapidjson::kObjectType);
-
-        rapidjson::Value mnIDValue(rapidjson::kStringType);
-        mnIDValue.SetString(obj->GetName(), document.GetAllocator()); // 使用文档的分配器来分配内存
-        unitinfo.AddMember("mnID",mnIDValue,document.GetAllocator());
-        rapidjson::Value mnModelTypeValue(rapidjson::kStringType);
-        mnModelTypeValue.SetString(mnModelType2String(obj->mnModelType).c_str(), document.GetAllocator()); // 使用文档的分配器来分配内存
-        unitinfo.AddMember("mnModelType",mnModelTypeValue,document.GetAllocator());
-        rapidjson::Value mzClassValue(rapidjson::kStringType);
-        mzClassValue.SetString(obj->mzClass.c_str(), document.GetAllocator()); // 使用文档的分配器来分配内存
-        unitinfo.AddMember("mzClass",mzClassValue,document.GetAllocator());
-        rapidjson::Value allianceValue(rapidjson::kNumberType);
-        allianceValue.SetInt(obj->GetAlliance()); // 使用文档的分配器来分配内存
-        unitinfo.AddMember("alliance",allianceValue,document.GetAllocator());
-        rapidjson::Value mfLon_radValue(rapidjson::kNumberType);
-        mfLon_radValue.SetDouble(obj->mcKin.mfLon_rad); // 使用文档的分配器来分配内存
-        unitinfo.AddMember("mfLon_rad",mfLon_radValue,document.GetAllocator());
-        rapidjson::Value mfLat_radValue(rapidjson::kNumberType);
-        mfLat_radValue.SetDouble(obj->mcKin.mfLat_rad); // 使用文档的分配器来分配内存
-        unitinfo.AddMember("mfLat_rad",mfLat_radValue,document.GetAllocator());
-        rapidjson::Value mfAlt_mValue(rapidjson::kNumberType);
-        mfAlt_mValue.SetFloat(obj->mcKin.mfAlt_m); // 使用文档的分配器来分配内存
-        unitinfo.AddMember("mfAlt_m",mfAlt_mValue,document.GetAllocator());
-        rapidjson::Value mfHeading_radValue(rapidjson::kNumberType);
-        mfHeading_radValue.SetFloat(obj->mcKin.mfHeading_rad); // 使用文档的分配器来分配内存
-        unitinfo.AddMember("mfHeading_rad",mfHeading_radValue,document.GetAllocator());
-        rapidjson::Value mfClimbAngle_radValue(rapidjson::kNumberType);
-        mfClimbAngle_radValue.SetFloat(obj->mcKin.mfClimbAngle_rad); // 使用文档的分配器来分配内存
-        unitinfo.AddMember("mfClimbAngle_rad",mfClimbAngle_radValue,document.GetAllocator());
-        rapidjson::Value mfYaw_radValue(rapidjson::kNumberType);
-        mfYaw_radValue.SetFloat(obj->mcKin.mfYaw_rad); // 使用文档的分配器来分配内存
-        unitinfo.AddMember("mfYaw_rad",mfYaw_radValue,document.GetAllocator());
-        rapidjson::Value mfPitch_radValue(rapidjson::kNumberType);
-        mfPitch_radValue.SetFloat(obj->mcKin.mfPitch_rad); // 使用文档的分配器来分配内存
-        unitinfo.AddMember("mfPitch_rad",mfPitch_radValue,document.GetAllocator());
-        rapidjson::Value mfRoll_radValue(rapidjson::kNumberType);
-        mfRoll_radValue.SetFloat(obj->mcKin.mfRoll_rad); // 使用文档的分配器来分配内存
-        unitinfo.AddMember("mfRoll_rad",mfRoll_radValue,document.GetAllocator());
-        rapidjson::Value mfSpeed_ktsValue(rapidjson::kNumberType);
-        mfSpeed_ktsValue.SetFloat(obj->mcKin.mfSpeed_kts); // 使用文档的分配器来分配内存
-        unitinfo.AddMember("mfSpeed_kts",mfSpeed_ktsValue,document.GetAllocator());
-
-        unitinfos.PushBack(unitinfo,document.GetAllocator());
-    }
-    //遍历每一方的探测目标
-    tcAllianceInfo* allianceInfo = tcAllianceInfo::Get();
-    auto allianceList =allianceInfo->GetAllianceList();
-    for(auto alliance :allianceList)
-    {
-
-        tcSensorTrackIterator iter(alliance, 0xFFFF);
-
-        for (iter.First();iter.NotDone();iter.Next())
-        {
-            tcSensorMapTrack* track = iter.Get();
-            track->mnID;//航迹对应的真实目标ID
-
-        }
-    }
-
-
-    document.AddMember("unitInfo",unitinfos,document.GetAllocator());
-    {
-        std::lock_guard<std::mutex> lock(mtx_outsimdata);
-
-        // 将 JSON 文档序列化为字符串
-        rapidjson::StringBuffer buffer;
-        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-        document.Accept(writer);
-        // 输出 JSON 字符串
-        //  std::cout << buffer.GetString() << std::endl;
-        // exit(0);
-        outsimdata=buffer.GetString();
-    }
-
-
-
-    // sharedSimDataMemory.lock();
-    // char *to = (char*)sharedSimDataMemory.data();
-    // const char *from = (char*)&sharedSimData;
-    // memcpy(to,from, sizeof(sharedSimData.count)+sharedSimData.count*sizeof(UnitInfo));//数据从该进程中拷贝到共享数据内存中
-    // sharedSimDataMemory.unlock();//共享内层解锁
-
-}
-
-string tcGame::mnModelType2String(int mnModelType)
+std::string mnModelType2String(int mnModelType)
 {
     std::string str="OBJECT";
     switch (mnModelType) {
@@ -2155,3 +2043,225 @@ string tcGame::mnModelType2String(int mnModelType)
     return str;
 
 }
+void tcTrackToJson(const tcSensorMapTrack& track,rapidjson::Value& v,rapidjson::Document& d) {
+    v.AddMember("mfLon_rad", track.mfLon_rad,d.GetAllocator());
+    v.AddMember("mfLat_rad", track.mfLat_rad,d.GetAllocator());
+    v.AddMember("mfAlt_m", track.mfAlt_m,d.GetAllocator());
+    v.AddMember("mfSpeed_kts", track.mfSpeed_kts,d.GetAllocator());
+    v.AddMember("mfHeading_rad", track.mfHeading_rad,d.GetAllocator());
+    v.AddMember("mfClimbAngle_rad", track.mfClimbAngle_rad,d.GetAllocator());
+    v.AddMember("bearing_rad", track.bearing_rad,d.GetAllocator());
+    v.AddMember("bearingRate_radps", track.bearingRate_radps,d.GetAllocator());
+    v.AddMember("mfTimestamp", track.mfTimestamp,d.GetAllocator());
+
+    v.AddMember("mnID", (int)track.mnID,d.GetAllocator());
+    v.AddMember("mnClassification", track.mnClassification,d.GetAllocator());
+    v.AddMember("mnAffiliation", track.mnAffiliation,d.GetAllocator());
+    v.AddMember("mnAlliance", track.mnAlliance,d.GetAllocator());
+    v.AddMember("mnFlags", track.mnFlags,d.GetAllocator());
+
+    rapidjson::Value sensorReports(rapidjson::kArrayType);
+    for (const auto& report : track.maSensorReport) {
+        rapidjson::Value reportObj;
+        reportObj.SetObject();
+        reportObj.AddMember("timeStamp", report.timeStamp,d.GetAllocator());
+        reportObj.AddMember("startTime", report.startTime,d.GetAllocator());
+        reportObj.AddMember("platformID", (int)report.platformID,d.GetAllocator());
+        reportObj.AddMember("sensorID", (int)report.sensorID,d.GetAllocator());
+        reportObj.AddMember("validFlags", report.validFlags,d.GetAllocator());
+        rapidjson::Value emitterList(rapidjson::kArrayType);
+        for (const auto& emitter : report.emitterList) {
+            rapidjson::Value emitterValue(rapidjson::kNumberType);
+            emitterValue.SetInt64(emitter); // 使用文档的分配器来分配内存
+            emitterList.PushBack(emitterValue, d.GetAllocator());
+        }
+        reportObj.AddMember("emitterList", emitterList,d.GetAllocator());
+        reportObj.AddMember("classification", report.classification,d.GetAllocator());
+        reportObj.AddMember("alliance", report.alliance,d.GetAllocator());
+        reportObj.AddMember("databaseID", (int64_t)report.databaseID,d.GetAllocator());
+        reportObj.AddMember("lonEstimate_rad", report.lonEstimate_rad,d.GetAllocator());
+        reportObj.AddMember("latEstimate_rad", report.latEstimate_rad,d.GetAllocator());
+        reportObj.AddMember("C11", report.C11,d.GetAllocator());
+        reportObj.AddMember("C22", report.C22,d.GetAllocator());
+        reportObj.AddMember("C12", report.C12,d.GetAllocator());
+        reportObj.AddMember("altEstimate_m", report.altEstimate_m,d.GetAllocator());
+        reportObj.AddMember("altVariance", report.altVariance,d.GetAllocator());
+        reportObj.AddMember("speedEstimate_mps", report.speedEstimate_mps,d.GetAllocator());
+        reportObj.AddMember("speedVariance", report.speedVariance,d.GetAllocator());
+        reportObj.AddMember("headingEstimate_rad", report.headingEstimate_rad,d.GetAllocator());
+        reportObj.AddMember("headingVariance", report.headingVariance,d.GetAllocator());
+        reportObj.AddMember("climbEstimate_rad", report.climbEstimate_rad,d.GetAllocator());
+        reportObj.AddMember("climbVariance", report.climbVariance,d.GetAllocator());
+        sensorReports.PushBack(reportObj,d.GetAllocator());
+    }
+    v.AddMember("maSensorReport", sensorReports,d.GetAllocator());
+
+    rapidjson::Value emitterInfos(rapidjson::kArrayType);
+    for (const auto& info : track.emitterInfo) {
+        rapidjson::Value infoObj;
+        infoObj.SetObject();
+        infoObj.AddMember("mnEmitterID", (int64_t)info.mnEmitterID,d.GetAllocator());
+        infoObj.AddMember("mfTimestamp", info.mfTimestamp,d.GetAllocator());
+        infoObj.AddMember("mnMode", info.mnMode,d.GetAllocator());
+        emitterInfos.PushBack(infoObj, d.GetAllocator());
+    }
+    v.AddMember("emitterInfo", emitterInfos,d.GetAllocator());
+
+    rapidjson::Value intercepts(rapidjson::kArrayType);
+    for (const auto& intercept : track.intercepts) {
+        intercepts.PushBack((int64_t)intercept, d.GetAllocator());
+    }
+    v.AddMember("intercepts", intercepts,d.GetAllocator());
+
+    rapidjson::Value engaged(rapidjson::kArrayType);
+    for (const auto& engage : track.engaged) {
+        engaged.PushBack((int64_t)engage, d.GetAllocator());
+    }
+    v.AddMember("engaged", engaged,d.GetAllocator());
+
+    rapidjson::Value ambiguityList(rapidjson::kArrayType);
+    for (const auto& ambiguity : track.ambiguityList) {
+        ambiguityList.PushBack((int64_t)ambiguity, d.GetAllocator());
+    }
+    v.AddMember("ambiguityList", ambiguityList,d.GetAllocator());
+
+    rapidjson::Value errorPoly(rapidjson::kArrayType);
+    for (const auto& point : track.errorPoly) {
+        rapidjson::Value pointObj;
+        pointObj.SetObject();
+        pointObj.AddMember("x", point.x,d.GetAllocator());
+        pointObj.AddMember("y", point.y,d.GetAllocator());
+        errorPoly.PushBack(pointObj, d.GetAllocator());
+    }
+    v.AddMember("errorPoly", errorPoly,d.GetAllocator());
+    v.AddMember("errorPolyLonWidth_rad", track.errorPolyLonWidth_rad,d.GetAllocator());
+    v.AddMember("errorPolyLatWidth_rad", track.errorPolyLatWidth_rad,d.GetAllocator());
+    v.AddMember("alwaysVisible", track.alwaysVisible,d.GetAllocator());
+}
+void  tcGameObjectToJson(const tcGameObject& obj,rapidjson::Value& unitinfo,rapidjson::Document& document)
+{
+    rapidjson::Value mzUnitValue(rapidjson::kStringType);
+    mzUnitValue.SetString(obj.mzUnit.c_str(), document.GetAllocator()); // 使用文档的分配器来分配内存
+    unitinfo.AddMember("mzUnit",mzUnitValue,document.GetAllocator());
+    rapidjson::Value mnIDValue(rapidjson::kStringType);
+    mnIDValue.SetInt64(obj.mnID); // 使用文档的分配器来分配内存
+    unitinfo.AddMember("mnID",mnIDValue,document.GetAllocator());
+    rapidjson::Value mnModelTypeValue(rapidjson::kStringType);
+    mnModelTypeValue.SetString(mnModelType2String(obj.mnModelType).c_str(), document.GetAllocator()); // 使用文档的分配器来分配内存
+    unitinfo.AddMember("mnModelType",mnModelTypeValue,document.GetAllocator());
+    rapidjson::Value mzClassValue(rapidjson::kStringType);
+    mzClassValue.SetString(obj.mzClass.c_str(), document.GetAllocator()); // 使用文档的分配器来分配内存
+    unitinfo.AddMember("mzClass",mzClassValue,document.GetAllocator());
+    rapidjson::Value allianceValue(rapidjson::kNumberType);
+    allianceValue.SetInt(obj.GetAlliance()); // 使用文档的分配器来分配内存
+    unitinfo.AddMember("alliance",allianceValue,document.GetAllocator());
+    rapidjson::Value mfLon_radValue(rapidjson::kNumberType);
+    mfLon_radValue.SetDouble(obj.mcKin.mfLon_rad); // 使用文档的分配器来分配内存
+    unitinfo.AddMember("mfLon_rad",mfLon_radValue,document.GetAllocator());
+    rapidjson::Value mfLat_radValue(rapidjson::kNumberType);
+    mfLat_radValue.SetDouble(obj.mcKin.mfLat_rad); // 使用文档的分配器来分配内存
+    unitinfo.AddMember("mfLat_rad",mfLat_radValue,document.GetAllocator());
+    rapidjson::Value mfAlt_mValue(rapidjson::kNumberType);
+    mfAlt_mValue.SetFloat(obj.mcKin.mfAlt_m); // 使用文档的分配器来分配内存
+    unitinfo.AddMember("mfAlt_m",mfAlt_mValue,document.GetAllocator());
+    rapidjson::Value mfHeading_radValue(rapidjson::kNumberType);
+    mfHeading_radValue.SetFloat(obj.mcKin.mfHeading_rad); // 使用文档的分配器来分配内存
+    unitinfo.AddMember("mfHeading_rad",mfHeading_radValue,document.GetAllocator());
+    rapidjson::Value mfClimbAngle_radValue(rapidjson::kNumberType);
+    mfClimbAngle_radValue.SetFloat(obj.mcKin.mfClimbAngle_rad); // 使用文档的分配器来分配内存
+    unitinfo.AddMember("mfClimbAngle_rad",mfClimbAngle_radValue,document.GetAllocator());
+    rapidjson::Value mfYaw_radValue(rapidjson::kNumberType);
+    mfYaw_radValue.SetFloat(obj.mcKin.mfYaw_rad); // 使用文档的分配器来分配内存
+    unitinfo.AddMember("mfYaw_rad",mfYaw_radValue,document.GetAllocator());
+    rapidjson::Value mfPitch_radValue(rapidjson::kNumberType);
+    mfPitch_radValue.SetFloat(obj.mcKin.mfPitch_rad); // 使用文档的分配器来分配内存
+    unitinfo.AddMember("mfPitch_rad",mfPitch_radValue,document.GetAllocator());
+    rapidjson::Value mfRoll_radValue(rapidjson::kNumberType);
+    mfRoll_radValue.SetFloat(obj.mcKin.mfRoll_rad); // 使用文档的分配器来分配内存
+    unitinfo.AddMember("mfRoll_rad",mfRoll_radValue,document.GetAllocator());
+    rapidjson::Value mfSpeed_ktsValue(rapidjson::kNumberType);
+    mfSpeed_ktsValue.SetFloat(obj.mcKin.mfSpeed_kts); // 使用文档的分配器来分配内存
+    unitinfo.AddMember("mfSpeed_kts",mfSpeed_ktsValue,document.GetAllocator());
+}
+
+void tcGame::UpdateOutSimData()
+{
+
+    rapidjson::Document document;
+    document.SetObject();
+    //更新对象位置
+    tcGameObject *obj;
+    long cmappos = simState->maPlatformState.GetStartPosition();
+    int nSize = simState->maPlatformState.GetCount();
+    long nKey;
+    //遍历对象更新
+    // sharedSimData.count=nSize;
+
+    rapidjson::Value mfSimTimeValue(rapidjson::kNumberType);
+    mfSimTimeValue.Set(simState->GetTime()); // 使用文档的分配器来分配内存
+    document.AddMember("mfSimTime",mfSimTimeValue,document.GetAllocator());
+
+    rapidjson::Value dateTimeValue(rapidjson::kNumberType);
+    dateTimeValue.Set(simState->GetDateTime().GetTimeT()); // 使用文档的分配器来分配内存
+    document.AddMember("dateTime",dateTimeValue,document.GetAllocator());
+
+    rapidjson::Value unitinfos(rapidjson::kArrayType);
+    for (int i=0;i<nSize;i++)
+    {
+        simState->maPlatformState.GetNextAssoc(cmappos,nKey,obj);
+        // 创建一个 Value 对象，用来存储字符串 "hello"
+        rapidjson::Value unitinfo(rapidjson::kObjectType);
+        tcGameObjectToJson(*obj,unitinfo,document);
+        unitinfos.PushBack(unitinfo,document.GetAllocator());
+    }
+    document.AddMember("unitInfo",unitinfos,document.GetAllocator());
+
+    //遍历每一方的探测目标
+    //SensorMapTrack:[{"alliance":1,}]
+    tcAllianceInfo* allianceInfo = tcAllianceInfo::Get();
+    auto allianceList =allianceInfo->GetAllianceList();
+    rapidjson::Value alliancesTrackJson(rapidjson::kArrayType);
+    for(auto alliance :allianceList)
+    {
+        rapidjson::Value allianceTrackJson(rapidjson::kObjectType);
+        allianceTrackJson.AddMember("alliance",alliance,document.GetAllocator());
+        rapidjson::Value tracksJson(rapidjson::kArrayType);
+        tcSensorTrackIterator iter(alliance, 0xFFFF);
+        for (iter.First();iter.NotDone();iter.Next())
+        {
+            rapidjson::Value trackJson(rapidjson::kObjectType);
+            tcSensorMapTrack* track = iter.Get();
+            tcTrackToJson(*track,trackJson,document);
+            tracksJson.PushBack(trackJson,document.GetAllocator());
+        }
+        allianceTrackJson.AddMember("tracks",tracksJson,document.GetAllocator());
+        alliancesTrackJson.PushBack(allianceTrackJson,document.GetAllocator());
+    }
+
+
+    document.AddMember("allianceTrack",alliancesTrackJson,document.GetAllocator());
+    {
+        std::lock_guard<std::mutex> lock(mtx_outsimdata);
+        // 将 JSON 文档序列化为字符串
+        rapidjson::StringBuffer buffer;
+        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+        document.Accept(writer);
+        // 输出 JSON 字符串
+        //  std::cout << buffer.GetString() << std::endl;
+        // exit(0);
+        outsimdata=buffer.GetString();
+        std::cout << buffer.GetString() << std::endl;
+        exit(0);
+        int a=0;
+    }
+
+
+
+    // sharedSimDataMemory.lock();
+    // char *to = (char*)sharedSimDataMemory.data();
+    // const char *from = (char*)&sharedSimData;
+    // memcpy(to,from, sizeof(sharedSimData.count)+sharedSimData.count*sizeof(UnitInfo));//数据从该进程中拷贝到共享数据内存中
+    // sharedSimDataMemory.unlock();//共享内层解锁
+}
+
+

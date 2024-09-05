@@ -76,7 +76,7 @@ public:
     // 存储最近来自传感器的数据
     std::deque<tcSensorReport> maSensorReport;
 
-    // 存储发射器信息
+    // 存储传感器对外辐射信息
     std::vector<EmitterInfo> emitterInfo;
     // 评估的损伤值
     float assessedDamage;
