@@ -1120,6 +1120,7 @@ bool tcSensorMapTrack::AddReport(const tcSensorReport& report)
             (pSensorReport->sensorID == report.sensorID))
         {
             *pSensorReport = report; // 如果找到匹配项，则更新该报告
+            ////msg:更新传感器报告
             return true; // 更新成功，返回true
         }
     }
@@ -1127,6 +1128,7 @@ bool tcSensorMapTrack::AddReport(const tcSensorReport& report)
     // 检查是否还有空余的位置添加新的报告
     if (nContributors < MAX_SENSOR_REPORTS)
     {
+         ////msg:添加报告
         maSensorReport.push_back(report); // 将新报告添加到列表中
         return true; // 添加成功，返回true
     }
@@ -2019,6 +2021,7 @@ void tcSensorMapTrack::ValidateTrack()
 
 void tcSensorMapTrack::RemoveReports(const std::vector<size_t>& reportsToRemove)
 {
+    ///msg:移除传感器报告
     std::deque<tcSensorReport> tempReports;
 
     size_t nReports = maSensorReport.size();

@@ -234,6 +234,7 @@ void tcWeaponObject::DeployPayload()
 */
 void tcWeaponObject::Detonate(float delay_s)
 {
+    ///msg:武器爆炸
 	fuseHasTriggered = true;
 	fuseDelay = delay_s;
     //????

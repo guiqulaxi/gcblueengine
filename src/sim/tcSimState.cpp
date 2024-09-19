@@ -410,6 +410,7 @@ void tcSimState::EvaluateMissileDamage(tcMissileObject* missile)
 
 void tcSimState::EvaluateDirectHitDamage(tcWeaponObject* weapon, tcDamageModel* damageModel)
 {
+    ///msg:毁伤计算
     if (!weapon->IsDirectHit()) return;
 
     long targetId = weapon->GetDirectHitTargetId();
@@ -485,7 +486,7 @@ void tcSimState::EvaluateWeaponDamage(tcWeaponObject* weapon, float minAlt_m, fl
         tcMessageInterface::Get()->ConsoleMessage("DUD");
     }
 #endif
-
+ ///msg:毁伤计算
     //获得武器的精准爆炸点
     //update position of missile to precise time of detonation
     float detonationDelay_s = weapon->GetDetonationDelay();
@@ -2168,7 +2169,7 @@ void tcSimState::AddLaunchedPlatform(long newKey, tcGameObject* launchingPlatfor
     pDBObject = mpDatabase->GetObject(newKey);
     if (pDBObject == NULL) {return;}
 
-
+    ///msg:武器发射
     tcGameObject* launched = CreateGameObject(pDBObject);
 
     // why isn't this done with virtual methods vs big if/else-if network?

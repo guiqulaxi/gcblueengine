@@ -10,15 +10,29 @@
 #include "httplib.h"
 void serverFunc( const std::string &ip, int port ,tcGame  *game) {
     httplib::Server svr;
-    svr.Get("/simdata", [=](const httplib::Request &, httplib::Response &res) {
+    svr.Get("/simdata", [=](const httplib::Request & req, httplib::Response &res) {
         res.set_header("Access-Control-Allow-Origin", "*");  // 若有端口需写全（协议+域名+端口）
         res.set_header("Access-Control-Allow-Credentials", "true");
+        res.set_header("Access-Control-Expose-Headers", "content-type");
+        res.set_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+        res.set_header("Access-Control-Allow-Headers", "Content-Type,Access-Control-Allow-Headers,Authorization,X-Requested-With");
+        if(! req.method.compare("OPTIONS"))
+        {
+            return;
+        }
         res.set_content(game->GetOutSimData(), "application/json");
     });
     svr.Post("/cmd", [=](const httplib::Request &req, httplib::Response &res) {
         game->AddCommand(req.body);
         res.set_header("Access-Control-Allow-Origin", "*");  // 若有端口需写全（协议+域名+端口）
         res.set_header("Access-Control-Allow-Credentials", "true");
+        res.set_header("Access-Control-Expose-Headers", "content-type");
+        res.set_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+        res.set_header("Access-Control-Allow-Headers", "Content-Type,Access-Control-Allow-Headers,Authorization,X-Requested-With");
+        if(! req.method.compare("OPTIONS"))
+        {
+            return;
+        }
         res.set_content("ok", "text/plain");
     });
 

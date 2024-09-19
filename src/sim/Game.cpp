@@ -2138,6 +2138,7 @@ void tcTrackToJson(const tcSensorMapTrack& track,rapidjson::Value& v,rapidjson::
     v.AddMember("errorPolyLatWidth_rad", track.errorPolyLatWidth_rad,d.GetAllocator());
     v.AddMember("alwaysVisible", track.alwaysVisible,d.GetAllocator());
 }
+
 void  tcGameObjectToJson(const tcGameObject& obj,rapidjson::Value& unitinfo,rapidjson::Document& document)
 {
     rapidjson::Value mzUnitValue(rapidjson::kStringType);
