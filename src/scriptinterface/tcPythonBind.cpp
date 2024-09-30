@@ -554,6 +554,7 @@ PYBIND11_EMBEDDED_MODULE(gcblue, m) {
             .def_readwrite("throttle",&tcScenarioUnit::throttle)
             .def_readwrite("cost",&tcScenarioUnit::cost)
             .def("SetPosition",&tcScenarioUnit::SetPosition)
+            .def("SetOrbit",&tcScenarioUnit::SetOrbit)
             ;
 
     py::class_<tcStringArray>(m,"StringArray")

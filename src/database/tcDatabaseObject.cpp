@@ -77,6 +77,7 @@ void ClassificationToString(UINT16 anType, char *azString)
     case PTYPE_AIRFIELD:strcpy(azString,"Airfield");break;
     case PTYPE_GROUNDVEHICLE:strcpy(azString,"Ground Veh");break;
     case PTYPE_AIRCM:strcpy(azString, "CM"); break;
+    case PTYPE_SPACE:strcpy(azString, "Space"); break;
     default:strcpy(azString,"Error");break;
     }
 }

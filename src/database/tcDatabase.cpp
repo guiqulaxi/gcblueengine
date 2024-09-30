@@ -38,6 +38,7 @@
 #include <fstream>
 #include <stdio.h>
 #include <iomanip>
+#include <tcSpaceDBObject.h>
 #include "CsvTranslator.h"
 #include "tcDBObjSerializer.h"
 #include "tcDBObjSerializerSql.h"
@@ -94,7 +95,7 @@ using namespace std;
 
 namespace database
 {
-
+std::vector<std::string> tcDatabase::mvTables;
 /**
 * Method for accessing singleton instance.
 */
@@ -103,6 +104,11 @@ tcDatabase* tcDatabase::Get()
     static tcDatabase instance;
 
     return &instance;
+}
+
+void tcDatabase::addTable(std::string tablebName)
+{
+    mvTables.push_back(tablebName);
 }
 
 /**
@@ -234,41 +240,16 @@ void tcDatabase::BuildTableLookup()
     nameToDisplayName.clear();
     classSummary.clear();
 
-    std::vector<std::string> tables;
 
-    tables.push_back("ship");
-    tables.push_back("simpleair");
-    tables.push_back("ground");
-    tables.push_back("missile");
-    //tables.push_back("launcher"); // launcher is now a virtual table, special case formed from distinct values in launcher_configuration table
-    tables.push_back("radar");
-    tables.push_back("esm");
-    tables.push_back("optical");
-    tables.push_back("ecm");
-    tables.push_back("sonar");
-    tables.push_back("air");
-    tables.push_back("flightport");
-    tables.push_back("ballistic");
-    tables.push_back("stores");
-    tables.push_back("torpedo");
-    tables.push_back("sonobuoy");
-    tables.push_back("item");
-    tables.push_back("sub");
-    tables.push_back("fueltank");
-    tables.push_back("cm");
-    tables.push_back("ballistic_missile");
 
     // for each table, get list of all database classes in table, and update cross-reference dictionaries
     long table_idx = 0;
-    for (size_t n=0; n<tables.size(); n++)
+    for (size_t n=0; n<mvTables.size(); n++)
     {
-        tableToIndex[tables[n]] = table_idx++;
-
+        tableToIndex[mvTables[n]] = table_idx++;
         std::vector<RecordSummary> tableRecords;
-
         std::string command =
-                strutil::format("select DatabaseClass,NATO_ASCC,ClassificationId,InitialYear,FinalYear,Country from \"%s\";", tables[n].c_str());
-
+            strutil::format("select DatabaseClass,NATO_ASCC,ClassificationId,InitialYear,FinalYear,Country from \"%s\";", mvTables[n].c_str());
         sqlite3_command sqlCmd(*sqlConnection, command);
         sqlite3_reader result = sqlCmd.executereader();
         while (result.read())
@@ -279,16 +260,11 @@ void tcDatabase::BuildTableLookup()
             {
                 databaseDisplayClass = databaseClass; // empty entry means use default name for NATO/ASCC
             }
-            
-
             unsigned int classificationId = (unsigned int)result.getint(2);
             float initialYear = (float)result.getdouble(3);
             float finalYear = (float)result.getdouble(4);
             std::string country = result.getstring(5);
-
-
-            nameToTable[databaseClass] = tables[n];
-
+            nameToTable[databaseClass] = mvTables[n];
             RecordSummary rs;
             rs.databaseClass = databaseClass;
             rs.databaseDisplayClass = databaseDisplayClass;
@@ -302,12 +278,12 @@ void tcDatabase::BuildTableLookup()
             nameToDisplayName[databaseClass] = databaseDisplayClass;
             classSummary[databaseClass] = rs;
         }
-        tableSummary[tables[n]] = tableRecords;
+        tableSummary[mvTables[n]] = tableRecords;
     }
 
     // build launcher table
     {
-        tables.push_back("launcher");
+        mvTables.push_back("launcher");
         tableToIndex["launcher"] = table_idx++;
         std::vector<RecordSummary> tableRecords;
 
@@ -340,14 +316,14 @@ bool tcDatabase::CheckForErrors(const std::string& logFile)
 {
     unsigned int errorCount = 0;
     // 打开文件，如果文件不存在则创建它，如果文件存在则清空它
-        std::ofstream log(logFile, std::ios::out | std::ios::trunc);
+    std::ofstream log(logFile, std::ios::out | std::ios::trunc);
 
-        // 检查文件是否成功打开
-        if (!log.is_open()) return false;
-     std::chrono::system_clock::time_point dateTime =  std::chrono::system_clock::now();
-        auto in_time_t = std::chrono::system_clock::to_time_t(dateTime);
-         std::stringstream ss;
-         ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %X");
+    // 检查文件是否成功打开
+    if (!log.is_open()) return false;
+    std::chrono::system_clock::time_point dateTime =  std::chrono::system_clock::now();
+    auto in_time_t = std::chrono::system_clock::to_time_t(dateTime);
+    std::stringstream ss;
+    ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %X");
 
 
     std::string s = strutil::format("%s : Checking database for errors", ss.str());
@@ -539,7 +515,7 @@ bool tcDatabase::CheckForErrors(const std::string& logFile)
 
     else
     {
-       // //wxMessageBox("No errors found", "Database Error Check");
+        // //wxMessageBox("No errors found", "Database Error Check");
     }
     return (errorCount == 0);
 }
@@ -548,7 +524,7 @@ bool tcDatabase::CheckTableReferences(const char* table,
                                       const char* field,
                                       const std::vector<std::string>& refTables,
                                       const char* refField,
-                                     std::ofstream& log,
+                                      std::ofstream& log,
                                       unsigned int& errorCount)
 {
     unsigned int startErrorCount = errorCount;
@@ -669,8 +645,8 @@ long tcDatabase::LoadLauncherData(const char* databaseClass, long forcedKey)
 
     // add launcher configurations
     std::string command2 =
-            strutil::format("select * from launcher_configuration where DatabaseClass=\"%s\";",
-                            launcherName.c_str());
+        strutil::format("select * from launcher_configuration where DatabaseClass=\"%s\";",
+                        launcherName.c_str());
     sqlite3_command sqlCmd2(*sqlConnection, command2);
     sqlite3_reader tableData = sqlCmd2.executereader();
     while (tableData.read())
@@ -704,7 +680,7 @@ long tcDatabase::LoadLauncherData(const char* databaseClass, long forcedKey)
     }
     else
     {
-//        wxFprintf(stderr, "LoadLauncherData - %s not found in launcher_configuration table\n", launcherName.c_str());
+        //        wxFprintf(stderr, "LoadLauncherData - %s not found in launcher_configuration table\n", launcherName.c_str());
         return -1;
     }
 }
@@ -761,8 +737,8 @@ void tcDatabase::LoadPlatformTables()
 
             // add launchers
             std::string command =
-                    strutil::format("select * from platform_launcher where DatabaseClass=\"%s\";",
-                                    obj->mzClass.c_str());
+                strutil::format("select * from platform_launcher where DatabaseClass=\"%s\";",
+                                obj->mzClass.c_str());
             sqlite3_command sqlCmd(*sqlConnection, command);
             sqlite3_reader tableData = sqlCmd.executereader();
             while ((platformData->mnNumLaunchers < platformData->MAXLAUNCHERS) && tableData.read())
@@ -782,7 +758,7 @@ void tcDatabase::LoadPlatformTables()
                 //找到launcherId合适插入的位置
                 auto it = std::lower_bound(platformData->launcherId.begin(), platformData->launcherId.end(), launcherId);
                 size_t insertindex = std::distance(platformData->launcherId.begin(), it);
-                 platformData->launcherId.insert(platformData->launcherId.begin()+insertindex, launcherId);
+                platformData->launcherId.insert(platformData->launcherId.begin()+insertindex, launcherId);
                 platformData->maLauncherClass.insert(platformData->maLauncherClass.begin()+insertindex,launcherClass);
                 // platformData->maLauncherClass.push_back(launcherClass);
                 // platformData->launcherId.push_back(launcherId);
@@ -811,8 +787,8 @@ void tcDatabase::LoadPlatformTables()
         if (tcPlatformDBObject* platformData = dynamic_cast<tcPlatformDBObject*>(obj))
         {
             std::string command =
-                    strutil::format("select * from platform_magazine where DatabaseClass=\"%s\";",
-                                    obj->mzClass.c_str());
+                strutil::format("select * from platform_magazine where DatabaseClass=\"%s\";",
+                                obj->mzClass.c_str());
             sqlite3_command sqlCmd(*sqlConnection, command);
             sqlite3_reader tableData = sqlCmd.executereader();
             while ((platformData->mnNumMagazines < platformData->MAXMAGAZINES) && tableData.read())
@@ -846,8 +822,8 @@ void tcDatabase::LoadPlatformTables()
 
             // add sensors
             std::string command =
-                    strutil::format("select * from platform_sensor where DatabaseClass=\"%s\";",
-                                    obj->mzClass.c_str());
+                strutil::format("select * from platform_sensor where DatabaseClass=\"%s\";",
+                                obj->mzClass.c_str());
             sqlite3_command sqlCmd(*sqlConnection, command);
             sqlite3_reader tableData = sqlCmd.executereader();
             while (tableData.read())
@@ -919,7 +895,7 @@ bool tcDatabase::LoadRecordSqlForceKeyExecute(const char* databaseClass, long fo
 
     // find table for this record
     std::map<std::string, std::string>::const_iterator iter =
-            nameToTable.find(databaseClassString);
+        nameToTable.find(databaseClassString);
 
     if (iter == nameToTable.end())
     {
@@ -930,7 +906,7 @@ bool tcDatabase::LoadRecordSqlForceKeyExecute(const char* databaseClass, long fo
     std::string tableName(iter->second);
 
     std::map<std::string, long>::const_iterator iter_idx =
-            tableToIndex.find(tableName);
+        tableToIndex.find(tableName);
 
     if (iter_idx == tableToIndex.end())
     {
@@ -943,129 +919,129 @@ bool tcDatabase::LoadRecordSqlForceKeyExecute(const char* databaseClass, long fo
     switch (table_idx)
     {
     case 0: assert(tableName == "ship");
-    {
-        tcDBObjSerializerSql<tcShipDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
-    }
+        {
+            tcDBObjSerializerSql<tcShipDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
+        }
         break;
     case 1: assert(tableName == "simpleair");
-    {
-        tcDBObjSerializerSql<tcSimpleAirDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
-    }
+        {
+            tcDBObjSerializerSql<tcSimpleAirDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
+        }
         break;
     case 2: assert(tableName == "ground");
-    {
-        tcDBObjSerializerSql<tcGroundDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
-    }
+        {
+            tcDBObjSerializerSql<tcGroundDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
+        }
         break;
     case 3: assert(tableName == "missile");
-    {
-        tcDBObjSerializerSql<tcMissileDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
-    }
+        {
+            tcDBObjSerializerSql<tcMissileDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
+        }
         break;
     case 4: assert(tableName == "radar");
-    {
-        tcDBObjSerializerSql<tcRadarDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
-    }
+        {
+            tcDBObjSerializerSql<tcRadarDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
+        }
         break;
     case 5: assert(tableName == "esm");
-    {
-        tcDBObjSerializerSql<tcESMDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
-    }
+        {
+            tcDBObjSerializerSql<tcESMDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
+        }
         break;
     case 6: assert(tableName == "optical");
-    {
-        tcDBObjSerializerSql<tcOpticalDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
-    }
+        {
+            tcDBObjSerializerSql<tcOpticalDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
+        }
         break;
     case 7: assert(tableName == "ecm");
-    {
-        tcDBObjSerializerSql<tcECMDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
-    }
+        {
+            tcDBObjSerializerSql<tcECMDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
+        }
         break;
     case 8: assert(tableName == "sonar");
-    {
-        tcDBObjSerializerSql<tcSonarDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
-    }
+        {
+            tcDBObjSerializerSql<tcSonarDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
+        }
         break;
     case 9: assert(tableName == "air");
-    {
-        tcDBObjSerializerSql<tcJetDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
-    }
+        {
+            tcDBObjSerializerSql<tcJetDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
+        }
         break;
     case 10: assert(tableName == "flightport");
-    {
-        tcDBObjSerializerSql<tcFlightportDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
-    }
+        {
+            tcDBObjSerializerSql<tcFlightportDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
+        }
         break;
     case 11: assert(tableName == "ballistic");
-    {
-        tcDBObjSerializerSql<tcBallisticDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
-    }
+        {
+            tcDBObjSerializerSql<tcBallisticDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
+        }
         break;
     case 12: assert(tableName == "stores");
-    {
-        tcDBObjSerializerSql<tcStoresDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
-    }
+        {
+            tcDBObjSerializerSql<tcStoresDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
+        }
         break;
     case 13: assert(tableName == "torpedo");
-    {
-        tcDBObjSerializerSql<tcTorpedoDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
-    }
+        {
+            tcDBObjSerializerSql<tcTorpedoDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
+        }
         break;
     case 14: assert(tableName == "sonobuoy");
-    {
-        tcDBObjSerializerSql<tcSonobuoyDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
-    }
+        {
+            tcDBObjSerializerSql<tcSonobuoyDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
+        }
         break;
     case 15: assert(tableName == "item");
-    {
-        tcDBObjSerializerSql<tcItemDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
-    }
+        {
+            tcDBObjSerializerSql<tcItemDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
+        }
         break;
     case 16: assert(tableName == "sub");
-    {
-        tcDBObjSerializerSql<tcSubDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
-    }
+        {
+            tcDBObjSerializerSql<tcSubDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
+        }
         break;
     case 17: assert(tableName == "fueltank");
-    {
-        tcDBObjSerializerSql<tcFuelTankDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
-    }
+        {
+            tcDBObjSerializerSql<tcFuelTankDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
+        }
         break;
     case 18: assert(tableName == "cm");
-    {
-        tcDBObjSerializerSql<tcCounterMeasureDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
-    }
+        {
+            tcDBObjSerializerSql<tcCounterMeasureDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
+        }
         break;
     case 19: assert(tableName == "ballistic_missile");
-    {
-        tcDBObjSerializerSql<tcBallisticMissileDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
-    }
+        {
+            tcDBObjSerializerSql<tcBallisticMissileDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecordForceKey(databaseClass, forcedKey);
+        }
         break;
     case 20: assert(tableName == "launcher");
-    {
-        key = LoadLauncherData(databaseClass, forcedKey);
-    }
+        {
+            key = LoadLauncherData(databaseClass, forcedKey);
+        }
         break;
     default:
         assert(false);
@@ -1076,7 +1052,7 @@ bool tcDatabase::LoadRecordSqlForceKeyExecute(const char* databaseClass, long fo
     {
         nameToKey[databaseClassString] = key;
 
-        //LoadRecordOtherTables(key); don't do this here, it gets the names-keys out of synch in game serializer load
+//LoadRecordOtherTables(key); don't do this here, it gets the names-keys out of synch in game serializer load
 
 #ifdef _DEBUG
         fprintf(stdout, "tcDatabase::LoadRecordSql - loaded %s (total %d)\n", databaseClass, mcObjectData.GetCount());
@@ -1107,7 +1083,7 @@ bool tcDatabase::LoadRecordSql(const char* databaseClass)
 
     // find table for this record
     std::map<std::string, std::string>::const_iterator iter =
-            nameToTable.find(databaseClassString);
+        nameToTable.find(databaseClassString);
 
     if (iter == nameToTable.end())
     {
@@ -1118,7 +1094,7 @@ bool tcDatabase::LoadRecordSql(const char* databaseClass)
     std::string tableName(iter->second);
 
     std::map<std::string, long>::const_iterator iter_idx =
-            tableToIndex.find(tableName);
+        tableToIndex.find(tableName);
 
     if (iter_idx == tableToIndex.end())
     {
@@ -1131,130 +1107,137 @@ bool tcDatabase::LoadRecordSql(const char* databaseClass)
     switch (table_idx)
     {
     case 0: assert(tableName == "ship");
-    {
-        tcDBObjSerializerSql<tcShipDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecord(databaseClass);
-    }
+        {
+            tcDBObjSerializerSql<tcShipDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecord(databaseClass);
+        }
         break;
     case 1: assert(tableName == "simpleair");
-    {
-        tcDBObjSerializerSql<tcSimpleAirDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecord(databaseClass);
-    }
+        {
+            tcDBObjSerializerSql<tcSimpleAirDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecord(databaseClass);
+        }
         break;
     case 2: assert(tableName == "ground");
-    {
-        tcDBObjSerializerSql<tcGroundDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecord(databaseClass);
-    }
+        {
+            tcDBObjSerializerSql<tcGroundDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecord(databaseClass);
+        }
         break;
     case 3: assert(tableName == "missile");
-    {
-        tcDBObjSerializerSql<tcMissileDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecord(databaseClass);
-    }
+        {
+            tcDBObjSerializerSql<tcMissileDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecord(databaseClass);
+        }
         break;
     case 4: assert(tableName == "radar");
-    {
-        tcDBObjSerializerSql<tcRadarDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecord(databaseClass);
-    }
+        {
+            tcDBObjSerializerSql<tcRadarDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecord(databaseClass);
+        }
         break;
     case 5: assert(tableName == "esm");
-    {
-        tcDBObjSerializerSql<tcESMDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecord(databaseClass);
-    }
+        {
+            tcDBObjSerializerSql<tcESMDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecord(databaseClass);
+        }
         break;
     case 6: assert(tableName == "optical");
-    {
-        tcDBObjSerializerSql<tcOpticalDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecord(databaseClass);
-    }
+        {
+            tcDBObjSerializerSql<tcOpticalDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecord(databaseClass);
+        }
         break;
     case 7: assert(tableName == "ecm");
-    {
-        tcDBObjSerializerSql<tcECMDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecord(databaseClass);
-    }
+        {
+            tcDBObjSerializerSql<tcECMDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecord(databaseClass);
+        }
         break;
     case 8: assert(tableName == "sonar");
-    {
-        tcDBObjSerializerSql<tcSonarDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecord(databaseClass);
-    }
+        {
+            tcDBObjSerializerSql<tcSonarDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecord(databaseClass);
+        }
         break;
     case 9: assert(tableName == "air");
-    {
-        tcDBObjSerializerSql<tcJetDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecord(databaseClass);
-    }
+        {
+            tcDBObjSerializerSql<tcJetDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecord(databaseClass);
+        }
         break;
     case 10: assert(tableName == "flightport");
-    {
-        tcDBObjSerializerSql<tcFlightportDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecord(databaseClass);
-    }
+        {
+            tcDBObjSerializerSql<tcFlightportDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecord(databaseClass);
+        }
         break;
     case 11: assert(tableName == "ballistic");
-    {
-        tcDBObjSerializerSql<tcBallisticDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecord(databaseClass);
-    }
+        {
+            tcDBObjSerializerSql<tcBallisticDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecord(databaseClass);
+        }
         break;
     case 12: assert(tableName == "stores");
-    {
-        tcDBObjSerializerSql<tcStoresDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecord(databaseClass);
-    }
+        {
+            tcDBObjSerializerSql<tcStoresDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecord(databaseClass);
+        }
         break;
     case 13: assert(tableName == "torpedo");
-    {
-        tcDBObjSerializerSql<tcTorpedoDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecord(databaseClass);
-    }
+        {
+            tcDBObjSerializerSql<tcTorpedoDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecord(databaseClass);
+        }
         break;
     case 14: assert(tableName == "sonobuoy");
-    {
-        tcDBObjSerializerSql<tcSonobuoyDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecord(databaseClass);
-    }
+        {
+            tcDBObjSerializerSql<tcSonobuoyDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecord(databaseClass);
+        }
         break;
     case 15: assert(tableName == "item");
-    {
-        tcDBObjSerializerSql<tcItemDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecord(databaseClass);
-    }
+        {
+            tcDBObjSerializerSql<tcItemDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecord(databaseClass);
+        }
         break;
     case 16: assert(tableName == "sub");
-    {
-        tcDBObjSerializerSql<tcSubDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecord(databaseClass);
-    }
+        {
+            tcDBObjSerializerSql<tcSubDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecord(databaseClass);
+        }
         break;
     case 17: assert(tableName == "fueltank");
-    {
-        tcDBObjSerializerSql<tcFuelTankDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecord(databaseClass);
-    }
+        {
+            tcDBObjSerializerSql<tcFuelTankDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecord(databaseClass);
+        }
         break;
     case 18: assert(tableName == "cm");
-    {
-        tcDBObjSerializerSql<tcCounterMeasureDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecord(databaseClass);
-    }
+        {
+            tcDBObjSerializerSql<tcCounterMeasureDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecord(databaseClass);
+        }
         break;
     case 19: assert(tableName == "ballistic_missile");
-    {
-        tcDBObjSerializerSql<tcBallisticMissileDBObject> serializer(this, *sqlConnection, tableName);
-        key = serializer.LoadRecord(databaseClass);
-    }
+        {
+            tcDBObjSerializerSql<tcBallisticMissileDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecord(databaseClass);
+        }
         break;
-    case 20: assert(tableName == "launcher");
-    {
-        key = LoadLauncherData(databaseClass);
-    }
+    case 20: assert(tableName == "space");
+        {
+            tcDBObjSerializerSql<tcSpaceDBObject> serializer(this, *sqlConnection, tableName);
+            key = serializer.LoadRecord(databaseClass);
+        }
         break;
+    case 21: assert(tableName == "launcher");
+        {
+            key = LoadLauncherData(databaseClass);
+        }
+        break;
+
     default:
         assert(false);
         break;
@@ -1307,8 +1290,8 @@ void tcDatabase::LoadRecordOtherTables(long key)
         platformData->mnNumMagazines = 0;
         {   // add launchers
             std::string command =
-                    strutil::format("select * from platform_launcher where DatabaseClass=\"%s\";",
-                                    obj->mzClass.c_str());
+                strutil::format("select * from platform_launcher where DatabaseClass=\"%s\";",
+                                obj->mzClass.c_str());
             sqlite3_command sqlCmd(*sqlConnection, command);
             sqlite3_reader tableData = sqlCmd.executereader();
             while ((platformData->mnNumLaunchers < platformData->MAXLAUNCHERS) && tableData.read())
@@ -1353,8 +1336,8 @@ void tcDatabase::LoadRecordOtherTables(long key)
 
         { // add magazines
             std::string command =
-                    strutil::format("select * from platform_magazine where DatabaseClass=\"%s\";",
-                                    obj->mzClass.c_str());
+                strutil::format("select * from platform_magazine where DatabaseClass=\"%s\";",
+                                obj->mzClass.c_str());
             sqlite3_command sqlCmd(*sqlConnection, command);
             sqlite3_reader tableData = sqlCmd.executereader();
             while ((platformData->mnNumMagazines < platformData->MAXMAGAZINES) && tableData.read())
@@ -1394,8 +1377,8 @@ void tcDatabase::LoadRecordOtherTables(long key)
 
         // add sensors
         std::string command =
-                strutil::format("select * from platform_sensor where DatabaseClass=\"%s\";",
-                                obj->mzClass.c_str());
+            strutil::format("select * from platform_sensor where DatabaseClass=\"%s\";",
+                            obj->mzClass.c_str());
         sqlite3_command sqlCmd(*sqlConnection, command);
         sqlite3_reader tableData = sqlCmd.executereader();
         while (tableData.read())
@@ -1463,15 +1446,15 @@ void tcDatabase::ReadCountryData()
                 bool parseError = false;
 
                 std::string::const_iterator iterEnd;
-//                std::time_t now =     std::chrono::system_clock::to_time_t(sub.dateStart);
+                //                std::time_t now =     std::chrono::system_clock::to_time_t(sub.dateStart);
 
-//                   std::string s(30, '\0');
-//                   std::strftime(&s[0], s.size(), "%m/%d/%Y", std::localtime(&now));
-//                bool result = sub.dateStart.ParseFormat(tableData2.getstring(1).c_str(), "%m/%d/%Y", &iterEnd);
-//                parseError = parseError || (result == 0);
+                //                   std::string s(30, '\0');
+                //                   std::strftime(&s[0], s.size(), "%m/%d/%Y", std::localtime(&now));
+                //                bool result = sub.dateStart.ParseFormat(tableData2.getstring(1).c_str(), "%m/%d/%Y", &iterEnd);
+                //                parseError = parseError || (result == 0);
 
-//                result = sub.dateStop.ParseFormat(tableData2.getstring(2).c_str(), "%m/%d/%Y", &iterEnd);
-//                parseError = parseError || (result == false);
+                //                result = sub.dateStop.ParseFormat(tableData2.getstring(2).c_str(), "%m/%d/%Y", &iterEnd);
+                //                parseError = parseError || (result == false);
 
                 sub.name = tableData2.getstring(3);
 
@@ -1513,7 +1496,7 @@ void tcDatabase::ReadWriteSql(const std::string& fileName, bool load)
     }
     catch (sqlite3x::database_error err)
     {
-//        //wxMessageBox(err.what(), "Database error", wxICON_ERROR);
+        //        //wxMessageBox(err.what(), "Database error", wxICON_ERROR);
         return;
     }
 
@@ -1529,7 +1512,7 @@ void tcDatabase::ReadWriteSql(sqlite3x::sqlite3_connection* sqlConnectionNew, bo
     // tcSignatureModel, need these loaded before platform db entries
     {
         tcDBMapSerializerSql<tcSignatureModel>
-                serializer(this, signatureModelData, *sqlConnection, "signature");
+            serializer(this, signatureModelData, *sqlConnection, "signature");
         if (load) serializer.Load();
         else serializer.Save();
     }
@@ -1538,7 +1521,7 @@ void tcDatabase::ReadWriteSql(sqlite3x::sqlite3_connection* sqlConnectionNew, bo
     // tcAcousticModel, need these loaded before platform db entries
     {
         tcDBMapSerializerSql<tcAcousticModel>
-                serializer(this, acousticModelData, *sqlConnection, "acoustic_noise");
+            serializer(this, acousticModelData, *sqlConnection, "acoustic_noise");
         if (load) serializer.Load();
         else serializer.Save();
     }
@@ -1569,7 +1552,7 @@ void tcDatabase::ReadWriteSql(sqlite3x::sqlite3_connection* sqlConnectionNew, bo
     // tcShipDBObject
     {
         tcDBObjSerializerSql<tcShipDBObject>
-                serializer(this, *sqlConnection, "ship");
+            serializer(this, *sqlConnection, "ship");
         if (load) serializer.Load();
         else serializer.Save();
     }
@@ -1577,7 +1560,7 @@ void tcDatabase::ReadWriteSql(sqlite3x::sqlite3_connection* sqlConnectionNew, bo
     // tcSimpleAirDBObject
     {
         tcDBObjSerializerSql<tcSimpleAirDBObject>
-                serializer(this, *sqlConnection, "simpleair");
+            serializer(this, *sqlConnection, "simpleair");
         if (load) serializer.Load();
         else serializer.Save();
     }
@@ -1585,7 +1568,7 @@ void tcDatabase::ReadWriteSql(sqlite3x::sqlite3_connection* sqlConnectionNew, bo
     // tcGroundDBObject
     {
         tcDBObjSerializerSql<tcGroundDBObject>
-                serializer(this, *sqlConnection, "ground");
+            serializer(this, *sqlConnection, "ground");
         if (load) serializer.Load();
         else serializer.Save();
     }
@@ -1594,7 +1577,7 @@ void tcDatabase::ReadWriteSql(sqlite3x::sqlite3_connection* sqlConnectionNew, bo
     // tcMissileDBObject
     {
         tcDBObjSerializerSql<tcMissileDBObject>
-                serializer(this, *sqlConnection, "missile");
+            serializer(this, *sqlConnection, "missile");
         if (load) serializer.Load();
         else serializer.Save();
     }
@@ -1612,98 +1595,98 @@ void tcDatabase::ReadWriteSql(sqlite3x::sqlite3_connection* sqlConnectionNew, bo
     // tcRadarDBObject
     {
         tcDBObjSerializerSql<tcRadarDBObject>
-                serializer(this, *sqlConnection, "radar");
+            serializer(this, *sqlConnection, "radar");
         if (load) serializer.Load();
         else serializer.Save();
     }
     // tcESMDBObject
     {
         tcDBObjSerializerSql<tcESMDBObject>
-                serializer(this, *sqlConnection, "esm");
+            serializer(this, *sqlConnection, "esm");
         if (load) serializer.Load();
         else serializer.Save();
     }
     // tcOpticalDBObject
     {
         tcDBObjSerializerSql<tcOpticalDBObject>
-                serializer(this, *sqlConnection, "optical");
+            serializer(this, *sqlConnection, "optical");
         if (load) serializer.Load();
         else serializer.Save();
     }
     // tcECMDBObject
     {
         tcDBObjSerializerSql<tcECMDBObject>
-                serializer(this, *sqlConnection, "ecm");
+            serializer(this, *sqlConnection, "ecm");
         if (load) serializer.Load();
         else serializer.Save();
     }
     // tcSonarDBObject
     {
         tcDBObjSerializerSql<tcSonarDBObject>
-                serializer(this, *sqlConnection, "sonar");
+            serializer(this, *sqlConnection, "sonar");
         if (load) serializer.Load();
         else serializer.Save();
     }
     // tcJetDBObject
     {
         tcDBObjSerializerSql<tcJetDBObject>
-                serializer(this, *sqlConnection, "air");
+            serializer(this, *sqlConnection, "air");
         if (load) serializer.Load();
         else serializer.Save();
     }
     // tcFlightportDBObject
     {
         tcDBObjSerializerSql<tcFlightportDBObject>
-                serializer(this, *sqlConnection, "flightport");
+            serializer(this, *sqlConnection, "flightport");
         if (load) serializer.Load();
         else serializer.Save();
     }
     // tcBallisticDBObject
     {
         tcDBObjSerializerSql<tcBallisticDBObject>
-                serializer(this, *sqlConnection, "ballistic");
+            serializer(this, *sqlConnection, "ballistic");
         if (load) serializer.Load();
         else serializer.Save();
     }
     // tcStoresDBObject
     {
         tcDBObjSerializerSql<tcStoresDBObject>
-                serializer(this, *sqlConnection, "stores");
+            serializer(this, *sqlConnection, "stores");
         if (load) serializer.Load();
         else serializer.Save();
     }
     // tcTorpedoDBObject
     {
         tcDBObjSerializerSql<tcTorpedoDBObject>
-                serializer(this, *sqlConnection, "torpedo");
+            serializer(this, *sqlConnection, "torpedo");
         if (load) serializer.Load();
         else serializer.Save();
     }
     // tcSonobuoyDBObject
     {
         tcDBObjSerializerSql<tcSonobuoyDBObject>
-                serializer(this, *sqlConnection, "sonobuoy");
+            serializer(this, *sqlConnection, "sonobuoy");
         if (load) serializer.Load();
         else serializer.Save();
     }
     // tcItemDBObject
     {
         tcDBObjSerializerSql<tcItemDBObject>
-                serializer(this, *sqlConnection, "item");
+            serializer(this, *sqlConnection, "item");
         if (load) serializer.Load();
         else serializer.Save();
     }
     // tcSubDBObject
     {
         tcDBObjSerializerSql<tcSubDBObject>
-                serializer(this, *sqlConnection, "sub");
+            serializer(this, *sqlConnection, "sub");
         if (load) serializer.Load();
         else serializer.Save();
     }
     // tcFuelTankDBObject
     {
         tcDBObjSerializerSql<tcFuelTankDBObject>
-                serializer(this, *sqlConnection, "fueltank");
+            serializer(this, *sqlConnection, "fueltank");
         if (load) serializer.Load();
         else serializer.Save();
     }
@@ -1711,7 +1694,7 @@ void tcDatabase::ReadWriteSql(sqlite3x::sqlite3_connection* sqlConnectionNew, bo
     // tcCounterMeasureDBObject
     {
         tcDBObjSerializerSql<tcCounterMeasureDBObject>
-                serializer(this, *sqlConnection, "cm");
+            serializer(this, *sqlConnection, "cm");
         if (load) serializer.Load();
         else serializer.Save();
     }
@@ -1719,7 +1702,7 @@ void tcDatabase::ReadWriteSql(sqlite3x::sqlite3_connection* sqlConnectionNew, bo
     // tcBallisticMissileDBObject
     {
         tcDBObjSerializerSql<tcBallisticMissileDBObject>
-                serializer(this, *sqlConnection, "ballistic_missile");
+            serializer(this, *sqlConnection, "ballistic_missile");
         if (load) serializer.Load();
         else serializer.Save();
     }
@@ -1763,15 +1746,15 @@ void tcDatabase::CleanSqlColumnText(std::string& columnText)
         {
             columnText += ",";
         }
-//        std::string term = s.BeforeFirst(',');
-//        term = term.BeforeFirst(' ');
+        //        std::string term = s.BeforeFirst(',');
+        //        term = term.BeforeFirst(' ');
 
-//        columnText += term.c_str();
-//        s = s.AfterFirst(',');
-//        if (s.size() > 0)
-//        {
-//            columnText += ",";
-//        }
+        //        columnText += term.c_str();
+        //        s = s.AfterFirst(',');
+        //        if (s.size() > 0)
+        //        {
+        //            columnText += ",";
+        //        }
     }
 }
 
@@ -2267,8 +2250,8 @@ bool tcDatabase::FindPlatformSetups(const std::string& databaseClass, float sear
 
     {
         std::string command =
-                strutil::format("select * from platform_setup where DatabaseClass=\"%s\" AND InitialYear <= %f AND FinalYear >= %f;",
-                                databaseClass.c_str(), maxInitialYear, minFinalYear);
+            strutil::format("select * from platform_setup where DatabaseClass=\"%s\" AND InitialYear <= %f AND FinalYear >= %f;",
+                            databaseClass.c_str(), maxInitialYear, minFinalYear);
         sqlite3_command sqlCmd(*sqlConnection, command);
         sqlite3_reader tableData = sqlCmd.executereader();
         while (tableData.read())
@@ -2309,8 +2292,8 @@ bool tcDatabase::GetPlatformSetupData(const std::string& databaseClass, const st
 
     {
         std::string command =
-                strutil::format("select * from platform_setup where DatabaseClass=\"%s\" AND SetupName=\"%s\";",
-                                databaseClass.c_str(), setupName.c_str());
+            strutil::format("select * from platform_setup where DatabaseClass=\"%s\" AND SetupName=\"%s\";",
+                            databaseClass.c_str(), setupName.c_str());
         sqlite3_command sqlCmd(*sqlConnection, command);
         sqlite3_reader tableData = sqlCmd.executereader();
         if (tableData.read())
@@ -2330,8 +2313,8 @@ bool tcDatabase::GetPlatformSetupData(const std::string& databaseClass, const st
     // populate airComplements
     {
         std::string command =
-                strutil::format("select * from air_complement where DatabaseClass=\"%s\";",
-                                airComplementName.c_str());
+            strutil::format("select * from air_complement where DatabaseClass=\"%s\";",
+                            airComplementName.c_str());
         sqlite3_command sqlCmd(*sqlConnection, command);
         sqlite3_reader tableData = sqlCmd.executereader();
         while (tableData.read())
@@ -2351,8 +2334,8 @@ bool tcDatabase::GetPlatformSetupData(const std::string& databaseClass, const st
     // populate magazineLoadout
     {
         std::string command =
-                strutil::format("select * from magazine_loadout where DatabaseClass=\"%s\";",
-                                magazineLoadoutName.c_str());
+            strutil::format("select * from magazine_loadout where DatabaseClass=\"%s\";",
+                            magazineLoadoutName.c_str());
         sqlite3_command sqlCmd(*sqlConnection, command);
         sqlite3_reader tableData = sqlCmd.executereader();
         while (tableData.read())
@@ -2370,8 +2353,8 @@ bool tcDatabase::GetPlatformSetupData(const std::string& databaseClass, const st
     // populate launcherLoadout
     {
         std::string command =
-                strutil::format("select * from launcher_loadout where DatabaseClass=\"%s\";",
-                                launcherLoadoutName.c_str());
+            strutil::format("select * from launcher_loadout where DatabaseClass=\"%s\";",
+                            launcherLoadoutName.c_str());
         sqlite3_command sqlCmd(*sqlConnection, command);
         sqlite3_reader tableData = sqlCmd.executereader();
         while (tableData.read())
@@ -2462,7 +2445,7 @@ void tcDatabase::PrintToFile(tcString sFileName)
 
     if (file.Open(sFileName.GetBuffer(),tcFile::modeCreate|tcFile::modeWrite)==false)
     {
-//        //wxMessageBox("Error - tcDatabase::PrintToFile - couldn't open file for write", "Error", wxOK);
+        //        //wxMessageBox("Error - tcDatabase::PrintToFile - couldn't open file for write", "Error", wxOK);
         return;
     }
     file.WriteString("DB file name: ");
@@ -2503,7 +2486,7 @@ const tcWeaponDamage* tcDatabase::GetWeaponDamageData(const std::string& s) cons
 tcAcousticModel* tcDatabase::GetAcousticModel(const std::string& modelName)
 {
     std::map<std::string, tcAcousticModel*>::iterator iter =
-            acousticModelData.find(modelName);
+        acousticModelData.find(modelName);
 
     if (iter != acousticModelData.end())
     {
@@ -2521,7 +2504,7 @@ void tcDatabase::GetCountryList(std::vector<std::string>& countryList) const
     countryList.clear();
 
     std::map<std::string, tcCountryData>::const_iterator iter =
-            countryData.begin();
+        countryData.begin();
     for (;iter != countryData.end(); ++iter)
     {
         countryList.push_back(iter->second.countryName.c_str());
@@ -2529,11 +2512,11 @@ void tcDatabase::GetCountryList(std::vector<std::string>& countryList) const
 }
 
 const std::string& tcDatabase::GetCountryNameSubstitution(
-        const std::string& originalName,
-        const std::chrono::system_clock::time_point &dateTime) const
+    const std::string& originalName,
+    const std::chrono::system_clock::time_point &dateTime) const
 {
     std::map<std::string, tcCountryNameChanges>::const_iterator iter =
-            countryNameChanges.find(originalName);
+        countryNameChanges.find(originalName);
 
     if (iter == countryNameChanges.end())
     {
@@ -2545,7 +2528,7 @@ const std::string& tcDatabase::GetCountryNameSubstitution(
         for (size_t n=0; n<nameChangeInfo.substitutions.size(); n++)
         {
             bool dateInRange = (dateTime >= nameChangeInfo.substitutions[n].dateStart) &&
-                    (dateTime < nameChangeInfo.substitutions[n].dateStop);
+                               (dateTime < nameChangeInfo.substitutions[n].dateStop);
             if (dateInRange)
             {
                 return nameChangeInfo.substitutions[n].name;
@@ -2576,7 +2559,7 @@ const std::string& tcDatabase::GetDisplayName(const std::string& className) cons
     static std::string result;
 
     std::map<std::string, std::string>::const_iterator iter =
-            nameToDisplayName.find(className);
+        nameToDisplayName.find(className);
 
     if (iter != nameToDisplayName.end())
     {
@@ -2644,11 +2627,11 @@ std::vector<std::string> tcDatabase::GetFieldsForRow(const std::string& table, c
 
     std::string fieldsToQuery(fields);
     fieldsToQuery=strutil::replace_all(fieldsToQuery,";", ",");
-//    fieldsToQuery.Replace(";", ","); // to guard against accidental commands
+    //    fieldsToQuery.Replace(";", ","); // to guard against accidental commands
 
     std::string temp(fieldsToQuery);
     size_t nCommas= strutil::replace_all(temp,";", ",");
-//    size_t nCommas = temp.Replace(",", "-");
+    //    size_t nCommas = temp.Replace(",", "-");
     size_t nFields = nCommas + 1;
 
     try
@@ -2687,7 +2670,7 @@ tcStringTable tcDatabase::GetFieldsForAllRows(const std::string& table, const st
 
     std::string fieldsToQuery(fields);
     fieldsToQuery=strutil::replace_all(fieldsToQuery,";", ",");
-//    fieldsToQuery.Replace(";", ","); // to guard against accidental commands
+    //    fieldsToQuery.Replace(";", ","); // to guard against accidental commands
 
     std::string temp(fieldsToQuery);
     size_t nCommas= strutil::replace_all(temp,";", ",");
@@ -2774,9 +2757,9 @@ long tcDatabase::GetRandomKey() {
         std::string className = pdbobj->GetClassName();
 
         if ((className == "Ship")||
-                (className == "Air")||
-                (className == "Jet")||
-                (className == "Sub"))
+            (className == "Air")||
+            (className == "Jet")||
+            (className == "Sub"))
         {
             bSearching = false;
         }
@@ -2787,7 +2770,7 @@ long tcDatabase::GetRandomKey() {
 tcSignatureModel* tcDatabase::GetSignatureModel(const std::string& modelName)
 {
     std::map<std::string, tcSignatureModel*>::iterator iter =
-            signatureModelData.find(modelName);
+        signatureModelData.find(modelName);
 
     if (iter != signatureModelData.end())
     {
@@ -2890,8 +2873,8 @@ tcDatabaseObject* tcDatabase::GetObject(const std::string& className)
         {
             assert(false);
         }
-#endif
-        // request load from database and try again if useDynamicLoad
+#endif \
+    // request load from database and try again if useDynamicLoad
         if (useDynamicLoad && LoadRecordSql(updatedClassName.c_str()))
         {
             std::map<std::string, long>::iterator mapIter2 = nameToKey.find(updatedClassName);
@@ -2961,8 +2944,8 @@ std::vector<std::string> tcDatabase::GetPlatformNames(const std::string& classNa
     std::vector<std::string> result;
 
     std::string command =
-            strutil::format("select Name from platform_names where DatabaseClass=\"%s\";",
-                            className.c_str());
+        strutil::format("select Name from platform_names where DatabaseClass=\"%s\";",
+                        className.c_str());
     sqlite3_command sqlCmd(*sqlConnection, command);
     sqlite3_reader records = sqlCmd.executereader();
     while (records.read())
@@ -2982,8 +2965,8 @@ std::vector<std::string> tcDatabase::GetPlatformNamesByDate(const std::string& c
     std::vector<std::string> result;
 
     std::string command =
-            strutil::format("select Name from platform_names where DatabaseClass=\"%s\" and DateInService <= %f and DateOutService >= %f;",
-                            className.c_str(), dateYear, dateYear);
+        strutil::format("select Name from platform_names where DatabaseClass=\"%s\" and DateInService <= %f and DateOutService >= %f;",
+                        className.c_str(), dateYear, dateYear);
     sqlite3_command sqlCmd(*sqlConnection, command);
     sqlite3_reader records = sqlCmd.executereader();
     while (records.read())
@@ -2999,8 +2982,8 @@ std::vector<std::string> tcDatabase::GetPlatformHulls(const std::string& classNa
     std::vector<std::string> result;
 
     std::string command =
-            strutil::format("select HullNumber from platform_names where DatabaseClass=\"%s\";",
-                            className.c_str());
+        strutil::format("select HullNumber from platform_names where DatabaseClass=\"%s\";",
+                        className.c_str());
     sqlite3_command sqlCmd(*sqlConnection, command);
     sqlite3_reader records = sqlCmd.executereader();
     while (records.read())
@@ -3095,7 +3078,7 @@ const std::vector<tcDatabase::RecordSummary>& tcDatabase::GetTableSummary(const 
     static std::vector<RecordSummary> emptyList; //< return for error/not-found case
 
     std::map<std::string, std::vector<RecordSummary>>::const_iterator iter =
-            tableSummary.find(tableName);
+        tableSummary.find(tableName);
 
     if (iter != tableSummary.end())
     {
@@ -3124,7 +3107,7 @@ const std::vector<tcDatabase::RecordSummary>& tcDatabase::GetItemSummary(const s
         std::string item_n(itemList[n].c_str());
         // get table name
         std::map<std::string, RecordSummary>::const_iterator iter =
-                classSummary.find(item_n);
+            classSummary.find(item_n);
         if (iter != classSummary.end())
         {
             itemRecords.push_back(iter->second);
@@ -3164,8 +3147,8 @@ std::vector<std::string> tcDatabase::WildcardSearch(const std::string& expressio
         std::string s(mapIter->first.c_str());
         bool prefixMatches = (prefix == s.substr(0,nPrefix));
 
-//        std::regex e (expression);
-//        if ( std::regex_match(s, e))
+        //        std::regex e (expression);
+        //        if ( std::regex_match(s, e))
         if(strutil::wildcard_match(s,expression))
         {
             const tcDatabaseObject* data = database::tcDatabase::GetObject(s);
@@ -3243,8 +3226,8 @@ std::vector<std::string> tcDatabase::WildcardSearchLoaded(const std::string& exp
     {
         std::string s(mapIter->first.c_str());
         bool prefixMatches = (prefix == s.substr(0,nPrefix));
-//        std::regex e (s);
-//        if ( std::regex_match(s, e))
+        //        std::regex e (s);
+        //        if ( std::regex_match(s, e))
         if(strutil::wildcard_match(s,expression))
         {
             const tcDatabaseObject* data = database::tcDatabase::GetObject(mapIter->second);
@@ -3295,9 +3278,9 @@ std::vector<std::string> tcDatabase::WildcardSearchLoaded(const std::string& exp
     return result;
 }
 
-void tcDatabase::SetProgressReporting(wxProgressDialog* dlg, int p1, int p2)
+void tcDatabase::SetProgressReporting( int p1, int p2)
 {
-    progressDialog = dlg;
+    // progressDialog = dlg;
     startProgress = p1;
     finishProgress = p2;
 }
@@ -3305,11 +3288,12 @@ void tcDatabase::SetProgressReporting(wxProgressDialog* dlg, int p1, int p2)
 
 void tcDatabase::ReportProgress(const std::string& msg, float fractionalProgess)
 {
-    if (progressDialog != 0)
-    {
-        int progressVal = startProgress + int(0.5f + fractionalProgess*float(finishProgress-startProgress));
-//        progressDialog->Update(progressVal, msg);
-    }
+    int progressVal = startProgress + int(0.5f + fractionalProgess*float(finishProgress-startProgress));
+    //     if (progressDialog != 0)
+    //     {
+    //         int progressVal = startProgress + int(0.5f + fractionalProgess*float(finishProgress-startProgress));
+    // //        progressDialog->Update(progressVal, msg);
+    //     }
 }
 
 
@@ -3318,8 +3302,8 @@ tcDatabase::tcDatabase()  :
     mstrCurrentFile("NULL"),
     mnVersion(VERSION_CURRENT),
     useDynamicLoad(true),
-    sqlConnection(0),
-    progressDialog(0)
+    sqlConnection(0)
+// progressDialog(0)
 {
     tcDatabaseObject::AttachDatabase(this);
 

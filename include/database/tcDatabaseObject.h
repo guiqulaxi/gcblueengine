@@ -81,6 +81,7 @@ namespace database
 #define PTYPE_AIRFIELD 0x0101
 #define PTYPE_GROUNDVEHICLE 0x0102
 #define PTYPE_BALLISTIC 0x0200
+#define PTYPE_SPACE 0x0300
 
 void ClassificationToString(UINT16 anType, char *azString);
     

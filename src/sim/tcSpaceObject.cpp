@@ -240,6 +240,7 @@ tcSpaceObject::tcSpaceObject()
     Clear();
     mpDBObject = NULL;
     mnModelType = MTYPE_SPACE;
+    m_mu=398600.4415;
 }
 
 tcSpaceObject::tcSpaceObject(tcSpaceObject& o) : tcPlatformObject(o)
@@ -253,7 +254,7 @@ tcSpaceObject::tcSpaceObject(tcSpaceDBObject *obj)
     mpDBObject = obj;
     mnModelType = MTYPE_SPACE;
     mcGS.mfGoalAltitude_m = 0;
-
+    m_mu=398600.4415;
     lastHistoryUpdate = 3.0f*randf();
 
     if (addTasksOnCreate) brain->AddTaskDirectly("MissileWarning", 3.0, ai::Task::HIDDEN | ai::Task::PERMANENT);
@@ -329,7 +330,7 @@ GeoPoint tcSpaceObject::GetPositionPoint() const
     if (phi < 0.0)
         phi += C_TWOPI;
 
-    return GeoPoint(r, theta, phi);
+    return GeoPoint( theta, phi,r*1000);
 }
 double tcSpaceObject::GetOrbitalVelocity() const {
 //径向距离（r）

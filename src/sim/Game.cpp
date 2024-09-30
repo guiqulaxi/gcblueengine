@@ -417,9 +417,32 @@ void tcGame::Init()
     try
     {
 
+        //初始化数据库
+        database->addTable("ship");
+        database->addTable("simpleair");
+        database->addTable("ground");
+       database->addTable("missile");
+        //tables.push_back("launcher"); // launcher is now a virtual table, special case formed from distinct values in launcher_configuration table
+        database->addTable("radar");
+        database->addTable("esm");
+        database->addTable("optical");
+       database->addTable("ecm");
+        database->addTable("sonar");
+        database->addTable("air");
+        database->addTable("flightport");
+       database->addTable("ballistic");
+        database->addTable("stores");
+       database->addTable("torpedo");
+        database->addTable("sonobuoy");
+        database->addTable("item");
+        database->addTable("sub");
+        database->addTable("fueltank");
+        database->addTable("cm");
+        database->addTable("ballistic_missile");
+         database->addTable("space");
 
         database->SerializeSql("", true); // moved to top so that db is loaded for db browse panel
-        database->SetProgressReporting(0, 0, 0);
+        database->SetProgressReporting( 0, 0);
 
 
 
@@ -2035,6 +2058,9 @@ std::string mnModelType2String(int mnModelType)
         break;
     case MTYPE_ROCKET :
         str="MTYPE_ROCKET";
+        break;
+    case MTYPE_SPACE :
+        str="MTYPE_SPACE";
         break;
     default:
         str="MTYPE_OBJECT";

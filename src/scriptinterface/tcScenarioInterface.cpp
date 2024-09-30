@@ -100,12 +100,12 @@ namespace scriptinterface
                                   double Omega_deg, double omega_deg,
                                   double M_deg, double tp)
     {
-        this-> a=a;             // 半长轴 千米 输入
+        this-> a=a_km;             // 半长轴 千米 输入
         this-> e=e;             // 偏心率  输入
-        this-> i=i;             // 轨道倾角 输入
-        this-> Omega=Omega;         // 升交点经度 输入
-        this-> omega=omega;         // 近地点幅角 输入
-        this-> M=M;             // 初始平近点角 输入
+        this-> i=i_deg;             // 轨道倾角 输入
+        this-> Omega=Omega_deg;         // 升交点经度 输入
+        this-> omega=omega_deg;         // 近地点幅角 输入
+        this-> M=M_deg;             // 初始平近点角 输入
         this-> tp=tp;            // 过近地点时间
     }
 

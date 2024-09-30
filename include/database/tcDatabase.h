@@ -52,9 +52,9 @@
 #include "gctypes.h"
 #include <memory>
 #include <chrono>
-class tcTexture2D;
-class wxTextFile;
-class wxProgressDialog;
+// class tcTexture2D;
+// class wxTextFile;
+// class wxProgressDialog;
 class tcGameStream;
 
 /**
@@ -66,13 +66,13 @@ class tcGameStream;
 namespace database 
 {
 
-	class CsvTranslator;
-    class tcCountryData;
-	class tcCountryNameChanges;
-    class tcSignatureModel;
-    class tcWeaponDamage;
-    class tcDamageEffect;
-    class tcAcousticModel;
+class CsvTranslator;
+class tcCountryData;
+class tcCountryNameChanges;
+class tcSignatureModel;
+class tcWeaponDamage;
+class tcDamageEffect;
+class tcAcousticModel;
 
 
 #ifndef NULL_INDEX
@@ -83,153 +83,156 @@ namespace database
 
 #define N_DATABASE_OBJECTS 65536
 
-	/**
+/**
 	* Singleton class for interface with game object database
 	*/
-	class tcDatabase  
-	{
-	public:
-        struct RecordSummary
-        {
-            std::string databaseClass;
-            std::string databaseDisplayClass; ///< for NATO/ASCC option
-            unsigned int classificationId;
-            float yearStart;
-            float yearStop;
-            std::string country;
-        };
+class tcDatabase
+{
+public:
+    struct RecordSummary
+    {
+        std::string databaseClass;
+        std::string databaseDisplayClass; ///< for NATO/ASCC option
+        unsigned int classificationId;
+        float yearStart;
+        float yearStop;
+        std::string country;
+    };
 
-		static tcDatabase* Get();
+    static tcDatabase* Get();
+    //添加数据库中的表
+    void addTable(std::string tablebName);
+    tcPool<tcDatabaseObject,N_DATABASE_OBJECTS> mcObjectData; ///< need to add accessor and iterator for this
 
-		tcPool<tcDatabaseObject,N_DATABASE_OBJECTS> mcObjectData; ///< need to add accessor and iterator for this
+    tcString mstrCurrentFile;
+    UINT32 mnVersion;
 
-		tcString mstrCurrentFile;
-		UINT32 mnVersion;
-		
-		void BuildDictionaries();
-        void ClearDictionaries();
-		void Clear();
-        void ClearForNewScenario();
-		int CreateObjectCopy(long anKey);
-		int DeleteObject(long anKey);
-		long GetRandomKey();
-		tcDatabaseObject* GetRandomOfType(UINT model_type);
-        const std::vector<RecordSummary>& GetTableSummary(const std::string& tableName) const;
-        const std::vector<RecordSummary>& GetItemSummary(const std::vector<std::string>& itemList) const;
-        std::vector<std::string> GetPlatformNames(const std::string& className);
-        std::vector<std::string> GetPlatformNamesByDate(const std::string& className, float dateYear);
-        std::vector<std::string> GetPlatformHulls(const std::string& className);
-		const std::string& GetDisplayName(const std::string& className) const;
+    void BuildDictionaries();
+    void ClearDictionaries();
+    void Clear();
+    void ClearForNewScenario();
+    int CreateObjectCopy(long anKey);
+    int DeleteObject(long anKey);
+    long GetRandomKey();
+    tcDatabaseObject* GetRandomOfType(UINT model_type);
+    const std::vector<RecordSummary>& GetTableSummary(const std::string& tableName) const;
+    const std::vector<RecordSummary>& GetItemSummary(const std::vector<std::string>& itemList) const;
+    std::vector<std::string> GetPlatformNames(const std::string& className);
+    std::vector<std::string> GetPlatformNamesByDate(const std::string& className, float dateYear);
+    std::vector<std::string> GetPlatformHulls(const std::string& className);
+    const std::string& GetDisplayName(const std::string& className) const;
 
-        bool CheckForErrors(const std::string& logFile);
-        bool CheckTableReferences(const char* table, const char* field, const std::vector<std::string>& refTables, const char* refField,
-                                  std::ofstream &log, unsigned int& errorCount);
+    bool CheckForErrors(const std::string& logFile);
+    bool CheckTableReferences(const char* table, const char* field, const std::vector<std::string>& refTables, const char* refField,
+                              std::ofstream &log, unsigned int& errorCount);
 
-		long GetSize() {return mcObjectData.GetCount();}
-		int GetObject(long anKey, tcDatabaseObject*& rpobj);
-		tcDatabaseObject* GetObject(long anKey);
-		tcDatabaseObject* GetObject(const std::string& className); ///< gets object by class name
-        const std::string& GetObjectClassName(long key);
-        std::vector<std::string> WildcardSearch(const std::string& expression, const std::string& filter);
-        std::vector<std::string> WildcardSearchLoaded(const std::string& expression, const std::string& filter);
-		int GetObjectClass(long anKey, tcDBString& rzClass);
-		long GetNextObjectOfSameClass(long anKey);
-		long GetPrevObjectOfSameClass(long anKey);
-		long GetKey(const char* s);
-		void GetVersion(int& v1, int& v2, int& v3);
-		bool IsUsingDynamicLoad() const;
+    long GetSize() {return mcObjectData.GetCount();}
+    int GetObject(long anKey, tcDatabaseObject*& rpobj);
+    tcDatabaseObject* GetObject(long anKey);
+    tcDatabaseObject* GetObject(const std::string& className); ///< gets object by class name
+    const std::string& GetObjectClassName(long key);
+    std::vector<std::string> WildcardSearch(const std::string& expression, const std::string& filter);
+    std::vector<std::string> WildcardSearchLoaded(const std::string& expression, const std::string& filter);
+    int GetObjectClass(long anKey, tcDBString& rzClass);
+    long GetNextObjectOfSameClass(long anKey);
+    long GetPrevObjectOfSameClass(long anKey);
+    long GetKey(const char* s);
+    void GetVersion(int& v1, int& v2, int& v3);
+    bool IsUsingDynamicLoad() const;
 
-//        tcTexture2D* GetEnsign(const std::string& country);
-//        std::shared_ptr<tcTexture2D> GetEnsignShared(const std::string& country);
-        void GetCountryList(std::vector<std::string>& countryList) const;
-        const std::string& GetCountryNameSubstitution(const std::string& originalName, const std::chrono::system_clock::time_point& dateTime) const;
+    //        tcTexture2D* GetEnsign(const std::string& country);
+    //        std::shared_ptr<tcTexture2D> GetEnsignShared(const std::string& country);
+    void GetCountryList(std::vector<std::string>& countryList) const;
+    const std::string& GetCountryNameSubstitution(const std::string& originalName, const std::chrono::system_clock::time_point& dateTime) const;
 
 
-        tcSignatureModel* GetSignatureModel(const std::string& modelName);
-        tcAcousticModel* GetAcousticModel(const std::string& modelName);
-        const tcWeaponDamage* GetWeaponDamageData(const std::string& s) const;
-        const tcDamageEffect* GetDamageEffectData(const std::string& s) const;
-        bool ObjectExists(const std::string& className) const; ///< check if obj matching className already in db
+    tcSignatureModel* GetSignatureModel(const std::string& modelName);
+    tcAcousticModel* GetAcousticModel(const std::string& modelName);
+    const tcWeaponDamage* GetWeaponDamageData(const std::string& s) const;
+    const tcDamageEffect* GetDamageEffectData(const std::string& s) const;
+    bool ObjectExists(const std::string& className) const; ///< check if obj matching className already in db
 
-        bool FindPlatformSetups(const std::string& databaseClass, float searchYear, std::vector<std::string>& setupNames);
-        bool GetPlatformSetupData(const std::string& databaseClass, const std::string& setupName, 
-                std::vector<AirComplement>& airComplement, std::vector<MagazineLoadout>& magazineLoadout,
-                std::vector<LauncherLoadout>& launcherLoadout);
-        bool GetPlatformSetupData(const std::string& databaseClass, const std::string& setupName, 
-                                      tcLoadoutData& loadoutData);
-		void PrintToFile(tcString);
-		
-        void LogSqlColumns(const std::string& fileName);
-		void SerializeSql(const std::string& suffix, bool mbLoad);
-		void ReadWriteSql(const std::string& fileName, bool load);
-		void ReadWriteSql(sqlite3x::sqlite3_connection* sqlConnectionNew, bool load);
-        void ExportPlatformTables();
-        void ExportLauncherConfigurations();
-        bool LoadRecordSqlForceKey(const char* databaseClass, long forcedKey);
-        void LoadRecordOtherTables(long key);
-		void ReloadRecord(const char* databaseClass); // for dbeditor updates
+    bool FindPlatformSetups(const std::string& databaseClass, float searchYear, std::vector<std::string>& setupNames);
+    bool GetPlatformSetupData(const std::string& databaseClass, const std::string& setupName,
+                              std::vector<AirComplement>& airComplement, std::vector<MagazineLoadout>& magazineLoadout,
+                              std::vector<LauncherLoadout>& launcherLoadout);
+    bool GetPlatformSetupData(const std::string& databaseClass, const std::string& setupName,
+                              tcLoadoutData& loadoutData);
+    void PrintToFile(tcString);
 
-        void UpdateSql(const std::string& fileName); ///< updates db with add-on database
+    void LogSqlColumns(const std::string& fileName);
+    void SerializeSql(const std::string& suffix, bool mbLoad);
+    void ReadWriteSql(const std::string& fileName, bool load);
+    void ReadWriteSql(sqlite3x::sqlite3_connection* sqlConnectionNew, bool load);
+    void ExportPlatformTables();
+    void ExportLauncherConfigurations();
+    bool LoadRecordSqlForceKey(const char* databaseClass, long forcedKey);
+    void LoadRecordOtherTables(long key);
+    void ReloadRecord(const char* databaseClass); // for dbeditor updates
 
-		void SetProgressReporting(wxProgressDialog* dlg, int p1, int p2);
+    void UpdateSql(const std::string& fileName); ///< updates db with add-on database
 
-        std::vector<std::string> GetFieldsForRow(const std::string& table, const std::string& databaseClass, const std::string& fields);
-		scriptinterface::tcStringTable GetFieldsForAllRows(const std::string& table, const std::string& databaseClass, const std::string& fields);
+    // void SetProgressReporting(wxProgressDialog* dlg, int p1, int p2);
+    void SetProgressReporting( int p1, int p2);
+    std::vector<std::string> GetFieldsForRow(const std::string& table, const std::string& databaseClass, const std::string& fields);
+    scriptinterface::tcStringTable GetFieldsForAllRows(const std::string& table, const std::string& databaseClass, const std::string& fields);
 
-        tcGameStream& operator>>(tcGameStream& stream);
-        tcGameStream& operator<<(tcGameStream& stream);
+    tcGameStream& operator>>(tcGameStream& stream);
+    tcGameStream& operator<<(tcGameStream& stream);
 
-	private:
-		sqlite3x::sqlite3_connection* sqlConnection; ///< pointer to allow external connection to be used
-        sqlite3x::sqlite3_connection sqlConnectionLocal; ///< used for normal game mode
-		std::map<std::string, long> nameToKey; ///< dictionary of (className, key) pairs
-        std::map<std::string, std::string> nameToTable; ///< dictionary of (className, table name)
-        std::map<std::string, std::vector<RecordSummary>> tableSummary; ///< dictionary of (table name, vector of RecordSummary)
-        std::map<std::string, RecordSummary> classSummary;
-        std::map<std::string, long> tableToIndex; ///< dictionary of long index for each table name for switch statement
-		std::map<std::string, std::string> nameToDisplayName;
-		std::map<std::string, std::string> crossReference; ///< cross-reference (lookup_name, db_name) for mapping multiple or old names to current record
+private:
+    sqlite3x::sqlite3_connection* sqlConnection; ///< pointer to allow external connection to be used
+    sqlite3x::sqlite3_connection sqlConnectionLocal; ///< used for normal game mode
+    std::map<std::string, long> nameToKey; ///< dictionary of (className, key) pairs
+    std::map<std::string, std::string> nameToTable; ///< dictionary of (className, table name)
+    std::map<std::string, std::vector<RecordSummary>> tableSummary; ///< dictionary of (table name, vector of RecordSummary)
+    std::map<std::string, RecordSummary> classSummary;
+    std::map<std::string, long> tableToIndex; ///< dictionary of long index for each table name for switch statement
+    std::map<std::string, std::string> nameToDisplayName;
+    std::map<std::string, std::string> crossReference; ///< cross-reference (lookup_name, db_name) for mapping multiple or old names to current record
 
-        bool useDynamicLoad; ///< true to only load database entries when needed 
-        
-        std::map<std::string, tcCountryData> countryData;
-		std::map<std::string, tcCountryNameChanges> countryNameChanges;
-//        std::shared_ptr<tcTexture2D> unknownEnsign; ///< ensign if country not found
+    bool useDynamicLoad; ///< true to only load database entries when needed
 
-        std::map<std::string, tcSignatureModel*> signatureModelData;
-        std::map<std::string, tcAcousticModel*> acousticModelData;
+    std::map<std::string, tcCountryData> countryData;
+    std::map<std::string, tcCountryNameChanges> countryNameChanges;
+    //        std::shared_ptr<tcTexture2D> unknownEnsign; ///< ensign if country not found
 
-        // special tables for advanced damage model
-        tcDatabaseTable<tcWeaponDamage> weaponDamageData;
-        tcDatabaseTable<tcDamageEffect> damageEffectData;
+    std::map<std::string, tcSignatureModel*> signatureModelData;
+    std::map<std::string, tcAcousticModel*> acousticModelData;
 
-        tcWeaponDamage weaponDamageDefault;
-        tcDamageEffect damageEffectDefault;
+    // special tables for advanced damage model
+    tcDatabaseTable<tcWeaponDamage> weaponDamageData;
+    tcDatabaseTable<tcDamageEffect> damageEffectData;
 
-		wxProgressDialog* progressDialog;
-		int startProgress;
-		int finishProgress;
-        
+    tcWeaponDamage weaponDamageDefault;
+    tcDamageEffect damageEffectDefault;
 
-        void CleanSqlColumnText(std::string& columnText);
-		bool IsVersionSupported();
-        bool LoadRecordSql(const char* databaseClass);
-        bool LoadRecordSqlForceKeyExecute(const char* databaseClass, long forcedKey);
+    // wxProgressDialog* progressDialog;
+    int startProgress;
+    int finishProgress;
 
-        void LoadPlatformTables();
-        void LoadLauncherConfigs();
-        long LoadLauncherData(const char* databaseClass, long forcedKey = -1);
-		void LoadCrossReferenceTable();
-		
-        void ReadCountryData();
-        void InitDamageDefaults();
-        void BuildTableLookup();
 
-		void ReportProgress(const std::string& msg, float fractionalProgess);
+    void CleanSqlColumnText(std::string& columnText);
+    bool IsVersionSupported();
+    bool LoadRecordSql(const char* databaseClass);
+    bool LoadRecordSqlForceKeyExecute(const char* databaseClass, long forcedKey);
 
-		tcDatabase();
-		~tcDatabase();
-	};
+    void LoadPlatformTables();
+    void LoadLauncherConfigs();
+    long LoadLauncherData(const char* databaseClass, long forcedKey = -1);
+    void LoadCrossReferenceTable();
+
+    void ReadCountryData();
+    void InitDamageDefaults();
+    void BuildTableLookup();
+
+    void ReportProgress(const std::string& msg, float fractionalProgess);
+
+    tcDatabase();
+    ~tcDatabase();
+    //数据库的表
+    static std::vector<std::string> mvTables;
+};
 
 }
 
