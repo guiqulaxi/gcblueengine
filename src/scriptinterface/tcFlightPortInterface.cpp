@@ -57,9 +57,9 @@ namespace scriptinterface
 
 object tcFlightPortInterface::GetInterface()
 {
-    py::module testpybind11_module = py::module::import("gcblue");
+    py::module pybind11_module = py::module::import("gcblue");
     // 获取Python类的引用
-    py::object  InterfaceType = testpybind11_module.attr("FlightPortInterface");
+    py::object  InterfaceType = pybind11_module.attr("FlightPortInterface");
     return InterfaceType;
 }
 //    object tcFlightPortInterface::GetInterface()

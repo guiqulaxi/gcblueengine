@@ -1,4 +1,9 @@
 Tutorial/SurfaceOperations.py 100
+#加载/清除想定
+GameInterface.LoadScenario('scenarios/Tutorial/SateliteOperations.py')
+GameInterface.ClearScenario()
+#设置想定推演速度
+GameInterface.SetTimeAccel(10)
 #设置航向
 UI = ScenarioManager.GetUnitInterface("JDS Atago")
 UI.SetHeading(90)
@@ -65,9 +70,58 @@ for n in range(0, nTracks):
     UI.SetTarget(target_id)
     break
 launcher_info = UI.GetBestLauncher()
-launcher = launcher_info.Launcher    
-UI.Launch(launcher, 1)
+launcher = launcher_info.Launcher  
+if(launcher!=-1)  
+    UI.Launch(launcher, 1)
+#添加平台
+#添加船
+SM =ScenarioManager
+alliance_a = 1
+unit = SM.GetDefaultUnit()
+unit.className = 'Cheng Kung FFG'
+unit.unitName = 'Cheng Kung'
+loc_chengkung = Point()
+loc_chengkung.x = 119.7
+loc_chengkung.y = 24.2
+unit.SetPosition(loc_chengkung.x, loc_chengkung.y, 0)  # lon, lat, alt
+unit.heading = 270
+unit.speed = 5
+SM.AddUnitToAlliance(unit, alliance_a)
+SM.AddUnitToFlightDeck(unit.unitName, 'SH-60B', 'Ferret-1', 3)
 
+SM.AddToUnitMagazine(unit.unitName, 'Fuel', 50000)
+SM.AddToUnitMagazine(unit.unitName, '76mm Mk-75', 300)
+SM.AddToUnitMagazine(unit.unitName, 'Mk-46 Mod5', 16)
+SM.AddToUnitMagazine(unit.unitName, 'DICASS Sonobuoy', 48)
+UI = SM.GetUnitInterface(unit.unitName)
+#跳转位置
+UI = ScenarioManager.GetUnitInterface("Cheng Kung")
+UI.SetLongitude(120);
+UI.SetLatitude(30);
+#添加潜艇
+SM =ScenarioManager
+alliance_a = 1
+unit = SM.GetDefaultUnit()
+unit.className = 'Kilo-877E SSK'
+unit.unitName = 'Yuanzheng 65'
+unit.SetPosition(119, 24, -52)  # lon, lat, alt
+unit.heading = 250
+unit.speed = 3
+SM.AddUnitToAlliance(unit, alliance_a)
+SM.SetUnitLauncherItem(unit.unitName, 3, 'TEST-71MKE', 1)
+SM.SetUnitLauncherItem(unit.unitName, 4, 'TEST-71MKE', 1)
+SM.SetUnitLauncherItem(unit.unitName, 5, 'TEST-71MKE', 1)
+
+SM.AddToUnitMagazine(unit.unitName, '53-65M', 4)
+SM.AddToUnitMagazine(unit.unitName, 'TEST-71MKE', 6)
+UI = SM.GetUnitInterface(unit.unitName)
+#跳转位置
+UI = ScenarioManager.GetUnitInterface("Yuanzheng 65")
+UI.SetAltitude(-120);
+
+
+
+#
 def AttackTarget(UI):
     UI.AddTask('InterceptTarget', 2.0, 0)   
     def InterceptTarget(TI): 

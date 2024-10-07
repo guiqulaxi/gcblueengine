@@ -179,6 +179,8 @@ public:
     virtual void RandInitNear(float afLon_deg, float afLat_deg);
     virtual void SetAltitude(float new_altitude_m);
     virtual void SetHeading(float afNewHeading);
+    virtual void SetLongitude(float aflon_deg ) ;
+    virtual void SetLatitude(float aflat_deg) ;
     virtual void SetMaxTurnRate(float rate_degps);
     float GetMaxTurnRate() const;
 	void SetRefueling(bool state);

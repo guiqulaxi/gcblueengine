@@ -1547,7 +1547,14 @@ void tcPlatformObject::RandInitNear(float afLon_deg, float afLat_deg)
 	fuel_kg = mpDBObject->GetInternalFuelCapacity();
     lastHeadingDelta = 0;
 }
-
+void tcPlatformObject::SetLongitude(float aflon_deg )
+{
+    mcKin.mfLon_rad = C_PIOVER180*(aflon_deg);
+}
+void tcPlatformObject::SetLatitude(float aflat_deg)
+{
+    mcKin.mfLat_rad = C_PIOVER180*(aflat_deg);
+}
 
 void tcPlatformObject::PrintToFile(tcFile& file) 
 {

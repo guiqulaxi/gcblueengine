@@ -63,8 +63,8 @@ namespace scriptinterface
 
     py::object tcWeaponInterface::GetInterface()
     {
-            py::module testpybind11_module = py::module::import("gcblue");
-            py::object  pyobject = testpybind11_module.attr("WeaponInterface");
+            py::module pybind11_module = py::module::import("gcblue");
+            py::object  pyobject = pybind11_module.attr("WeaponInterface");
             return pyobject;
     }
 

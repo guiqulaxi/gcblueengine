@@ -212,7 +212,9 @@ namespace scriptinterface {
 		* For air objects
 		* @param alt_m goal altitude of platform in meters
 		*/
-		void SetAltitude(float alt_m);
+        void SetAltitude(float alt_m);
+        void SetLongitude(float lon_deg ) ;
+        void SetLatitude(float lat_deg) ;
 		/// sets maximum +/- pitch for air objects in degrees, workaround to slow descent for cv landing
 		void SetPitchLimitDeg(float lim_deg);
 		/// overrides climb for air objects in degrees

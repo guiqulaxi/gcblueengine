@@ -171,9 +171,9 @@ namespace scriptinterface {
     object tcPlatformInterface::GetPlatformInterface()
     {
 
-            py::module testpybind11_module = py::module::import("gcblue");
+            py::module pybind11_module = py::module::import("gcblue");
             // 获取Python类的引用
-            py::object  InterfaceType = testpybind11_module.attr("UnitInfoClass");
+            py::object  InterfaceType = pybind11_module.attr("UnitInfoClass");
             return InterfaceType;
     }
 
@@ -452,7 +452,21 @@ namespace scriptinterface {
 
 		mpPlatformObj->SetAltitude(alt_m);
         SetPitchLimitDeg(85.0);
-	} 
+    }
+
+    void tcPlatformInterface::SetLongitude(float lon_deg)
+    {
+        if (mpPlatformObj == 0) return;
+        if (!mpPlatformObj->IsControlled()) return;
+        mpPlatformObj->SetLongitude(lon_deg);
+
+    }
+    void tcPlatformInterface::SetLatitude(float lat_deg)
+    {
+        if (mpPlatformObj == 0) return;
+        if (!mpPlatformObj->IsControlled()) return;
+        mpPlatformObj->SetLatitude(lat_deg);
+    }
 
     /**
     * Set state to 1 to land object if near appropriate flightport.

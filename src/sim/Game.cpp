@@ -784,11 +784,11 @@ void tcGame::SetTimeAccel(long accel)
     //        //return;
     //    }
 
-    //    if (accel == 0)
-    //    {
-    //        mbPaused = true;
-    //        accelerateTime = 0;
-    //    }
+       if (accel == 0)
+       {
+           mbPaused = true;
+           accelerateTime = 0;
+       }
     //    else if ((accel <= 60) || (accel == 120))
     //    {
     //        mbPaused = false;
@@ -958,16 +958,20 @@ bool tcGame::UpdateFrame()
     simState->GetDateTime(gameDateTime);
 
     auto speedMax=(unsigned long)(fps*0.025);//全速最大推演倍数 snFrameCount%speedMax==0才推进就是1倍
-    auto delta=speedMax/simState->GetTimeAcceleration();//按指定倍数推进
-    delta=delta==0?1:delta;
-    if (!mbPaused&&snFrameCount%delta==0)
+    if(simState->GetTimeAcceleration()>0)
     {
-        gameTime += fdt;
-        gameDateTime.AdjustTimeSeconds(fdt*dateTimeScale);
-        simState->SetTime(gameTime);
-        simState->SetDateTime(gameDateTime);
+        auto delta=speedMax/simState->GetTimeAcceleration();//按指定倍数推进
+        delta=delta==0?1:delta;
+        if (snFrameCount%delta==0)
+        {
+            gameTime += fdt;
+            gameDateTime.AdjustTimeSeconds(fdt*dateTimeScale);
+            simState->SetTime(gameTime);
+            simState->SetDateTime(gameDateTime);
 
+        }
     }
+
     //    directorTime += fdt; // run director when not in simple brief mode
     std::cout << "\r";
     std::cout << std::left<<std::setw(10) << simState->GetTime()<<" " ;
@@ -2208,7 +2212,9 @@ void  tcGameObjectToJson(const tcGameObject& obj,rapidjson::Value& unitinfo,rapi
     unitinfo.AddMember("mfRoll_rad",mfRoll_radValue,document.GetAllocator());
     rapidjson::Value mfSpeed_ktsValue(rapidjson::kNumberType);
     mfSpeed_ktsValue.SetFloat(obj.mcKin.mfSpeed_kts); // 使用文档的分配器来分配内存
-    unitinfo.AddMember("mfSpeed_kts",mfSpeed_ktsValue,document.GetAllocator());
+    rapidjson::Value mfDamageLevelValue(rapidjson::kNumberType);
+    mfDamageLevelValue.SetFloat(obj.GetDamageLevel()); // 使用文档的分配器来分配内存
+    unitinfo.AddMember("mfDamageLevel",mfDamageLevelValue,document.GetAllocator());
 }
 
 void tcGame::UpdateOutSimData()

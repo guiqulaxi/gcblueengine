@@ -12,6 +12,7 @@
 #include "tcWeaponInterface.h"
 #include "tcScenarioInterface.h"
 #include "tcGoal.h"
+#include "tcGameInterface.h"
 using namespace scriptinterface ;
 namespace py = pybind11;
 using namespace py;
@@ -129,6 +130,8 @@ PYBIND11_EMBEDDED_MODULE(gcblue, m) {
             .def("HasThrottle",&tcPlatformInterface::HasThrottle)
             .def("SetAlt", &tcPlatformInterface::SetAltitude)
             .def("SetAltitude", &tcPlatformInterface::SetAltitude)
+            .def("SetLongitude", &tcPlatformInterface::SetLongitude)
+            .def("SetLatitude", &tcPlatformInterface::SetLatitude)
             .def("SetPitchLimit", &tcPlatformInterface::SetPitchLimitDeg)
             .def("SetClimbDeg", &tcPlatformInterface::SetClimbDeg)
             .def("GetClimbDeg", &tcPlatformInterface::GetClimbDeg)
@@ -856,5 +859,13 @@ PYBIND11_EMBEDDED_MODULE(gcblue, m) {
             .def("SetLogicAny", &tcAreaGoalWrap::SetLogicAny)
             .def("IsLogicAny", &tcAreaGoalWrap::IsLogicAny)
             ;
+
+    py::class_<tcGameInterface>(m,"GameInterface")
+        .def(py::init<>())
+        .def("SetEditMode", &tcGameInterface::SetEditMode)
+        .def("SetTimeAccel", &tcGameInterface::SetTimeAccel)
+        .def("ClearScenario", &tcGameInterface::ClearScenario)
+        .def("LoadScenario", &tcGameInterface::LoadScenario)
+        ;
 
 }

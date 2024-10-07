@@ -86,65 +86,65 @@ using database::tcDatabaseIterator;
 
 namespace scriptinterface
 {
-    using namespace ai;
+using namespace ai;
 
 
-    void tcScenarioUnit::SetPosition(double lon_deg, double lat_deg, float alt_m)
-    {
-        lon = lon_deg;
-        lat = lat_deg;
-        alt = alt_m;
-    }
+void tcScenarioUnit::SetPosition(double lon_deg, double lat_deg, float alt_m)
+{
+    lon = lon_deg;
+    lat = lat_deg;
+    alt = alt_m;
+}
 
-    void tcScenarioUnit::SetOrbit(double a_km, double e, double i_deg,
-                                  double Omega_deg, double omega_deg,
-                                  double M_deg, double tp)
-    {
-        this-> a=a_km;             // 半长轴 千米 输入
-        this-> e=e;             // 偏心率  输入
-        this-> i=i_deg;             // 轨道倾角 输入
-        this-> Omega=Omega_deg;         // 升交点经度 输入
-        this-> omega=omega_deg;         // 近地点幅角 输入
-        this-> M=M_deg;             // 初始平近点角 输入
-        this-> tp=tp;            // 过近地点时间
-    }
+void tcScenarioUnit::SetOrbit(double a_km, double e, double i_deg,
+                              double Omega_deg, double omega_deg,
+                              double M_deg, double tp)
+{
+    this-> a=a_km;             // 半长轴 千米 输入
+    this-> e=e;             // 偏心率  输入
+    this-> i=i_deg;             // 轨道倾角 输入
+    this-> Omega=Omega_deg;         // 升交点经度 输入
+    this-> omega=omega_deg;         // 近地点幅角 输入
+    this-> M=M_deg;             // 初始平近点角 输入
+    this-> tp=tp;            // 过近地点时间
+}
 
-    /**
+/**
     * Test that fields are valid. Display message box if not.
     * @return true if validation okay
     */
-    bool tcScenarioUnit::Validate()
+bool tcScenarioUnit::Validate()
+{
+    if (className == "Not defined")
     {
-        if (className == "Not defined")
-        {
-            //wxMessageBox("Scenario unit class not defined","Error",wxICON_ERROR);
-            return false;
-        }
-        if (unitName == "Not defined")
-        {
-            std::string s = strutil::format("Scenario unit name not defined (class: %s)",className.c_str());
-			//wxMessageBox(s.c_str(),"Error",wxICON_ERROR);
-			return false;
-		}
-		return true;
+        //wxMessageBox("Scenario unit class not defined","Error",wxICON_ERROR);
+        return false;
+    }
+    if (unitName == "Not defined")
+    {
+        std::string s = strutil::format("Scenario unit name not defined (class: %s)",className.c_str());
+        //wxMessageBox(s.c_str(),"Error",wxICON_ERROR);
+        return false;
+    }
+    return true;
 
-	}
+}
 
 
 
 
 //    tcDirector* tcScenarioInterface::director = 0;
-    tcMapData* tcScenarioInterface::mapData = 0;
+tcMapData* tcScenarioInterface::mapData = 0;
 //    tcMapOverlay* tcScenarioInterface::overlay = 0;
-    tcSimState* tcScenarioInterface::simState = 0;
+tcSimState* tcScenarioInterface::simState = 0;
 //    tcCommandQueue* tcScenarioInterface::commandQueue = 0;
 
-    // non-python methods
-    
-    tcGameObject* tcScenarioInterface::GetLastObjectAdded() const
-    {
-        return lastObjectAdded;
-    }
+// non-python methods
+
+tcGameObject* tcScenarioInterface::GetLastObjectAdded() const
+{
+    return lastObjectAdded;
+}
 
 //	tcMapOverlay* tcScenarioInterface::GetMapOverlay() const
 //	{
@@ -152,19 +152,19 @@ namespace scriptinterface
 //	}
 
 
-    // Interface class management methods
+// Interface class management methods
 
-    void tcScenarioInterface::AddGoalClasses()
-    {
-        InitGoalPython();
-    }
+void tcScenarioInterface::AddGoalClasses()
+{
+    InitGoalPython();
+}
 object tcScenarioInterface::GetInterface()
 {
 
-    py::module testpybind11_module = py::module::import("gcblue");
+    py::module pybind11_module = py::module::import("gcblue");
     // 获取Python类的引用
-    py::object  InterfaceType = testpybind11_module.attr("ScenarioInterface");
-    return InterfaceType;
+    py::object  interfaceType = pybind11_module.attr("ScenarioInterface");
+    return interfaceType;
 }
 //    object tcScenarioInterface::GetInterface()
 //    {
@@ -220,7 +220,7 @@ object tcScenarioInterface::GetInterface()
 //			.def_readwrite("SubROE", &tcAllianceROEInfo::subROE)
 //			.def_readwrite("LandROE", &tcAllianceROEInfo::landROE)
 //			;
-	
+
 
 //        object InterfaceType =
 //            class_<tcScenarioInterface>("ScenarioInterface")
@@ -348,28 +348,215 @@ object tcScenarioInterface::GetInterface()
 //        return InterfaceType;
 //    }
 
-	bool tcScenarioInterface::AddUnitToAlliance(scriptinterface::tcScenarioUnit unit, int alliance)
+bool tcScenarioInterface::AddUnitToAlliance(scriptinterface::tcScenarioUnit unit, int alliance)
+{
+    lastObjectAdded = 0;
+
+    if (!unit.Validate()) return false;
+
+    if (simState->GetObjectByName(unit.unitName) != 0)
     {
-        lastObjectAdded = 0;
-        
-        if (!unit.Validate()) return false;
-
-		if (simState->GetObjectByName(unit.unitName) != 0)
-		{
-			fprintf(stderr, "tcScenarioInterface::AddUnitToAlliance - Duplicate unit (%s) in scenario %s\n",
+        fprintf(stderr, "tcScenarioInterface::AddUnitToAlliance - Duplicate unit (%s) in scenario %s\n",
                 unit.unitName.c_str(), simState->GetScenarioName());
-			return false;
-		}
+        return false;
+    }
 
-        tcDatabaseObject *dbObj = simState->mpDatabase->GetObject(unit.className);
-        if (dbObj == NULL)
+    tcDatabaseObject *dbObj = simState->mpDatabase->GetObject(unit.className);
+    if (dbObj == NULL)
+    {
+        std::string errorMessage =
+            strutil::format("Could not find class name \"%s\" in database, "
+                            "check entry in scenario \"%s\"\n",
+                            unit.className.c_str(), simState->GetScenarioName());
+
+        fprintf(stderr, errorMessage.c_str());
+        // don't popup errors if sim is running
+        if (simState->GetTime() == 0)
         {
-            std::string errorMessage = 
-                strutil::format("Could not find class name \"%s\" in database, "
-                "check entry in scenario \"%s\"\n", 
-                unit.className.c_str(), simState->GetScenarioName());
+            //wxMessageBox(errorMessage.c_str(), "Error", wxICON_ERROR);
+        }
+        return false;
+    }
 
-            fprintf(stderr, errorMessage.c_str());
+    if ((unit.lon < -360) || (unit.lon > 360.0) || (unit.lat < -90) || (unit.lat > 90))
+    {
+        fprintf(stderr, "tcScenarioInterface::AddUnitToAlliance - %s coordinates out of bounds (lon: %.4f deg, lat: %.4f deg)\n",
+                unit.unitName.c_str(), unit.lon, unit.lat);
+        return false;
+    }
+
+    if (unit.lon < -180.0) unit.lon += 360.0;
+    else if (unit.lon >= 180.0) unit.lon -= 360.0;
+
+    tcGameObject *gameObj = simState->CreateGameObject(dbObj);
+    if (gameObj == 0)
+    {
+        fprintf(stderr, "game obj creation error\n");
+        return false;
+    }
+
+    tcKinematics& kin = gameObj->mcKin;
+
+    kin.mfLon_rad = C_PIOVER180*unit.lon;
+    kin.mfLat_rad = C_PIOVER180*unit.lat;
+    kin.mfAlt_m = unit.alt;
+
+    kin.mfHeading_rad = C_PIOVER180*unit.heading;
+    gameObj->SetHeading(kin.mfHeading_rad);
+    kin.mfPitch_rad = 0;
+    kin.mfRoll_rad = 0;
+    if (unit.speed < 0) {unit.speed = 0;}
+    kin.mfSpeed_kts = unit.speed;
+
+    gameObj->SetAlliance(alliance);
+    gameObj->mfStatusTime = 0; // for lack of a better time
+    gameObj->mzUnit = unit.unitName.c_str();
+    gameObj->SetCost(unit.cost);
+
+    float terrainHeight = mapData->GetTerrainHeight(unit.lon, unit.lat, 0);
+
+    // class-specific initialization
+    tcPlatformObject* platObj = dynamic_cast<tcPlatformObject*>(gameObj);
+    if (platObj != 0)
+    {
+        // limit speed to max
+        if (kin.mfSpeed_kts > platObj->mpDBObject->mfMaxSpeed_kts)
+        {
+            platObj->mcKin.mfSpeed_kts = platObj->mpDBObject->mfMaxSpeed_kts;
+        }
+        platObj->SetSpeed(kin.mfSpeed_kts);
+    }
+    // need something to calculate steady state speed based on throttle and altitude.
+    if (tcAeroAirObject *aeroAirObj = dynamic_cast<tcAeroAirObject*>(gameObj))
+    {
+        if (kin.mfSpeed_kts < 200.0f) kin.mfSpeed_kts = 200.0f;
+        aeroAirObj->SetSpeed(kin.mfSpeed_kts);
+        if (unit.throttle >= 0.3)
+        {
+            aeroAirObj->SetThrottleFraction(unit.throttle);
+        }
+    }
+
+    if (tcAirObject *airObj = dynamic_cast<tcAirObject*>(gameObj))
+    {
+        if (kin.mfAlt_m < terrainHeight + 10.0f)
+        {
+            kin.mfAlt_m = terrainHeight + 10.0f;
+        }
+        if (kin.mfAlt_m < 50.0f)
+        {
+            kin.mfAlt_m = 50.0f;
+        }
+
+        airObj->SetAltitude(airObj->mcKin.mfAlt_m);
+        ai::Brain* brain = airObj->GetBrain();
+        brain->AddTask("RTB", 2.0f, ai::Task::PERMANENT | ai::Task::HIDDEN);
+    }
+    if (tcSubObject* sub = dynamic_cast<tcSubObject*>(gameObj))
+    {
+        if (kin.mfAlt_m < terrainHeight + 10.0f)
+        {
+            kin.mfAlt_m = terrainHeight + 10.0f;
+        }
+        sub->SetAltitude(kin.mfAlt_m);
+    }
+
+    if (tcSurfaceObject* surface = dynamic_cast<tcSurfaceObject*>(gameObj))
+    {
+        surface->SetAltitude(0); // ignore altitude field and set to sea level
+    }
+
+    // place ground objects relative to terrain height
+    if (tcAirfieldObject* fieldObj = dynamic_cast<tcAirfieldObject*>(gameObj))
+    {
+        kin.mfAlt_m +=
+            mapData->GetTerrainHeight(unit.lon, unit.lat, 0);
+    }
+    else if (tcGroundObject* groundObj = dynamic_cast<tcGroundObject*>(gameObj))
+    {
+        kin.mfAlt_m = max(kin.mfAlt_m, 1.0f); // minimum 1 m over ground
+
+        kin.mfAlt_m +=
+            mapData->GetTerrainHeight(unit.lon, unit.lat, 0);
+    }
+    else if (tcGroundVehicleObject* groundVehicleObj = dynamic_cast<tcGroundVehicleObject*>(gameObj))
+    {
+        kin.mfAlt_m +=
+            mapData->GetTerrainHeight(unit.lon, unit.lat, 0);
+    }
+    if (tcSpaceObject* space = dynamic_cast<tcSpaceObject*>(gameObj))
+    {
+        space->SetA(unit.a);
+        space->Sete(unit.e);
+        space->SetI(unit.i*C_PIOVER180);
+        space->SetOmega(unit.Omega*C_PIOVER180);
+        space->Setomega(unit.omega*C_PIOVER180);
+        space->SetTp(unit.tp);
+        space->SetM(unit.M);
+    }
+
+    gameObj->mfStatusTime = simState->GetTime();
+    simState->AddPlatform(gameObj);
+
+    lastObjectAdded = gameObj;
+
+    if (tcGameObject::IsEditMode() && (platObj != 0))
+    {
+        platObj->AutoConfigurePlatform("");
+    }
+
+    //		if (progressDialog != 0)
+    //		{
+    //			std::string msg = "Loading units"; //strutil::format("Adding %s", unit.unitName.c_str());
+    //			progressDialog->Pulse(msg);
+    //		}
+
+    return true;
+}
+
+/**
+    * @param parentName unitname of parent carrier object
+    * @param className class of (air) unit to add
+    * @param unitName unitname of unit to add
+    * @param loc, HANGAR = 1, ALERT15 = 2, ALERT5 = 3
+    * @return true if successful, false otherwise
+    */
+bool tcScenarioInterface::AddUnitToFlightDeck(std::string parentName,
+                                              std::string className,
+                                              std::string unitName, int locCode)
+{
+    unitId++;
+
+    assert(simState);
+    tcGameObject* parentObj = simState->GetObjectByName(parentName);
+    if (tcFlightOpsObject* flightOps = dynamic_cast<tcFlightOpsObject*>(parentObj))
+    {
+        teLocation loc;
+        if (locCode == 1) loc = HANGAR;
+        else if (locCode == 2) loc = ALERT15;
+        else if (locCode == 3) loc = ALERT5;
+        else
+        {
+            cerr << "Bad location code when adding to " << parentName << "\n";
+            return false;
+        }
+        tcGameObject* child = flightOps->AddChildToFlightDeck(className, unitName, loc, 0);
+        if (child != 0)
+        {
+            //				if (progressDialog != 0)
+            //				{
+            //					std::string msg = "Loading units"; //strutil::format("Adding %s to %s", unitName.c_str(), parentName.c_str());
+            //					progressDialog->Pulse(msg);
+            //				}
+            return true;
+        }
+        else
+        {
+            std::string errorMessage =
+                strutil::format("Could not find class name \"%s\" in database, "
+                                "check entry in scenario \"%s\"\n",
+                                className.c_str(), simState->GetScenarioName());
+
             // don't popup errors if sim is running
             if (simState->GetTime() == 0)
             {
@@ -378,574 +565,387 @@ object tcScenarioInterface::GetInterface()
             return false;
         }
 
-        if ((unit.lon < -360) || (unit.lon > 360.0) || (unit.lat < -90) || (unit.lat > 90))
-        {
-            fprintf(stderr, "tcScenarioInterface::AddUnitToAlliance - %s coordinates out of bounds (lon: %.4f deg, lat: %.4f deg)\n",
-                unit.unitName.c_str(), unit.lon, unit.lat);
-            return false;
-        }
-
-        if (unit.lon < -180.0) unit.lon += 360.0;
-        else if (unit.lon >= 180.0) unit.lon -= 360.0;
-
-        tcGameObject *gameObj = simState->CreateGameObject(dbObj);
-        if (gameObj == 0)
-        {
-            fprintf(stderr, "game obj creation error\n");
-            return false;
-        }
-
-		tcKinematics& kin = gameObj->mcKin;
-
-        kin.mfLon_rad = C_PIOVER180*unit.lon;
-        kin.mfLat_rad = C_PIOVER180*unit.lat;
-        kin.mfAlt_m = unit.alt;
-
-        kin.mfHeading_rad = C_PIOVER180*unit.heading;
-        gameObj->SetHeading(kin.mfHeading_rad);
-        kin.mfPitch_rad = 0;
-        kin.mfRoll_rad = 0;
-        if (unit.speed < 0) {unit.speed = 0;}
-        kin.mfSpeed_kts = unit.speed;
-
-        gameObj->SetAlliance(alliance);
-        gameObj->mfStatusTime = 0; // for lack of a better time
-        gameObj->mzUnit = unit.unitName.c_str();
-        gameObj->SetCost(unit.cost);
-
-        float terrainHeight = mapData->GetTerrainHeight(unit.lon, unit.lat, 0);
-            
-        // class-specific initialization
-        tcPlatformObject* platObj = dynamic_cast<tcPlatformObject*>(gameObj);
-        if (platObj != 0)
-        {
-            // limit speed to max
-            if (kin.mfSpeed_kts > platObj->mpDBObject->mfMaxSpeed_kts)
-            {
-                platObj->mcKin.mfSpeed_kts = platObj->mpDBObject->mfMaxSpeed_kts;
-            }
-            platObj->SetSpeed(kin.mfSpeed_kts);
-        }
-        // need something to calculate steady state speed based on throttle and altitude.
-        if (tcAeroAirObject *aeroAirObj = dynamic_cast<tcAeroAirObject*>(gameObj))
-        {   
-            if (kin.mfSpeed_kts < 200.0f) kin.mfSpeed_kts = 200.0f;
-            aeroAirObj->SetSpeed(kin.mfSpeed_kts);
-            if (unit.throttle >= 0.3)
-            {
-                aeroAirObj->SetThrottleFraction(unit.throttle);
-            }
-        }
-
-        if (tcAirObject *airObj = dynamic_cast<tcAirObject*>(gameObj))
-        {
-            if (kin.mfAlt_m < terrainHeight + 10.0f)
-            {
-                kin.mfAlt_m = terrainHeight + 10.0f;
-            }
-			if (kin.mfAlt_m < 50.0f)
-			{
-				kin.mfAlt_m = 50.0f;
-			}
-            
-            airObj->SetAltitude(airObj->mcKin.mfAlt_m);
-            ai::Brain* brain = airObj->GetBrain();
-            brain->AddTask("RTB", 2.0f, ai::Task::PERMANENT | ai::Task::HIDDEN);
-        }
-        if (tcSubObject* sub = dynamic_cast<tcSubObject*>(gameObj))
-        {
-            if (kin.mfAlt_m < terrainHeight + 10.0f)
-            {
-                kin.mfAlt_m = terrainHeight + 10.0f;
-            }
-            sub->SetAltitude(kin.mfAlt_m);
-        }
-
-        if (tcSurfaceObject* surface = dynamic_cast<tcSurfaceObject*>(gameObj))
-        {
-            surface->SetAltitude(0); // ignore altitude field and set to sea level
-        }
-
-		// place ground objects relative to terrain height
-		if (tcAirfieldObject* fieldObj = dynamic_cast<tcAirfieldObject*>(gameObj))
-		{
-			kin.mfAlt_m += 
-				mapData->GetTerrainHeight(unit.lon, unit.lat, 0);
-		}
-		else if (tcGroundObject* groundObj = dynamic_cast<tcGroundObject*>(gameObj))
-		{
-            kin.mfAlt_m = max(kin.mfAlt_m, 1.0f); // minimum 1 m over ground
-
-			kin.mfAlt_m += 
-				mapData->GetTerrainHeight(unit.lon, unit.lat, 0);
-		}
-		else if (tcGroundVehicleObject* groundVehicleObj = dynamic_cast<tcGroundVehicleObject*>(gameObj))
-		{
-			kin.mfAlt_m += 
-				mapData->GetTerrainHeight(unit.lon, unit.lat, 0);
-		}
-        if (tcSpaceObject* space = dynamic_cast<tcSpaceObject*>(gameObj))
-        {
-            space->SetA(unit.a);
-            space->Sete(unit.e);
-            space->SetI(unit.i*C_PIOVER180);
-            space->SetOmega(unit.Omega*C_PIOVER180);
-            space->Setomega(unit.omega*C_PIOVER180);
-            space->SetTp(unit.tp);
-            space->SetM(unit.M);
-        }
-
-		gameObj->mfStatusTime = simState->GetTime();
-        simState->AddPlatform(gameObj);
-
-		lastObjectAdded = gameObj;
-
-        if (tcGameObject::IsEditMode() && (platObj != 0))
-        {
-            platObj->AutoConfigurePlatform("");
-        }
-         
-//		if (progressDialog != 0)
-//		{
-//			std::string msg = "Loading units"; //strutil::format("Adding %s", unit.unitName.c_str());
-//			progressDialog->Pulse(msg);
-//		}
-
-        return true;
     }
-
-    /**
-    * @param parentName unitname of parent carrier object
-    * @param className class of (air) unit to add
-    * @param unitName unitname of unit to add
-    * @param loc, HANGAR = 1, ALERT15 = 2, ALERT5 = 3
-    * @return true if successful, false otherwise
-    */
-    bool tcScenarioInterface::AddUnitToFlightDeck(std::string parentName, 
-        std::string className, 
-        std::string unitName, int locCode)
+    else
     {
-        unitId++;
-
-        assert(simState);
-        tcGameObject* parentObj = simState->GetObjectByName(parentName);
-        if (tcFlightOpsObject* flightOps = dynamic_cast<tcFlightOpsObject*>(parentObj))
-        {
-            teLocation loc;
-            if (locCode == 1) loc = HANGAR;
-            else if (locCode == 2) loc = ALERT15;
-            else if (locCode == 3) loc = ALERT5;
-            else
-            {
-                cerr << "Bad location code when adding to " << parentName << "\n";
-                return false;
-            }
-            tcGameObject* child = flightOps->AddChildToFlightDeck(className, unitName, loc, 0);
-			if (child != 0)
-			{
-//				if (progressDialog != 0)
-//				{
-//					std::string msg = "Loading units"; //strutil::format("Adding %s to %s", unitName.c_str(), parentName.c_str());
-//					progressDialog->Pulse(msg);
-//				}
-				return true;
-			}
-			else
-			{
-				std::string errorMessage = 
-					strutil::format("Could not find class name \"%s\" in database, "
-					"check entry in scenario \"%s\"\n", 
-					className.c_str(), simState->GetScenarioName());
-
-				// don't popup errors if sim is running
-				if (simState->GetTime() == 0)
-				{
-					//wxMessageBox(errorMessage.c_str(), "Error", wxICON_ERROR);
-				}
-				return false;
-			}
-
-        }
-        else
-        {
-            cerr << "Parent object not found: " << parentName << "\n";
-            return false;
-        }
+        cerr << "Parent object not found: " << parentName << "\n";
+        return false;
     }
+}
 
-    /**
+/**
     * Adds items (normally weapons) to first compatible magazine of unit
     */
-    void tcScenarioInterface::AddToUnitMagazine(const std::string& unitName, 
-        const std::string& item, unsigned long quantity)
+void tcScenarioInterface::AddToUnitMagazine(const std::string& unitName,
+                                            const std::string& item, unsigned long quantity)
+{
+    assert(simState);
+    tcGameObject* parentObj = simState->GetObjectByName(unitName);
+    if (tcPlatformObject* platform = dynamic_cast<tcPlatformObject*>(parentObj))
     {
-        assert(simState);
-        tcGameObject* parentObj = simState->GetObjectByName(unitName);
-        if (tcPlatformObject* platform = dynamic_cast<tcPlatformObject*>(parentObj))
+        unsigned int nMagazines = platform->GetMagazineCount();
+        for (unsigned int n=0; n<nMagazines; n++)
         {
-            unsigned int nMagazines = platform->GetMagazineCount();
-            for (unsigned int n=0; n<nMagazines; n++)
+            tcStores* mag = platform->GetMagazine(n);
+            if (!mag->IsFull() && mag->IsCompatible(item))
             {
-                tcStores* mag = platform->GetMagazine(n);
-                if (!mag->IsFull() && mag->IsCompatible(item))
-                {
-                    mag->AddItems(item, quantity);
-                    return;
-                }
+                mag->AddItems(item, quantity);
+                return;
             }
-			
-				
-			// log error to stderr.txt
-            fprintf(stderr, "tcScenarioInterface::AddToUnitMagazine - "
-                "Failed to load %s to unit %s(%s) ", item.c_str(),unitName.c_str(),parentObj->mzClass.c_str());
-            for (unsigned int n=0; n<nMagazines; n++)
-            {
-                tcStores* mag = platform->GetMagazine(n);
-                fprintf(stderr, "(%d,", n);
-				if (!mag->IsCompatible(item)) fprintf(stderr, "INCOMPAT");
-				else if (mag->IsFull()) fprintf(stderr, "FULL");
-				else fprintf(stderr, "OK"); // should never happen
-				
-				fprintf(stderr, ") ");
-            }
-			fprintf(stderr, "\n");
-            
         }
-        else
-        {
-            fprintf(stderr, "tcScenarioInterface::AddToUnitMagazine - "
-                "Unit not found: %s\n", unitName.c_str());
-        }
-    }
-    
 
-    /**
+
+        // log error to stderr.txt
+        fprintf(stderr, "tcScenarioInterface::AddToUnitMagazine - "
+                        "Failed to load %s to unit %s(%s) ", item.c_str(),unitName.c_str(),parentObj->mzClass.c_str());
+        for (unsigned int n=0; n<nMagazines; n++)
+        {
+            tcStores* mag = platform->GetMagazine(n);
+            fprintf(stderr, "(%d,", n);
+            if (!mag->IsCompatible(item)) fprintf(stderr, "INCOMPAT");
+            else if (mag->IsFull()) fprintf(stderr, "FULL");
+            else fprintf(stderr, "OK"); // should never happen
+
+            fprintf(stderr, ") ");
+        }
+        fprintf(stderr, "\n");
+
+    }
+    else
+    {
+        fprintf(stderr, "tcScenarioInterface::AddToUnitMagazine - "
+                        "Unit not found: %s\n", unitName.c_str());
+    }
+}
+
+
+/**
     * if state is true, then adds an "always visible" track to all other alliance sensor maps
     * if false, then drops track in all other alliance sensor maps
     */
-    void tcScenarioInterface::SetUnitAlwaysVisibleState(const std::string& unitName, bool state)
-    {
-        assert(simState != 0);
+void tcScenarioInterface::SetUnitAlwaysVisibleState(const std::string& unitName, bool state)
+{
+    assert(simState != 0);
 
-        if (tcGameObject* obj = simState->GetObjectByName(unitName))
+    if (tcGameObject* obj = simState->GetObjectByName(unitName))
+    {
+        if (state)
         {
-            if (state)
-            {
-                simState->mcSensorMap.AddAlwaysVisibleTrack(unitName);
-            }
-            else
-            {
-                simState->mcSensorMap.DropAlwaysVisibleTrack(unitName);
-            }
+            simState->mcSensorMap.AddAlwaysVisibleTrack(unitName);
         }
         else
         {
-            fprintf(stderr, "tcScenarioInterface::SetUnitAlwaysVisibleState - %s not found\n",
-                unitName.c_str());
+            simState->mcSensorMap.DropAlwaysVisibleTrack(unitName);
         }
-
+    }
+    else
+    {
+        fprintf(stderr, "tcScenarioInterface::SetUnitAlwaysVisibleState - %s not found\n",
+                unitName.c_str());
     }
 
-    /**
+}
+
+/**
     * Adds task to unit (newer AI system with parallel tasks)
     * Logs error if unit is not eligible
     */
-    void tcScenarioInterface::AddUnitTask(const std::string& unitName, const std::string& taskName, 
-        double priority, int attributes)
+void tcScenarioInterface::AddUnitTask(const std::string& unitName, const std::string& taskName,
+                                      double priority, int attributes)
+{
+    assert(simState);
+    tcGameObject* parentObj = simState->GetObjectByName(unitName);
+    if (tcPlatformObject* platform = dynamic_cast<tcPlatformObject*>(parentObj))
     {
-        assert(simState);
-        tcGameObject* parentObj = simState->GetObjectByName(unitName);
-        if (tcPlatformObject* platform = dynamic_cast<tcPlatformObject*>(parentObj))
-        {
-            ai::Brain* brain = platform->GetBrain();
-            assert(brain);
-            brain->AddTask(taskName, priority, attributes);
-        }
-        else
-        {
-            fprintf(stderr, "tcScenarioInterface::AddUnitTask - "
-                "Unit not found: %s\n", unitName.c_str());
-        }       
-        
+        ai::Brain* brain = platform->GetBrain();
+        assert(brain);
+        brain->AddTask(taskName, priority, attributes);
     }
-    
-
-    tcPlatformInterface tcScenarioInterface::GetUnitInterface(const std::string& unitName)
+    else
     {
-        assert(simState);
-        tcGameObject* obj = simState->GetObjectByName(unitName);
-        if (tcPlatformObject* platform = dynamic_cast<tcPlatformObject*>(obj))
-        { 
-            return tcPlatformInterface(platform);
-        }
-        else
-        {
-            return tcPlatformInterface(0);
-        }
+        fprintf(stderr, "tcScenarioInterface::AddUnitTask - "
+                        "Unit not found: %s\n", unitName.c_str());
     }
 
-	std::string tcScenarioInterface::GetUnitNameById(long id) const
-	{
-		tcGameObject* obj = simState->GetObject(id);
+}
 
-        if (obj == 0)
-		{
-			return std::string("");
-		} 
-		else
-		{
-            return std::string(obj->mzUnit.c_str());
-        }
-	}
 
-    long tcScenarioInterface::GetUnitIdByName(const std::string& unitName) const
+tcPlatformInterface tcScenarioInterface::GetUnitInterface(const std::string& unitName)
+{
+    assert(simState);
+    tcGameObject* obj = simState->GetObjectByName(unitName);
+    if (tcPlatformObject* platform = dynamic_cast<tcPlatformObject*>(obj))
     {
-        assert(simState != 0);
-        tcGameObject* obj = simState->GetObjectByName(unitName);
-        if (obj != 0)
-        {
-            return obj->mnID;
-        }
-        else
-        {
-            return -1;
-        }
+        return tcPlatformInterface(platform);
     }
+    else
+    {
+        return tcPlatformInterface(0);
+    }
+}
 
-    /**
+std::string tcScenarioInterface::GetUnitNameById(long id) const
+{
+    tcGameObject* obj = simState->GetObject(id);
+
+    if (obj == 0)
+    {
+        return std::string("");
+    }
+    else
+    {
+        return std::string(obj->mzUnit.c_str());
+    }
+}
+
+long tcScenarioInterface::GetUnitIdByName(const std::string& unitName) const
+{
+    assert(simState != 0);
+    tcGameObject* obj = simState->GetObjectByName(unitName);
+    if (obj != 0)
+    {
+        return obj->mnID;
+    }
+    else
+    {
+        return -1;
+    }
+}
+
+/**
     * Sets launcher item and quantity of unit
     */
-    void tcScenarioInterface::SetUnitLauncherItem(const std::string& unitName, 
-        unsigned int launcherIdx, const std::string& item, unsigned int quantity)
+void tcScenarioInterface::SetUnitLauncherItem(const std::string& unitName,
+                                              unsigned int launcherIdx, const std::string& item, unsigned int quantity)
+{
+    assert(simState);
+    tcGameObject* parentObj = simState->GetObjectByName(unitName);
+    if (tcPlatformObject* platform = dynamic_cast<tcPlatformObject*>(parentObj))
     {
-        assert(simState);
-        tcGameObject* parentObj = simState->GetObjectByName(unitName);
-        if (tcPlatformObject* platform = dynamic_cast<tcPlatformObject*>(parentObj))
+        if (tcLauncher* launcher = platform->GetLauncher(launcherIdx))
         {
-            if (tcLauncher* launcher = platform->GetLauncher(launcherIdx))
+            if (quantity == 0)
             {
-                if (quantity == 0)
+                launcher->SetChildQuantity(0);
+            }
+            else if (launcher->IsItemCompatible(item))
+            {
+                launcher->SetChildClass(item);
+                if (launcher->mpChildDBObj != 0)
                 {
-                    launcher->SetChildQuantity(0);
-                }
-                else if (launcher->IsItemCompatible(item))
-                {
-                    launcher->SetChildClass(item);
-                    if (launcher->mpChildDBObj != 0)
-                    {
-                        launcher->SetChildQuantity(quantity);
-                    }
-                    else
-                    {
-                        launcher->SetChildQuantity(0);
-                    }
+                    launcher->SetChildQuantity(quantity);
                 }
                 else
                 {
-                    fprintf(stderr, "tcScenarioInterface::SetUnitLauncherItem - "
-                        "%s not compatible with unit %s, launcher %d\n", item.c_str(),
-                        unitName.c_str(), launcherIdx);
+                    launcher->SetChildQuantity(0);
                 }
             }
             else
             {
                 fprintf(stderr, "tcScenarioInterface::SetUnitLauncherItem - "
-                    "Bad launcher index (unit %s, launcher %d)\n",
-                    unitName.c_str(), launcherIdx);
+                                "%s not compatible with unit %s, launcher %d\n", item.c_str(),
+                        unitName.c_str(), launcherIdx);
             }
         }
         else
         {
-            fprintf(stderr, "tcScenarioInterface::AddToUnitMagazine - "
-                "Unit not found or bad type (%s)\n", unitName.c_str());
+            fprintf(stderr, "tcScenarioInterface::SetUnitLauncherItem - "
+                            "Bad launcher index (unit %s, launcher %d)\n",
+                    unitName.c_str(), launcherIdx);
         }
     }
+    else
+    {
+        fprintf(stderr, "tcScenarioInterface::AddToUnitMagazine - "
+                        "Unit not found or bad type (%s)\n", unitName.c_str());
+    }
+}
 
-    /**
+/**
     * Sets child unit loadout with compact text string command
     */
-    void tcScenarioInterface::SetFlightDeckUnitLoadout(const std::string& parent, const std::string& child, 
-            const std::string& loadoutCommand)
+void tcScenarioInterface::SetFlightDeckUnitLoadout(const std::string& parent, const std::string& child,
+                                                   const std::string& loadoutCommand)
+{
+    tcGameObject* parentObj = simState->GetObjectByName(parent);
+    if (tcFlightOpsObject* flightOps = dynamic_cast<tcFlightOpsObject*>(parentObj))
     {
-        tcGameObject* parentObj = simState->GetObjectByName(parent);
-        if (tcFlightOpsObject* flightOps = dynamic_cast<tcFlightOpsObject*>(parentObj))
+        tcGameObject* obj = flightOps->GetFlightPort()->GetObjectByName(child);
+        if (tcPlatformObject* platform = dynamic_cast<tcPlatformObject*>(obj))
         {
-            tcGameObject* obj = flightOps->GetFlightPort()->GetObjectByName(child);
-            if (tcPlatformObject* platform = dynamic_cast<tcPlatformObject*>(obj))
-            {
-                platform->SetLoadoutCommand(loadoutCommand);
-            }
+            platform->SetLoadoutCommand(loadoutCommand);
         }
     }
+}
 
 
-	bool tcScenarioInterface::AllianceExists(int alliance) const
-	{
-		if (alliance < 0) return false;
+bool tcScenarioInterface::AllianceExists(int alliance) const
+{
+    if (alliance < 0) return false;
 
-		return simState->mcSensorMap.MapExists((unsigned)alliance);
-	}
+    return simState->mcSensorMap.MapExists((unsigned)alliance);
+}
 
-    void tcScenarioInterface::CreateAlliance(int alliance, const std::string& name)
+void tcScenarioInterface::CreateAlliance(int alliance, const std::string& name)
+{
+    tcAllianceInfo* allianceInfo = tcAllianceInfo::Get();
+    if ((alliance < 0)||(alliance >= allianceInfo->MAX_ALLIANCES))
+    {
+        fprintf(stderr, "Scenario error: Alliance out of range [0,%d]\n",
+                allianceInfo->MAX_ALLIANCES-1);
+        return;
+    }
+
+    simState->mcSensorMap.CreateMapForAlliance(alliance);
+    allianceInfo->AddAlliance((unsigned char)(alliance));
+    allianceInfo->SetAllianceName((unsigned char)(alliance), name);
+    allianceInfo->SetAllianceDefaultCountry((unsigned char)(alliance), name);
+}
+
+void tcScenarioInterface::SetAlliancePlayable(int alliance, bool state)
+{
+    if (AllianceExists(alliance))
     {
         tcAllianceInfo* allianceInfo = tcAllianceInfo::Get();
-        if ((alliance < 0)||(alliance >= allianceInfo->MAX_ALLIANCES))
-        {
-            fprintf(stderr, "Scenario error: Alliance out of range [0,%d]\n",
-                allianceInfo->MAX_ALLIANCES-1);
-            return;
-        }
-
-        simState->mcSensorMap.CreateMapForAlliance(alliance);
-        allianceInfo->AddAlliance((unsigned char)(alliance));
-        allianceInfo->SetAllianceName((unsigned char)(alliance), name);
-        allianceInfo->SetAllianceDefaultCountry((unsigned char)(alliance), name);
+        allianceInfo->SetAlliancePlayable((unsigned char)(alliance), state);
     }
-
-    void tcScenarioInterface::SetAlliancePlayable(int alliance, bool state)
+    else
     {
-        if (AllianceExists(alliance))
-        {
-            tcAllianceInfo* allianceInfo = tcAllianceInfo::Get();
-            allianceInfo->SetAlliancePlayable((unsigned char)(alliance), state);
-        }
-        else
-        {
-            fprintf(stderr, "tcScenarioInterface::SetAlliancePlayable - Alliance %d not found\n",
+        fprintf(stderr, "tcScenarioInterface::SetAlliancePlayable - Alliance %d not found\n",
                 alliance);
-        }
     }
+}
 
-    bool tcScenarioInterface::IsAlliancePlayable(int alliance) const
+bool tcScenarioInterface::IsAlliancePlayable(int alliance) const
+{
+    if (AllianceExists(alliance))
     {
-        if (AllianceExists(alliance))
-        {
-            tcAllianceInfo* allianceInfo = tcAllianceInfo::Get();
-            return allianceInfo->IsAlliancePlayable((unsigned char)(alliance));
-        }
-        else
-        {
-            fprintf(stderr, "tcScenarioInterface::IsAlliancePlayable - Alliance %d not found\n",
-                alliance);
-            return false;
-        }
+        tcAllianceInfo* allianceInfo = tcAllianceInfo::Get();
+        return allianceInfo->IsAlliancePlayable((unsigned char)(alliance));
     }
+    else
+    {
+        fprintf(stderr, "tcScenarioInterface::IsAlliancePlayable - Alliance %d not found\n",
+                alliance);
+        return false;
+    }
+}
 
-    /**
+/**
     *  WEAPONS_HOLD = 0, WEAPONS_TIGHT = 1, WEAPONS_FREE = 2, ROE_ERROR = 99
     *  @see tcGoalTracker
     */
-    tcAllianceROEInfo tcScenarioInterface::GetAllianceROE(int alliance) const
+tcAllianceROEInfo tcScenarioInterface::GetAllianceROE(int alliance) const
+{
+    tcAllianceROEInfo result;
+
+    result.airROE = 99;
+    result.surfaceROE = 99;
+    result.subROE = 99;
+    result.landROE = 99;
+
+    if (AllianceExists(alliance))
     {
-		tcAllianceROEInfo result;
-
-		result.airROE = 99;
-		result.surfaceROE = 99;
-		result.subROE = 99;
-		result.landROE = 99;
-
-        if (AllianceExists(alliance))
-        {
-			tcGoalTracker::ROEStatus roeStatus = tcGoalTracker::Get()->GetAllianceROE(alliance);
-			result.airROE = roeStatus.airMode;
-			result.surfaceROE = roeStatus.surfMode;
-			result.subROE = roeStatus.subMode;
-			result.landROE = roeStatus.landMode;
-        }
-        else
-        {
-            fprintf(stderr, "tcScenarioInterface::GetAllianceROE - Alliance %d not found\n",
+        tcGoalTracker::ROEStatus roeStatus = tcGoalTracker::Get()->GetAllianceROE(alliance);
+        result.airROE = roeStatus.airMode;
+        result.surfaceROE = roeStatus.surfMode;
+        result.subROE = roeStatus.subMode;
+        result.landROE = roeStatus.landMode;
+    }
+    else
+    {
+        fprintf(stderr, "tcScenarioInterface::GetAllianceROE - Alliance %d not found\n",
                 alliance);
-        }
-
-		return result;
     }
 
-    /**
+    return result;
+}
+
+/**
     *  WEAPONS_HOLD = 0, WEAPONS_TIGHT = 1, WEAPONS_FREE = 2, ROE_ERROR = 99
     *  @see tcGoalTracker
     */
-    void tcScenarioInterface::SetAllianceROEByType(int alliance,int airRoe, int surfaceROE, int subROE, int landROE)
+void tcScenarioInterface::SetAllianceROEByType(int alliance,int airRoe, int surfaceROE, int subROE, int landROE)
+{
+    if (AllianceExists(alliance))
     {
-        if (AllianceExists(alliance))
-        {
-            tcGoalTracker::Get()->SetAllianceROE(alliance, 
-				tcGoalTracker::ROEMode(airRoe), tcGoalTracker::ROEMode(surfaceROE), 
-				tcGoalTracker::ROEMode(subROE), tcGoalTracker::ROEMode(landROE));
-        }
-        else
-        {
-            fprintf(stderr, "tcScenarioInterface::SetAllianceROE - Alliance %d not found\n",
-                alliance);
-        }
+        tcGoalTracker::Get()->SetAllianceROE(alliance,
+                                             tcGoalTracker::ROEMode(airRoe), tcGoalTracker::ROEMode(surfaceROE),
+                                             tcGoalTracker::ROEMode(subROE), tcGoalTracker::ROEMode(landROE));
     }
+    else
+    {
+        fprintf(stderr, "tcScenarioInterface::SetAllianceROE - Alliance %d not found\n",
+                alliance);
+    }
+}
 
-    /**
+/**
     *  WEAPONS_HOLD = 0, WEAPONS_TIGHT = 1, WEAPONS_FREE = 2, ROE_ERROR = 99
     *  @see tcGoalTracker
 	*  Version sets all type ROE the same (for backward compatibility)
     */
-    void tcScenarioInterface::SetAllianceROE(int alliance, int allRoe)
+void tcScenarioInterface::SetAllianceROE(int alliance, int allRoe)
+{
+    if (AllianceExists(alliance))
     {
-        if (AllianceExists(alliance))
-        {
-            tcGoalTracker::Get()->SetAllianceROE(alliance, 
-				tcGoalTracker::ROEMode(allRoe), tcGoalTracker::ROEMode(allRoe), 
-				tcGoalTracker::ROEMode(allRoe), tcGoalTracker::ROEMode(allRoe));
-        }
-        else
-        {
-            fprintf(stderr, "tcScenarioInterface::SetAllianceROE - Alliance %d not found\n",
+        tcGoalTracker::Get()->SetAllianceROE(alliance,
+                                             tcGoalTracker::ROEMode(allRoe), tcGoalTracker::ROEMode(allRoe),
+                                             tcGoalTracker::ROEMode(allRoe), tcGoalTracker::ROEMode(allRoe));
+    }
+    else
+    {
+        fprintf(stderr, "tcScenarioInterface::SetAllianceROE - Alliance %d not found\n",
                 alliance);
-        }
     }
+}
 
 
-    void tcScenarioInterface::SetAllianceDefaultCountry(int alliance, const std::string& countryName)
+void tcScenarioInterface::SetAllianceDefaultCountry(int alliance, const std::string& countryName)
+{
+    if (AllianceExists(alliance))
     {
-        if (AllianceExists(alliance))
-        {
-            tcAllianceInfo* allianceInfo = tcAllianceInfo::Get();
-            allianceInfo->SetAllianceDefaultCountry(alliance, countryName);
-            allianceInfo->SetAllianceName(alliance, countryName); // make country name same as alliance name for now
-            simState->ResyncObjAlliance();
-        }
-        else
-        {
-            fprintf(stderr, "tcScenarioInterface::SetAllianceDefaultCountry - Alliance %d not found\n",
+        tcAllianceInfo* allianceInfo = tcAllianceInfo::Get();
+        allianceInfo->SetAllianceDefaultCountry(alliance, countryName);
+        allianceInfo->SetAllianceName(alliance, countryName); // make country name same as alliance name for now
+        simState->ResyncObjAlliance();
+    }
+    else
+    {
+        fprintf(stderr, "tcScenarioInterface::SetAllianceDefaultCountry - Alliance %d not found\n",
                 alliance);
-        }
     }
+}
 
-    std::string tcScenarioInterface::GetAllianceCountry(int alliance)
+std::string tcScenarioInterface::GetAllianceCountry(int alliance)
+{
+    if (AllianceExists(alliance))
     {
-        if (AllianceExists(alliance))
-        {
-            tcAllianceInfo* allianceInfo = tcAllianceInfo::Get();
-            return std::string(allianceInfo->GetAllianceDefaultCountry(alliance));
-        }
-        else
-        {
-            return std::string("Error");
-        }
+        tcAllianceInfo* allianceInfo = tcAllianceInfo::Get();
+        return std::string(allianceInfo->GetAllianceDefaultCountry(alliance));
     }
-
-    tcScenarioUnit tcScenarioInterface::GetDefaultUnit()
+    else
     {
-        tcScenarioUnit unit;
-        unit.className = "Not defined";
-        unit.unitName = "Not defined";
-        unit.lat = 0;
-        unit.lon = 0;
-        unit.alt = 0;
-        unit.heading = 12;
-        unit.speed = 0.5;
-        unit.throttle = 0.25;
-        unit.cost = -123.0;
-        return unit;
+        return std::string("Error");
     }
+}
 
-    /**
+tcScenarioUnit tcScenarioInterface::GetDefaultUnit()
+{
+    tcScenarioUnit unit;
+    unit.className = "Not defined";
+    unit.unitName = "Not defined";
+    unit.lat = 0;
+    unit.lon = 0;
+    unit.alt = 0;
+    unit.heading = 12;
+    unit.speed = 0.5;
+    unit.throttle = 0.25;
+    unit.cost = -123.0;
+    return unit;
+}
+
+/**
     * @param lon reference longitude in deg
     * @param lat ref latitude in deg
     * @param min_alt minimum terrain elevation (depth negative) in meters
@@ -953,458 +953,458 @@ object tcScenarioInterface::GetInterface()
     * @param rand_offset random offset in deg lon/lat at equator, 1 deg = 60 nmi
     * @see tcDatum
     */
-    tcDatum tcScenarioInterface::GetRandomDatum(double lon, double lat, 
-            float min_alt, float max_alt, float rand_offset)
-    {
-        tcDatum datum;
-        assert(mapData);
-        GeoPoint randomPoint = 
-            mapData->GetRandomPointNear(lon, lat, rand_offset, min_alt, max_alt);
-        datum.lon = C_180OVERPI*randomPoint.mfLon_rad;
-        datum.lat = C_180OVERPI*randomPoint.mfLat_rad;
-        datum.alt = randomPoint.mfAlt_m;
-        return datum;
-    }
+tcDatum tcScenarioInterface::GetRandomDatum(double lon, double lat,
+                                            float min_alt, float max_alt, float rand_offset)
+{
+    tcDatum datum;
+    assert(mapData);
+    GeoPoint randomPoint =
+        mapData->GetRandomPointNear(lon, lat, rand_offset, min_alt, max_alt);
+    datum.lon = C_180OVERPI*randomPoint.mfLon_rad;
+    datum.lat = C_180OVERPI*randomPoint.mfLat_rad;
+    datum.alt = randomPoint.mfAlt_m;
+    return datum;
+}
 
-    /**
+/**
     * @return a random "real world" platform name, or return a Temp ### name if none exists
     * @param referenceName if "real world" name doesn't exist, make a new name with referenceName + number, try to make this a sequential number
     */
-    std::string tcScenarioInterface::GetRandomPlatformName(const std::string& databaseClass, const std::string& referenceName)
+std::string tcScenarioInterface::GetRandomPlatformName(const std::string& databaseClass, const std::string& referenceName)
+{
+    std::string result;
+
+    tcDatabase* database = tcDatabase::Get();
+    //std::vector<std::string> arrayString = database->GetPlatformNames(databaseClass.c_str());
+
+    tcDateTime dateTime = simState->GetDateTime();
+    float dateYear = dateTime.GetFractionalYear();
+    std::vector<std::string> arrayString = database->GetPlatformNamesByDate(databaseClass.c_str(), dateYear);
+
+    size_t nNames = arrayString.size();
+    size_t random_offset = (rand() % std::max((size_t)1, nNames));
+    for (size_t n=0; n<nNames; n++)
     {
-        std::string result;
+        size_t idx = (n + random_offset) % nNames;
 
-        tcDatabase* database = tcDatabase::Get();
-        //std::vector<std::string> arrayString = database->GetPlatformNames(databaseClass.c_str());
+        std::string name_n(arrayString[idx].c_str());
 
-		tcDateTime dateTime = simState->GetDateTime();
-		float dateYear = dateTime.GetFractionalYear();
-		std::vector<std::string> arrayString = database->GetPlatformNamesByDate(databaseClass.c_str(), dateYear);
-
-        size_t nNames = arrayString.size();
-        size_t random_offset = (rand() % std::max((size_t)1, nNames));
-        for (size_t n=0; n<nNames; n++)
-        {
-            size_t idx = (n + random_offset) % nNames;
-
-            std::string name_n(arrayString[idx].c_str());
-
-            if (simState->GetObjectByName(name_n) == 0)
-            {   // don't allow duplicate names
-                result = name_n;
-                return result;
-            }
-        }
-
-        std::string root;
-        std::string separator;
-        long id = 0;
-        bool isParsed = ParseUnitName(referenceName, root, separator, id);
-        const long maxIdToTry = 30;
-        if (isParsed)
-        {
-            for (long id_try=id+1; id_try<id+maxIdToTry; id_try++)
-            {
-                std::string name_try = strutil::format("%s%s%d", root.c_str(), separator.c_str(), id_try);
-                if (simState->GetObjectByName(name_try) == 0)
-                {
-                    return std::string(name_try);
-                }
-            }
-        }
-
-        // default to old temp name behavior
-        std::string tempName = strutil::format("Temp %04d", rand() % 1000);
-        result = tempName.c_str();
-
-        if (simState->GetObjectByName(result) == 0)
-        {
+        if (simState->GetObjectByName(name_n) == 0)
+        {   // don't allow duplicate names
+            result = name_n;
             return result;
         }
-        else
-        { // unlucky, try again
-            tempName = strutil::format("Temp %04d", rand() % 1000);
-            result = tempName.c_str();
-        }
-
-        return result;
     }
 
-    tcParsedUnitName tcScenarioInterface::GetParsedUnitName(const std::string& referenceName) const
+    std::string root;
+    std::string separator;
+    long id = 0;
+    bool isParsed = ParseUnitName(referenceName, root, separator, id);
+    const long maxIdToTry = 30;
+    if (isParsed)
     {
-        tcParsedUnitName result;
-
-        std::string root;
-        std::string separator;
-        long id;
-        
-        result.isValid = ParseUnitName(referenceName, root, separator, id);
-        result.root = root.c_str();
-        result.separator = separator.c_str();
-        result.id = id;
-
-        return result;
+        for (long id_try=id+1; id_try<id+maxIdToTry; id_try++)
+        {
+            std::string name_try = strutil::format("%s%s%d", root.c_str(), separator.c_str(), id_try);
+            if (simState->GetObjectByName(name_try) == 0)
+            {
+                return std::string(name_try);
+            }
+        }
     }
 
-    /**
+    // default to old temp name behavior
+    std::string tempName = strutil::format("Temp %04d", rand() % 1000);
+    result = tempName.c_str();
+
+    if (simState->GetObjectByName(result) == 0)
+    {
+        return result;
+    }
+    else
+    { // unlucky, try again
+        tempName = strutil::format("Temp %04d", rand() % 1000);
+        result = tempName.c_str();
+    }
+
+    return result;
+}
+
+tcParsedUnitName tcScenarioInterface::GetParsedUnitName(const std::string& referenceName) const
+{
+    tcParsedUnitName result;
+
+    std::string root;
+    std::string separator;
+    long id;
+
+    result.isValid = ParseUnitName(referenceName, root, separator, id);
+    result.root = root.c_str();
+    result.separator = separator.c_str();
+    result.id = id;
+
+    return result;
+}
+
+/**
     * @return true if referenceName can be parsed into <root> + <separator> + <number> form, e.g. Frog-1 is "Frog", "-", and 1
     */
-    bool tcScenarioInterface::ParseUnitName(const std::string& referenceName, std::string& root, std::string& separator, long& id) const
+bool tcScenarioInterface::ParseUnitName(const std::string& referenceName, std::string& root, std::string& separator, long& id) const
+{
+    std::string ref(referenceName.c_str());
+    strutil::trim(ref);
+    //        ref.Trim(true); // remove whitespace right
+    //        ref.Trim(false); // remove whitespace left
+
+    root.clear();
+    separator = ' ';
+    id = 0;
+    auto names= strutil::split(referenceName,separator);
+    if(names.size()>=2)
     {
-        std::string ref(referenceName.c_str());
-        strutil::trim(ref);
-//        ref.Trim(true); // remove whitespace right
-//        ref.Trim(false); // remove whitespace left
+        root=names[0];
+        try {
+            id=std::stoul(names[0]);
+            return true;
+        } catch (...) {
 
-        root.clear();
-        separator = ' ';
-        id = 0;
-       auto names= strutil::split(referenceName,separator);
-       if(names.size()>=2)
-       {
-            root=names[0];
-            try {
-               id=std::stoul(names[0]);
-               return true;
-            } catch (...) {
-
-            }
-       }
-      separator = '-';
-       if(names.size()>=2)
-       {
-            root=names[0];
-            try {
-               id=std::stoul(names[0]);
-               return true;
-            } catch (...) {
-
-            }
-       }
-       return false;
-
-//        bool parsingNumber = true;
-//        for (size_t n=0; (n<ref.size()) && parsingNumber; n++)
-//        {
-//            std::string sn(ref.substr(0,n+1));
-//            if (sn.IsNumber())
-//            {
-//                sn.ToLong(&id);
-//            }
-//            else
-//            {
-//                parsingNumber = false;
-//                wxChar left_char = sn.GetChar(0);
-//                if ((left_char == ' '))
-//                {
-//                    separator = sn.GetChar(0);
-//                    root = ref.Left(ref.size() - n - 1);
-//                }
-//                else
-//                {
-//                    root = ref.Left(ref.size() - n);
-//                    if (id < 0) // correct for dash separator interpreted as negative number
-//                    {
-//                        id = -id;
-//                        separator = '-';
-//                    }
-//                }
-//            }
-//        }
-
-//        return (id != 0);
-    }
-
-    /**
-    * Copy tasks, waypoints from unitName1 to unitName2
-    */
-    void tcScenarioInterface::DuplicateUnitTasking(const std::string& unitName1, const std::string& unitName2)
-    {
-        tcPlatformObject* platform1 = dynamic_cast<tcPlatformObject*>(simState->GetObjectByName(unitName1));
-        tcPlatformObject* platform2 = dynamic_cast<tcPlatformObject*>(simState->GetObjectByName(unitName2));
-
-        if ((platform1 == 0) || (platform2 == 0)) return;
-
-        // do brain copy
-        tcGameStream brainState;
-        platform1->brain->operator>>(brainState);
-        platform2->brain->operator<<(brainState);
-
-        // correct waypoint referencing
-        ai::Nav* nav1 = platform1->brain->GetNavTask();
-        ai::Nav* nav2 = platform2->brain->GetNavTask();
-        if (nav1 != 0)
-        {
-            const std::vector<ai::Nav::WaypointData>& waypoints1 = nav1->GetWaypoints();
-            std::vector<ai::Nav::WaypointData>& waypoints2 = nav2->GetWaypointsMutable();
-            assert(waypoints1.size() == waypoints2.size());
-
-            for (size_t n=0; n<waypoints1.size(); n++)
-            {
-                if (waypoints1[n].referencePlatform == platform1->mnID) // if 1 had self-reference, make 2 have self-ref
-                {
-                    waypoints2[n].referencePlatform = platform2->mnID;
-                }
-                nav2->UpdateRelativeWaypointCoordinate(n);
-            }
         }
     }
+    separator = '-';
+    if(names.size()>=2)
+    {
+        root=names[0];
+        try {
+            id=std::stoul(names[0]);
+            return true;
+        } catch (...) {
+
+        }
+    }
+    return false;
+
+    //        bool parsingNumber = true;
+    //        for (size_t n=0; (n<ref.size()) && parsingNumber; n++)
+    //        {
+    //            std::string sn(ref.substr(0,n+1));
+    //            if (sn.IsNumber())
+    //            {
+    //                sn.ToLong(&id);
+    //            }
+    //            else
+    //            {
+    //                parsingNumber = false;
+    //                wxChar left_char = sn.GetChar(0);
+    //                if ((left_char == ' '))
+    //                {
+    //                    separator = sn.GetChar(0);
+    //                    root = ref.Left(ref.size() - n - 1);
+    //                }
+    //                else
+    //                {
+    //                    root = ref.Left(ref.size() - n);
+    //                    if (id < 0) // correct for dash separator interpreted as negative number
+    //                    {
+    //                        id = -id;
+    //                        separator = '-';
+    //                    }
+    //                }
+    //            }
+    //        }
+
+    //        return (id != 0);
+}
+
+/**
+    * Copy tasks, waypoints from unitName1 to unitName2
+    */
+void tcScenarioInterface::DuplicateUnitTasking(const std::string& unitName1, const std::string& unitName2)
+{
+    tcPlatformObject* platform1 = dynamic_cast<tcPlatformObject*>(simState->GetObjectByName(unitName1));
+    tcPlatformObject* platform2 = dynamic_cast<tcPlatformObject*>(simState->GetObjectByName(unitName2));
+
+    if ((platform1 == 0) || (platform2 == 0)) return;
+
+    // do brain copy
+    tcGameStream brainState;
+    platform1->brain->operator>>(brainState);
+    platform2->brain->operator<<(brainState);
+
+    // correct waypoint referencing
+    ai::Nav* nav1 = platform1->brain->GetNavTask();
+    ai::Nav* nav2 = platform2->brain->GetNavTask();
+    if (nav1 != 0)
+    {
+        const std::vector<ai::Nav::WaypointData>& waypoints1 = nav1->GetWaypoints();
+        std::vector<ai::Nav::WaypointData>& waypoints2 = nav2->GetWaypointsMutable();
+        assert(waypoints1.size() == waypoints2.size());
+
+        for (size_t n=0; n<waypoints1.size(); n++)
+        {
+            if (waypoints1[n].referencePlatform == platform1->mnID) // if 1 had self-reference, make 2 have self-ref
+            {
+                waypoints2[n].referencePlatform = platform2->mnID;
+            }
+            nav2->UpdateRelativeWaypointCoordinate(n);
+        }
+    }
+}
 
 
-	void tcScenarioInterface::GetStartTheater(double& lon_deg, double& lat_deg) const
-	{
-		 lon_deg = lon_theater_deg;
-		 lat_deg = lat_theater_deg;
-	}
+void tcScenarioInterface::GetStartTheater(double& lon_deg, double& lat_deg) const
+{
+    lon_deg = lon_theater_deg;
+    lat_deg = lat_theater_deg;
+}
 
-	void tcScenarioInterface::SaveGame(const std::string& fileName)
-	{
-		std::string saveName = std::string(fileName.c_str());
-//        saveName = strutil:;
-//        saveName.eplace(wxT(" "), wxT("_"));
-//        saveName.Replace(wxT(")"), wxT(""));
-//        saveName.Replace(wxT("("), wxT(""));
-//        saveName = saveName.BeforeLast('.'); // .py extension is added by scenarioLogger
+void tcScenarioInterface::SaveGame(const std::string& fileName)
+{
+    std::string saveName = std::string(fileName.c_str());
+    //        saveName = strutil:;
+    //        saveName.eplace(wxT(" "), wxT("_"));
+    //        saveName.Replace(wxT(")"), wxT(""));
+    //        saveName.Replace(wxT("("), wxT(""));
+    //        saveName = saveName.BeforeLast('.'); // .py extension is added by scenarioLogger
 
-//        saveName.eplace(wxT(" "), wxT("_"));
-//        saveName.Replace(wxT(")"), wxT(""));
-//        saveName.Replace(wxT("("), wxT(""));
+    //        saveName.eplace(wxT(" "), wxT("_"));
+    //        saveName.Replace(wxT(")"), wxT(""));
+    //        saveName.Replace(wxT("("), wxT(""));
 
-		// extract scenario name from path
-//		std::string scenarioName = std::string(fileName.c_str()).AfterLast('/').BeforeFirst('.');
-		//simState->SetScenarioName(scenarioName.c_str());
-        //std::string scenarioName(simState->GetScenarioName());
+    // extract scenario name from path
+    //		std::string scenarioName = std::string(fileName.c_str()).AfterLast('/').BeforeFirst('.');
+    //simState->SetScenarioName(scenarioName.c_str());
+    //std::string scenarioName(simState->GetScenarioName());
 
 
-        const std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-		
+    const std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 
-//        bool fileExists = wxFile::Exists(saveName.c_str());
-//        if (fileExists)
-//        {
-//            std::string s;
-//            s=strutil::format("Scenario file '%s' exists. Overwrite file?", saveName.c_str());
-//            wxMessageDialog confirmQuit(overlay, s.c_str(), "Confirm", wxOK | wxCANCEL, wxDefaultPosition);
-//            if (confirmQuit.ShowModal() != wxID_OK)
-//            {
-//                return;
-//            }
-//        }
 
-		simState->SaveToPython(saveName);
-        
-      //  saveName = strutil::format("scenarios//EditorSaved//%s_%d_%d_%02d%02d%02d_DAT",
-		    //scenarioName.c_str(), now.GetMonth()+1, now.GetDay(), now.GetHour(), now.GetMinute(), now.GetSecond());
-      //  tcGameSerializer gameSaver;
-      //  gameSaver.SaveToBinary(saveName.c_str());
-	}
+    //        bool fileExists = wxFile::Exists(saveName.c_str());
+    //        if (fileExists)
+    //        {
+    //            std::string s;
+    //            s=strutil::format("Scenario file '%s' exists. Overwrite file?", saveName.c_str());
+    //            wxMessageDialog confirmQuit(overlay, s.c_str(), "Confirm", wxOK | wxCANCEL, wxDefaultPosition);
+    //            if (confirmQuit.ShowModal() != wxID_OK)
+    //            {
+    //                return;
+    //            }
+    //        }
 
-    /**
+    simState->SaveToPython(saveName);
+
+    //  saveName = strutil::format("scenarios//EditorSaved//%s_%d_%d_%02d%02d%02d_DAT",
+    //scenarioName.c_str(), now.GetMonth()+1, now.GetDay(), now.GetHour(), now.GetMinute(), now.GetSecond());
+    //  tcGameSerializer gameSaver;
+    //  gameSaver.SaveToBinary(saveName.c_str());
+}
+
+/**
     * Copies and sets root goal for alliance
     */
-    void tcScenarioInterface::SetAllianceGoal(int alliance, tcGoal& goal)
-    {
-        assert(simState);
-        assert(tcGoalTracker::Get());
+void tcScenarioInterface::SetAllianceGoal(int alliance, tcGoal& goal)
+{
+    assert(simState);
+    assert(tcGoalTracker::Get());
 
-        tcGoal *allianceGoal = goal.Clone();
-		tcGoalTracker::Get()->SetAllianceGoal(alliance, allianceGoal);
-    }
+    tcGoal *allianceGoal = goal.Clone();
+    tcGoalTracker::Get()->SetAllianceGoal(alliance, allianceGoal);
+}
 
-    tcGoalWrap tcScenarioInterface::GetAllianceGoal(int alliance)
-    {
-        return tcGoalWrap(tcGoalTracker::Get()->GetAllianceGoal(alliance));
-    }
+tcGoalWrap tcScenarioInterface::GetAllianceGoal(int alliance)
+{
+    return tcGoalWrap(tcGoalTracker::Get()->GetAllianceGoal(alliance));
+}
 
-    tcGoalWrap tcScenarioInterface::GetGoalById(unsigned long id)
-    {
-        return tcGoalWrap(tcGoalTracker::Get()->LookupGoalById(id));
-    }
+tcGoalWrap tcScenarioInterface::GetGoalById(unsigned long id)
+{
+    return tcGoalWrap(tcGoalTracker::Get()->LookupGoalById(id));
+}
 
-    void tcScenarioInterface::AddChildGoalToId(unsigned long id, tcGoal& goal)
-    {
-        tcGoalTracker::Get()->AddChildGoalToId(id, &goal);
-    }
+void tcScenarioInterface::AddChildGoalToId(unsigned long id, tcGoal& goal)
+{
+    tcGoalTracker::Get()->AddChildGoalToId(id, &goal);
+}
 
-    void tcScenarioInterface::DeleteGoalById(unsigned long id)
-    {
-        tcGoalTracker::Get()->DeleteGoalById(id);
-    }
+void tcScenarioInterface::DeleteGoalById(unsigned long id)
+{
+    tcGoalTracker::Get()->DeleteGoalById(id);
+}
 
-	bool tcScenarioInterface::IsUsingNATONames() const
-	{
-		return (tcOptions::Get()->natoNames != 0);
-	}
+bool tcScenarioInterface::IsUsingNATONames() const
+{
+    return (tcOptions::Get()->natoNames != 0);
+}
 
-	std::string tcScenarioInterface::GetDisplayName(const std::string& className)
-	{
-		return tcDatabase::Get()->GetDisplayName(className);
-	}
+std::string tcScenarioInterface::GetDisplayName(const std::string& className)
+{
+    return tcDatabase::Get()->GetDisplayName(className);
+}
 
-    /**
+/**
     * Sets relationship between alliances
     * @param relationship "Friendly", "Neutral", "Hostile"
     */
-    void tcScenarioInterface::SetAllianceRelationship(int alliance_a, int alliance_b, const std::string& relationship)
-    {
-        tcAllianceInfo::Affiliation affil = tcAllianceInfo::HOSTILE;
+void tcScenarioInterface::SetAllianceRelationship(int alliance_a, int alliance_b, const std::string& relationship)
+{
+    tcAllianceInfo::Affiliation affil = tcAllianceInfo::HOSTILE;
 
-        if (relationship == "Hostile")
-        {
-            affil = tcAllianceInfo::HOSTILE;
-        }
-        else if (relationship == "Neutral")
-        {
-            affil = tcAllianceInfo::NEUTRAL;
-        }
-        else if (relationship == "Friendly")
-        {
-            affil = tcAllianceInfo::FRIENDLY;
-        }
-        else
-        {
-            fprintf(stderr, "tcScenarioInterface::SetAllianceRelationship - Bad relationship string (%s)\n",
+    if (relationship == "Hostile")
+    {
+        affil = tcAllianceInfo::HOSTILE;
+    }
+    else if (relationship == "Neutral")
+    {
+        affil = tcAllianceInfo::NEUTRAL;
+    }
+    else if (relationship == "Friendly")
+    {
+        affil = tcAllianceInfo::FRIENDLY;
+    }
+    else
+    {
+        fprintf(stderr, "tcScenarioInterface::SetAllianceRelationship - Bad relationship string (%s)\n",
                 relationship.c_str());
-            assert(false);
-            return;
-        }
-
-        tcAllianceInfo::Get()->SetRelationship((unsigned char)(alliance_a), (unsigned char)(alliance_b), affil);
+        assert(false);
+        return;
     }
 
-    void tcScenarioInterface::SetDateTime(int year, int month, int day, int hour, int min, int sec)
+    tcAllianceInfo::Get()->SetRelationship((unsigned char)(alliance_a), (unsigned char)(alliance_b), affil);
+}
+
+void tcScenarioInterface::SetDateTime(int year, int month, int day, int hour, int min, int sec)
+{
+    tcDateTime newTime(year, month, day, hour, min, sec);
+    tcDateTime oldTime(simState->GetDateTime());
+
+    simState->SetDateTime(newTime);
+
+    tcGameObjIterator iter;
+    for (iter.First();iter.NotDone();iter.Next())
     {
-        tcDateTime newTime(year, month, day, hour, min, sec);
-        tcDateTime oldTime(simState->GetDateTime());
-
-        simState->SetDateTime(newTime);
-
-        tcGameObjIterator iter;
-        for (iter.First();iter.NotDone();iter.Next())
+        tcGameObject* obj = iter.Get();
+        if (tcFlightOpsObject* flightOps = dynamic_cast<tcFlightOpsObject*>(obj))
         {
-            tcGameObject* obj = iter.Get();
-            if (tcFlightOpsObject* flightOps = dynamic_cast<tcFlightOpsObject*>(obj))
+            tcFlightPort* flightPort = flightOps->GetFlightPort();
+            assert(flightPort != 0);
+            if (tcMissionManager* missionManager = flightPort->GetMissionManager())
             {
-                tcFlightPort* flightPort = flightOps->GetFlightPort();
-                assert(flightPort != 0);
-                if (tcMissionManager* missionManager = flightPort->GetMissionManager())
-                {
-                    missionManager->AdjustMissionsForNewStartDate(oldTime, newTime);
-                }
+                missionManager->AdjustMissionsForNewStartDate(oldTime, newTime);
             }
         }
-
     }
 
-    void tcScenarioInterface::SetDateTimeByString(const char* s)
+}
+
+void tcScenarioInterface::SetDateTimeByString(const char* s)
+{
+    // 使用stringstream和get_time来解析字符串
+    std::istringstream iss(s);
+    std::tm tm = {};
+    iss >> std::get_time(&tm, "%Y-%m-%d %H:%M:%S");
+    int year =tm.tm_year+1900;
+    int month = tm.tm_mon+1; // january is month 0 in const std::chrono::system_clock::time_point
+    int day = tm.tm_mday;
+    int hour = tm.tm_hour;
+    int minute = tm.tm_min;
+    int second = tm.tm_sec;
+
+    SetDateTime(year, month, day, hour, minute, second);
+    //simState->SetDateTime(tcDateTime(parsed.GetYear(), parsed.GetMonth()+1, parsed.GetDay(),
+    //    parsed.GetHour(), parsed.GetMinute(), parsed.GetSecond()));
+}
+
+std::string tcScenarioInterface::GetScenarioDateAsString() const
+{
+    std::string result;
+
+    tcDateTime dt = simState->GetDateTime();
+    result = dt.asString();
+
+    return result;
+}
+
+void tcScenarioInterface::SetPerfectScore(float score)
+{
+    tcGoalTracker::Get()->SetPerfectScore(score);
+}
+
+void tcScenarioInterface::SetScenarioDescription(std::string s)
+{
+    simState->SetScenarioDescription(s);
+}
+
+void tcScenarioInterface::SetScenarioLoaded(bool state)
+{
+    simState->SetScenarioLoaded(state);
+}
+
+void tcScenarioInterface::SetScenarioName(const std::string& s)
+{
+    simState->SetScenarioName(s);
+}
+
+void tcScenarioInterface::SetScenarioLocked(bool state)
+{
+    isScenarioLocked = state;
+}
+
+bool tcScenarioInterface::IsScenarioLocked() const
+{
+    return isScenarioLocked;
+}
+
+void tcScenarioInterface::SetStartTheater(double lon_deg, double lat_deg)
+{
+    lon_theater_deg = lon_deg;
+    lat_theater_deg = lat_deg;
+
+    //		ChangeMapTheater(lon_deg, lat_deg);
+}
+
+int tcScenarioInterface::GetUserAlliance() const
+{
+    return simState->mpUserInfo->GetOwnAlliance();
+}
+
+void tcScenarioInterface::SetUserAlliance(int alliance)
+{
+    if ((alliance < 0)||(alliance > 255))
     {
-        // 使用stringstream和get_time来解析字符串
-           std::istringstream iss(s);
-           std::tm tm = {};
-           iss >> std::get_time(&tm, "%Y-%m-%d %H:%M:%S");
-        int year =tm.tm_year+1900;
-        int month = tm.tm_mon+1; // january is month 0 in const std::chrono::system_clock::time_point
-        int day = tm.tm_mday;
-        int hour = tm.tm_hour;
-        int minute = tm.tm_min;
-        int second = tm.tm_sec;
-        
-        SetDateTime(year, month, day, hour, minute, second);
-        //simState->SetDateTime(tcDateTime(parsed.GetYear(), parsed.GetMonth()+1, parsed.GetDay(),
-        //    parsed.GetHour(), parsed.GetMinute(), parsed.GetSecond()));
+        fprintf(stderr, "Scenario error: Alliance out of range [0,255]\n");
+        return;
     }
 
-	std::string tcScenarioInterface::GetScenarioDateAsString() const
-	{
-		std::string result;
-
-		tcDateTime dt = simState->GetDateTime();
-		result = dt.asString();
-
-		return result;
-	}
-
-    void tcScenarioInterface::SetPerfectScore(float score)
+    // switch to next playable alliance, if not in edit or dev mode
+    if (!IsAlliancePlayable(alliance) && !tcGameObject::IsEditMode() && !tcPlatformInterface::GetDeveloperMode())
     {
-        tcGoalTracker::Get()->SetPerfectScore(score);
-    }
-
-    void tcScenarioInterface::SetScenarioDescription(std::string s)
-    {
-        simState->SetScenarioDescription(s);
-    }
-
-    void tcScenarioInterface::SetScenarioLoaded(bool state)
-    {
-        simState->SetScenarioLoaded(state);
-    }
-
-    void tcScenarioInterface::SetScenarioName(const std::string& s)
-    {
-        simState->SetScenarioName(s);
-    }
-
-    void tcScenarioInterface::SetScenarioLocked(bool state)
-    {
-        isScenarioLocked = state;
-    }
-
-    bool tcScenarioInterface::IsScenarioLocked() const
-    {
-        return isScenarioLocked;
-    }
-
-	void tcScenarioInterface::SetStartTheater(double lon_deg, double lat_deg)
-	{
-		lon_theater_deg = lon_deg;
-		lat_theater_deg = lat_deg;
-
-//		ChangeMapTheater(lon_deg, lat_deg);
-	}
-
-	int tcScenarioInterface::GetUserAlliance() const
-	{
-		return simState->mpUserInfo->GetOwnAlliance();
-	}
-
-    void tcScenarioInterface::SetUserAlliance(int alliance)
-    {
-        if ((alliance < 0)||(alliance > 255))
+        bool searching = true;
+        for (int n=alliance+1; (n<alliance+255) && searching; n++)
         {
-            fprintf(stderr, "Scenario error: Alliance out of range [0,255]\n");
-            return;
-        }
-
-        // switch to next playable alliance, if not in edit or dev mode
-        if (!IsAlliancePlayable(alliance) && !tcGameObject::IsEditMode() && !tcPlatformInterface::GetDeveloperMode())
-        {
-            bool searching = true;
-            for (int n=alliance+1; (n<alliance+255) && searching; n++)
+            int allianceToTry = n % 256;
+            if (IsAlliancePlayable(allianceToTry))
             {
-                int allianceToTry = n % 256;
-                if (IsAlliancePlayable(allianceToTry))
-                {
-                    alliance = allianceToTry;
-                    searching = false;
-                }
+                alliance = allianceToTry;
+                searching = false;
             }
         }
-
-        simState->mpUserInfo->SetOwnAlliance(alliance);
-        tcAllianceSensorMap* sensorMap = simState->mcSensorMap.GetMap(simState->mpUserInfo->GetOwnAlliance());
-        if (sensorMap != 0)
-        {
-            tcSimPythonInterface::Get()->AttachSensorMap(sensorMap);
-        }
-		else
-		{
-			fprintf(stderr, "tcScenarioInterface::SetUserAlliance - Alliance %d does not exist? Check scenario\n", alliance);
-			assert(false);
-		}
     }
 
-    /***** tcDirector interface for briefing events *****/
-    // time/mode events
+    simState->mpUserInfo->SetOwnAlliance(alliance);
+    tcAllianceSensorMap* sensorMap = simState->mcSensorMap.GetMap(simState->mpUserInfo->GetOwnAlliance());
+    if (sensorMap != 0)
+    {
+        tcSimPythonInterface::Get()->AttachSensorMap(sensorMap);
+    }
+    else
+    {
+        fprintf(stderr, "tcScenarioInterface::SetUserAlliance - Alliance %d does not exist? Check scenario\n", alliance);
+        assert(false);
+    }
+}
+
+/***** tcDirector interface for briefing events *****/
+// time/mode events
 
 //    /**
 //    * This method should not be needed since LoadScenario
@@ -1512,7 +1512,7 @@ object tcScenarioInterface::GetInterface()
 //    }
 
 
-    /**
+/**
     * Send command through command queue, used for special commands to game engine
     * such as activating the flight deck control panel. 
     */
@@ -1528,7 +1528,7 @@ object tcScenarioInterface::GetInterface()
 
 
 
-    // text console and map events
+// text console and map events
 
 //    /**
 //	* Changes tactical map theater. The theater is the high resolution view
@@ -1691,580 +1691,580 @@ object tcScenarioInterface::GetInterface()
 //            x, y, size, effect));
 //    }
 
-    /**
+/**
     * workaround to construct goal class
     */
-    tcCompoundGoal tcScenarioInterface::CompoundGoal(int type)
-    {
-        tcCompoundGoal goal(type);
-        return goal;
-    }
+tcCompoundGoal tcScenarioInterface::CompoundGoal(int type)
+{
+    tcCompoundGoal goal(type);
+    return goal;
+}
 
-    /**
+/**
     * workaround to construct goal class
     */
-    tcTimeGoal tcScenarioInterface::TimeGoal()
-    {
-        tcTimeGoal goal;
-        return goal;
-    }
+tcTimeGoal tcScenarioInterface::TimeGoal()
+{
+    tcTimeGoal goal;
+    return goal;
+}
 
-    /**
+/**
     * workaround to construct goal class
     */
-    tcDestroyGoal tcScenarioInterface::DestroyGoal(const std::string& target)
+tcDestroyGoal tcScenarioInterface::DestroyGoal(const std::string& target)
+{
+    tcDestroyGoal goal(target);
+    return goal;
+}
+
+tcProtectGoal tcScenarioInterface::ProtectGoal(const std::string& target)
+{
+    tcProtectGoal goal(target);
+    return goal;
+}
+
+tcAreaGoal tcScenarioInterface::AreaGoal()
+{
+    tcAreaGoal goal;
+    return goal;
+}
+
+void tcScenarioInterface::ClearSimpleBriefing()
+{
+    simpleBriefingText.clear();
+}
+
+const std::string& tcScenarioInterface::GetSimpleBriefing(int alliance) const
+{
+    static std::string errorText = "No briefing found";
+
+    std::map<int, std::string>::const_iterator iter =
+        simpleBriefingText.find(alliance);
+
+    if (iter != simpleBriefingText.end())
     {
-        tcDestroyGoal goal(target);
-        return goal;
+        return iter->second;
     }
-
-	tcProtectGoal tcScenarioInterface::ProtectGoal(const std::string& target)
-	{
-		tcProtectGoal goal(target);
-		return goal;
-	}
-
-    tcAreaGoal tcScenarioInterface::AreaGoal()
+    else
     {
-		tcAreaGoal goal;
-		return goal;
+        return errorText;
     }
+}
 
-	void tcScenarioInterface::ClearSimpleBriefing()
-	{
-		simpleBriefingText.clear();
-	}
+void tcScenarioInterface::SetSimpleBriefing(int alliance, const std::string& briefingText)
+{
+    simpleBriefingText[alliance] = briefingText;
+}
 
-	const std::string& tcScenarioInterface::GetSimpleBriefing(int alliance) const
-	{
-		static std::string errorText = "No briefing found";
-
-		std::map<int, std::string>::const_iterator iter = 
-			simpleBriefingText.find(alliance);
-
-		if (iter != simpleBriefingText.end())
-		{
-			return iter->second;
-		}
-		else
-		{
-			return errorText;
-		}
-	}
-
-	void tcScenarioInterface::SetSimpleBriefing(int alliance, const std::string& briefingText)
-	{
-		simpleBriefingText[alliance] = briefingText;
-	}
-
-    /**
+/**
     * @return list of units within box defined by (lon1, lat2) and (lon2, lat2) for matching alliance
     * @param alliance set to -1 or 0 to include all alliance values, otherwise filters by <alliance>
     */
-    tcStringArray tcScenarioInterface::GetUnitList(float lon1_rad, float lat1_rad, float lon2_rad, float lat2_rad, int alliance)
+tcStringArray tcScenarioInterface::GetUnitList(float lon1_rad, float lat1_rad, float lon2_rad, float lat2_rad, int alliance)
+{
+    tcStringArray unitList;
+
+    tcGeoRect region;
+    if (lat2_rad > lat1_rad)
     {
-        tcStringArray unitList;
-
-        tcGeoRect region;
-        if (lat2_rad > lat1_rad)
-        {
-            region.Set(lon1_rad, lon2_rad, lat1_rad, lat2_rad);
-        }
-        else
-        {
-            region.Set(lon1_rad, lon2_rad, lat2_rad, lat1_rad);
-        }
-
-        tcGameObjIterator iter(region);
-        if (alliance > 0)
-        {
-            iter.SetAllianceFilter((unsigned int)alliance);
-        }
-
-        for (iter.First();iter.NotDone();iter.Next())
-        {
-            tcGameObject* obj = iter.Get();
-
-            unitList.PushBack(std::string(obj->GetName()));
-        }
-
-        return unitList;
+        region.Set(lon1_rad, lon2_rad, lat1_rad, lat2_rad);
+    }
+    else
+    {
+        region.Set(lon1_rad, lon2_rad, lat2_rad, lat1_rad);
     }
 
+    tcGameObjIterator iter(region);
+    if (alliance > 0)
+    {
+        iter.SetAllianceFilter((unsigned int)alliance);
+    }
 
-	tcStringArray tcScenarioInterface::GetPlatformListByClass(const std::string& classString)
-	{
-		tcStringArray stringArray;
+    for (iter.First();iter.NotDone();iter.Next())
+    {
+        tcGameObject* obj = iter.Get();
 
-        float scenarioYear = simState->GetDateTime().GetFractionalYear(); // fractional year of scenario
-        std::string sideCountry = tcAllianceInfo::Get()->GetAllianceDefaultCountry(tcUserInfo::Get()->GetOwnAlliance());
+        unitList.PushBack(std::string(obj->GetName()));
+    }
 
-        database::tcDatabase* database = tcDatabase::Get();
-        if (database->IsUsingDynamicLoad())
-        { // database isn't populated yet, so do something different
-            unsigned int classMask = 0;
-            tcStringArray tables; // database tables to search for platforms
+    return unitList;
+}
 
-            if (classString == "Sub") 
-            {
-                classMask = PTYPE_SUBSURFACE;
-                tables.AddString("sub");
-            }
-            else if (classString == "Surface")
-            {
-                classMask = PTYPE_SURFACE;
-                tables.AddString("ship");
-            }
-            else if (classString == "AirFW")
-            {
-                classMask = PTYPE_FIXEDWING;
-                tables.AddString("air");
-                tables.AddString("simpleair");
-            }
-            else if (classString == "Helo")
-            {
-                classMask = PTYPE_HELO;
-                tables.AddString("simpleair");
-            }
-            else if (classString == "Land")
-            {
-                classMask = PTYPE_GROUND;
-                tables.AddString("ground");
-            }
-            else if (classString == "Mine")
-            {
-                classMask = PTYPE_WATERMINE;
-                tables.AddString("torpedo");
-            }
-            else
-            {
-                fprintf(stderr, "tcScenarioInterface::GetPlatformListByClass - "
-                    "unrecognized classString (%s)\n", classString.c_str());
-                return stringArray;
-            }
 
-            for (size_t k=0; k<tables.Size(); k++)
-            {
-                std::vector<tcDatabase::RecordSummary> records = database->GetTableSummary(tables.GetString(k));
-                for (size_t n=0; n<records.size(); n++)
-                {
-                    unsigned int classificationId = records[n].classificationId;
+tcStringArray tcScenarioInterface::GetPlatformListByClass(const std::string& classString)
+{
+    tcStringArray stringArray;
 
-                    bool coarsePasses = (classificationId & classMask & 0xFFF0) != 0;
-                    bool finePasses = (classificationId & classMask & 0x000F) != 0;
+    float scenarioYear = simState->GetDateTime().GetFractionalYear(); // fractional year of scenario
+    std::string sideCountry = tcAllianceInfo::Get()->GetAllianceDefaultCountry(tcUserInfo::Get()->GetOwnAlliance());
 
-                    bool yearPasses = !filterByYear ||
-                        ((records[n].yearStart <= scenarioYear) && (records[n].yearStop >= scenarioYear));
+    database::tcDatabase* database = tcDatabase::Get();
+    if (database->IsUsingDynamicLoad())
+    { // database isn't populated yet, so do something different
+        unsigned int classMask = 0;
+        tcStringArray tables; // database tables to search for platforms
 
-                    bool countryPasses = !filterByCountry || (records[n].country.size() == 0) || (sideCountry.size() == 0) ||
-                        (records[n].country == sideCountry);
-
-                    // if mask has fine classification set then use it, otherwise ignore
-                    bool passes = false;
-                    if (classMask & 0x000F) 
-                    {
-                        passes = coarsePasses && finePasses && yearPasses && countryPasses;
-                    }
-                    else
-                    {
-                        passes = coarsePasses && yearPasses && countryPasses;
-                    }
-
-                    if (passes)
-                    {
-                        stringArray.AddString(records[n].databaseClass);
-                    }
-                }
-            }
-
-            ApplySpecialFiltering(classString, stringArray);
-
-            stringArray.Sort();
-
-            return stringArray;
+        if (classString == "Sub")
+        {
+            classMask = PTYPE_SUBSURFACE;
+            tables.AddString("sub");
         }
-
-
-		//#define PTYPE_UNKNOWN 0x0000
-		//#define PTYPE_SURFACE 0x0010
-		//#define PTYPE_SMALLSURFACE 0x0011
-		//#define PTYPE_LARGESURFACE 0x0012
-		//#define PTYPE_AIR 0x0020
-		//#define PTYPE_FIXEDWING 0x0021
-		//#define PTYPE_HELO 0x0022
-		//#define PTYPE_MISSILE 0x0040
-		//#define PTYPE_SUBSURFACE 0x0080
-		//#define PTYPE_SUBMARINE 0x0081
-		//#define PTYPE_TORPEDO 0x0082
-		//#define PTYPE_SONOBUOY 0x0084
-		//#define PTYPE_GROUND 0x0100
-		//#define PTYPE_BALLISTIC 0x0200
-
-		unsigned int classMask = 0;
-
-		if (classString == "Sub") 
-		{
-			classMask = PTYPE_SUBMARINE;
-		}
-		else if (classString == "Surface")
-		{
-			classMask = PTYPE_SURFACE;
-		}
-		else if (classString == "AirFW")
-		{
-			classMask = PTYPE_FIXEDWING;
-		}
-		else if (classString == "Helo")
-		{
-			classMask = PTYPE_HELO;
-		}
-		else if (classString == "Land")
-		{
-			classMask = PTYPE_GROUND;
-		}
+        else if (classString == "Surface")
+        {
+            classMask = PTYPE_SURFACE;
+            tables.AddString("ship");
+        }
+        else if (classString == "AirFW")
+        {
+            classMask = PTYPE_FIXEDWING;
+            tables.AddString("air");
+            tables.AddString("simpleair");
+        }
+        else if (classString == "Helo")
+        {
+            classMask = PTYPE_HELO;
+            tables.AddString("simpleair");
+        }
+        else if (classString == "Land")
+        {
+            classMask = PTYPE_GROUND;
+            tables.AddString("ground");
+        }
         else if (classString == "Mine")
         {
             classMask = PTYPE_WATERMINE;
-        }
-		else
-		{
-			fprintf(stderr, "tcScenarioInterface::GetPlatformListByClass - "
-				"unrecognized classString (%s)\n", classString.c_str());
-			return stringArray;
-		}
-
-		tcDatabaseIterator iter(classMask);
-        if (filterByYear)
-        {
-            iter.SetFilterYear(scenarioYear);
-        }
-        if (filterByCountry)
-        {
-            iter.SetFilterCountry(sideCountry);
-        }
-
-		for (iter.First(); !iter.IsDone(); iter.Next())
-		{
-			tcDatabaseObject* obj = iter.Get();
-			assert(obj);
-			assert(obj->mnKey != -1);
-	
-			stringArray.AddString(obj->mzClass.c_str());
-		}
-
-        ApplySpecialFiltering(classString, stringArray);
-
-		return stringArray;
-
-	}
-
-    void tcScenarioInterface::ApplySpecialFiltering(const std::string& className, tcStringArray& stringArray)
-    {
-        return; // should not need this anymore
-        if (className == "Mine")
-        {
-            tcDatabase* database = tcDatabase::Get();
-            tcStringArray filteredArray;
-            for (size_t n=0; n<stringArray.Size(); n++)
-            {
-                std::string objectName(stringArray.GetString(n));
-                if (tcTorpedoDBObject* torpedoData = dynamic_cast<tcTorpedoDBObject*>(database->GetObject(objectName)))
-                {
-                    bool isMine = (torpedoData->weaponType == tcTorpedoDBObject::BOTTOM_MINE) ||
-                                  (torpedoData->weaponType == tcTorpedoDBObject::BOTTOM_MINE_CAPTOR);
-                    if (isMine)
-                    {
-                        filteredArray.AddString(objectName);
-                    }
-                }
-            }
-            stringArray = filteredArray;
+            tables.AddString("torpedo");
         }
         else
         {
-            return;
+            fprintf(stderr, "tcScenarioInterface::GetPlatformListByClass - "
+                            "unrecognized classString (%s)\n", classString.c_str());
+            return stringArray;
         }
+
+        for (size_t k=0; k<tables.Size(); k++)
+        {
+            std::vector<tcDatabase::RecordSummary> records = database->GetTableSummary(tables.GetString(k));
+            for (size_t n=0; n<records.size(); n++)
+            {
+                unsigned int classificationId = records[n].classificationId;
+
+                bool coarsePasses = (classificationId & classMask & 0xFFF0) != 0;
+                bool finePasses = (classificationId & classMask & 0x000F) != 0;
+
+                bool yearPasses = !filterByYear ||
+                                  ((records[n].yearStart <= scenarioYear) && (records[n].yearStop >= scenarioYear));
+
+                bool countryPasses = !filterByCountry || (records[n].country.size() == 0) || (sideCountry.size() == 0) ||
+                                     (records[n].country == sideCountry);
+
+                // if mask has fine classification set then use it, otherwise ignore
+                bool passes = false;
+                if (classMask & 0x000F)
+                {
+                    passes = coarsePasses && finePasses && yearPasses && countryPasses;
+                }
+                else
+                {
+                    passes = coarsePasses && yearPasses && countryPasses;
+                }
+
+                if (passes)
+                {
+                    stringArray.AddString(records[n].databaseClass);
+                }
+            }
+        }
+
+        ApplySpecialFiltering(classString, stringArray);
+
+        stringArray.Sort();
+
+        return stringArray;
     }
 
-    void tcScenarioInterface::SetFilterByYear(bool state)
+
+    //#define PTYPE_UNKNOWN 0x0000
+    //#define PTYPE_SURFACE 0x0010
+    //#define PTYPE_SMALLSURFACE 0x0011
+    //#define PTYPE_LARGESURFACE 0x0012
+    //#define PTYPE_AIR 0x0020
+    //#define PTYPE_FIXEDWING 0x0021
+    //#define PTYPE_HELO 0x0022
+    //#define PTYPE_MISSILE 0x0040
+    //#define PTYPE_SUBSURFACE 0x0080
+    //#define PTYPE_SUBMARINE 0x0081
+    //#define PTYPE_TORPEDO 0x0082
+    //#define PTYPE_SONOBUOY 0x0084
+    //#define PTYPE_GROUND 0x0100
+    //#define PTYPE_BALLISTIC 0x0200
+
+    unsigned int classMask = 0;
+
+    if (classString == "Sub")
     {
-        filterByYear = state;
-
-		tcPlatformInterface::SetDateFiltering(state);
+        classMask = PTYPE_SUBMARINE;
     }
-
-    bool tcScenarioInterface::GetFilterByYear() const
+    else if (classString == "Surface")
     {
-        return filterByYear;
+        classMask = PTYPE_SURFACE;
     }
-
-    void tcScenarioInterface::SetFilterByCountry(bool state)
+    else if (classString == "AirFW")
     {
-        filterByCountry = state;
+        classMask = PTYPE_FIXEDWING;
     }
-
-    bool tcScenarioInterface::GetFilterByCountry() const
+    else if (classString == "Helo")
     {
-        return filterByCountry;
+        classMask = PTYPE_HELO;
+    }
+    else if (classString == "Land")
+    {
+        classMask = PTYPE_GROUND;
+    }
+    else if (classString == "Mine")
+    {
+        classMask = PTYPE_WATERMINE;
+    }
+    else
+    {
+        fprintf(stderr, "tcScenarioInterface::GetPlatformListByClass - "
+                        "unrecognized classString (%s)\n", classString.c_str());
+        return stringArray;
     }
 
-    /**
+    tcDatabaseIterator iter(classMask);
+    if (filterByYear)
+    {
+        iter.SetFilterYear(scenarioYear);
+    }
+    if (filterByCountry)
+    {
+        iter.SetFilterCountry(sideCountry);
+    }
+
+    for (iter.First(); !iter.IsDone(); iter.Next())
+    {
+        tcDatabaseObject* obj = iter.Get();
+        assert(obj);
+        assert(obj->mnKey != -1);
+
+        stringArray.AddString(obj->mzClass.c_str());
+    }
+
+    ApplySpecialFiltering(classString, stringArray);
+
+    return stringArray;
+
+}
+
+void tcScenarioInterface::ApplySpecialFiltering(const std::string& className, tcStringArray& stringArray)
+{
+    return; // should not need this anymore
+    if (className == "Mine")
+    {
+        tcDatabase* database = tcDatabase::Get();
+        tcStringArray filteredArray;
+        for (size_t n=0; n<stringArray.Size(); n++)
+        {
+            std::string objectName(stringArray.GetString(n));
+            if (tcTorpedoDBObject* torpedoData = dynamic_cast<tcTorpedoDBObject*>(database->GetObject(objectName)))
+            {
+                bool isMine = (torpedoData->weaponType == tcTorpedoDBObject::BOTTOM_MINE) ||
+                              (torpedoData->weaponType == tcTorpedoDBObject::BOTTOM_MINE_CAPTOR);
+                if (isMine)
+                {
+                    filteredArray.AddString(objectName);
+                }
+            }
+        }
+        stringArray = filteredArray;
+    }
+    else
+    {
+        return;
+    }
+}
+
+void tcScenarioInterface::SetFilterByYear(bool state)
+{
+    filterByYear = state;
+
+    tcPlatformInterface::SetDateFiltering(state);
+}
+
+bool tcScenarioInterface::GetFilterByYear() const
+{
+    return filterByYear;
+}
+
+void tcScenarioInterface::SetFilterByCountry(bool state)
+{
+    filterByCountry = state;
+}
+
+bool tcScenarioInterface::GetFilterByCountry() const
+{
+    return filterByCountry;
+}
+
+/**
     * This must be called before any setup is performed on the simulation
     * e.g. creating sensor maps, scenario description, etc. Since this method
     * clears the simulation state.
     */
-    void tcScenarioInterface::LoadDatabaseMod(const std::string& fileName)
-    {
-        bool scenarioError =
-            (simState->mcSensorMap.GetMapCount() > 0) ||
-            (strlen(simState->GetScenarioDescription()) > 0) ||
-            (simState->IsScenarioLoaded()) ;
-        
-        if (scenarioError)
-        {
-            //wxMessageBox("LoadDatabaseMod must be called at top of scenario file "
-             //   "BEFORE any scenario setup is performed. Fix this and restart.", "Scenario Error", wxICON_ERROR);
-            return;
-        }
+void tcScenarioInterface::LoadDatabaseMod(const std::string& fileName)
+{
+    bool scenarioError =
+        (simState->mcSensorMap.GetMapCount() > 0) ||
+        (strlen(simState->GetScenarioDescription()) > 0) ||
+        (simState->IsScenarioLoaded()) ;
 
-        simState->Clear();
-        database::tcDatabase::Get()->UpdateSql(fileName);
+    if (scenarioError)
+    {
+        //wxMessageBox("LoadDatabaseMod must be called at top of scenario file "
+        //   "BEFORE any scenario setup is performed. Fix this and restart.", "Scenario Error", wxICON_ERROR);
+        return;
     }
 
-    void tcScenarioInterface::RestoreDefaultDatabase()
+    simState->Clear();
+    database::tcDatabase::Get()->UpdateSql(fileName);
+}
+
+void tcScenarioInterface::RestoreDefaultDatabase()
+{
+    simState->Clear();
+    database::tcDatabase::Get()->SerializeSql("", true); // reload default database
+}
+
+
+void tcScenarioInterface::SetAirGroupName(const std::string& groupName)
+{
+    if (groupName.length() > 1)
     {
-        simState->Clear();
-		database::tcDatabase::Get()->SerializeSql("", true); // reload default database
+        airGroupName = groupName;
+        unitId = 1; // reset unit ID
     }
+}
 
+std::string tcScenarioInterface::GetAirGroupName() const
+{
+    return airGroupName;
+}
 
-    void tcScenarioInterface::SetAirGroupName(const std::string& groupName)
-    {
-        if (groupName.length() > 1)
-        {
-            airGroupName = groupName;
-            unitId = 1; // reset unit ID
-        }
-    }
+unsigned int tcScenarioInterface::GetAirUnitId() const
+{
+    return unitId;
+}
 
-    std::string tcScenarioInterface::GetAirGroupName() const
-    {
-        return airGroupName;
-    }
+void tcScenarioInterface::SetAirGroupCount(unsigned int n)
+{
+    airGroupCount = n;
+}
 
-    unsigned int tcScenarioInterface::GetAirUnitId() const
-    {
-        return unitId;
-    }
+unsigned int tcScenarioInterface::GetAirGroupCount() const
+{
+    return airGroupCount;
+}
 
-    void tcScenarioInterface::SetAirGroupCount(unsigned int n)
-    {
-        airGroupCount = n;
-    }
+void tcScenarioInterface::SetMagazineAddCount(unsigned int n)
+{
+    magazineAddCount = n;
+}
 
-    unsigned int tcScenarioInterface::GetAirGroupCount() const
-    {
-        return airGroupCount;
-    }
+unsigned int tcScenarioInterface::GetMagazineAddCount() const
+{
+    return magazineAddCount;
+}
 
-    void tcScenarioInterface::SetMagazineAddCount(unsigned int n)
-    {
-        magazineAddCount = n;
-    }
+void tcScenarioInterface::SetIncludeProbability(const std::string& unit, float prob)
+{
+    tcScenarioRandomizer* randomizer = tcScenarioRandomizer::Get();
+    randomizer->SetIncludeProbability(unit, prob);
+}
 
-    unsigned int tcScenarioInterface::GetMagazineAddCount() const
-    {
-        return magazineAddCount;
-    }
+float tcScenarioInterface::GetIncludeProbability(const std::string& unit) const
+{
+    tcScenarioRandomizer* randomizer = tcScenarioRandomizer::Get();
+    return randomizer->GetIncludeProbability(unit);
+}
 
-    void tcScenarioInterface::SetIncludeProbability(const std::string& unit, float prob)
-    {
-        tcScenarioRandomizer* randomizer = tcScenarioRandomizer::Get();
-        randomizer->SetIncludeProbability(unit, prob);
-    }
-
-    float tcScenarioInterface::GetIncludeProbability(const std::string& unit) const
-    {
-        tcScenarioRandomizer* randomizer = tcScenarioRandomizer::Get();
-        return randomizer->GetIncludeProbability(unit);
-    }
-
-    /**
+/**
     * Done this way to allow loading all units when loading in edit mode
     */
-    bool tcScenarioInterface::IncludeUnit(float prob) const
-    {
-        return (tcGameObject::IsEditMode() || (randf() < prob));
-    }
+bool tcScenarioInterface::IncludeUnit(float prob) const
+{
+    return (tcGameObject::IsEditMode() || (randf() < prob));
+}
 
-    void tcScenarioInterface::AddRandomBox(const std::string& unit, float lon1_deg, float lon2_deg, float lat1_deg, float lat2_deg)
-    {
-        tcScenarioRandomizer* randomizer = tcScenarioRandomizer::Get();
-        tcRect box(C_PIOVER180*lon1_deg, C_PIOVER180*lon2_deg, C_PIOVER180*lat1_deg, C_PIOVER180*lat2_deg);
-        randomizer->AddRandomBox(unit, box);
-    }
+void tcScenarioInterface::AddRandomBox(const std::string& unit, float lon1_deg, float lon2_deg, float lat1_deg, float lat2_deg)
+{
+    tcScenarioRandomizer* randomizer = tcScenarioRandomizer::Get();
+    tcRect box(C_PIOVER180*lon1_deg, C_PIOVER180*lon2_deg, C_PIOVER180*lat1_deg, C_PIOVER180*lat2_deg);
+    randomizer->AddRandomBox(unit, box);
+}
 
-    void tcScenarioInterface::SetSeaState(unsigned int val)
-    {
-        tcSonarEnvironment::Get()->SetSeaState(val);
-    }
+void tcScenarioInterface::SetSeaState(unsigned int val)
+{
+    tcSonarEnvironment::Get()->SetSeaState(val);
+}
 
-    unsigned int tcScenarioInterface::GetSeaState() const
-    {
-        return tcSonarEnvironment::Get()->GetSeaState();
-    }
+unsigned int tcScenarioInterface::GetSeaState() const
+{
+    return tcSonarEnvironment::Get()->GetSeaState();
+}
 
-    /**
+/**
     * Set SVP using string "depth1_m, speed1_mps, depth2_m, speed2_mps, ..."
     */
-    void tcScenarioInterface::SetSVP(const std::string& s)
+void tcScenarioInterface::SetSVP(const std::string& s)
+{
+    std::string s2(s.c_str());
+
+    std::vector<double> depth_m;
+    std::vector<double> speed_mps;
+
+    unsigned iteration = 0;
+    auto depth_speeds=strutil::split(s2,',');
+    for(int i=0;i<depth_speeds.size()&&i<32;i+=2)
     {
-        std::string s2(s.c_str());
+        std::string s_depth = depth_speeds[i];
 
-        std::vector<double> depth_m;
-        std::vector<double> speed_mps;
+        std::string s_speed = depth_speeds[i+1];;
+        double depth_n = -1.0;
+        double speed_n = -1.0;
 
-        unsigned iteration = 0;
-       auto depth_speeds=strutil::split(s2,',');
-      for(int i=0;i<depth_speeds.size()&&i<32;i+=2)
-      {
-          std::string s_depth = depth_speeds[i];
-
-          std::string s_speed = depth_speeds[i+1];;
-          double depth_n = -1.0;
-          double speed_n = -1.0;
-
-           bool depth_valid=true;
-           bool speed_valid=true;
-          try {
-              depth_n= std::stod(s_depth);
-              speed_n = std::stod(s_speed);
-          } catch (...) {
-                depth_valid=false;
-                speed_valid=false;
-          }
-
-           depth_valid = depth_valid && (depth_n >= 0);
-           speed_valid = speed_valid && (speed_n >= 1000.0);
-
-          if (depth_valid && speed_valid)
-          {
-              depth_m.push_back(depth_n);
-              speed_mps.push_back(speed_n);
-          }
-      }
-
-//        while ((s2.size() > 0) && (iteration++ < 16))
-//        {
-//            std::string s_depth = s2.BeforeFirst(',');
-//            s2 = s2.AfterFirst(',');
-//            std::string s_speed = s2.BeforeFirst(',');
-//            s2 = s2.AfterFirst(',');
-
-//            double depth_n = -1.0;
-//            double speed_n = -1.0;
-//            bool depth_valid = s_depth.ToDouble(&depth_n);
-//            bool speed_valid = s_speed.ToDouble(&speed_n);
-
-//            depth_valid = depth_valid && (depth_n >= 0);
-//            speed_valid = speed_valid && (speed_n >= 1000.0);
-
-//            if (depth_valid && speed_valid)
-//            {
-//                depth_m.push_back(depth_n);
-//                speed_mps.push_back(speed_n);
-//            }
-//        }
-
-        if ((depth_m.size() < 2) || (depth_m.size() != speed_mps.size()))
-        {
-            assert(false);
-            fprintf(stderr, "tcScenarioInterface::SetSVP - invalid SVP string\n");
-            return;
+        bool depth_valid=true;
+        bool speed_valid=true;
+        try {
+            depth_n= std::stod(s_depth);
+            speed_n = std::stod(s_speed);
+        } catch (...) {
+            depth_valid=false;
+            speed_valid=false;
         }
 
-        tcSonarEnvironment::Get()->ClearSVP();
+        depth_valid = depth_valid && (depth_n >= 0);
+        speed_valid = speed_valid && (speed_n >= 1000.0);
 
-        for (size_t n=0; n<depth_m.size(); n++)
+        if (depth_valid && speed_valid)
         {
-            tcSonarEnvironment::Get()->AddSVPPoint(depth_m[n], speed_mps[n]);
+            depth_m.push_back(depth_n);
+            speed_mps.push_back(speed_n);
         }
     }
 
-	/**
+    //        while ((s2.size() > 0) && (iteration++ < 16))
+    //        {
+    //            std::string s_depth = s2.BeforeFirst(',');
+    //            s2 = s2.AfterFirst(',');
+    //            std::string s_speed = s2.BeforeFirst(',');
+    //            s2 = s2.AfterFirst(',');
+
+    //            double depth_n = -1.0;
+    //            double speed_n = -1.0;
+    //            bool depth_valid = s_depth.ToDouble(&depth_n);
+    //            bool speed_valid = s_speed.ToDouble(&speed_n);
+
+    //            depth_valid = depth_valid && (depth_n >= 0);
+    //            speed_valid = speed_valid && (speed_n >= 1000.0);
+
+    //            if (depth_valid && speed_valid)
+    //            {
+    //                depth_m.push_back(depth_n);
+    //                speed_mps.push_back(speed_n);
+    //            }
+    //        }
+
+    if ((depth_m.size() < 2) || (depth_m.size() != speed_mps.size()))
+    {
+        assert(false);
+        fprintf(stderr, "tcScenarioInterface::SetSVP - invalid SVP string\n");
+        return;
+    }
+
+    tcSonarEnvironment::Get()->ClearSVP();
+
+    for (size_t n=0; n<depth_m.size(); n++)
+    {
+        tcSonarEnvironment::Get()->AddSVPPoint(depth_m[n], speed_mps[n]);
+    }
+}
+
+/**
 	* use a preset template for SVP, surface loss, bottom loss
 	* @param id 0-simple, 1-winter, 2-spring, 3-summer, 4-autumn
 	*/
-	void tcScenarioInterface::SetSonarTemplate(int id)
-	{
-		tcSonarEnvironment::Get()->SetTemplate(id);
-	}
+void tcScenarioInterface::SetSonarTemplate(int id)
+{
+    tcSonarEnvironment::Get()->SetTemplate(id);
+}
 
-	int tcScenarioInterface::GetSonarTemplate() const
-	{
-		return tcSonarEnvironment::Get()->GetTemplate();
-	}
+int tcScenarioInterface::GetSonarTemplate() const
+{
+    return tcSonarEnvironment::Get()->GetTemplate();
+}
 
-	unsigned int tcScenarioInterface::GetNumberSonarTemplates() const
-	{
-		return tcSonarEnvironment::Get()->GetNumberTemplates();
-	}
+unsigned int tcScenarioInterface::GetNumberSonarTemplates() const
+{
+    return tcSonarEnvironment::Get()->GetNumberTemplates();
+}
 
-    std::string tcScenarioInterface::GetTemplateName(unsigned int id) const
-	{
-		return tcSonarEnvironment::Get()->GetTemplateName(id);
-	}
+std::string tcScenarioInterface::GetTemplateName(unsigned int id) const
+{
+    return tcSonarEnvironment::Get()->GetTemplateName(id);
+}
 
 //	void tcScenarioInterface::SetProgressReporting(wxProgressDialog* dlg)
 //	{
 ////		progressDialog = dlg;
 //	}
 
-    int tcScenarioInterface::GetAllianceRelationship(unsigned char alliance_a, unsigned char alliance_b) const
-	{
-		tcAllianceInfo* allianceInfo = tcAllianceInfo::Get();
-		return allianceInfo->GetAffiliation(alliance_a, alliance_b);
-	}
+int tcScenarioInterface::GetAllianceRelationship(unsigned char alliance_a, unsigned char alliance_b) const
+{
+    tcAllianceInfo* allianceInfo = tcAllianceInfo::Get();
+    return allianceInfo->GetAffiliation(alliance_a, alliance_b);
+}
 
-	tcStringTable tcScenarioInterface::QueryDatabase(const std::string& table, const std::string& databaseClass, const std::string& fields)
-	{
-		tcDatabase* database = tcDatabase::Get();
+tcStringTable tcScenarioInterface::QueryDatabase(const std::string& table, const std::string& databaseClass, const std::string& fields)
+{
+    tcDatabase* database = tcDatabase::Get();
 
-		tcStringTable result = database->GetFieldsForAllRows(table, databaseClass, fields);
+    tcStringTable result = database->GetFieldsForAllRows(table, databaseClass, fields);
 
-		if (result.Size() > 0)
-		{
-			return result;
-		}
-		else
-		{
-			tcStringArray errorArray;
-			errorArray.PushBack("Error");
-			result.AddStringArray(errorArray);
-			return result;
-		}
-	}
+    if (result.Size() > 0)
+    {
+        return result;
+    }
+    else
+    {
+        tcStringArray errorArray;
+        errorArray.PushBack("Error");
+        result.AddStringArray(errorArray);
+        return result;
+    }
+}
 
 
-	tcScenarioInterface::tcScenarioInterface()
-		: lon_theater_deg(0),
-		  lat_theater_deg(0),
-		  eventTime(0),
-		  sideCode(0),
-          isScenarioLocked(false),
-          airGroupName("Temp"),
-          unitId(1),
-          airGroupCount(1),
-          magazineAddCount(10),
-//		  progressDialog(0),
-          filterByYear(false),
-          filterByCountry(false)
-	{
-	}
+tcScenarioInterface::tcScenarioInterface()
+    : lon_theater_deg(0),
+    lat_theater_deg(0),
+    eventTime(0),
+    sideCode(0),
+    isScenarioLocked(false),
+    airGroupName("Temp"),
+    unitId(1),
+    airGroupCount(1),
+    magazineAddCount(10),
+    //		  progressDialog(0),
+    filterByYear(false),
+    filterByCountry(false)
+{
+}
 
-	tcScenarioInterface::~tcScenarioInterface()
-	{
-	}
+tcScenarioInterface::~tcScenarioInterface()
+{
+}
 
 
 }
