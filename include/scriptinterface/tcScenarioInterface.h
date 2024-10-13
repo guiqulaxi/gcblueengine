@@ -311,6 +311,11 @@ public:
     /// retrieves the alliance affiliation.
     int GetAllianceRelationship(unsigned char alliance_a, unsigned char alliance_b) const;
 
+    void SetEditMode(bool state);
+    void SetTimeAccel(long accel);
+    void ClearScenario();
+    void LoadScenario(const std::string &filePath);
+
     tcScenarioInterface();
     ~tcScenarioInterface();
 private:

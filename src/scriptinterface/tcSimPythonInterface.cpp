@@ -38,7 +38,7 @@
 #include "tcPlatformInterface.h"
 #include "tcScenarioInterface.h"
 #include "tcMissionInterface.h"
-#include "tcGameInterface.h"
+
 //#include "tcSoundConsole.h"
 //#include "tcDirector.h"
 ////#include "tcMessageInterface.h"
@@ -496,7 +496,6 @@ void tcSimPythonInterface::AttachSimState(tcSimState *apSimState)
     tcPlatformInterface::AttachSimState(apSimState);
     tcScenarioInterface::AttachSimState(apSimState);
     tcFlightPortInterface::AttachSimState(apSimState);
-    tcGameInterface::AttachSimState(apSimState);
     mpSimState=apSimState;
 }
 
@@ -1884,9 +1883,7 @@ tcSimPythonInterface::tcSimPythonInterface() :
     TaskInterfaceObject = py::cast(tempInterface);
     taskInterface = py::cast<ScriptedTaskInterface*>(TaskInterfaceObject);
 
-    object gameInterfaceType = tcGameInterface::GetInterface();
-    GameInterface = gameInterfaceType();
-    gameInterface=py::cast<tcGameInterface*>(GameInterface);
+
     // 获取主模块（__main__）
         py::module main_module = py::module::import("__main__");
 
@@ -1900,7 +1897,6 @@ tcSimPythonInterface::tcSimPythonInterface() :
         main_dict["GroupInfo"]=  GroupInterface.ptr();
         main_dict["TaskInterface"]=  TaskInterfaceObject.ptr();
         main_dict["WeaponInfo"]= WeaponInterface.ptr();
-        main_dict["GameInterface"]= GameInterface.ptr();
         // 可以在这里操作主模块的属性和函数
         // 例如，打印主模块的所有键（属性和函数名）
 

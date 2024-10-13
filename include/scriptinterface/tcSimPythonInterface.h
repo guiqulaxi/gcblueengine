@@ -39,7 +39,6 @@
 #include "tcTrackInterface.h"
 #include "tcPlatformInterface.h"
 #include "tcFlightPortInterface.h"
-#include "tcGameInterface.h"
 //#include "tcPanelInterface.h"
 #include "tcGroupInterface.h"
 #include "tcWeaponInterface.h"
@@ -227,8 +226,7 @@ namespace scriptinterface
 
         object ScenarioInterface;
         tcScenarioInterface* scenarioInterface; ///< C++ handle to scenario interface
-        object GameInterface;
-        tcGameInterface* gameInterface; ///< C++ handle to game interface
+
 
         //        tcDirector *director;
         tcSimState *mpSimState;

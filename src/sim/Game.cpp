@@ -580,7 +580,7 @@ bool tcGame::InitSim()
     simState->AttachPythonInterface(pythonInterface);
     simState->AttachUserInfo(userInfo);
 
-    pythonInterface->AttachSensorMap(simState->mcSensorMap.GetMap(userInfo->GetOwnAlliance()));
+    //pythonInterface->AttachSensorMap(simState->mcSensorMap.GetMap(userInfo->GetOwnAlliance()));
 
     pythonInterface->AttachSimState(simState);
 

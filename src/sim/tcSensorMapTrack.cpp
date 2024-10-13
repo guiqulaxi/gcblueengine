@@ -683,7 +683,6 @@ double tcSensorMapTrack::GetLastReportTime() const
     for (size_t n=0; n<nContributors; n++) 
     {
         const tcSensorReport* report = &maSensorReport[n];
-
         t = std::max(t, report->timeStamp);
 	}
 
@@ -990,7 +989,6 @@ tcSensorReport* tcSensorMapTrack::GetOrCreateReport(long platformID, long sensor
     for (size_t n=0; n<nContributors; n++)
     {
         tcSensorReport* sensorReport = &maSensorReport[n];
-
         if ((sensorReport->platformID == platformID) && (sensorReport->sensorID == sensorID))
         {
             return sensorReport;
@@ -1003,7 +1001,6 @@ tcSensorReport* tcSensorMapTrack::GetOrCreateReport(long platformID, long sensor
         newReport.platformID = platformID;
         newReport.sensorID = sensorID;
         maSensorReport.push_back(newReport);
-
         return &maSensorReport.back();
     }
     else
@@ -1107,7 +1104,6 @@ void tcSensorMapTrack::UpdateGenericModel()
 bool tcSensorMapTrack::AddReport(const tcSensorReport& report)
 {
     size_t nContributors = maSensorReport.size(); // 获取当前已存储的报告数量
-
     // 遍历已存在的报告，查找是否有匹配的传感器报告
     for(size_t n=0; n<nContributors; n++)
     {
@@ -1475,7 +1471,6 @@ void tcSensorMapTrack::UpdateTrack(double tCoast_s)
         tcSensorReport* report = &maSensorReport[n];
         // 根据预测结果更新位置和其他参数的估计值
         PredictReport(tPredict_s, *report, predicted);
-
         // update combined estimate for each contributor with valid lat/lon
         //报告包含经纬度
         if ((report->validFlags & tcSensorReport::LONLAT_VALID) != 0)
@@ -1733,7 +1728,6 @@ void tcSensorMapTrack::PruneReports()
     for (size_t n=0; n<nContributors; n++)
     {
         tcSensorReport& report = maSensorReport[n];
-
         ri.index = n;
         ri.time_s = report.timeStamp;
         ri.lonlatUncertainty = report.UncertaintyArea();

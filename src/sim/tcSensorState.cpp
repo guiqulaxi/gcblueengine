@@ -109,6 +109,7 @@ bool tcSensorState::ApplyAdvancedDamage(const Damage& damage)
 /**
 * @return error factor from -1 to 1
 * Intent is that error is random but consistent if track is dropped and redetected in same location
+* 根据platformId和sensorId计算误差保证误差不会乱跳
 */
 float tcSensorState::GetErrorFactor(long platformId, long sensorId, float targetAz_rad)
 {
@@ -271,34 +272,51 @@ bool tcSensorState::CanDetectTarget(const tcGameObject* target, float& range_km,
 
 
 /**
-* @param alt_m target altitude in meters
-* @return false if no alt estimate can be made, too far or not enough el accuracy for at least +/-500 m
+* @param alt_m 目标高度，单位为米
+* @return 如果无法估计高度（太远或精度不足以达到至少±500米的范围），则返回false
 */
 bool tcSensorState::GetAltitudeEstimate(float& altitudeEstimate_m, float& altitudeVariance, float range_km, float az_rad, float alt_m)
 {
+    // 如果仰角误差小于5度
     if (mpDBObj->elevationError_deg < 5.0f)
     {
+        // 计算考虑误差因子后的仰角误差，误差因子根据传感器ID、数据库键和方位角计算
         float elError = mpDBObj->elevationError_rad *
-            tcSensorState::GetErrorFactor(parent->mnID + 50, mpDBObj->mnKey, az_rad);
+                        tcSensorState::GetErrorFactor(parent->mnID + 50, mpDBObj->mnKey, az_rad);
 
+        // 将距离从公里转换为米
         float range_m = 1000.0f * range_km;
+
+        // 计算目标相对于传感器当前高度的仰角（弧度）
         float el_rad = atanf((alt_m - parent->mcKin.mfAlt_m) / range_m);
+
+        // 计算估计的仰角，加上误差
         float elEstimate_rad = el_rad + elError;
 
+        // 根据估计的仰角和距离计算估计的高度
         altitudeEstimate_m = parent->mcKin.mfAlt_m + range_m * tanf(elEstimate_rad);
+        // 如果计算得到的高度估计值为负，则进行无操作（这里可能是为了调试，实际使用中应去除）
+        if(altitudeEstimate_m<0)
+        {
+            int a=0;
+        }
+        // 计算高度估计的方差，考虑了仰角误差和距离
         altitudeVariance = mpDBObj->elevationError_rad * range_m;
+        // 使用常数C_U2GVAR对方差进行缩放
         altitudeVariance = C_U2GVAR * altitudeVariance * altitudeVariance;
 
+        // 如果计算成功，返回true
         return true;
     }
     else
     {
+        // 如果仰角误差太大，则设置高度估计为0，方差为一个很大的值（表示不确定性很大）
         altitudeEstimate_m = 0;
         altitudeVariance = 4e6f;
 
+        // 返回false，表示无法进行有效的高度估计
         return false;
     }
-
 }
 
 /**
@@ -656,101 +674,109 @@ void tcSensorState::Update(double t)
 }
 
 /**
-* Updates lat, lon, altitude, and covariance for active report
-* @param az_rad true bearing to target
-* @param range_km true range to target
-* @param alt_m true altitude of target
+* 更新活动报告中的纬度、经度、高度和协方差
+* @param report 指向tcSensorReport的指针，表示要更新的报告
+* @param t 当前时间戳
+* @param az_rad 目标相对于传感器的真实方位角（弧度）
+* @param range_km 目标相对于传感器的真实距离（千米）
+* @param alt_m 目标的真实高度（米）
+* @param track 指向tcSensorMapTrack的指针，表示目标的跟踪信息
 */
-void tcSensorState::UpdateActiveReport(tcSensorReport* report, double t, float az_rad, float range_km, float alt_m, 
+void tcSensorState::UpdateActiveReport(tcSensorReport* report, double t, float az_rad, float range_km, float alt_m,
                                        const tcSensorMapTrack* track)
 {
+    // 检查报告是否为新报告
     bool newReport = report->IsNew();
-    if (newReport) 
+    if (newReport)
     {
-        report->startTime = t;
+        report->startTime = t; // 设置报告的起始时间
     }
-    report->timeStamp = t;
+    report->timeStamp = t; // 更新报告的时间戳
 
-    report->validFlags = tcSensorReport::LONLAT_VALID;
+    report->validFlags = tcSensorReport::LONLAT_VALID; // 标记经纬度有效
 
-    // (slant) range estimate
-    float rangeError_km = 0.001f * mpDBObj->rangeError * 
-            tcSensorState::GetErrorFactor(parent->mnID + 100, mpDBObj->mnKey, az_rad);
-    float rangeEstimate_km = range_km + rangeError_km;
+    // 计算（斜距）距离估计
+    float rangeError_km = 0.001f * mpDBObj->rangeError *
+                          tcSensorState::GetErrorFactor(parent->mnID + 100, mpDBObj->mnKey, az_rad); // 计算距离误差
+    float rangeEstimate_km = range_km + rangeError_km; // 计算距离估计
 
-    // altitude estimate
-    // don't bother checking altitude for surface ships and ground targets
-    float altEst_m = 0;
-    float altVar = 0;
-    bool surfaceAltitude = (alt_m == 0) || (track->IsSurface() || track->IsGround());
-    bool subsurface = (track->mnClassification & PTYPE_SUBSURFACE) != 0;
+    // 高度估计
+    float altEst_m = 0; // 高度估计值
+    float altVar = 0; // 高度估计的方差
+    bool surfaceAltitude = (alt_m == 0) || (track->IsSurface() || track->IsGround()); // 检查是否为水面或地面目标
+    bool subsurface = (track->mnClassification & PTYPE_SUBSURFACE) != 0; // 检查是否为水下目标
 
+    // 如果不是水面或地面目标，并且能获取高度估计
     if (!surfaceAltitude && GetAltitudeEstimate(report->altEstimate_m, report->altVariance, rangeEstimate_km, az_rad, alt_m))
     {
-        report->validFlags |= tcSensorReport::ALT_VALID;
-        altEst_m = report->altEstimate_m;
-        altVar = report->altVariance;
+        report->validFlags |= tcSensorReport::ALT_VALID; // 标记高度有效
+        altEst_m = report->altEstimate_m; // 更新高度估计值
+        altVar = report->altVariance; // 更新高度估计的方差
         if (!subsurface)
         {
-            altEst_m = std::max(altEst_m, 1.0f); // don't allow altitudes at or below surface
+            altEst_m = std::max(altEst_m, 1.0f); // 对于非水下目标，高度不低于地面
         }
         else
         {
-            altEst_m = std::min(altEst_m, 0.0f); // don't allow altitudes above surface
+            altEst_m = std::min(altEst_m, 0.0f); // 对于水下目标，高度不高于水面
         }
     }
+    // 如果跟踪信息中高度有效
     else if (track->IsAltitudeValid())
     {
-        altEst_m = track->mfAlt_m;
-        altVar = 10000.0f; // 100 m 1-sigma, really should have var in track data
+        altEst_m = track->mfAlt_m; // 使用跟踪信息中的高度
+        altVar = 10000.0f; // 高度方差设为100米（1-sigma），实际应使用跟踪信息中的方差
     }
+    // 如果目标是空中或导弹
     else if (track->IsAir() || track->IsMissile())
     {
-        altEst_m = parent->mcKin.mfAlt_m;
-        altVar = 1000000.0f;
+        altEst_m = parent->mcKin.mfAlt_m; // 使用传感器自身的高度
+        altVar = 1000000.0f; // 高度方差设为较大值
     }
 
-    // ground range estimate
-    float altDiff_km = 0.001f * (altEst_m - parent->mcKin.mfAlt_m);
-    float groundRange_km = 0;
+    // 地面距离估计
+    float altDiff_km = 0.001f * (altEst_m - parent->mcKin.mfAlt_m); // 高度差（千米）
+    float groundRange_km = 0; // 地面距离估计值
     if ((altDiff_km > -rangeEstimate_km) && (altDiff_km < rangeEstimate_km))
     {
-        groundRange_km = sqrtf(rangeEstimate_km*rangeEstimate_km - altDiff_km*altDiff_km);
+        groundRange_km = sqrtf(rangeEstimate_km*rangeEstimate_km - altDiff_km*altDiff_km); // 使用勾股定理计算地面距离
     }
     else
     {
-        groundRange_km = 0;
+        groundRange_km = 0; // 如果高度差超出范围，则地面距离为0
     }
-    float sigmaGroundRange_m = sqrtf(altVar) * altDiff_km / range_km; // due to altitude errors
+    float sigmaGroundRange_m = sqrtf(altVar) * altDiff_km / range_km; // 由于高度误差导致的地面距离误差
 
 #ifdef _DEBUG
-    const tcGameObject* target = track->GetAssociatedConst();
-    float trueSlantRange_km = target->mcKin.RangeToKmAlt(parent->mcKin.mfLon_rad, parent->mcKin.mfLat_rad, parent->mcKin.mfAlt_m);
-    float trueGroundRange_km = target->RangeTo(*parent);
+    const tcGameObject* target = track->GetAssociatedConst(); // 获取目标对象
+    float trueSlantRange_km = target->mcKin.RangeToKmAlt(parent->mcKin.mfLon_rad, parent->mcKin.mfLat_rad, parent->mcKin.mfAlt_m); // 计算真实斜距
+    float trueGroundRange_km = target->RangeTo(*parent); // 计算真实地面距离
 #endif
 
-    // add az and range error
+    // 添加方位角和距离误差
     float azError = mpDBObj->angleError_rad *
-        tcSensorState::GetErrorFactor(parent->mnID, mpDBObj->mnKey, az_rad);
+                    tcSensorState::GetErrorFactor(parent->mnID, mpDBObj->mnKey, az_rad); // 计算方位角误差
 
-    float azEstimate_rad = az_rad + azError;
-    
-    float dist_rad = C_KMTORAD * groundRange_km;
-    report->latEstimate_rad = parent->mcKin.mfLat_rad + dist_rad*cosf(azEstimate_rad);
-    float latAvg_rad = 0.5f*(parent->mcKin.mfLat_rad + report->latEstimate_rad);
-    report->lonEstimate_rad = parent->mcKin.mfLon_rad + dist_rad*sinf(azEstimate_rad) / cosf(latAvg_rad);
+    float azEstimate_rad = az_rad + azError; // 计算方位角估计值
 
+    float dist_rad = C_KMTORAD * groundRange_km; // 将地面距离转换为弧度
+    report->latEstimate_rad = parent->mcKin.mfLat_rad + dist_rad*cosf(azEstimate_rad); // 计算纬度估计值
+    float latAvg_rad = 0.5f*(parent->mcKin.mfLat_rad + report->latEstimate_rad); // 计算平均纬度
+    report->lonEstimate_rad = parent->mcKin.mfLon_rad + dist_rad*sinf(azEstimate_rad) / cosf(latAvg_rad); // 计算经度估计值
 
-    float sigmaDownRange_m = sqrtf((mpDBObj->rangeError*mpDBObj->rangeError) + (sigmaGroundRange_m*sigmaGroundRange_m));
-    float sigmaCrossRange_m = 1000.0f * rangeEstimate_km * mpDBObj->angleError_rad;
+    // 计算位置估计的协方差
+    float sigmaDownRange_m = sqrtf((mpDBObj->rangeError*mpDBObj->rangeError) + (sigmaGroundRange_m*sigmaGroundRange_m)); // 纵向误差
+    float sigmaCrossRange_m = 1000.0f * rangeEstimate_km * mpDBObj->angleError_rad; // 横向误差
 
     CalculateLonLatCovariance(azEstimate_rad, report->latEstimate_rad, sigmaCrossRange_m, sigmaDownRange_m,
-        report->C11, report->C22, report->C12);
+                              report->C11, report->C22, report->C12); // 计算经纬度协方差
 
+    // 如果目标是潜艇且速度有效，则进行断言检查
     if (track->IsSub() && ((report->validFlags & tcSensorReport::SPEED_VALID) != 0))
     {
-        assert(fabsf(report->speedEstimate_mps) < 20.0f);
+        assert(fabsf(report->speedEstimate_mps) < 20.0f); // 断言速度估计值在合理范围内
     }
+    // 断言检查纬度和经度估计值不是NaN
     assert(!_isnan(report->latEstimate_rad));
     assert(!_isnan(report->lonEstimate_rad));
 }

@@ -1,9 +1,15 @@
 Tutorial/SurfaceOperations.py 100
+#添加联盟
+alliance_a=1
+SM.CreateAlliance(alliance_a, 'Training')
+alliance_b=2
+SM.CreateAlliance(alliance_b, 'OPFOR')
 #加载/清除想定
-GameInterface.LoadScenario('scenarios/Tutorial/SateliteOperations.py')
-GameInterface.ClearScenario()
+SM=ScenarioManager
+SM.LoadScenario('scenarios/Tutorial/SateliteOperations.py')
+SM.ClearScenario()
 #设置想定推演速度
-GameInterface.SetTimeAccel(10)
+SM.SetTimeAccel(10)
 #设置航向
 UI = ScenarioManager.GetUnitInterface("JDS Atago")
 UI.SetHeading(90)
@@ -115,13 +121,131 @@ SM.SetUnitLauncherItem(unit.unitName, 5, 'TEST-71MKE', 1)
 SM.AddToUnitMagazine(unit.unitName, '53-65M', 4)
 SM.AddToUnitMagazine(unit.unitName, 'TEST-71MKE', 6)
 UI = SM.GetUnitInterface(unit.unitName)
+#设置高度
+UI = ScenarioManager.GetUnitInterface("Yuanzheng 65")
+UI.SetAltitude(-120)
 #跳转位置
 UI = ScenarioManager.GetUnitInterface("Yuanzheng 65")
-UI.SetAltitude(-120);
+deg_to_rad = 0.01745329252
+rad_to_deg = 57.2957795131
+UI.MovePlatform(120*deg_to_rad,20*deg_to_rad)
 
-
-
-#
+#设置燃料
+UI = ScenarioManager.GetUnitInterface("Yuanzheng 65")
+UI.SetFuelTest(0.5)
+#设置毁伤
+UI = ScenarioManager.GetUnitInterface("Yuanzheng 65")
+UI.ApplyDamage(10)
+#设置毁伤
+UI = ScenarioManager.GetUnitInterface("Yuanzheng 65")
+isPen = 0
+kinetic_J = 0
+explosive_kg = 0
+blast_psi = 0.1 * float(blastPSI)
+waterBlast_psi = 0
+thermal_J_cm2 = 0
+fragHits = 0
+fragEnergy_J = 0
+UI.ApplyAdvancedDamage(isPen, kinetic_J, explosive_kg, blast_psi, waterBlast_psi, thermal_J_cm2, fragHits, fragEnergy_J)
+#删除平台
+UI = ScenarioManager.GetUnitInterface("Yuanzheng 65")
+UI.DeletePlatform()
+#设置是否可见
+UI = ScenarioManager.GetUnitInterface("Yuanzheng 65")
+UI.SetAlwaysVisible(0)
 def AttackTarget(UI):
     UI.AddTask('InterceptTarget', 2.0, 0)   
     def InterceptTarget(TI): 
+#开启传感器
+UI.SetAllSensorState(1)
+#发射
+SM =ScenarioManager
+alliance_a = 1
+unit = SM.GetDefaultUnit()
+unit.className = 'SH-60B'
+unit.unitName = "Spruance DDG Seahawk 1"
+unit.SetPosition(-9.607291, 62.140074, 510.2)
+unit.heading = 92.36
+unit.speed = 100.0
+unit.cost = 20000000.0
+SM.AddUnitToAlliance(unit, 1)
+SM.SetUnitLauncherItem(unit.unitName, 0, 'Mk-46 Mod5', 1)
+SM.SetUnitLauncherItem(unit.unitName, 1, '120 gallon tank', 1)
+SM.SetUnitLauncherItem(unit.unitName, 2, '120 gallon tank', 1)
+SM.SetUnitLauncherItem(unit.unitName, 3, 'Flare-1', 25)
+SM.SetUnitLauncherItem(unit.unitName, 4, 'Chaff-1', 25)
+SM.SetUnitLauncherItem(unit.unitName, 5, 'DICASS (80) Sonobuoy', 5)
+SM.SetUnitLauncherItem(unit.unitName, 6, 'LOFAR (80) Sonobuoy', 5)
+SM.SetUnitLauncherItem(unit.unitName, 7, 'DIFAR (80) Sonobuoy', 15)
+UI = SM.GetUnitInterface(unit.unitName)
+from UnitCommands import *
+UI = ScenarioManager.GetUnitInterface("Spruance DDG Seahawk 1")
+UI.SetAllSensorState(1)
+LaunchDatum3D(UI,-9.607291,62.040074,510.2,5)
+#批量添加
+n=50
+SM =ScenarioManager
+alliance_a = 1
+alliance_b = 2
+for i in range(n):
+    unit = SM.GetDefaultUnit()
+    unit.className = 'SH-60B'
+    unit.unitName = "Spruance DDG Seahawk "+str(i)
+    unit.SetPosition(-9.607291+i/100., 63.140074+i/100., 510.2)
+    unit.heading = 92.36
+    unit.speed = 100.0
+    unit.cost = 20000000.0
+    SM.AddUnitToAlliance(unit, 1)
+    SM.SetUnitLauncherItem(unit.unitName, 0, 'Mk-46 Mod5', 1)
+    SM.SetUnitLauncherItem(unit.unitName, 1, '120 gallon tank', 1)
+    SM.SetUnitLauncherItem(unit.unitName, 2, '120 gallon tank', 1)
+    SM.SetUnitLauncherItem(unit.unitName, 3, 'Flare-1', 25)
+    SM.SetUnitLauncherItem(unit.unitName, 4, 'Chaff-1', 25)
+    SM.SetUnitLauncherItem(unit.unitName, 5, 'DICASS (80) Sonobuoy', 5)
+    SM.SetUnitLauncherItem(unit.unitName, 6, 'LOFAR (80) Sonobuoy', 5)
+    SM.SetUnitLauncherItem(unit.unitName, 7, 'DIFAR (80) Sonobuoy', 15)
+    UI = SM.GetUnitInterface(unit.unitName)
+    UI.SetAllSensorState(1)
+    print(i)
+for i in range(n):
+    unit = SM.GetDefaultUnit()
+    unit.className = 'Cheng Kung FFG'
+    unit.unitName = 'Cheng Kung'+str(i)
+    loc_chengkung = Point()
+    loc_chengkung.x = 119.7
+    loc_chengkung.y = 24.2
+    unit.SetPosition(-9.707291+i/100., 62.140074+i/100., 0)  # lon, lat, alt
+    unit.heading = 270
+    unit.speed = 5
+    SM.AddUnitToAlliance(unit, alliance_b)
+    SM.AddUnitToFlightDeck(unit.unitName, 'SH-60B', 'Ferret-1', 3)
+
+    SM.AddToUnitMagazine(unit.unitName, 'Fuel', 50000)
+    SM.AddToUnitMagazine(unit.unitName, '76mm Mk-75', 300)
+    SM.AddToUnitMagazine(unit.unitName, 'Mk-46 Mod5', 16)
+    SM.AddToUnitMagazine(unit.unitName, 'DICASS Sonobuoy', 48)
+    UI = SM.GetUnitInterface(unit.unitName)
+    UI.SetAllSensorState(1)
+    print(i)
+alliance_a = 2
+for i in range(n):
+    unit = SM.GetDefaultUnit()
+    unit.className = 'SH-60B'
+    unit.unitName = "Spruance DDG Seahawk b  "+str(i)
+    unit.SetPosition(-9.607291+1/100, 62.140074+i/100, 510.2)
+    unit.heading = 92.36
+    unit.speed = 100.0
+    unit.cost = 20000000.0
+    SM.AddUnitToAlliance(unit, 1)
+    SM.SetUnitLauncherItem(unit.unitName, 0, 'Mk-46 Mod5', 1)
+    SM.SetUnitLauncherItem(unit.unitName, 1, '120 gallon tank', 1)
+    SM.SetUnitLauncherItem(unit.unitName, 2, '120 gallon tank', 1)
+    SM.SetUnitLauncherItem(unit.unitName, 3, 'Flare-1', 25)
+    SM.SetUnitLauncherItem(unit.unitName, 4, 'Chaff-1', 25)
+    SM.SetUnitLauncherItem(unit.unitName, 5, 'DICASS (80) Sonobuoy', 5)
+    SM.SetUnitLauncherItem(unit.unitName, 6, 'LOFAR (80) Sonobuoy', 5)
+    SM.SetUnitLauncherItem(unit.unitName, 7, 'DIFAR (80) Sonobuoy', 15)
+    UI = SM.GetUnitInterface(unit.unitName)
+    UI.SetAllSensorState(1)
+    print(i)
+

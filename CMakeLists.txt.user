@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 13.0.1, 2024-10-07T23:00:31. -->
+<!-- Written by QtCreator 13.0.1, 2024-10-13T08:34:38. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -428,7 +428,7 @@
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.gcblue</value>
     <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">gcblue</value>
     <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">true</value>
-    <value type="QString" key="RunConfiguration.Arguments">--scenario scenarios/Tutorial/SateliteOperations.py --times 100 --runmode edit --ip  0.0.0.0 --port 8081</value>
+    <value type="QString" key="RunConfiguration.Arguments">--scenario scenarios/Tutorial/SateliteOperations.py --times 100 --runmode normal --ip  0.0.0.0 --port 8081</value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
     <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>

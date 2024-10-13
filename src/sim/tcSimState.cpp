@@ -3464,8 +3464,8 @@ tcSimState::tcSimState()
     tcGameObject::SetSimState(this);
     tcSensorMapTrack::AttachSimState(this);
 
-    mcSensorMap.CreateMapForAlliance(1);
-    mcSensorMap.CreateMapForAlliance(2);
+    // mcSensorMap.CreateMapForAlliance(1);
+    // mcSensorMap.CreateMapForAlliance(2);
     //mcSensorMap.Test();
 
     if (tcOptions::Get()->OptionStringExists("UsePositionRegistry"))
