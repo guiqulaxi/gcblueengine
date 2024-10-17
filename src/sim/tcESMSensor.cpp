@@ -101,59 +101,66 @@ tcUpdateStream& tcESMSensor::operator>>(tcUpdateStream& stream)
 
 
 /**
-* This method is used for passive seeker (anti-rad or home-on-jam) detection testing. It
-* doesn't build an emitter id list like ProcessESMDetection.
+* 这个方法用于被动寻的器（反辐射或干扰寻的）的检测测试。
+* 它不会像ProcessESMDetection方法那样构建发射器ID列表。
 *
-* TODO: merge this with ProcessESMDetection method, look at search method that
-* uses maximum received power vs. range (cheating?)
+* TODO: 与ProcessESMDetection方法合并，查看使用最大接收功率与距离进行搜索的方法（是否作弊？）
 */
 bool tcESMSensor::CanDetectTarget(const tcGameObject* target, float& range_km, bool useRandom)
 {
-	float fAz_rad = 0;
-	range_km = 0;
-    last_margin_dB = -99.0f; ///< from last call to IsDetected
-    last_ERP_dBW = -99.0f; ///< from last call to IsDetected
+    float fAz_rad = 0; // 方位角（弧度），初始化为0
+    range_km = 0; // 目标距离（千米），初始化为0
+    last_margin_dB = -99.0f; ///< 上次调用IsDetected时得到的余量（分贝），初始化为-99.0分贝
+    last_ERP_dBW = -99.0f; ///< 上次调用IsDetected时得到的等效辐射功率（分贝瓦），初始化为-99.0分贝瓦
 
-	if (const tcMissileObject *pMissileObj = dynamic_cast<const tcMissileObject*>(target)) 
-	{
-		if (tcRadar* emitter = pMissileObj->GetSeekerRadar()) // some AGMs have no sensor
-		{
-			bool bDetected = IsDetectedRadar(emitter, fAz_rad);
-			range_km = targetRange_km;
-			return bDetected;
-		}
-		else
-		{
-			return false;
-		}
-	}
-	else if (const tcPlatformObject *pPlatformObj = dynamic_cast<const tcPlatformObject*>(target))
-	{
-		if (!pPlatformObj->IsRadiating()) return false;
+    // 尝试将目标对象转换为导弹对象
+    if (const tcMissileObject *pMissileObj = dynamic_cast<const tcMissileObject*>(target))
+    {
+        // 如果导弹对象有寻的雷达（一些空对地导弹没有传感器）
+        if (tcRadar* emitter = pMissileObj->GetSeekerRadar())
+        {
+            // 调用IsDetectedRadar方法检测雷达
+            bool bDetected = IsDetectedRadar(emitter, fAz_rad);
+            range_km = targetRange_km; // 设置检测到的目标距离
+            return bDetected; // 返回是否检测到
+        }
+        else
+        {
+            return false; // 没有寻的雷达，返回未检测到
+        }
+    }
+    // 尝试将目标对象转换为平台对象（如飞机、舰船等）
+    else if (const tcPlatformObject *pPlatformObj = dynamic_cast<const tcPlatformObject*>(target))
+    {
+        // 如果平台对象没有辐射（不是雷达或电子战设备的工作状态），则返回未检测到
+        if (!pPlatformObj->IsRadiating()) return false;
 
-        bool bDetected = false;
-		unsigned nSensors = pPlatformObj->GetSensorCount();
-		for (unsigned n=0; (n<nSensors) && (!bDetected); n++) 
-		{
-			const tcSensorState* sensor = pPlatformObj->GetSensor(n);
-			if (const tcRadar* emitter = dynamic_cast<const tcRadar*>(sensor)) 
-			{
-				bDetected = bDetected || IsDetectedRadar(emitter, fAz_rad);
-				range_km = targetRange_km;
-			}
-            else if (const tcECM* emitter = dynamic_cast<const tcECM*>(sensor)) 
-			{
-				bDetected = bDetected || IsDetectedECM(emitter, fAz_rad);
-				range_km = targetRange_km;
-			}
-		}
+        bool bDetected = false; // 初始化检测状态为未检测到
+        unsigned nSensors = pPlatformObj->GetSensorCount(); // 获取平台对象的传感器数量
+        for (unsigned n=0; (n<nSensors) && (!bDetected); n++) // 遍历所有传感器，直到检测到或遍历完所有传感器
+        {
+            const tcSensorState* sensor = pPlatformObj->GetSensor(n); // 获取当前传感器状态
+            // 尝试将传感器转换为雷达对象
+            if (const tcRadar* emitter = dynamic_cast<const tcRadar*>(sensor))
+            {
+                // 检测雷达，并更新检测状态和距离
+                bDetected = bDetected || IsDetectedRadar(emitter, fAz_rad);
+                range_km = targetRange_km;
+            }
+            // 尝试将传感器转换为电子战（ECM）设备对象
+            else if (const tcECM* emitter = dynamic_cast<const tcECM*>(sensor))
+            {
+                // 检测电子战设备，并更新检测状态和距离
+                bDetected = bDetected || IsDetectedECM(emitter, fAz_rad);
+                range_km = targetRange_km;
+            }
+        }
 
-		return bDetected;
-	}
-	
-	return false; // target class does not have radar, so impossible to detect
+        return bDetected; // 返回是否检测到
+    }
+
+    return false; // 目标类别不包含雷达或电子战设备，因此无法检测到
 }
-
 /**
 * @return false if key not found in database
 */
@@ -195,7 +202,7 @@ bool tcESMSensor::IsDetectedRadar(const tcRadar* emitter, float& az_rad)
     if (emitter == 0) return false;
     if (emitter->IsSemiactive()) return false;
 
-    float ERP_dBW = emitter->mpDBObj->ERPpeak_dBW;
+    float ERP_dBW = emitter->mpDBObj->ERPpeak_dBW;//有效辐射功率，峰值
 
     return IsDetected(emitter, ERP_dBW, az_rad);
 }
@@ -343,119 +350,141 @@ void tcESMSensor::Update(double t)
 }
 
 /**
-* Special update that only looks at sensors on platforms that are targeting parent
-*/
+ * 特殊更新函数，仅查看正在瞄准父对象（可能是指载有该传感器的平台）的平台上的传感器
+ */
 bool tcESMSensor::UpdateScanRWR(double t)
 {
+    // 如果传感器不处于活动状态，或者其所属的数据库对象不是RWR（雷达告警接收机）类型
     if (!mbActive || (!mpDBObj->isRWR))
     {
+        // 将RWR警告等级设置为0
         rwrWarningLevel = 0;
+        // 返回false，表示没有进行更新
         return false;
     }
 
+    // 如果当前时间与上次RWR更新的时间差大于或等于2秒
     if ((t - lastRWRupdate) >= 2.0f)
     {
+        // 更新上次RWR更新的时间为当前时间
         lastRWRupdate = t;
+        // 返回true，表示进行了更新
         return true;
     }
-    else 
+    else
     {
+        // 如果时间差小于2秒，则不进行更新
+        // 返回false，表示没有进行更新
         return false;
     }
 }
 
 /**
-* Updates anti-radiation type seekers
-*/
+ * 更新反辐射型导引头
+ */
 void tcESMSensor::UpdateSeeker(double t)
 {
-    if (!UpdateScan(t)) return; // only update once per scan period
+    // 如果在当前扫描周期内已经更新过，则直接返回
+    if (!UpdateScan(t)) return;
 
+    // 目标ID
     long nTargetID;
+    // 目标对象指针
     tcGameObject *ptarget = 0;
+    // 是否找到目标的标志
     int bFound;
 
-
-    switch (mnMode) 
+    // 根据导引头的工作模式进行不同的处理
+    switch (mnMode)
     {
-    case SSMODE_SEEKERACQUIRE:        // fall through to SEEKERTRACK
-    case SSMODE_SEEKERTRACK:
+    case SSMODE_SEEKERACQUIRE: // 捕获模式，会穿透到跟踪模式处理
+    case SSMODE_SEEKERTRACK:   // 跟踪模式
+        // 获取当前跟踪的目标ID
         nTargetID = mcTrack.mnID;
-        if (nTargetID == parent->mnID) // no self detection
-        { 
+        // 如果跟踪的是自己（自检测），则标记为未找到
+        if (nTargetID == parent->mnID)
+        {
             bFound = false;
-        } 
+        }
         else
         {
+            // 在平台状态表中查找目标对象
             bFound = simState->maPlatformState.Lookup(nTargetID, ptarget);
         }
 
-        if (bFound) 
-        {  // own-alliance is allowed
-            float fRange_km;
-            if (CanDetectTarget(ptarget, fRange_km)) 
+        // 如果找到了目标
+        if (bFound)
+        {  // 允许检测同联盟的目标（根据实际需求可能有所不同）
+            float fRange_km; // 目标距离（千米）
+            // 如果能够检测到目标
+            if (CanDetectTarget(ptarget, fRange_km))
             {
+                // 更新跟踪信息
                 UpdateTrack(ptarget, t);
                 return;
             }
         }
-        /* Shut down missile if track lost for too long
-		** Missile will coast up until then allowing hits if missile was close enough
-		** to the target before it shut down
-		*/
+
+        // 如果在跟踪模式下丢失目标太久（例如300秒），则自毁导弹
         if ((mnMode == SSMODE_SEEKERTRACK)&&
-            (t - mcTrack.mfTimestamp) > 300.0) // set high for now to coast
+            (t - mcTrack.mfTimestamp) > 300.0) // 暂时设置为较高的值以允许导弹继续飞行
         {
+            // 导弹自毁
             parent->SelfDestruct();
 
+            // 清空跟踪的目标ID
             mcTrack.mnID = NULL_INDEX;
 #ifdef _DEBUG
-            if(simState->mpUserInfo->IsOwnAlliance(parent->GetAlliance())) 
+            // 如果是自己的联盟，则输出调试信息
+            if(simState->mpUserInfo->IsOwnAlliance(parent->GetAlliance()))
             {
                 char zBuff[128];
-				_snprintf(zBuff, 128, "Mis %d shut down (%s)\n", parent->mnID, parent->mzClass.c_str());
-				tcMessageInterface::Get()->ConsoleMessage(zBuff);
+                _snprintf(zBuff, 128, "导弹 %d 关闭 (%s)\n", parent->mnID, parent->mzClass.c_str());
+                tcMessageInterface::Get()->ConsoleMessage(zBuff);
             }
 #endif
             return;
         }
-        // this code to enter search mode after track lost
-        //pTrack->mnID = NULL_INDEX; 
-        //apRadarSS->mnMode = SSMODE_SEEKERSEARCH; 
+        // 此处代码用于在丢失跟踪后进入搜索模式（已被注释掉）
+        //pTrack->mnID = NULL_INDEX;
+        //apRadarSS->mnMode = SSMODE_SEEKERSEARCH;
         break;
-    case SSMODE_SEEKERSEARCH:
+
+    case SSMODE_SEEKERSEARCH: // 搜索模式
+    {
+        // 获取测试区域（搜索范围）
+        tcGeoRect region;
+        GetTestArea(region);
+
+        // 创建迭代器以遍历测试区域内的所有对象
+        tcGameObjIterator iter(region);
+        float minRange = 1e15f; // 初始化最小距离为极大值
+        long minID = NULL_INDEX; // 初始化最小距离对应的目标ID为无效值
+
+        // 查找可检测到的最近目标
+        for (iter.First(); iter.NotDone(); iter.Next())
         {
-            // get list of candidate tracks/detections
-            tcGeoRect region;   
-            GetTestArea(region);
-
-            tcGameObjIterator iter(region);
-            float minRange = 1e15f;
-            long minID = NULL_INDEX;
-
-            // find closest detectable target
-            for (iter.First();iter.NotDone();iter.Next())
+            tcGameObject *target = iter.Get();
+            // 如果目标不是自己（自检测）
+            if (target != parent)
             {
-                tcGameObject *target = iter.Get();
-                if (target != parent) // no self detection
+                float range_km; // 目标距离（千米）
+                // 检测目标（此处未限制同联盟的检测，可根据实际需求调整）
+                bool bDetected = CanDetectTarget(target, range_km);
+                // 如果检测到目标且距离更近
+                if ((bDetected) && (range_km < minRange))
                 {
-                    float range_km;
-                    /* Substitute this to disable own-alliance seeker detections:
-                    ** bool bDetected = (parent->GetAlliance() != target->GetAlliance()) &&
-                    **    CanDetectTarget(target,range_km);
-                    */
-                    bool bDetected = CanDetectTarget(target, range_km);
-                    if ((bDetected) && (range_km < minRange))
-                    {
-                        minID = target->mnID;
-                        minRange = range_km;
-                    }
+                    minID = target->mnID; // 更新最小距离对应的目标ID
+                    minRange = range_km; // 更新最小距离
                 }
             }
-           
-            if (minID==NULL_INDEX) return; // no targets found
-            parent->DesignateTarget(minID); // select closest as target
         }
+
+        // 如果没有找到目标，则直接返回
+        if (minID == NULL_INDEX) return;
+        // 指定最近的目标为攻击目标
+        parent->DesignateTarget(minID);
+    }
     }
 }
 
@@ -646,55 +675,58 @@ void tcESMSensor::ProcessESMDetection(tcGameObject* target, double t)
     UpdateSensorMap(target, maEmitter, nEmitters, fAz_rad, t);
 }
 /**
-* Called after ESM detection to update sensor map
+* 在ESM检测后调用以更新传感器地图
 */
 void tcESMSensor::UpdateSensorMap(const tcGameObject* target, long* emitters, unsigned int nEmitters,
                                   float az_rad, double t)
 {
-    tcSensorMapTrack *pSMTrack = 0;
+    tcSensorMapTrack *pSMTrack = 0; // 初始化传感器地图跟踪指针为0
 
-    assert(simState);
-    assert(emitters);
+    assert(simState); // 断言模拟状态不为空
+    assert(emitters); // 断言发射器数组不为空
 
-    if (targetRange_km == 0)
+    if (targetRange_km == 0) // 如果目标距离未设置
     {
-        assert(target != 0);
-        targetRange_km = parent->mcKin.RangeToKmAlt(target->mcKin);// target range may not be updated when multiple emitters on target
-        // targetRange_km = parent->mcKin.RangeToKmAlt(target); // target range may not be updated when multiple emitters on target
+        assert(target != 0); // 断言目标对象不为空
+        // 计算并设置目标距离（考虑到目标上可能有多个发射器，目标距离可能未更新）
+        targetRange_km = parent->mcKin.RangeToKmAlt(target->mcKin);
+        // targetRange_km = parent->mcKin.RangeToKmAlt(target); // 上一行代码的注释版本，功能相同
     }
 
-    // call update to check for this report already in track, or for an empty slot
+    // 调用更新函数以检查此报告是否已在跟踪中，或者是否有空槽可用
     tcSensorReport* report =
         simState->mcSensorMap.GetOrCreateReport(parent->mnID, mpDBObj->mnKey, target->mnID, pSMTrack, parent->GetAlliance());
 
-    // update passive report if available
     // 如果报告存在，则更新被动报告
     if (report != 0)
     {
+        // 此部分代码被注释，原本用于处理新检测报告的起始时间
         //bool bNewReport = report->IsNew();
-        //if (bNewReport) // new detection report
+        //if (bNewReport) // 如果是新检测报告
         //{
-        //    // RWR reports jump to classify and range info much quicker
+        //    // RWR报告更快地跳到分类和范围信息
         //    report->startTime = rwrUpdate ? t - 60.0f : t;
         //}
+        // 更新被动报告
         tcSensorState::UpdatePassiveReport(report, t, az_rad, targetRange_km, pSMTrack);
 
-        double trackLife = report->GetTrackLife();
+        double trackLife = report->GetTrackLife(); // 获取报告跟踪的生命周期
 
-        unsigned int nClassification = target->mpDBObject->mnType;
+        unsigned int nClassification = target->mpDBObject->mnType; // 获取目标的分类
         bool isMissile = (nClassification & PTYPE_MISSILE) != 0; // 判断目标是否为导弹
-        bool updateClassification = (isMissile || (trackLife > 30.0));
+        bool updateClassification = (isMissile || (trackLife > 30.0)); // 判断是否需要更新分类
 
-        // TODO: problem here with radar and ESM updates competing
-        // need to merge updates vs. taking first one only
-        if (updateClassification)
+        // TODO: 这里存在雷达和ESM更新竞争的问题
+        // 需要合并更新，而不是只取第一个
+        if (updateClassification) // 如果需要更新分类
         {
-            report->classification = nClassification & 0xFFF0;
-            if (isMissile)
+            report->classification = nClassification & 0xFFF0; // 更新报告的分类
+            if (isMissile) // 如果是导弹
             {
-                report->alliance = target->GetAlliance();
+                report->alliance = target->GetAlliance(); // 更新报告的联盟信息
             }
 
+            // 此部分代码被注释，原本用于更新跟踪分类和联盟信息
             //tcAllianceInfo::Affiliation eAffil = tcAllianceInfo::UNKNOWN;
             //if (isMissile)
             //{
@@ -702,6 +734,7 @@ void tcESMSensor::UpdateSensorMap(const tcGameObject* target, long* emitters, un
             //}
             //pSMTrack->UpdateClassification(nClassification & 0xFFF0, eAffil, NULL_INDEX);
 
+            // 触发更新接触事件
             //tcEventManager::Get()->UpdatedContact(parent->GetAlliance(), pSMTrack);
         }
         else
@@ -710,43 +743,42 @@ void tcESMSensor::UpdateSensorMap(const tcGameObject* target, long* emitters, un
         }
         // 检查是否为新检测
         bool bNewDetection = pSMTrack->IsNew();
-        if (bNewDetection)
+        if (bNewDetection) // 如果是新检测
         {
-            pSMTrack->UpdateTrack(0);
+            pSMTrack->UpdateTrack(0); // 更新跟踪信息
 
+            // 触发新接触事件
             tcEventManager::Get()->NewContact(parent->GetAlliance(), pSMTrack);
 
-            if (simState->mpUserInfo->IsOwnAlliance(parent->GetAlliance()))
+            if (simState->mpUserInfo->IsOwnAlliance(parent->GetAlliance())) // 如果检测到的是己方联盟的目标
             {
-//                tcSound::Get()->PlayEffect("Ping");
+                // 播放音效代码被注释
+                //tcSound::Get()->PlayEffect("Ping");
             }
+            // 打印检测信息的代码被注释
             //char zBuff[128];
             //sprintf(zBuff, "target %d detected with ESM at %3.1f deg at time %.1f [a:%d]",
             //    target->mnID, az_rad, t, parent->GetAlliance());
             //WTLC(zBuff);
         }
 
-        /* this section is called even if no free reports are available, (?)
-        ** so that ESM can update classification and emitters
+        /* 即使没有空闲报告可用，也会调用此部分代码，
+        ** 以便ESM可以更新分类和发射器信息
         */
 
-        // update emitter info
-        report->emitterList.clear();
-        if (last_margin_dB >= mpDBObj->idThreshold_dB)
+        // 更新发射器信息
+        report->emitterList.clear(); // 清空发射器列表
+        if (last_margin_dB >= mpDBObj->idThreshold_dB) // 如果最后检测到的边距大于数据库对象的阈值
         {
-            for (unsigned int n=0; n<nEmitters; n++)
+            for (unsigned int n=0; n<nEmitters; n++) // 遍历所有发射器
             {
-                report->emitterList.push_back(emitters[n]);
+                report->emitterList.push_back(emitters[n]); // 将发射器添加到报告中
             }
         }
 
-
     }
 
-
-
 }
-
 
 
 /**

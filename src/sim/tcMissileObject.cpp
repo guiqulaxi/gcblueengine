@@ -913,9 +913,9 @@ void tcMissileObject::UpdateGuidance(double afStatusTime)
                 tcTrack predictedTrack; 
                 mapTrack.GetPrediction(predictedTrack, afStatusTime);
 
-                float range3D_rad = 0;
+                float range_km = 0;
                 mcKin.GetInterceptData3D(predictedTrack, goalHeading_rad, 
-                    interceptPitch_rad, tti_s, range3D_rad);
+                    interceptPitch_rad, tti_s, range_km);
 
                 // For few seconds after launch, head for track without prediction while missile accelerates
                 if (msKState.mfFlightTime < 5)
@@ -1196,12 +1196,12 @@ void tcMissileObject::UpdateGuidanceSim(MissileSimData& simData, const tcMissile
             groundTrack.mfSpeed_kts = 0;
 
             float tti_s;
-            float range_rad;
+            float range_km;
 
             simData.missileKin.GetInterceptData3D(groundTrack, simData.goalHeading_rad, 
-                interceptPitch_rad, tti_s, range_rad);
+                interceptPitch_rad, tti_s, range_km);
 
-            simData.rangeToObjective_km = C_RADTOKM * range_rad;
+            simData.rangeToObjective_km = range_km;
 
             if (simData.rangeToObjective_km < 0.5f)
             {
@@ -1279,7 +1279,7 @@ void tcMissileObject::UpdateGuidanceSim(MissileSimData& simData, const tcMissile
             simData.missileKin.GetInterceptData3D(simData.targetTrack, simData.goalHeading_rad, 
                 interceptPitch_rad, tti_s, simData.rangeToObjective_km);
 
-            simData.rangeToObjective_km *= C_RADTOKM; // convert to km
+            //simData.rangeToObjective_km *= C_RADTOKM; // convert to km
 
             if (simData.kstate.mfAltitude_m <= 4.0) 
             {

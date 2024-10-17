@@ -73,7 +73,7 @@ public:
 	tcSensorPlatform* sensorPlatform; ///< parent should always be a sensor plat, this is a down-cast for convenience
     long mnDBKey; 
     tcSensorDBObject* mpDBObj;
-    double mfLastScan; //记录上一次扫描的时间。
+    double mfLastScan; ///记录上一次扫描的时间。
     float mfCurrentScanPeriod_s;
     short int mnMode;
     tcTrack mcTrack;

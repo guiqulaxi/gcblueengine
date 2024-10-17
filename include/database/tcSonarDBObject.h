@@ -43,18 +43,18 @@ namespace database
     class tcSonarDBObject : public tcSensorDBObject 
     {
     public:
-        float SL;                   ///< [dB] source level (active only)
-        float DI;                   ///< [dB] receive directivity index (includes processing gain)
-        float minFrequency_Hz;
-        float maxFrequency_Hz;
-        bool isPassive;
+        float SL;                   ///< [dB] source level (active only) [dB] 源级（仅主动模式有效）
+        float DI;                   ///< [dB] receive directivity index (includes processing gain) [dB] 接收指向性指数（包括处理增益）
+        float minFrequency_Hz;      ///< 最小频率（赫兹）
+        float maxFrequency_Hz;      ///< 最大频率（赫兹）
+        bool isPassive;             ///< 是否为被动模式
         bool isActive;              ///< both isActive and isPassive indicate selectable at launch
-        bool isTowed;
-        float maxScope_m;           ///< towed array scope or dipping sonar "scope"
-        bool isWakeHoming;          ///< wake homing vs. surface only
+        bool isTowed;               ///< 是否为拖曳阵列
+        float maxScope_m;           ///< towed array scope or dipping sonar "scope"  拖曳阵列范围或潜望声纳“范围”（米）
+        bool isWakeHoming;          ///< wake homing vs. surface only 是否为尾流制导（相对于仅表面制导
 
-        float alpha;                ///< CALCULATED attenuation coefficent in dB/km
-        float averageFreq_Hz;   ///< CALCULATED
+        float alpha;                ///< CALCULATED attenuation coefficent in dB/km 计算得到的衰减系数
+        float averageFreq_Hz;   ///< CALCULATED  计算得到的平均频率
 
         virtual tcSensorState* CreateSensor(tcGameObject* parent); ///< factory method
         virtual const char* GetClassName() const {return "Sonar";} ///< returns class name of database object

@@ -55,14 +55,14 @@ class tcPoint;
 class tcTrack 
 {
 public:
-    float mfLon_rad;
-    float mfLat_rad;
-    float mfAlt_m;
-    float mfSpeed_kts;
-    float mfHeading_rad;
-    float mfClimbAngle_rad;
-    float bearing_rad; ///< bearing for bearing-only tracks
-    float bearingRate_radps;       ///< bearing rate in rad/s for bearing-only tracks
+    float mfLon_rad; ///< 经度，以弧度为单位
+    float mfLat_rad; ///< 纬度，以弧度为单位
+    float mfAlt_m;   ///< 高度，以米为单位
+    float mfSpeed_kts; ///< 速度，以节（kts）为单位
+    float mfHeading_rad; ///< 航向，以弧度为单位
+    float mfClimbAngle_rad; ///< 爬升角，以弧度为单位
+    float bearing_rad; ///< 仅方位跟踪的方位角，以弧度为单位
+    float bearingRate_radps; ///< 仅方位跟踪的方位角变化率，以弧度/秒为单位
     double mfTimestamp;
     long mnID;
     //long mnPassivePlatformID; ///< long vs. unsigned int vs. long issue here to resolve eventually

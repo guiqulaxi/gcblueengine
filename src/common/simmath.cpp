@@ -956,50 +956,95 @@ void tcKinematics::GetInterceptData2D(const tcTrack& track,
 
 }
 
-void tcKinematics::GetInterceptData3D(const tcTrack& track, float& rfHeading_rad, 
-                                      float& rfClimbAngle_rad, float& rfTimeToIntercept, float& rfRange_rad)
+/**
+ * @brief 函数旨在计算我方（一个动态对象，可能是一架飞机或导弹）为了拦截一个目标（另一个动态对象，如敌方飞机或导弹）所需的数据
+ * @param track
+ * @param rfHeading_rad 拦截时的航向角
+ * @param rfClimbAngle_rad 拦截时的爬升角，以弧度为单位
+ * @param rfTimeToIntercept 预计的拦截时间
+ * @param rfRange_km 目标与我方之间的直线距离
+ */
+void tcKinematics::GetInterceptData3D(const tcTrack& track, float& rfHeading_rad,
+                                      float& rfClimbAngle_rad, float& rfTimeToIntercept, float& rfRange_km)
 {
-    float dx,dy,dz,dx2,dy2,dz2;
-    float vtx,vty,vtz,vtx2,vty2,vtz2; // track velocity components
-    float vx,vy,vz,v2;
-    float fTrackSpeed_radps, fSpeed_radps;
-    float a,b,c,det,k; // quadratic equation coefficients
+    // 定义用于计算的中间变量
+    float dx,dy,dz,dx2,dy2,dz2; // 目标与我方在经度、纬度和高度上的差值及其平方
+    float vtx,vty,vtz,vtx2,vty2,vtz2; // 目标速度分量
+    float vx,vy,vz,v2; // 我方拦截时的速度分量及速度的平方
+    float fTrackSpeed_radps, fSpeed_radps; // 目标速度和我方速度，单位：弧度/秒
+    float a,b,c,det,k; // 二次方程系数及判别式
 
-    dx = (track.mfLon_rad - (float)mfLon_rad)*cosf((float)mfLat_rad);
-    dy = track.mfLat_rad - (float)mfLat_rad;
-    dz = (track.mfAlt_m - mfAlt_m)*C_MTORAD;
+    // 计算目标与我方在经度、纬度和高度上的差值
+
+    double dlon = mfLon_rad - track.mfLon_rad;
+    double dlat = mfLat_rad - track.mfLat_rad;
+
+    dx = C_RADTOM*cosf(mfLat_rad)*((float)dlon);
+    dy = C_RADTOM*((float)dlat);
+    dz = (track.mfAlt_m - mfAlt_m)*C_MTORAD; // 高度差转换为弧度（C_MTORAD为米转弧度的常数）
+    // dx = (track.mfLon_rad - (float)mfLon_rad)*cosf((float)mfLat_rad); // 考虑纬度对经度差的影响
+    // dy = track.mfLat_rad - (float)mfLat_rad;
+    // dz = (track.mfAlt_m - mfAlt_m)*C_MTORAD; // 高度差转换为弧度（C_MTORAD为米转弧度的常数）
+
+    // 计算差值的平方
     dx2 = dx*dx;
     dy2 = dy*dy;
     dz2 = dz*dz;
-    rfRange_rad = sqrtf(dx2+dy2+dz2);
 
+    // 计算目标与我方的直线距离（以弧度为单位，实际上这里应该是直线距离但单位用了弧度，可能是个错误或者特定上下文中的用法）
+    rfRange_km = sqrtf(dx2+dy2+dz2)*0.001;
+
+    // 将目标速度从节转换为弧度/秒
     fTrackSpeed_radps = track.mfSpeed_kts*C_KTSTORADPS;
+
+    // 计算目标速度在垂直和水平方向上的分量
     vtz = sinf(track.mfClimbAngle_rad)*fTrackSpeed_radps;
     float vtgroundspeed = cosf(track.mfClimbAngle_rad)*fTrackSpeed_radps;
     vtx = vtgroundspeed*sinf(track.mfHeading_rad);
     vty = vtgroundspeed*cosf(track.mfHeading_rad);
+
+    // 计算速度分量的平方
     vtx2 = vtx*vtx;
     vty2 = vty*vty;
     vtz2 = vtz*vtz;
+
+    // 将我方速度从节转换为弧度/秒，并计算其平方
     fSpeed_radps = mfSpeed_kts*C_KTSTORADPS; // ownship speed
     v2 = fSpeed_radps*fSpeed_radps;
+
+    // 构建二次方程的系数a, b, c，用于求解拦截时间
     a = dx2 + dy2 + dz2;
     b = 2.0f*(dx*vtx + dy*vty + dz*vtz);
     c = vtx2 + vty2 + vtz2 - v2;
+
+    // 计算判别式
     det = (b*b - 4.0f*a*c);
+
+    // 如果判别式小于0，则假设我方速度稍快一些以得到一个解（这里的方法可能不是最准确的）
     if (det < 0) {
         det = b*b + 4.0f*a*0.1f*v2; // assume slightly faster
-    } // no solution exists
+    }
+
+    // 解二次方程得到拦截时间k（可能还需要检查负解）
     k = (-b + sqrtf(det))/(2.0f*a); // may need to check negative sol'n too, check for k < 0?? 3 OCT
+
+    // 计算拦截时的速度分量
     vx = vtx + k*dx;
     vy = vty + k*dy;
     vz = vtz + k*dz;
-    float vground = sqrtf(vx*vx + vy*vy);
-    // negative solution is evasion course
 
-    rfHeading_rad = atan2f(vx,vy);
-    //rfHeading_rad = atan2f(dx,dy);
+    // 计算拦截时的地面速度
+    float vground = sqrtf(vx*vx + vy*vy);
+
+    // 计算拦截时的航向角和爬升角
+    rfHeading_rad = atan2f(vx,vy); // 拦截时的航向角
+    //rfHeading_rad = atan2f(dx,dy); // 这行被注释掉了，可能是之前的尝试或错误
+
+    // 计算拦截时间（这里的方法可能不精确，因为它没有考虑加速度和三维空间中的复杂运动）
+    // 注意：这个计算方法在很多情况下可能不准确，特别是当目标和我方都在移动时
     rfTimeToIntercept = (fabsf(dy)>=fabsf(dx)) ? dy/(vy-vty) : dx/(vx-vtx);
+
+    // 计算拦截时的爬升角
     rfClimbAngle_rad = atanf(vz/vground);
 }
 

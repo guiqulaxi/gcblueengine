@@ -52,18 +52,18 @@
 */
 tcUpdateStream& tcTorpedoObject::operator<<(tcUpdateStream& stream)
 {
-	tcWeaponObject::operator<<(stream);
+    tcWeaponObject::operator<<(stream);
 
-	stream >> goalHeading_rad;
-	stream >> goalPitch_rad;
-	stream >> goalSpeed_kts; 
-	stream >> interceptTime;
-	stream >> lastGuidanceUpdate;
-	stream >> guidanceUpdateInterval;
-	waypoint << stream;
-	seeker->operator<<(stream);
+    stream >> goalHeading_rad;
+    stream >> goalPitch_rad;
+    stream >> goalSpeed_kts;
+    stream >> interceptTime;
+    stream >> lastGuidanceUpdate;
+    stream >> guidanceUpdateInterval;
+    waypoint << stream;
+    seeker->operator<<(stream);
 
-	return stream;
+    return stream;
 }
 
 /**
@@ -71,18 +71,18 @@ tcUpdateStream& tcTorpedoObject::operator<<(tcUpdateStream& stream)
 */
 tcUpdateStream& tcTorpedoObject::operator>>(tcUpdateStream& stream)
 {
-	tcWeaponObject::operator>>(stream);
+    tcWeaponObject::operator>>(stream);
 
-	stream << goalHeading_rad;
-	stream << goalPitch_rad;
-	stream << goalSpeed_kts; 
-	stream << interceptTime;
-	stream << lastGuidanceUpdate;
-	stream << guidanceUpdateInterval;
-	waypoint >> stream;
-	seeker->operator>>(stream);
+    stream << goalHeading_rad;
+    stream << goalPitch_rad;
+    stream << goalSpeed_kts;
+    stream << interceptTime;
+    stream << lastGuidanceUpdate;
+    stream << guidanceUpdateInterval;
+    waypoint >> stream;
+    seeker->operator>>(stream);
 
-	return stream;
+    return stream;
 }
 
 /**
@@ -90,9 +90,9 @@ tcUpdateStream& tcTorpedoObject::operator>>(tcUpdateStream& stream)
 */
 tcGameStream& tcTorpedoObject::operator<<(tcGameStream& stream)
 {
-	int version = stream.GetVersionId();
+    int version = stream.GetVersionId();
 
-	tcWeaponObject::operator<<(stream);
+    tcWeaponObject::operator<<(stream);
     tcSensorPlatform::operator<<(stream);
 
     stream >> goalDepth_m;
@@ -101,7 +101,7 @@ tcGameStream& tcTorpedoObject::operator<<(tcGameStream& stream)
     stream >> goalSpeed_kts; 
     stream >> interceptTime;
     stream >> runTime;
-	if (version > 8) {stream >> searchStartTime;}
+    if (version > 8) {stream >> searchStartTime;}
     stream >> lastGuidanceUpdate;
     stream >> guidanceUpdateInterval;
 
@@ -118,7 +118,7 @@ tcGameStream& tcTorpedoObject::operator<<(tcGameStream& stream)
 
     stream.ReadCheckValue(263);
 
-	return stream;
+    return stream;
 }
 
 /**
@@ -126,9 +126,9 @@ tcGameStream& tcTorpedoObject::operator<<(tcGameStream& stream)
 */
 tcGameStream& tcTorpedoObject::operator>>(tcGameStream& stream)
 {
-	int version = stream.GetVersionId();
+    int version = stream.GetVersionId();
 
-	tcWeaponObject::operator>>(stream);
+    tcWeaponObject::operator>>(stream);
     tcSensorPlatform::operator>>(stream);
 
     stream << goalDepth_m;
@@ -137,7 +137,7 @@ tcGameStream& tcTorpedoObject::operator>>(tcGameStream& stream)
     stream << goalSpeed_kts; 
     stream << interceptTime;
     stream << runTime;
-	if (version > 8) {stream << searchStartTime;}
+    if (version > 8) {stream << searchStartTime;}
     stream << lastGuidanceUpdate;
     stream << guidanceUpdateInterval;
 
@@ -154,7 +154,7 @@ tcGameStream& tcTorpedoObject::operator>>(tcGameStream& stream)
 
     stream.WriteCheckValue(263);
 
-	return stream;
+    return stream;
 }
 
 
@@ -172,13 +172,13 @@ void tcTorpedoObject::LaunchFrom(tcGameObject* obj, unsigned nLauncher)
     autoWireUpdates = true;
 
     tcLauncher virtualLauncher; // for missile deployment
-	tcLauncher* pLauncher = &virtualLauncher;
+    tcLauncher* pLauncher = &virtualLauncher;
 
     if (tcPlatformObject* platObj = dynamic_cast<tcPlatformObject*>(obj))
     {
         tc3DPoint launcherPos = platObj->mpDBObject->GetLauncherPosition(nLauncher);
         GeoPoint pos = obj->RelPosToLatLonAlt(launcherPos.x, launcherPos.y,
-            launcherPos.z);
+                                              launcherPos.z);
         mcKin.mfLon_rad = pos.mfLon_rad;
         mcKin.mfLat_rad = pos.mfLat_rad;
         mcKin.mfAlt_m = pos.mfAlt_m;
@@ -207,15 +207,15 @@ void tcTorpedoObject::LaunchFrom(tcGameObject* obj, unsigned nLauncher)
             searchMode = randbool() ? SEARCH_LEFTCIRCLE : SEARCH_RIGHTCIRCLE;
         }
     }
-	else if (tcMissileObject* missile = dynamic_cast<tcMissileObject*>(obj))
-	{
-		mcKin.mfLon_rad = obj->mcKin.mfLon_rad;
-		mcKin.mfLat_rad = obj->mcKin.mfLat_rad;
-		mcKin.mfAlt_m = obj->mcKin.mfAlt_m;
+    else if (tcMissileObject* missile = dynamic_cast<tcMissileObject*>(obj))
+    {
+        mcKin.mfLon_rad = obj->mcKin.mfLon_rad;
+        mcKin.mfLat_rad = obj->mcKin.mfLat_rad;
+        mcKin.mfAlt_m = obj->mcKin.mfAlt_m;
 
         virtualLauncher.pointingAngle = 0;
-	    virtualLauncher.pointingElevation = 0;
-		virtualLauncher.firingArc_deg = 0;
+        virtualLauncher.pointingElevation = 0;
+        virtualLauncher.firingArc_deg = 0;
         virtualLauncher.runToEnable_m = 0;
         virtualLauncher.msDatum = missile->msWaypoint;
         virtualLauncher.runDepth_m = 0;
@@ -230,12 +230,12 @@ void tcTorpedoObject::LaunchFrom(tcGameObject* obj, unsigned nLauncher)
     }
     else if (tcTorpedoObject* torpedo = dynamic_cast<tcTorpedoObject*>(obj))
     {
-		mcKin.mfLon_rad = obj->mcKin.mfLon_rad;
-		mcKin.mfLat_rad = obj->mcKin.mfLat_rad;
-		mcKin.mfAlt_m = obj->mcKin.mfAlt_m;
+        mcKin.mfLon_rad = obj->mcKin.mfLon_rad;
+        mcKin.mfLat_rad = obj->mcKin.mfLat_rad;
+        mcKin.mfAlt_m = obj->mcKin.mfAlt_m;
 
         virtualLauncher.pointingAngle = 0;
-	    virtualLauncher.pointingElevation = 0;
+        virtualLauncher.pointingElevation = 0;
         virtualLauncher.runToEnable_m = 1.0; // start enabled
         virtualLauncher.msDatum = torpedo->waypoint;
         virtualLauncher.runDepth_m = torpedo->goalDepth_m;
@@ -248,17 +248,17 @@ void tcTorpedoObject::LaunchFrom(tcGameObject* obj, unsigned nLauncher)
         mcKin.mfSpeed_kts = obj->mcKin.mfSpeed_kts + C_MPSTOKTS * mpDBObject->launchSpeed_mps;
         searchMode = randbool() ? SEARCH_LEFTCIRCLE : SEARCH_RIGHTCIRCLE;
     }
-	else if (tcBallisticWeapon* ballistic = dynamic_cast<tcBallisticWeapon*>(obj))
-	{
-		mcKin.mfLon_rad = obj->mcKin.mfLon_rad;
-		mcKin.mfLat_rad = obj->mcKin.mfLat_rad;
-		mcKin.mfAlt_m = obj->mcKin.mfAlt_m;
-		mcKin.mfSpeed_kts = obj->mcKin.mfSpeed_kts + C_MPSTOKTS * mpDBObject->launchSpeed_mps;
+    else if (tcBallisticWeapon* ballistic = dynamic_cast<tcBallisticWeapon*>(obj))
+    {
+        mcKin.mfLon_rad = obj->mcKin.mfLon_rad;
+        mcKin.mfLat_rad = obj->mcKin.mfLat_rad;
+        mcKin.mfAlt_m = obj->mcKin.mfAlt_m;
+        mcKin.mfSpeed_kts = obj->mcKin.mfSpeed_kts + C_MPSTOKTS * mpDBObject->launchSpeed_mps;
 
         virtualLauncher.pointingAngle = 0;
-	    virtualLauncher.pointingElevation = 0;
+        virtualLauncher.pointingElevation = 0;
         virtualLauncher.runToEnable_m = 1.0; // start enabled
-		virtualLauncher.msDatum.Set(mcKin.mfLon_rad, mcKin.mfLat_rad, 0);
+        virtualLauncher.msDatum.Set(mcKin.mfLon_rad, mcKin.mfLat_rad, 0);
         virtualLauncher.runDepth_m = 0;
         virtualLauncher.preEnableSpeed_kts = 35.0f;
         virtualLauncher.ceiling_m = 0;
@@ -266,35 +266,35 @@ void tcTorpedoObject::LaunchFrom(tcGameObject* obj, unsigned nLauncher)
         virtualLauncher.usePassive = false;
         virtualLauncher.mnTargetID = ballistic->GetIntendedTarget();
 
-		if (ballistic->mpDBObject->payloadQuantity > 1) // assume this is a RBU type
-		{
-			virtualLauncher.pointingAngle += randfc(1.0f);
-			virtualLauncher.pointingElevation += randfc(0.1f);
-		}
-	}
+        if (ballistic->mpDBObject->payloadQuantity > 1) // assume this is a RBU type
+        {
+            virtualLauncher.pointingAngle += randfc(1.0f);
+            virtualLauncher.pointingElevation += randfc(0.1f);
+        }
+    }
     else
     {
         assert(false);
         fprintf(stderr, "tcTorpedoObject::LaunchFrom - Launched from invalid platform (%s)\n",
-            obj->GetName());
+                obj->GetName());
         return;
     }
 
-	// added this for unguided torpedo modeling, 11 APR 2011
-	if (seeker == 0) // straight run if no seeker
-	{
-		searchMode = SEARCH_STRAIGHT;
-	}
+    // added this for unguided torpedo modeling, 11 APR 2011
+    if (seeker == 0) // straight run if no seeker
+    {
+        searchMode = SEARCH_STRAIGHT;
+    }
 
 
 
-	mcKin.mfHeading_rad = obj->mcKin.mfHeading_rad + pLauncher->pointingAngle;
-	mcKin.mfPitch_rad = obj->mcKin.mfPitch_rad + pLauncher->pointingElevation;
-	mcKin.mfClimbAngle_rad = mcKin.mfPitch_rad;
+    mcKin.mfHeading_rad = obj->mcKin.mfHeading_rad + pLauncher->pointingAngle;
+    mcKin.mfPitch_rad = obj->mcKin.mfPitch_rad + pLauncher->pointingElevation;
+    mcKin.mfClimbAngle_rad = mcKin.mfPitch_rad;
 
-	waypoint = pLauncher->msDatum;
+    waypoint = pLauncher->msDatum;
 
-	goalHeading_rad = mcKin.HeadingToGeoRad(&waypoint);
+    goalHeading_rad = mcKin.HeadingToGeoRad(&waypoint);
     if (pLauncher->runToEnable_m > 0)
     {
         runToEnable_m = pLauncher->runToEnable_m;
@@ -331,40 +331,40 @@ void tcTorpedoObject::LaunchFrom(tcGameObject* obj, unsigned nLauncher)
                 }
                 else
                 {
-					float terrain_m = tcMapData::Get()->GetTerrainHeight(
-						C_180OVERPI*obj->mcKin.mfLon_rad, C_180OVERPI*obj->mcKin.mfLat_rad, obj->mfStatusTime);
-					float maxDepth_m = std::min(-terrain_m - 15.0f, mpDBObject->maxDepth_m);
-					maxDepth_m = std::max(maxDepth_m, 10.0f);
+                    float terrain_m = tcMapData::Get()->GetTerrainHeight(
+                        C_180OVERPI*obj->mcKin.mfLon_rad, C_180OVERPI*obj->mcKin.mfLat_rad, obj->mfStatusTime);
+                    float maxDepth_m = std::min(-terrain_m - 15.0f, mpDBObject->maxDepth_m);
+                    maxDepth_m = std::max(maxDepth_m, 10.0f);
                     goalDepth_m = ((maxDepth_m - 10.0f) * randf()) + 10.0f; // randomly pick a depth
                 }
             }
         }
         else
         {
-			bool subValid = (mpDBObject->targetFlags & SUBSURFACE_TARGET) != 0;
-			bool surfaceValid = (mpDBObject->targetFlags & SURFACE_TARGET) != 0;
-			
-			if (surfaceValid && !subValid)
-			{
-				goalDepth_m = 5.0f;
-			}
-			else
-			{
-				float terrain_m = tcMapData::Get()->GetTerrainHeight(
-					C_180OVERPI*obj->mcKin.mfLon_rad, C_180OVERPI*obj->mcKin.mfLat_rad, obj->mfStatusTime);
-				float maxDepth_m = std::min(-terrain_m - 15.0f, mpDBObject->maxDepth_m);
-				maxDepth_m = std::max(maxDepth_m, 10.0f);
-				goalDepth_m = ((maxDepth_m - 10.0f) * randf()) + 10.0f; // randomly pick a depth
-			}
+            bool subValid = (mpDBObject->targetFlags & SUBSURFACE_TARGET) != 0;
+            bool surfaceValid = (mpDBObject->targetFlags & SURFACE_TARGET) != 0;
+
+            if (surfaceValid && !subValid)
+            {
+                goalDepth_m = 5.0f;
+            }
+            else
+            {
+                float terrain_m = tcMapData::Get()->GetTerrainHeight(
+                    C_180OVERPI*obj->mcKin.mfLon_rad, C_180OVERPI*obj->mcKin.mfLat_rad, obj->mfStatusTime);
+                float maxDepth_m = std::min(-terrain_m - 15.0f, mpDBObject->maxDepth_m);
+                maxDepth_m = std::max(maxDepth_m, 10.0f);
+                goalDepth_m = ((maxDepth_m - 10.0f) * randf()) + 10.0f; // randomly pick a depth
+            }
         }
     }
     else // mine or depth charge
     {
-		float terrain_m = tcMapData::Get()->GetTerrainHeight(
-			C_180OVERPI*obj->mcKin.mfLon_rad, C_180OVERPI*obj->mcKin.mfLat_rad, obj->mfStatusTime);
-		float maxDepth_m = std::min(-terrain_m - 50.0f, mpDBObject->maxDepth_m);
-		maxDepth_m = std::max(maxDepth_m, 100.0f);
-		goalDepth_m = ((maxDepth_m - 100.0f) * randf()) + 100.0f; // randomly pick a depth
+        float terrain_m = tcMapData::Get()->GetTerrainHeight(
+            C_180OVERPI*obj->mcKin.mfLon_rad, C_180OVERPI*obj->mcKin.mfLat_rad, obj->mfStatusTime);
+        float maxDepth_m = std::min(-terrain_m - 50.0f, mpDBObject->maxDepth_m);
+        maxDepth_m = std::max(maxDepth_m, 100.0f);
+        goalDepth_m = ((maxDepth_m - 100.0f) * randf()) + 100.0f; // randomly pick a depth
     }
 
     // keep off bottom and surface
@@ -391,41 +391,41 @@ void tcTorpedoObject::LaunchFrom(tcGameObject* obj, unsigned nLauncher)
         if (mpDBObject->payloadClass.size() == 0)
         {
             fprintf(stderr, "tcTorpedoObject::LaunchFrom - CAPTOR has no payload (%s)\n",
-                mpDBObject->mzClass.c_str());
+                    mpDBObject->mzClass.c_str());
             return;
         }
     }
 
 
-	mfStatusTime = obj->mfStatusTime;
+    mfStatusTime = obj->mfStatusTime;
 
     battery_kJ = mpDBObject->battery_kJ; // start with full battery charge
-	
-	if (seeker != 0)
-	{
-		if (pLauncher->usePassive)
-		{
-			seeker->SetPassiveSonar();
-		}
-		else
-		{
-			seeker->SetActiveSonar();
-		}
 
-		seeker->mnMode = SSMODE_SEEKERSEARCH;
-		seeker->SetActive(false); // override default for passive to always be active
-	}
+    if (seeker != 0)
+    {
+        if (pLauncher->usePassive)
+        {
+            seeker->SetPassiveSonar();
+        }
+        else
+        {
+            seeker->SetActiveSonar();
+        }
+
+        seeker->mnMode = SSMODE_SEEKERSEARCH;
+        seeker->SetActive(false); // override default for passive to always be active
+    }
 
     std::string s = strutil::format("Torp %d-%d", obj->mnID, launchedCounter++);
     mzUnit = s.c_str();      
-        
-	SetAlliance(obj->GetAlliance());     
 
-	simState->AddPlatform(static_cast<tcGameObject*>(this));
+    SetAlliance(obj->GetAlliance());
 
-	// Set intended target (has to be done after alliance and id is set).
-	// This is a tcWeaponObject method
-	SetIntendedTarget(pLauncher->mnTargetID);
+    simState->AddPlatform(static_cast<tcGameObject*>(this));
+
+    // Set intended target (has to be done after alliance and id is set).
+    // This is a tcWeaponObject method
+    SetIntendedTarget(pLauncher->mnTargetID);
 
 }
 
@@ -492,16 +492,16 @@ tcSonar* tcTorpedoObject::GetSensorState()
 float tcTorpedoObject::GetSonarSourceLevel(float az_deg) const
 {
     float SLp = mpDBObject->GetSourceLevel(C_KTSTOMPS*goalSpeed_kts, -mcKin.mfAlt_m, az_deg);
-	if (!IsEnsonifying()) return SLp;
+    if (!IsEnsonifying()) return SLp;
 
-	if (seeker->mpDBObj->SL > SLp)
-	{
-		return seeker->mpDBObj->SL;
-	}
-	else
-	{
-		return SLp;
-	}
+    if (seeker->mpDBObj->SL > SLp)
+    {
+        return seeker->mpDBObj->SL;
+    }
+    else
+    {
+        return SLp;
+    }
 }
 
 /**
@@ -509,8 +509,8 @@ float tcTorpedoObject::GetSonarSourceLevel(float az_deg) const
 */
 void tcTorpedoObject::Update(double afStatusTime)
 {
-	float dt_s = (float)(afStatusTime - mfStatusTime);
-	mfStatusTime = afStatusTime;
+    float dt_s = (float)(afStatusTime - mfStatusTime);
+    mfStatusTime = afStatusTime;
 
     assert(mpDBObject);
 
@@ -552,15 +552,15 @@ void tcTorpedoObject::Update(double afStatusTime)
     mcKin.mfLat_rad += (double)cosf(heading_rad) * disp_xy_rad; 
     mcKin.mfAlt_m += disp_z_m;
 
-	
 
-	if (!clientMode)
-	{
-		UpdateGuidance(afStatusTime);
-	}
-    	
+
+    if (!clientMode)
+    {
+        UpdateGuidance(afStatusTime);
+    }
+
     
-  
+
     if (runTime > 5.0f)  // swim level for first few seconds
     {
         /*** heading calculation ***/
@@ -594,37 +594,37 @@ void tcTorpedoObject::Update(double afStatusTime)
 
     runTime += dt_s;
 
-	if (clientMode) return;
+    if (clientMode) return;
 
     UpdateDetonation();
 
-//    float priorDamage = mfDamageLevel;
+    //    float priorDamage = mfDamageLevel;
 
-	/*** check for crash ***/
+    /*** check for crash ***/
 
-	if (mcTerrain.mfHeight_m >= mcKin.mfAlt_m)
+    if (mcTerrain.mfHeight_m >= mcKin.mfAlt_m)
     {
-		ApplyGeneralDamage(1.0f, 0);
-		tcString s;
-		s.Format("Torpedo %s hit bottom at time %.1f lon %.3f, lat %.3f",
-			mzUnit.c_str(), afStatusTime, mcKin.mfLon_rad*C_180OVERPI, mcKin.mfLat_rad*C_180OVERPI);
-		WTL(s.GetBuffer());
-	}
+        ApplyGeneralDamage(1.0f, 0);
+        tcString s;
+        s.Format("Torpedo %s hit bottom at time %.1f lon %.3f, lat %.3f",
+                 mzUnit.c_str(), afStatusTime, mcKin.mfLon_rad*C_180OVERPI, mcKin.mfLat_rad*C_180OVERPI);
+        WTL(s.GetBuffer());
+    }
 
     // update battery
 
     battery_kJ -= dt_s * mpDBObject->batteryRate_kWpkt * mcKin.mfSpeed_kts;
 
-	if (battery_kJ <= 0) 
+    if (battery_kJ <= 0)
     {
-		ApplyGeneralDamage(1.0f, 0); // self-destruct
+        ApplyGeneralDamage(1.0f, 0); // self-destruct
 #ifdef _DEBUG
-		tcString s;
-		s.Format("Torpedo %s shut down at time %.1f lon %.3f, lat %.3f",
-			mzUnit.c_str(), afStatusTime, mcKin.mfLon_rad*C_180OVERPI, mcKin.mfLat_rad*C_180OVERPI);
-		WTL(s.GetBuffer());
+        tcString s;
+        s.Format("Torpedo %s shut down at time %.1f lon %.3f, lat %.3f",
+                 mzUnit.c_str(), afStatusTime, mcKin.mfLon_rad*C_180OVERPI, mcKin.mfLat_rad*C_180OVERPI);
+        WTL(s.GetBuffer());
 #endif
-	}
+    }
 
     // post-launch malfunction check
     if (!tcWeaponObject::malfunctionChecked && (runTime > 60.0f))
@@ -632,7 +632,7 @@ void tcTorpedoObject::Update(double afStatusTime)
         MalfunctionCheck();
     }
 
-	tcSensorPlatform::Update(afStatusTime);
+    tcSensorPlatform::Update(afStatusTime);
 
 }
 
@@ -683,21 +683,21 @@ void tcTorpedoObject::UpdateDepthCharge(float dt_s)
         HandlePoleWrap();
     }
 
-//	UpdateEffects();
+    //	UpdateEffects();
 
-//    Update3D();
+    //    Update3D();
 
-	if (clientMode) return;
+    if (clientMode) return;
 
-	if (mcKin.mfAlt_m < -10.0f)
-	{
-		UpdateDepthChargeDetonation();
-	}
+    if (mcKin.mfAlt_m < -10.0f)
+    {
+        UpdateDepthChargeDetonation();
+    }
 
     if (mcKin.mfAlt_m <= mcTerrain.mfHeight_m)
     {
-		SelfDestruct();
-	}
+        SelfDestruct();
+    }
 
 }
 
@@ -710,80 +710,80 @@ void tcTorpedoObject::UpdateDepthChargeDetonation()
     // if we're this close to the detonation point then detonate, otherwise defer to future time step
     const float tminDet_s = 0.05f; 
 
-	float detRange_m = mpDBObject->detonationRange_m;
+    float detRange_m = mpDBObject->detonationRange_m;
 
-	tcGeoRect region;
-	float checkDistance_rad = (100.0f + detRange_m) * C_MTORAD;
+    tcGeoRect region;
+    float checkDistance_rad = (100.0f + detRange_m) * C_MTORAD;
 
-	region.Set(mcKin.mfLon_rad-checkDistance_rad, mcKin.mfLon_rad+checkDistance_rad,
-		mcKin.mfLat_rad-checkDistance_rad, mcKin.mfLat_rad+checkDistance_rad);
+    region.Set(mcKin.mfLon_rad-checkDistance_rad, mcKin.mfLon_rad+checkDistance_rad,
+               mcKin.mfLat_rad-checkDistance_rad, mcKin.mfLat_rad+checkDistance_rad);
 
-	tcGameObjIterator iter(region);
+    tcGameObjIterator iter(region);
 
-	for (iter.First();iter.NotDone();iter.Next())
-	{
-		tcGameObject *target = iter.Get();
-		if ((target != this) && (target->mpDBObject != mpDBObject)) // no self detection, and cheat and ignore other depth charges
-		{
-			float dx, dy, dz, dt;
-			Vector3d collisionPoint;
-			float collisionRange_m;
+    for (iter.First();iter.NotDone();iter.Next())
+    {
+        tcGameObject *target = iter.Get();
+        if ((target != this) && (target->mpDBObject != mpDBObject)) // no self detection, and cheat and ignore other depth charges
+        {
+            float dx, dy, dz, dt;
+            Vector3d collisionPoint;
+            float collisionRange_m;
 
-			// first check for impact
-			if (target->CalculateCollisionPoint(this, collisionPoint, dt, collisionRange_m))
-			{
-				// if this isn't a direct hit weapon, check if we're close enough despite impending collision
-				if (detRange_m > 0)
-				{
-					float dt_det_s = dt * (1.0 - (detRange_m / collisionRange_m));
-					if (dt_det_s > tminDet_s) return;
+            // first check for impact
+            if (target->CalculateCollisionPoint(this, collisionPoint, dt, collisionRange_m))
+            {
+                // if this isn't a direct hit weapon, check if we're close enough despite impending collision
+                if (detRange_m > 0)
+                {
+                    float dt_det_s = dt * (1.0 - (detRange_m / collisionRange_m));
+                    if (dt_det_s > tminDet_s) return;
 
-					Detonate(dt_det_s);
-					SetDirectHitTargetId(-1);
-					return;
-				}
+                    Detonate(dt_det_s);
+                    SetDirectHitTargetId(-1);
+                    return;
+                }
 
-				if (dt <= tminDet_s)
-				{
-					collisionPoint = target->ConvertModelCoordinatesToWorld(collisionPoint);
+                if (dt <= tminDet_s)
+                {
+                    collisionPoint = target->ConvertModelCoordinatesToWorld(collisionPoint);
                     dx = collisionPoint.x();
                     dy = collisionPoint.y();
                     dz = collisionPoint.z();
 
-					Detonate(dt);
+                    Detonate(dt);
                     SetDirectHitTargetId(target->mnID);
-					SetImpactPoint(Vector3d(dx, dy, dz));
-					return;
-				}
-			}
+                    SetImpactPoint(Vector3d(dx, dy, dz));
+                    return;
+                }
+            }
 
-			// check for proximity detonation if this isn't a direct hit weapon
-			if (detRange_m > 0)
-			{
-				// check for future closest point of approach
-				dt = target->mcKin.CalculateCollisionPoint(mcKin, dx, dy, dz);
+            // check for proximity detonation if this isn't a direct hit weapon
+            if (detRange_m > 0)
+            {
+                // check for future closest point of approach
+                dt = target->mcKin.CalculateCollisionPoint(mcKin, dx, dy, dz);
 
-				if (dt <= tminDet_s)
-				{
-					float damageRange_m = sqrtf(dx*dx + dy*dy + dz*dz); // start with range to model origin
+                if (dt <= tminDet_s)
+                {
+                    float damageRange_m = sqrtf(dx*dx + dy*dy + dz*dz); // start with range to model origin
 
-					// check if "up" ray is closer
-					if (target->CalculateCollisionPointDir(this, Vector3d(0, 1, 0), collisionPoint, collisionRange_m))
-					{
-						damageRange_m = std::min(collisionRange_m, damageRange_m);
-					}
+                    // check if "up" ray is closer
+                    if (target->CalculateCollisionPointDir(this, Vector3d(0, 1, 0), collisionPoint, collisionRange_m))
+                    {
+                        damageRange_m = std::min(collisionRange_m, damageRange_m);
+                    }
 
-					if (damageRange_m <= 2*detRange_m)
-					{
-						Detonate(dt);
-						SetDirectHitTargetId(-1);
-						return;
-					}
-				}
-			}
+                    if (damageRange_m <= 2*detRange_m)
+                    {
+                        Detonate(dt);
+                        SetDirectHitTargetId(-1);
+                        return;
+                    }
+                }
+            }
 
-		}
-	}
+        }
+    }
 }
 
 
@@ -794,13 +794,13 @@ void tcTorpedoObject::UpdateDetonation()
     
 
     tcSensorState* sensor = GetSensorMutable(0);
-	if (sensor == 0)
-	{
-		UpdateDetonationUnguided();
-		return;
-	}
+    if (sensor == 0)
+    {
+        UpdateDetonationUnguided();
+        return;
+    }
 
-	assert(sensor != 0);
+    assert(sensor != 0);
     if (sensor->mnMode != SSMODE_SEEKERTRACK) return; 
 
     if ((interceptTime > 3.0f) || (sensor->mcTrack.mnID == -1)) return;
@@ -819,14 +819,14 @@ void tcTorpedoObject::UpdateDetonation()
     }
 
     float dx, dy, dz, dt;
-	Vector3d collisionPoint;
+    Vector3d collisionPoint;
     float collisionRange_m;
 
     float detRange_m = mpDBObject->detonationRange_m;
 
-	// first check for impact
-	if (target->CalculateCollisionPoint(this, collisionPoint, dt, collisionRange_m))
-	{
+    // first check for impact
+    if (target->CalculateCollisionPoint(this, collisionPoint, dt, collisionRange_m))
+    {
         // if this isn't a direct hit weapon, check if we're close enough despite impending collision
         if (detRange_m > 0)
         {
@@ -842,7 +842,7 @@ void tcTorpedoObject::UpdateDetonation()
             dt, collisionPoint.x, collisionPoint.y, collisionPoint.z);*/
         if (dt > tminDet_s) return; // defer until future time step
 
-		collisionPoint = target->ConvertModelCoordinatesToWorld(collisionPoint);
+        collisionPoint = target->ConvertModelCoordinatesToWorld(collisionPoint);
         dx = collisionPoint.x();
         dy = collisionPoint.y();
         dz = collisionPoint.z();
@@ -851,7 +851,7 @@ void tcTorpedoObject::UpdateDetonation()
         SetDirectHitTargetId(target->mnID);
         SetImpactPoint(Vector3d(dx, dy, dz));
         return;
-	}
+    }
 
     // if this is a direct hit weapon (detonation range == 0) then return
     if (detRange_m == 0) return;
@@ -878,7 +878,7 @@ void tcTorpedoObject::UpdateDetonation()
 
     // check if "up" ray is closer
     if (target->CalculateCollisionPointDir(this, Vector3d(0, 1, 0), collisionPoint, collisionRange_m))
-	{
+    {
         damageRange_m = std::min(collisionRange_m, damageRange_m);
     }
 
@@ -894,88 +894,88 @@ void tcTorpedoObject::UpdateDetonation()
 // expensive since does collision testing on all objects that are close to this torpedo every update
 void tcTorpedoObject::UpdateDetonationUnguided()
 {
-	if (runToEnable_m > 0) return;
+    if (runToEnable_m > 0) return;
 
-	tcGeoRect region;
-	const float dlat = C_MTORAD * 200.0f;
-	float dlon = dlat / cosf(mcKin.mfLat_rad);
+    tcGeoRect region;
+    const float dlat = C_MTORAD * 200.0f;
+    float dlon = dlat / cosf(mcKin.mfLat_rad);
 
-	region.Set(mcKin.mfLon_rad - dlon, mcKin.mfLon_rad + dlon,
-		mcKin.mfLat_rad - dlat, mcKin.mfLat_rad + dlat);
+    region.Set(mcKin.mfLon_rad - dlon, mcKin.mfLon_rad + dlon,
+               mcKin.mfLat_rad - dlat, mcKin.mfLat_rad + dlat);
 
-	tcGameObjIterator iter(region);
+    tcGameObjIterator iter(region);
 
-	for (iter.First(); iter.NotDone(); iter.Next())
-	{
-		tcGameObject* target = iter.Get();
+    for (iter.First(); iter.NotDone(); iter.Next())
+    {
+        tcGameObject* target = iter.Get();
 
-		if ((target != this) && (target != 0))
-		{
-			// if we're this close to the detonation point then detonate, otherwise defer to future time step
-			const float tminDet_s = 0.05f; 
+        if ((target != this) && (target != 0))
+        {
+            // if we're this close to the detonation point then detonate, otherwise defer to future time step
+            const float tminDet_s = 0.05f;
 
-			float dx, dy, dz, dt;
-			Vector3d collisionPoint;
-			float collisionRange_m;
+            float dx, dy, dz, dt;
+            Vector3d collisionPoint;
+            float collisionRange_m;
 
-			float detRange_m = mpDBObject->detonationRange_m;
+            float detRange_m = mpDBObject->detonationRange_m;
 
-			// first check for impact
-			if (target->CalculateCollisionPoint(this, collisionPoint, dt, collisionRange_m))
-			{
-				// if this isn't a direct hit weapon, check if we're close enough despite impending collision
-				if (detRange_m > 0)
-				{
-					float dt_det_s = dt * (1.0 - (detRange_m / collisionRange_m));
-					if (dt_det_s > tminDet_s) return;
+            // first check for impact
+            if (target->CalculateCollisionPoint(this, collisionPoint, dt, collisionRange_m))
+            {
+                // if this isn't a direct hit weapon, check if we're close enough despite impending collision
+                if (detRange_m > 0)
+                {
+                    float dt_det_s = dt * (1.0 - (detRange_m / collisionRange_m));
+                    if (dt_det_s > tminDet_s) return;
 
-					Detonate(dt_det_s);
-					SetDirectHitTargetId(-1);
-					return;
-				}
+                    Detonate(dt_det_s);
+                    SetDirectHitTargetId(-1);
+                    return;
+                }
 
-				/*fprintf(stdout, "Collision detect: dt: %f, x: %.1f, y:%.1f, z:%.1f\n",
+                /*fprintf(stdout, "Collision detect: dt: %f, x: %.1f, y:%.1f, z:%.1f\n",
 				dt, collisionPoint.x, collisionPoint.y, collisionPoint.z);*/
-				if (dt > tminDet_s) return; // defer until future time step
+                if (dt > tminDet_s) return; // defer until future time step
 
-				collisionPoint = target->ConvertModelCoordinatesToWorld(collisionPoint);
+                collisionPoint = target->ConvertModelCoordinatesToWorld(collisionPoint);
                 dx = collisionPoint.x();
                 dy = collisionPoint.y();
                 dz = collisionPoint.z();
 
-				Detonate(dt);
+                Detonate(dt);
                 SetDirectHitTargetId(target->mnID);
-				SetImpactPoint(Vector3d(dx, dy, dz));
-				return;
-			}
+                SetImpactPoint(Vector3d(dx, dy, dz));
+                return;
+            }
 
-			// if this is a direct hit weapon (detonation range == 0) then return
-			if (detRange_m == 0) return;
+            // if this is a direct hit weapon (detonation range == 0) then return
+            if (detRange_m == 0) return;
 
-			// check for future closest point of approach
-			dt = target->mcKin.CalculateCollisionPoint(mcKin, dx, dy, dz);
+            // check for future closest point of approach
+            dt = target->mcKin.CalculateCollisionPoint(mcKin, dx, dy, dz);
 
-			if (dt > tminDet_s) return; // defer until future time step
+            if (dt > tminDet_s) return; // defer until future time step
 
-			float damageRange_m = sqrtf(dx*dx + dy*dy + dz*dz); // start with range to model origin
+            float damageRange_m = sqrtf(dx*dx + dy*dy + dz*dz); // start with range to model origin
 
-			// check if "up" ray is closer
-			if (target->CalculateCollisionPointDir(this, Vector3d(0, 1, 0), collisionPoint, collisionRange_m))
-			{
-				damageRange_m = std::min(collisionRange_m, damageRange_m);
-			}
+            // check if "up" ray is closer
+            if (target->CalculateCollisionPointDir(this, Vector3d(0, 1, 0), collisionPoint, collisionRange_m))
+            {
+                damageRange_m = std::min(collisionRange_m, damageRange_m);
+            }
 
-			if (damageRange_m <= 2*detRange_m)
-			{
-				Detonate(dt);
-				SetDirectHitTargetId(-1);
-			}
-			
-		}
-	}
+            if (damageRange_m <= 2*detRange_m)
+            {
+                Detonate(dt);
+                SetDirectHitTargetId(-1);
+            }
+
+        }
+    }
 
 
-   
+
 
 
 }
@@ -1036,7 +1036,7 @@ void tcTorpedoObject::UpdateDrop(float dt_s)
     }
 
     //Update3D();
-	
+
 }
 
 /**
@@ -1065,178 +1065,252 @@ void tcTorpedoObject::UpdateDrop(float dt_s)
 /**
 *
 */
-void tcTorpedoObject::UpdateGuidance(double t) 
+void tcTorpedoObject::UpdateGuidance(double t)
 {
-    const float torpedo_acz = 50.0f;
-    const float one_over_torpedo_acz = 1.0f / 50.0f;
+    // 定义鱼雷加速度常数和它的倒数
+    const float torpedo_acz = 50.0f; // 鱼雷加速度（米/秒²）
+    const float one_over_torpedo_acz = 1.0f / 50.0f; // 鱼雷加速度的倒数
 
+    // 计算从上一次更新到现在的时间差
     float dt_s = t - lastGuidanceUpdate;
-	if (dt_s < guidanceUpdateInterval) return;
-	lastGuidanceUpdate = t;
+    // 如果时间差小于更新间隔，则直接返回
+    if (dt_s < guidanceUpdateInterval) return;
+    // 更新上一次更新时间为当前时间
+    lastGuidanceUpdate = t;
 
-	//************ GuidanceMode update **************
-	bool useInterceptPitch = false;
-	float interceptPitch_rad = 0;
-    
+    //************ 引导模式更新 **************
+    // 初始化是否使用截击俯仰角的标志
+    bool useInterceptPitch = false;
+    // 初始化截击俯仰角为0
+    float interceptPitch_rad = 0;
+
+    // 如果鱼雷已经运行到启动距离以内
     if (runToEnable_m <= 0)
     {
-        if ((seeker != 0) && (!seeker->IsActive()))
-		{
+        // 如果搜索器存在且当前不活跃
+        if ((seeker != nullptr) && (!seeker->IsActive()))
+        {
+            // 更新自动线缆引导
             UpdateAutoWireGuidance();
-			seeker->SetActive(true);
-	        seeker->mnMode = SSMODE_SEEKERSEARCH;
+            // 激活搜索器
+            seeker->SetActive(true);
+            // 设置搜索器模式为搜索模式
+            seeker->mnMode = SSMODE_SEEKERSEARCH;
+            // 设置搜索航向为目标航向
             searchHeading_rad = goalHeading_rad;
+            // 设置鱼雷速度为数据库中的最大速度
             goalSpeed_kts = mpDBObject->maxSpeed_kts;
-			searchStartTime = runTime;
+            // 记录搜索开始时的已用时间
+            searchStartTime = runTime;
         }
 
+        // 设置引导更新间隔为0.5秒
         guidanceUpdateInterval = 0.5f;
 
-		short int seekerMode = (seeker != 0) ? seeker->mnMode : SSMODE_NULL;
+        // 获取搜索器当前模式，如果搜索器不存在则默认为空模式
+        short int seekerMode = (seeker != nullptr) ? seeker->mnMode : SSMODE_NULL;
 
-		switch (seekerMode)
-		{
-		case SSMODE_NULL:
-			break;
-		case SSMODE_SEEKERTRACK:
-			{
-				tcTrack predictedtrack;   
-				float tti_s;
-				float range_km;
+        // 根据搜索器模式执行不同的操作
+        switch (seekerMode)
+        {
+        case SSMODE_NULL:
+            // 空模式，不执行任何操作
+            break;
+        case SSMODE_SEEKERTRACK:
+        {
+            // 定义一个预测轨迹变量
+            tcTrack predictedtrack;
+            // 定义时间到截击、距离等变量
+            float tti_s;
+            float range_km;
 
-				goalDepth_m = -seeker->mcTrack.mfAlt_m;
-				seeker->mcTrack.GetPrediction(predictedtrack, t);
+            // 设置目标深度为搜索器跟踪目标的深度（取负值）
+            goalDepth_m = -seeker->mcTrack.mfAlt_m;
+            // 获取预测轨迹
+            seeker->mcTrack.GetPrediction(predictedtrack, t);
 
-				// if this is a surface target then set depth to detonate under keel
-				if (seeker->mcTrack.mfAlt_m >= -5.0f)
-				{
-					goalDepth_m = 10.0;
-					predictedtrack.mfAlt_m = -10.0f;
-				}
+            // 如果目标是水面目标，则设置深度为在船底下方一定深度处引爆
+            if (seeker->mcTrack.mfAlt_m >= -5.0f)
+            {
+                goalDepth_m = 10.0f; // 设置为10米深度
+                predictedtrack.mfAlt_m = -10.0f; // 预测轨迹深度也设置为10米下方
+            }
 
-				if (seeker->mcTrack.mnFlags & TRACK_BEARING_ONLY)
-				{
-					goalHeading_rad = predictedtrack.mfHeading_rad; // bearing in this case
+            // 如果只有方位信息，没有距离信息
+            if (seeker->mcTrack.mnFlags & TRACK_BEARING_ONLY)
+            {
+                // 设置目标航向为预测轨迹的方位（此时为方位角）
+                goalHeading_rad = predictedtrack.mfHeading_rad;
 
-					// attempt to lead target (ad-hoc intercept course)
-					if (predictedtrack.mnFlags & TRACK_BEARINGRATE_VALID)
-					{
-						goalHeading_rad += 0.5f * predictedtrack.bearingRate_radps;
-					}
-				}
-				else
-				{
-					mcKin.GetInterceptData3D(predictedtrack, goalHeading_rad, 
-						interceptPitch_rad, tti_s, range_km);
+                // 尝试提前对准目标（临时截击航向）
+                if (predictedtrack.mnFlags & TRACK_BEARINGRATE_VALID)
+                {
+                    // 根据方位变化率调整目标航向
+                    goalHeading_rad += 0.5f * predictedtrack.bearingRate_radps;
+                }
+            }
+            else
+            {
+                // 使用三维截击数据计算目标航向、俯仰角、时间到截击和距离
+                mcKin.GetInterceptData3D(predictedtrack, goalHeading_rad,
+                                         interceptPitch_rad, tti_s, range_km);
 
-					useInterceptPitch = true;
-					interceptTime = tti_s;
+                // 设置使用截击俯仰角的标志为真
+                useInterceptPitch = true;
+                // 设置截击时间为计算得到的时间
+                interceptTime = tti_s;
 
-					if (interceptTime < 100)
-					{
-						searchMode = randbool() ? SEARCH_LEFTCIRCLE : SEARCH_RIGHTCIRCLE; // to revert to circle search if we lose track when close
-					}
-				}
-			}
-			break;
-		case SSMODE_SEEKERSEARCH:
-			{
-				switch (searchMode)
-				{
-				case SEARCH_SNAKE:
-					goalHeading_rad = searchHeading_rad + 0.4f * sinf(0.2f * (runTime - searchStartTime));
-					break;
-				case SEARCH_LEFTCIRCLE:
-					goalHeading_rad = searchHeading_rad - 0.209f * (runTime - searchStartTime); // 12 deg/sec
-					goalHeading_rad = fmodf(goalHeading_rad, C_TWOPI) + C_PI;
-					break;
-				case SEARCH_RIGHTCIRCLE:
-					goalHeading_rad = searchHeading_rad + 0.209f * (runTime - searchStartTime);
-					goalHeading_rad = fmodf(goalHeading_rad, C_TWOPI) - C_PI;
-					break;
-				default:
-					break;
-				}      
-			}
-			break;
-		case SSMODE_SEEKERACQUIRE:
-			{
-				goalHeading_rad = mcKin.mfHeading_rad; // maintain heading during acquire
-			}
-			break;
-		default:
-			{
-				assert(false);
-				seeker->mnMode = SSMODE_SEEKERSEARCH;
-			}
-			break;
-		}
-        
-    } //  if (runToEnable_m <= 0)
+                // 如果截击时间小于100秒，则随机选择左圆或右圆搜索模式以防丢失目标时能够重新搜索
+                if (interceptTime < 100)
+                {
+                    searchMode = randbool() ? SEARCH_LEFTCIRCLE : SEARCH_RIGHTCIRCLE;
+                }
+            }
+        }
+        break;
+        case SSMODE_SEEKERSEARCH:
+        {
+            // 根据搜索模式计算目标航向
+            //
+            // 蛇形搜索模式（SEARCH_SNAKE）：
+            //     在蛇形搜索模式下，目标航向会根据时间的变化而正弦波动。
+            //     searchHeading_rad是搜索开始时的初始航向。
+            //     0.4f * sinf(0.2f * (runTime - searchStartTime))是一个正弦函数，其中runTime是当前时间，searchStartTime是搜索开始的时间。这个正弦函数会根据时间的推移而波动，其频率由0.2f决定，振幅由0.4f决定。
+            //     因此，goalHeading_rad会在searchHeading_rad的基础上加上这个正弦波动值，从而模拟蛇形搜索的航向变化。
+            // 左圆搜索模式（SEARCH_LEFTCIRCLE）：
+            //     在左圆搜索模式下，目标航向会随着时间的推移而线性减少，模拟左转的效果。
+            //     减少的速率是0.209f弧度/秒（这相当于大约12度/秒，因为π/180 ≈ 0.0175弧度/度，所以0.209f / (π/180) ≈ 12度/秒）。
+            //     goalHeading_rad会在searchHeading_rad的基础上减去这个线性减少的值。
+            //     为了确保goalHeading_rad保持在0到2π（即360度）的范围内，使用了fmodf函数对结果进行模运算。然后，通过加上π（即180度）来调整方向，这可能是为了将航向从数学上的[0, 2π)范围映射到某个特定的搜索方向范围。
+            // 右圆搜索模式（SEARCH_RIGHTCIRCLE）：
+            //     在右圆搜索模式下，目标航向会随着时间的推移而线性增加，模拟右转的效果。
+            //     增加的速率同样是0.209f弧度/秒。
+            //     goalHeading_rad会在searchHeading_rad的基础上加上这个线性增加的值。
+            //     同样，为了确保goalHeading_rad保持在0到2π的范围内，使用了fmodf函数。但是，这次是通过减去π来调整方向，这可能是为了与左圆搜索模式保持某种对称性或一致性。
+
+
+            switch (searchMode)
+            {
+            case SEARCH_SNAKE:
+                // 蛇形搜索模式，根据时间变化正弦函数调整目标航向
+                goalHeading_rad = searchHeading_rad + 0.4f * sinf(0.2f * (runTime - searchStartTime));
+                break;
+            case SEARCH_LEFTCIRCLE:
+                // 左圆搜索模式，根据时间线性减少目标航向（模拟左转）
+                goalHeading_rad = searchHeading_rad - 0.209f * (runTime - searchStartTime); // 12度/秒
+                // 将目标航向限制在0到2π之间，并加上π以调整方向
+                goalHeading_rad = fmodf(goalHeading_rad, C_TWOPI) + C_PI;
+                break;
+            case SEARCH_RIGHTCIRCLE:
+                // 右圆搜索模式，根据时间线性增加目标航向（模拟右转）
+                goalHeading_rad = searchHeading_rad + 0.209f * (runTime - searchStartTime);
+                // 将目标航向限制在0到2π之间，并减去π以调整方向
+                goalHeading_rad = fmodf(goalHeading_rad, C_TWOPI) - C_PI;
+                break;
+            default:
+                // 默认不执行任何操作
+                break;
+            }
+        }
+        break;
+        case SSMODE_SEEKERACQUIRE:
+        {
+            // 在捕获模式下保持当前航向
+            goalHeading_rad = mcKin.mfHeading_rad;
+        }
+        break;
+        default:
+        {
+            // 默认情况下断言失败（表示不应该到达这里），并将搜索器模式重置为搜索模式
+            assert(false);
+            seeker->mnMode = SSMODE_SEEKERSEARCH;
+        }
+        break;
+        }
+    } // if (runToEnable_m <= 0) 结束
     else
     {
+        // 如果数据库对象中存在有效载荷信息
         if (mpDBObject->payloadClass.size() > 0)
         {
+            // 如果有效载荷尚未部署
             if (!payloadDeployed)
             {
-                runToEnable_m = 1000.0f * mcKin.RangeToKm(&waypoint); // set run to enable to deploy payload at waypoint
+                // 设置启动距离为到达导航点到部署有效载荷的距离
+                runToEnable_m = 1000.0f * mcKin.RangeToKm(&waypoint);
+                // 如果启动距离小于等于引爆距离，则部署有效载荷
                 if (runToEnable_m <= mpDBObject->detonationRange_m)
                 {
                     DeployPayload();
                 }
+                // 设置目标航向为导航点到鱼雷当前位置的航向
                 goalHeading_rad = mcKin.HeadingToGeoRad(waypoint.mfLon_rad, waypoint.mfLat_rad);
             }
             else
             {
+                // 有效载荷已部署，执行自毁操作
                 SelfDestruct();
             }
         }
     }
 
-
-    // do not exceed max depth or get too close to the bottom (cheating here somewhat with knowledge of bottom? or have depth finders on torps)
+    // 不超过最大深度，也不离底部太近（这里有点作弊，因为知道了底部高度，或者鱼雷上有深度探测器）
+    // 计算最大深度，取数据库中的最大深度减去10米和地形高度减去10米中的较小值
     float maxDepth_m = std::min(mpDBObject->maxDepth_m - 10.0f, -(mcTerrain.mfHeight_m + 10.0f));
 
+    // 获取当前深度
     float depth_m = -mcKin.mfAlt_m;
+    // 如果当前深度大于最大深度，则调整目标深度并设置俯仰角为0（这里应该是为了上浮或保持安全深度）
     if (depth_m > maxDepth_m)
     {
-        goalDepth_m = maxDepth_m - 5.0f;
-        interceptPitch_rad = 0.1f;
+        goalDepth_m = maxDepth_m - 5.0f; // 目标深度设置为最大深度再减去5米
+        interceptPitch_rad = 0.1f; // 这里设置俯仰角似乎是为了微调深度，但在此上下文中可能不起作用
     }
 
-	// update guidance update rate and seeker scan rate based on time to intercept
-	if (interceptTime <= 2.0) 
-	{
-		guidanceUpdateInterval = 0.1f;
-		seeker->mfCurrentScanPeriod_s = 0.1f;
-	}
-	else if (interceptTime <= 5.0) 
-	{
-		guidanceUpdateInterval = 0.2f;
-		seeker->mfCurrentScanPeriod_s = 0.2f;
-	}
+    // 根据截击时间更新引导更新率和搜索器扫描率 越靠近更新越频繁
+    if (interceptTime <= 2.0)
+    {
+        // 如果截击时间小于等于2秒，则设置更新间隔和扫描周期为0.
+        guidanceUpdateInterval = 0.1f;
+        seeker->mfCurrentScanPeriod_s = 0.1f;
+    }
+    else if (interceptTime <= 5.0)
+    {
+        guidanceUpdateInterval = 0.2f;
+        seeker->mfCurrentScanPeriod_s = 0.2f;
+    }
 
     // depth control
-	if (useInterceptPitch) 
-	{
+    if (useInterceptPitch)
+    {
         assert(!_isnan(interceptPitch_rad));
-		goalPitch_rad = interceptPitch_rad;
-	}
-	else 
-	{
-		if (depth_m > goalDepth_m + torpedo_acz) 
-		{
-			goalPitch_rad = 0.7f;
-		}
-		else if (depth_m < goalDepth_m - torpedo_acz) 
-		{
-			goalPitch_rad = -0.7f;
-		}
-		else 
-		{
+        goalPitch_rad = interceptPitch_rad;
+    }
+    else
+    {
+
+        //     如果当前深度depth_m大于目标深度goalDepth_m加上torpedo_acz，则意味着潜水物体太深了，需要向上调整。
+        // *因此，将goalPitch_rad设置为正数（0.7f），表示应该减小俯仰角（向上抬头）。
+        //     如果当前深度depth_m小于目标深度goalDepth_m减去torpedo_acz，则意味着潜水物体太浅了，需要向下调整
+        // 。因此，将goalPitch_rad设置为负数（-0.7f），表示应该增加俯仰角（向下低头）。
+        //    如果当前深度depth_m在目标深度goalDepth_m的torpedo_acz范围内，
+        // 则根据当前深度与目标深度的差值，以及one_over_torpedo_acz（torpedo_acz的倒数，
+        // 可能用于归一化或比例调整）来计算一个介于-0.7f和0.7f之间的goalPitch_rad值。
+        // 这个计算可能是为了更精细地控制潜水物体在接近目标深度时的俯仰角，以保持或微调其深度。
+
+        if (depth_m > goalDepth_m + torpedo_acz)
+        {
+            goalPitch_rad = 0.7f;
+        }
+        else if (depth_m < goalDepth_m - torpedo_acz)
+        {
+            goalPitch_rad = -0.7f;
+        }
+        else
+        {
             goalPitch_rad = 0.7f * (depth_m - goalDepth_m) * one_over_torpedo_acz;
-		}
-	}
+        }
+    }
 
 
 }
@@ -1293,11 +1367,11 @@ void tcTorpedoObject::UpdateBottomMine(float dt_s)
         }
     }
 
-	//UpdateEffects();
+    //UpdateEffects();
 
     //Update3D();
 
-	
+
 }
 
 void tcTorpedoObject::UpdateBottomMineTrigger(double t)
@@ -1309,84 +1383,84 @@ void tcTorpedoObject::UpdateBottomMineTrigger(double t)
     switch (mpDBObject->weaponType)
     {
     case  tcTorpedoDBObject::BOTTOM_MINE:
+    {
+        // find all objects within +/- 1 km
+        float rangeY_rad = C_KMTORAD*1.0f;
+        float rangeX_rad = rangeY_rad/cosf(mcKin.mfLat_rad);
+        tcGeoRect region;
+        region.left = mcKin.mfLon_rad - rangeX_rad;
+        region.right = mcKin.mfLon_rad + rangeX_rad;
+        region.bottom = mcKin.mfLat_rad - rangeY_rad;
+        region.top = mcKin.mfLat_rad + rangeY_rad;
+
+        tcGameObjIterator iter(region);
+        float closestRange_km = 999.0f;
+        tcGameObject* closestTarget = 0;
+        for (iter.First();iter.NotDone();iter.Next())
         {
-            // find all objects within +/- 1 km
-            float rangeY_rad = C_KMTORAD*1.0f;
-            float rangeX_rad = rangeY_rad/cosf(mcKin.mfLat_rad);
-            tcGeoRect region;
-            region.left = mcKin.mfLon_rad - rangeX_rad;
-            region.right = mcKin.mfLon_rad + rangeX_rad;
-            region.bottom = mcKin.mfLat_rad - rangeY_rad;
-            region.top = mcKin.mfLat_rad + rangeY_rad;
+            tcGameObject* target = iter.Get();
 
-            tcGameObjIterator iter(region);
-            float closestRange_km = 999.0f;
-            tcGameObject* closestTarget = 0;
-            for (iter.First();iter.NotDone();iter.Next())
+            bool isEligible = ((target->mpDBObject->mnType & PTYPE_SURFACE) != 0) ||
+                              (target->mpDBObject->mnType == PTYPE_SUBMARINE);
+            isEligible = isEligible && (target != this); // no self detection
+            if (isEligible)
             {
-                tcGameObject* target = iter.Get();           
-
-                bool isEligible = ((target->mpDBObject->mnType & PTYPE_SURFACE) != 0) ||
-                    (target->mpDBObject->mnType == PTYPE_SUBMARINE);
-                isEligible = isEligible && (target != this); // no self detection
-                if (isEligible)
+                float range_km = this->mcKin.RangeToKmAlt(target->mcKin);
+                if (range_km < closestRange_km)
                 {
-                    float range_km = this->mcKin.RangeToKmAlt(target->mcKin);
-                    if (range_km < closestRange_km)
-                    {
-                        closestTarget = target;
-                        closestRange_km = range_km;
-                    }
+                    closestTarget = target;
+                    closestRange_km = range_km;
                 }
             }
+        }
 
-            float detonationRange_km = 0.001f*mpDBObject->detonationRange_m;
+        float detonationRange_km = 0.001f*mpDBObject->detonationRange_m;
 
-            if (closestRange_km <= detonationRange_km)
+        if (closestRange_km <= detonationRange_km)
+        {
+            tcKinematics targetKin = closestTarget->mcKin;
+            targetKin.Extrapolate(0.25f);
+            float futureRange_km = targetKin.RangeToKmAlt(this->mcKin);
+            if (futureRange_km < closestRange_km)
             {
-                tcKinematics targetKin = closestTarget->mcKin;
-                targetKin.Extrapolate(0.25f);
-                float futureRange_km = targetKin.RangeToKmAlt(this->mcKin);
-                if (futureRange_km < closestRange_km)
-                {
-                    guidanceUpdateInterval = 0.25f;
-                }
-                else
-                {
-                    Detonate(0);
-                }
-            }
-            else if (closestRange_km < 1.0f)
-            {
-                guidanceUpdateInterval = 1.0f + 10.0f*closestRange_km;
+                guidanceUpdateInterval = 0.25f;
             }
             else
             {
-                guidanceUpdateInterval = 30.0f;
+                Detonate(0);
             }
         }
-        break;
-    case tcTorpedoDBObject::BOTTOM_MINE_CAPTOR:
+        else if (closestRange_km < 1.0f)
         {
-            if (seeker == 0)
-            {
-                assert(false);
-                return;
-            }
-
-            if (!seeker->IsActive())
-            {
-                seeker->SetActive(true);
-                seeker->mnMode = SSMODE_SEEKERSEARCH;
-            }
-            tcSensorPlatform::Update(mfStatusTime);
-            if (seeker->mnMode == SSMODE_SEEKERTRACK)
-            {
-                if (!payloadDeployed) DeployPayload();
-                else SelfDestruct();
-            }
+            guidanceUpdateInterval = 1.0f + 10.0f*closestRange_km;
         }
-        break;
+        else
+        {
+            guidanceUpdateInterval = 30.0f;
+        }
+    }
+    break;
+    case tcTorpedoDBObject::BOTTOM_MINE_CAPTOR:
+    {
+        if (seeker == 0)
+        {
+            assert(false);
+            return;
+        }
+
+        if (!seeker->IsActive())
+        {
+            seeker->SetActive(true);
+            seeker->mnMode = SSMODE_SEEKERSEARCH;
+        }
+        tcSensorPlatform::Update(mfStatusTime);
+        if (seeker->mnMode == SSMODE_SEEKERTRACK)
+        {
+            if (!payloadDeployed) DeployPayload();
+            else SelfDestruct();
+        }
+    }
+    break;
     default:
         assert(false);
         break;
@@ -1413,7 +1487,7 @@ void tcTorpedoObject::UpdateSpeedSimple(float dt_s)
 
     mcKin.mfSpeed_kts += ds_kts;
 
-	if (mcKin.mfSpeed_kts < 0) mcKin.mfSpeed_kts = 0;
+    if (mcKin.mfSpeed_kts < 0) mcKin.mfSpeed_kts = 0;
 }
 
 /**
@@ -1421,7 +1495,7 @@ void tcTorpedoObject::UpdateSpeedSimple(float dt_s)
 */
 void tcTorpedoObject::Clear()  
 {  
-	tcGameObject::Clear();
+    tcGameObject::Clear();
 }
 
 /**
@@ -1429,10 +1503,10 @@ void tcTorpedoObject::Clear()
 */
 void tcTorpedoObject::DesignateTarget(long anID) 
 {
-	seeker->mcTrack.mnID = anID;
+    seeker->mcTrack.mnID = anID;
 
     // needs to SSMODE_SEEKERACQUIRE so track is updated before guidance update
-	seeker->mnMode = SSMODE_SEEKERACQUIRE; 
+    seeker->mnMode = SSMODE_SEEKERACQUIRE;
 }
 
 /**
@@ -1441,23 +1515,23 @@ void tcTorpedoObject::DesignateTarget(long anID)
 void tcTorpedoObject::RandInitNear(float afLon, float afLat) 
 {
 
-	//strcpy(mzClass.mz,mpDBObject->mzClass.mz);
-	mzUnit.AssignRandomStringB();
+    //strcpy(mzClass.mz,mpDBObject->mzClass.mz);
+    mzUnit.AssignRandomStringB();
 
-	mfStatusTime = 0;        
-	mcKin.mfLon_rad = afLon + randfc(1.1f);      
-	mcKin.mfLat_rad = afLat + randfc(1.1f);
-          
-	mcKin.mfHeading_rad = 360*randf();           
-	mcKin.mfSpeed_kts = 100;
-	mfDamageLevel = 0;    
+    mfStatusTime = 0;
+    mcKin.mfLon_rad = afLon + randfc(1.1f);
+    mcKin.mfLat_rad = afLat + randfc(1.1f);
 
-	//tcGameObject::RandInitNear(afLon,afLat);
-	mcKin.mfAlt_m = -100.0f;  
-	SetHeading(mcKin.mfHeading_rad);
-	SetSpeed(mcKin.mfSpeed_kts);    
-	
-	mcKin.SetRelativeGeo(waypoint, mcKin.mfHeading_rad*(float)C_PIOVER180, 100.0f);
+    mcKin.mfHeading_rad = 360*randf();
+    mcKin.mfSpeed_kts = 100;
+    mfDamageLevel = 0;
+
+    //tcGameObject::RandInitNear(afLon,afLat);
+    mcKin.mfAlt_m = -100.0f;
+    SetHeading(mcKin.mfHeading_rad);
+    SetSpeed(mcKin.mfSpeed_kts);
+
+    mcKin.SetRelativeGeo(waypoint, mcKin.mfHeading_rad*(float)C_PIOVER180, 100.0f);
 }
 
 /**
@@ -1469,9 +1543,9 @@ void tcTorpedoObject::RandInitNear(float afLon, float afLat)
 */
 int tcTorpedoObject::GetGuidanceParameters(tsGuidanceParameters& gp) 
 {
-	if (seeker->mnMode == SSMODE_SEEKERTRACK) 
-	{
-		gp.mnTargetID = seeker->mcTrack.mnID;
+    if (seeker->mnMode == SSMODE_SEEKERTRACK)
+    {
+        gp.mnTargetID = seeker->mcTrack.mnID;
 
         if (seeker->IsPassive())
         {
@@ -1479,14 +1553,14 @@ int tcTorpedoObject::GetGuidanceParameters(tsGuidanceParameters& gp)
         }
         else
         {
-		    gp.mfInterceptTime = interceptTime;
+            gp.mfInterceptTime = interceptTime;
         }
-		return 1;
-	}
-	else
-	{
-		return 0;
-	}
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 /**
@@ -1494,10 +1568,10 @@ int tcTorpedoObject::GetGuidanceParameters(tsGuidanceParameters& gp)
 */
 void tcTorpedoObject::PrintToFile(tcFile& file)
 {
-	tcString s;
-	tcGameObject::PrintToFile(file);
-	s.Format(" Missile Object\n");
-	file.WriteString(s.GetBuffer());
+    tcString s;
+    tcGameObject::PrintToFile(file);
+    s.Format(" Missile Object\n");
+    file.WriteString(s.GetBuffer());
 }
 
 /**
@@ -1505,7 +1579,7 @@ void tcTorpedoObject::PrintToFile(tcFile& file)
 */
 void tcTorpedoObject::SaveToFile(tcFile& file) 
 {
-	tcGameObject::SaveToFile(file);
+    tcGameObject::SaveToFile(file);
 
     assert(false);
 }
@@ -1515,8 +1589,8 @@ void tcTorpedoObject::SaveToFile(tcFile& file)
 */
 void tcTorpedoObject::LoadFromFile(tcFile& file) 
 {
-	tcGameObject::LoadFromFile(file);
-	
+    tcGameObject::LoadFromFile(file);
+
     assert(false);
 }
 
@@ -1525,79 +1599,79 @@ void tcTorpedoObject::LoadFromFile(tcFile& file)
 */
 void tcTorpedoObject::Serialize(tcFile& file, bool mbLoad) 
 {
-	if (mbLoad) 
-	{
-		LoadFromFile(file);
-	}
-	else 
-	{
-		SaveToFile(file);
-	}
+    if (mbLoad)
+    {
+        LoadFromFile(file);
+    }
+    else
+    {
+        SaveToFile(file);
+    }
 }
 
 /**
 *
 */
 tcTorpedoObject::tcTorpedoObject() 
-: tcWeaponObject(),
-	guidanceUpdateInterval(1.0f),
-	lastGuidanceUpdate(0.0f),
-	interceptTime(9999.0f),
+    : tcWeaponObject(),
+    guidanceUpdateInterval(1.0f),
+    lastGuidanceUpdate(0.0f),
+    interceptTime(9999.0f),
     runTime(0),
-	searchStartTime(0),
-	goalPitch_rad(0),
+    searchStartTime(0),
+    goalPitch_rad(0),
     goalSpeed_kts(35),
     searchHeading_rad(0),
     searchMode(SEARCH_SNAKE),
     mpDBObject(0)
 {
-	Clear();
+    Clear();
 
-	seeker->mnMode = SSMODE_SEEKERSEARCH;
-	mnModelType = MTYPE_TORPEDO;
+    seeker->mnMode = SSMODE_SEEKERSEARCH;
+    mnModelType = MTYPE_TORPEDO;
 }
 
 /**
 * Copy constructor.
 */
 tcTorpedoObject::tcTorpedoObject(tcTorpedoObject& o) 
-: tcWeaponObject(o)
+    : tcWeaponObject(o)
 {
-	mnModelType = MTYPE_TORPEDO;
-	goalHeading_rad = o.goalHeading_rad;
-	goalPitch_rad = o.goalPitch_rad;
-	goalSpeed_kts = o.goalSpeed_kts; 
-	interceptTime = o.interceptTime;
+    mnModelType = MTYPE_TORPEDO;
+    goalHeading_rad = o.goalHeading_rad;
+    goalPitch_rad = o.goalPitch_rad;
+    goalSpeed_kts = o.goalSpeed_kts;
+    interceptTime = o.interceptTime;
     runTime = o.runTime;
-	searchStartTime = o.searchStartTime;
+    searchStartTime = o.searchStartTime;
 
-	lastGuidanceUpdate = o.lastGuidanceUpdate;
-	guidanceUpdateInterval = o.guidanceUpdateInterval;
-	waypoint = o.waypoint;   
+    lastGuidanceUpdate = o.lastGuidanceUpdate;
+    guidanceUpdateInterval = o.guidanceUpdateInterval;
+    waypoint = o.waypoint;
     seeker = o.seeker;
-	mpDBObject = o.mpDBObject;
+    mpDBObject = o.mpDBObject;
 }
 /**
 * Constructor that initializes using info from database entry.
 */
 tcTorpedoObject::tcTorpedoObject(tcTorpedoDBObject* obj)
-: tcWeaponObject(obj),
-	guidanceUpdateInterval(1.0f),
-	lastGuidanceUpdate(0.0f),
-	interceptTime(9999.0f),
+    : tcWeaponObject(obj),
+    guidanceUpdateInterval(1.0f),
+    lastGuidanceUpdate(0.0f),
+    interceptTime(9999.0f),
     runTime(0),
-	searchStartTime(0),
-	goalPitch_rad(0),
+    searchStartTime(0),
+    goalPitch_rad(0),
     goalSpeed_kts(35),
     searchHeading_rad(0),
     searchMode(SEARCH_SNAKE),
     mpDBObject(obj)
 {
-	mnModelType = MTYPE_TORPEDO;
+    mnModelType = MTYPE_TORPEDO;
 
-	tcSensorPlatform::Init(obj->sonarClass.c_str(), this); // to avoid using this in initializer
+    tcSensorPlatform::Init(obj->sonarClass.c_str(), this); // to avoid using this in initializer
 
-	seeker = dynamic_cast<tcSonar*>(GetSensorMutable(0));
+    seeker = dynamic_cast<tcSonar*>(GetSensorMutable(0));
 }
 
 /**

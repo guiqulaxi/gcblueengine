@@ -182,12 +182,12 @@ void tcSonobuoy::Update(double afStatusTime)
         return;
     }
 
-    // cheesy wave bob effect
+    // cheesy wave bob effect 实现一个简单的波浪浮动效果（通过时间计算当前高度）
     mcKin.mfAlt_m = 0.25f * cos(0.7f * afStatusTime) - sonobuoyDepth_m - 0.5;
 
     // TODO: Check that parent platform is in range before updating sensors
     tcSensorPlatform::Update(afStatusTime);
-
+    // 减少电池剩余时间
     batteryTimeRemaining_s -= dt_s;
 
     if (batteryTimeRemaining_s <= 0)
@@ -204,7 +204,7 @@ void tcSonobuoy::Update(double afStatusTime)
 
 
 /**
-*
+* 浮标在空中的运动
 */
 void tcSonobuoy::UpdateDrop(float dt_s)
 {
@@ -230,7 +230,7 @@ void tcSonobuoy::UpdateDrop(float dt_s)
 
     if (vxy_mps > 0)
     {
-        vxy_mps = vxy_mps - dt_s * 0.02f * vxy_mps * vxy_mps; // air drag
+        vxy_mps = vxy_mps - dt_s * 0.02f * vxy_mps * vxy_mps; // air drag 空气阻力
     }
     if (vxy_mps < 0)
     {

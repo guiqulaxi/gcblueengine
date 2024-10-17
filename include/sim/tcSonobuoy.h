@@ -66,9 +66,9 @@ public:
 
 private:
     tcSonobuoyDBObject* mpDBObject;
-    float batteryTimeRemaining_s;
+    float batteryTimeRemaining_s; ///<减少电池剩余时间
     long parentId;
-	float sonobuoyDepth_m;
+    float sonobuoyDepth_m; ///<浮标工作深度
 
     void UpdateDrop(float dt_s);
 };

@@ -359,7 +359,7 @@ tcSensorState* tcSensorState::GetFireControlSensor()
 }
 
 /**
- *
+ *获得最大的探测范围区域
  */
 void tcSensorState::GetTestArea(tcRect& region) 
 {
@@ -552,9 +552,9 @@ bool tcSensorState::IsOptical() const
 }
 
 /**
-* Adds randomness to detection with Pd that varies with SNR margin
-* Pd varies linearly over hard-coded window, with Pd = 0.5 at 0 dB margin
-* @return true if detected, false otherwise
+*通过与信噪比（SNR）裕量相关的随机性来增加检测的不确定性
+*检测概率（Pd）在硬编码窗口内线性变化，在0 dB裕量时Pd为0.5
+*@return 如果检测到，则返回true；否则返回false
 */
 bool tcSensorState::RandomDetect(float margin_dB)
 {

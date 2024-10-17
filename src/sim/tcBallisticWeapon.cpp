@@ -670,9 +670,9 @@ void tcBallisticWeapon::UpdateSmartBombMotion(float dt_s)
     else
     {
         float tti_s;
-        float range_rad;
+        float range_km;
         mcKin.GetInterceptData3D(groundTrack, goalHeading_rad, 
-            goalPitch_rad, tti_s, range_rad);
+            goalPitch_rad, tti_s, range_km);
     }
 
     goalPitch_rad = std::min(mpDBObject->smartMaxClimb_rad, goalPitch_rad);

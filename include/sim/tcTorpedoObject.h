@@ -52,40 +52,40 @@ class tcTorpedoObject : public tcWeaponObject, public tcSensorPlatform
 {
 public:
     /**
-    * Search mode code for torpedo
+    *  鱼雷搜索模式
     */
-    enum TorpedoSearchMode
+    enum TorpedoSearchMode // 定义鱼雷搜索模式的枚举类型
     {
-        SEARCH_STRAIGHT = 0,
-        SEARCH_SNAKE = 1,
-        SEARCH_LEFTCIRCLE = 2, 
-        SEARCH_RIGHTCIRCLE = 3
+        SEARCH_STRAIGHT = 0,   // 直线搜索模式
+        SEARCH_SNAKE = 1,      // 蛇形搜索模式
+        SEARCH_LEFTCIRCLE = 2, // 左圆搜索模式
+        SEARCH_RIGHTCIRCLE = 3 // 右圆搜索模式
     };
-    float goalDepth_m;
-    float goalHeading_rad;
-    float goalPitch_rad;
-    float goalSpeed_kts; 
-    double interceptTime;
-    float runTime; ///< [s] time elapsed since launch
-	float searchStartTime; ///< [s] run time that search started, used for heading guidance
+    float goalDepth_m;         // 目标深度（米）
+    float goalHeading_rad;     // 目标航向（弧度）
+    float goalPitch_rad;       // 目标俯仰角（弧度）
+    float goalSpeed_kts;       // 目标速度（节）
+    double interceptTime;      // 截击时间（秒或根据上下文可能的其他单位）
+    float runTime; ///< [s] time elapsed since launch 自发射以来的已用时间（秒）
+    float searchStartTime; ///< [s] run time that search started, used for heading guidance 搜索开始时的已用时间（秒），用于航向引导
 
 
-	// are all 3 of these necessary? needs refactoring
-    double lastGuidanceUpdate;
-    float guidanceUpdateInterval;
+    // are all 3 of these necessary? needs refactoring
+    double lastGuidanceUpdate; // 上次引导更新的时间（可能根据上下文有不同的单位）
+    float guidanceUpdateInterval; // 引导更新间隔（秒）
 
-    GeoPoint waypoint;   // nav datum
-    float runToEnable_m;   
-    float ceiling_m; // min depth
-    float floor_m; // max depth
-    bool isWireActive; // true if wire is available to receive remote commands
-    bool autoWireUpdates; ///< true to automatically update guidance based on intended target and sensor map
+    GeoPoint waypoint;   // nav datum 导航数据点（可能包含经纬度等信息）
+    float runToEnable_m;  //启动前需运行的距离（米）
+    float ceiling_m; // min depth 最小深度（米）
+    float floor_m; // max depth 最大深度（米）
+    bool isWireActive; // true if wire is available to receive remote commands 线导雷
+    bool autoWireUpdates; ///< true to automatically update guidance based on intended target and sensor map 如果要根据预定目标和传感器地图自动更新引导则为真
 
     tcSonar* seeker;
 
-    float battery_kJ;  ///< current battery charge
-    float searchHeading_rad; ///< center of "S" sector to search
-    int searchMode;
+    float battery_kJ;  ///< current battery charge 当前电池电量（千焦耳）
+    float searchHeading_rad; ///< center of "S" sector to search 搜索的中心航向（弧度），即“S”形搜索的中心线
+    int searchMode; //搜索模式（使用上面定义的枚举类型）
 
     tcTorpedoDBObject *mpDBObject; // pointer to valid database obj
 

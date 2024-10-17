@@ -175,8 +175,8 @@ public:
     //float InterceptHeadingToTrack(tcTrack& track, float& afTimeToIntercept);
     void GetInterceptData2D(const tcTrack& track, float& rfHeading_rad, 
         float& rfTimeToIntercept);
-    void GetInterceptData3D(const tcTrack& track, float& rfHeading_rad, 
-        float& rfClimbAngle_rad, float& rfTimeToIntercept, float& rfRange_rad);
+    void GetInterceptData3D(const tcTrack& track, float& rfHeading_rad,
+        float& rfClimbAngle_rad, float& rfTimeToIntercept, float& rfRange_km);
     float CalculateRangeRate(const tcKinematics& k) const;
     void Serialize(tcFile& file, bool abLoad);
     void SetRelativeGeo(GeoPoint& rpGeoPoint, float afBearing_rad, float afRange_km);
