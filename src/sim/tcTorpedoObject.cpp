@@ -892,95 +892,114 @@ void tcTorpedoObject::UpdateDetonation()
 }
 
 // expensive since does collision testing on all objects that are close to this torpedo every update
+// 更新无制导鱼雷的爆炸逻辑
 void tcTorpedoObject::UpdateDetonationUnguided()
 {
+    // 如果还有剩余的运行时间到启用点，则直接返回，不执行爆炸逻辑
     if (runToEnable_m > 0) return;
 
+    // 定义一个地理矩形区域，用于搜索潜在的目标
     tcGeoRect region;
+    // 将200米转换为弧度（纬度变化量）
     const float dlat = C_MTORAD * 200.0f;
+    // 根据当前纬度计算经度变化量，以形成一个正方形的搜索区域
     float dlon = dlat / cosf(mcKin.mfLat_rad);
 
+    // 设置搜索区域，以当前鱼雷的经纬度为中心
     region.Set(mcKin.mfLon_rad - dlon, mcKin.mfLon_rad + dlon,
                mcKin.mfLat_rad - dlat, mcKin.mfLat_rad + dlat);
 
+    // 创建一个迭代器，用于遍历搜索区域内的所有游戏对象
     tcGameObjIterator iter(region);
 
+    // 遍历搜索区域内的所有游戏对象
     for (iter.First(); iter.NotDone(); iter.Next())
     {
-        tcGameObject* target = iter.Get();
+        tcGameObject* target = iter.Get(); // 获取当前遍历到的游戏对象
 
+        // 如果当前对象不是鱼雷本身且不是空指针
         if ((target != this) && (target != 0))
         {
-            // if we're this close to the detonation point then detonate, otherwise defer to future time step
+            // 定义最小爆炸延迟时间，用于避免过于频繁的爆炸计算
             const float tminDet_s = 0.05f;
 
+            // 定义用于碰撞计算的变量
             float dx, dy, dz, dt;
-            Vector3d collisionPoint;
-            float collisionRange_m;
+            Vector3d collisionPoint; // 碰撞点
+            float collisionRange_m; // 碰撞范围
 
+            // 获取鱼雷的爆炸范围
             float detRange_m = mpDBObject->detonationRange_m;
 
-            // first check for impact
+            // 首先检查是否与目标发生碰撞
             if (target->CalculateCollisionPoint(this, collisionPoint, dt, collisionRange_m))
             {
-                // if this isn't a direct hit weapon, check if we're close enough despite impending collision
+                // 如果这不是直接命中的武器，检查尽管即将发生碰撞，但我们是否足够接近
                 if (detRange_m > 0)
                 {
+                    // 计算基于碰撞范围和爆炸范围的延迟时间
                     float dt_det_s = dt * (1.0 - (detRange_m / collisionRange_m));
+                    // 如果延迟时间大于最小爆炸延迟时间，则推迟到未来的时间步执行
                     if (dt_det_s > tminDet_s) return;
 
+                    // 执行爆炸逻辑
                     Detonate(dt_det_s);
+                    // 设置直接命中的目标ID为-1（可能表示无特定目标）
                     SetDirectHitTargetId(-1);
+                    // 退出函数
                     return;
                 }
 
-                /*fprintf(stdout, "Collision detect: dt: %f, x: %.1f, y:%.1f, z:%.1f\n",
-				dt, collisionPoint.x, collisionPoint.y, collisionPoint.z);*/
-                if (dt > tminDet_s) return; // defer until future time step
+                // 如果是直接命中（爆炸范围等于0），但碰撞时间大于最小爆炸延迟时间，则推迟执行
+                if (dt > tminDet_s) return;
 
+                // 将碰撞点从模型坐标转换为世界坐标
                 collisionPoint = target->ConvertModelCoordinatesToWorld(collisionPoint);
+                // 获取碰撞点的坐标
                 dx = collisionPoint.x();
                 dy = collisionPoint.y();
                 dz = collisionPoint.z();
 
+                // 执行爆炸逻辑
                 Detonate(dt);
+                // 设置直接命中的目标ID为目标对象的ID
                 SetDirectHitTargetId(target->mnID);
+                // 设置爆炸影响点
                 SetImpactPoint(Vector3d(dx, dy, dz));
+                // 退出函数
                 return;
             }
 
-            // if this is a direct hit weapon (detonation range == 0) then return
+            // 如果这是直接命中的武器（爆炸范围等于0），则直接返回，不进行后续计算
             if (detRange_m == 0) return;
 
-            // check for future closest point of approach
+            // 检查未来最接近的接近点
             dt = target->mcKin.CalculateCollisionPoint(mcKin, dx, dy, dz);
 
-            if (dt > tminDet_s) return; // defer until future time step
+            // 如果计算出的时间大于最小爆炸延迟时间，则推迟到未来的时间步执行
+            if (dt > tminDet_s) return;
 
-            float damageRange_m = sqrtf(dx*dx + dy*dy + dz*dz); // start with range to model origin
+            // 计算到目标模型原点的距离作为初始损伤范围
+            float damageRange_m = sqrtf(dx*dx + dy*dy + dz*dz);
 
-            // check if "up" ray is closer
+            // 检查向上的射线是否更近
             if (target->CalculateCollisionPointDir(this, Vector3d(0, 1, 0), collisionPoint, collisionRange_m))
             {
+                // 更新损伤范围为向上射线碰撞范围和当前损伤范围中的较小值
                 damageRange_m = std::min(collisionRange_m, damageRange_m);
             }
 
+            // 如果损伤范围在两倍爆炸范围内，则执行爆炸逻辑
             if (damageRange_m <= 2*detRange_m)
             {
                 Detonate(dt);
+                // 设置直接命中的目标ID为-1（可能表示非特定目标爆炸）
                 SetDirectHitTargetId(-1);
             }
 
         }
     }
-
-
-
-
-
 }
-
-
 
 /**
 *

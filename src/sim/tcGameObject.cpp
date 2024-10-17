@@ -516,7 +516,10 @@ bool tcGameObject::CalculateCollisionPoint(tcGameObject* collider, Vector3d& pos
       if(isIntersect)
       {
         dt= min_len/rv.norm();
+        pos=firstIntersectPoint;
       }
+
+
       return isIntersect;
 }
 
