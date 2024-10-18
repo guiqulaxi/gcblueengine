@@ -78,112 +78,133 @@ tcGameStream& tcRocket::operator>>(tcGameStream& stream)
 */
 void tcRocket::LaunchFrom(tcGameObject* obj, unsigned nLauncher)
 {
+    // 获取指定发射器的指针
     const tcLauncher* pLauncher = obj->GetLauncher(nLauncher);
 
+    // 检查发射对象是否是平台对象（可能是飞机、舰船等）
     if (tcPlatformObject* platObj = dynamic_cast<tcPlatformObject*>(obj))
-	{
-		tc3DPoint launcherPos = platObj->mpDBObject->GetLauncherPosition(nLauncher);
-		GeoPoint pos = obj->RelPosToLatLonAlt(launcherPos.x, launcherPos.y,
-			launcherPos.z);
-		mcKin.mfLon_rad = pos.mfLon_rad;
-		mcKin.mfLat_rad = pos.mfLat_rad;
-		mcKin.mfAlt_m = pos.mfAlt_m;
-	}
-	else
-	{
-		mcKin.mfLon_rad = obj->mcKin.mfLon_rad;
-		mcKin.mfLat_rad = obj->mcKin.mfLat_rad;
-		mcKin.mfAlt_m = obj->mcKin.mfAlt_m;
-	}
+    {
+        // 获取发射器在平台对象中的位置
+        tc3DPoint launcherPos = platObj->mpDBObject->GetLauncherPosition(nLauncher);
+        // 将位置转换为地理坐标（经度、纬度、高度）
+        GeoPoint pos = obj->RelPosToLatLonAlt(launcherPos.x, launcherPos.y, launcherPos.z);
+        // 设置运动学状态中的经度、纬度和高度
+        mcKin.mfLon_rad = pos.mfLon_rad;
+        mcKin.mfLat_rad = pos.mfLat_rad;
+        mcKin.mfAlt_m = pos.mfAlt_m;
+    }
+    else
+    {
+        // 如果不是平台对象，则直接使用发射对象的运动学状态中的位置信息
+        mcKin.mfLon_rad = obj->mcKin.mfLon_rad;
+        mcKin.mfLat_rad = obj->mcKin.mfLat_rad;
+        mcKin.mfAlt_m = obj->mcKin.mfAlt_m;
+    }
 
-	mcKin.mfSpeed_kts = obj->mcKin.mfSpeed_kts;
-	mcKin.mfHeading_rad = obj->mcKin.mfHeading_rad;
+    // 复制发射对象的运动学状态中的速度、航向和俯仰角
+    mcKin.mfSpeed_kts = obj->mcKin.mfSpeed_kts;
+    mcKin.mfHeading_rad = obj->mcKin.mfHeading_rad;
+    mcKin.mfPitch_rad = obj->mcKin.mfPitch_rad;
 
-	mcKin.mfPitch_rad = obj->mcKin.mfPitch_rad;
+    // 加上发射器的指向仰角和方位角
+    mcKin.mfPitch_rad += pLauncher->pointingElevation;
+    mcKin.mfHeading_rad += pLauncher->pointingAngle;
 
-	mcKin.mfPitch_rad += pLauncher->pointingElevation;
-	mcKin.mfHeading_rad += pLauncher->pointingAngle;
-	
-	// add angle error to model inaccuracy in trajectory
-	mcKin.mfHeading_rad += 0.707 * GaussianRandom::Get()->randn_fast() * mpDBObject->angleError_rad;
-	mcKin.mfPitch_rad += 0.707 * GaussianRandom::Get()->randn_fast() * mpDBObject->angleError_rad;
+    // 添加角度误差以模拟轨迹的不准确性
+    mcKin.mfHeading_rad += 0.707 * GaussianRandom::Get()->randn_fast() * mpDBObject->angleError_rad;
+    mcKin.mfPitch_rad += 0.707 * GaussianRandom::Get()->randn_fast() * mpDBObject->angleError_rad;
 
-	mcKin.mfClimbAngle_rad = mcKin.mfPitch_rad;
-	mfStatusTime = obj->mfStatusTime;
-	
+    // 设置爬升角为俯仰角
+    mcKin.mfClimbAngle_rad = mcKin.mfPitch_rad;
+    // 设置状态时间为发射对象的状态时间
+    mfStatusTime = obj->mfStatusTime;
 
-	if (pLauncher->IsAutoPoint()) // normally should be AutoPoint for rockets to make targeting easier
-	{
-		mcKin.mfSpeed_kts = C_MPSTOKTS * mpDBObject->launchSpeed_mps;
 
-		/* get intercept az and el to target, if target is bad then launch
-		** at 0 deg az, 45 deg el, and write error */
-		tcTrack targetTrack;
-		float launchAz_rad = 0;
-		float launchEl_rad = 0;
-		float tti_s;
-		float range_km;
-		if (simState->GetTruthTrack(pLauncher->mnTargetID, targetTrack))
-		{
-			mcKin.GetInterceptData3D(targetTrack, launchAz_rad, launchEl_rad, tti_s, range_km);
-		}
-		else if (!pLauncher->msDatum.IsZero())
-		{
-			targetTrack.mfLon_rad = pLauncher->msDatum.mfLon_rad;
-			targetTrack.mfLat_rad = pLauncher->msDatum.mfLat_rad;
-			targetTrack.mfAlt_m = pLauncher->msDatum.mfAlt_m;
-			targetTrack.mfSpeed_kts = 0;
-			mcKin.GetInterceptData3D(targetTrack, launchAz_rad, launchEl_rad, tti_s, range_km);
-		}
-		else
-		{
-			return; // no target ID or datum
-		}
+    // 如果发射器是自动指向模式
+    if (pLauncher->IsAutoPoint()) // normally should be AutoPoint for rockets to make targeting easier
+    {
+        // 设置速度为发射速度（转换为节）
+        mcKin.mfSpeed_kts = C_MPSTOKTS * mpDBObject->launchSpeed_mps;
 
-		mcKin.mfHeading_rad = launchAz_rad;
-		mcKin.mfPitch_rad = launchEl_rad;
-	}
-	else // assume fixed mounting in forward position
-	{
-		mcKin.mfSpeed_kts += C_MPSTOKTS * mpDBObject->launchSpeed_mps;
-	}
+        // 获取拦截目标的方位角和仰角等信息
+        tcTrack targetTrack;
+        float launchAz_rad = 0;
+        float launchEl_rad = 0;
+        float tti_s;
+        float range_km;
+        if (simState->GetTruthTrack(pLauncher->mnTargetID, targetTrack))
+        {
+            // 如果有目标，则计算拦截数据
+            mcKin.GetInterceptData3D(targetTrack, launchAz_rad, launchEl_rad, tti_s, range_km);
+        }
+        else if (!pLauncher->msDatum.IsZero())
+        {
+            // 如果没有目标但有数据点，则使用数据点作为目标
+            targetTrack.mfLon_rad = pLauncher->msDatum.mfLon_rad;
+            targetTrack.mfLat_rad = pLauncher->msDatum.mfLat_rad;
+            targetTrack.mfAlt_m = pLauncher->msDatum.mfAlt_m;
+            targetTrack.mfSpeed_kts = 0;
+            mcKin.GetInterceptData3D(targetTrack, launchAz_rad, launchEl_rad, tti_s, range_km);
+        }
+        else
+        {
+            return; // 没有目标ID或数据点，则不进行发射
+        }
 
-	mcKin.mfHeading_rad += GaussianRandom::Get()->randn_fast() * mpDBObject->angleError_rad;
-	mcKin.mfPitch_rad += GaussianRandom::Get()->randn_fast() * mpDBObject->angleError_rad;
-	mcKin.mfClimbAngle_rad = mcKin.mfPitch_rad;
+        // 设置航向角和俯仰角为计算出的拦截角度
+        mcKin.mfHeading_rad = launchAz_rad;
+        mcKin.mfPitch_rad = launchEl_rad;
+    }
+    else // 假设发射器是固定在前向位置
+    {
+        // 在当前速度上加上发射速度
+        mcKin.mfSpeed_kts += C_MPSTOKTS * mpDBObject->launchSpeed_mps;
+    }
 
-	
+    // 再次添加角度误差（这部分可能是冗余的，因为在上面已经加过一次）
+    mcKin.mfHeading_rad += GaussianRandom::Get()->randn_fast() * mpDBObject->angleError_rad;
+    mcKin.mfPitch_rad += GaussianRandom::Get()->randn_fast() * mpDBObject->angleError_rad;
+    mcKin.mfClimbAngle_rad = mcKin.mfPitch_rad;
+
+
+    // 记录发射平台ID
     launchingPlatform = obj->mnID;
 
+    // 初始化发射距离为0
     distFromLaunch_m = 0;
 
+    // 根据弹药的类型设置目标位置
     switch (mpDBObject->ballisticType)
     {
     case tcBallisticDBObject::ROCKET:
-        {
-            targetPos = pLauncher->msDatum;
-        }
-        break;
+    {
+        // 对于火箭，目标位置为发射器的数据点
+        targetPos = pLauncher->msDatum;
+    }
+    break;
     default:
         assert(false);
-		return; // error
+        return; // 错误，未知的弹药类型
     }
 
-	assert(pLauncher->meLaunchMode == DATUM_ONLY);
+    // 确保发射模式是仅数据点模式
+    assert(pLauncher->meLaunchMode == DATUM_ONLY);
 
 
+    // 设置单位名称（格式为"RKT 平台ID-计数器"）
     std::string s = strutil::format("RKT %d-%d", obj->mnID, launchedCounter++);
-    mzUnit = s.c_str();    
-        
-	SetAlliance(obj->GetAlliance());     
+    mzUnit = s.c_str();
 
-	simState->AddPlatform(static_cast<tcGameObject*>(this));
+    // 设置联盟（与发射对象相同）
+    SetAlliance(obj->GetAlliance());
 
-	// Set intended target (has to be done after alliance and id is set).
-	// This is a tcWeaponObject method
-	SetIntendedTarget(pLauncher->mnTargetID);
+    // 将自己添加到模拟中
+    simState->AddPlatform(static_cast<tcGameObject*>(this));
+
+    // 设置预定目标（必须在设置联盟和ID之后进行）
+    // 这是tcWeaponObject的方法
+    SetIntendedTarget(pLauncher->mnTargetID);
 }
-
 
 
 /**
