@@ -505,41 +505,50 @@ void tcKinematics::LLToXYm(double& x, double& y) const
     y = C_RADTOM*(mfLon_rad);
 }
 /**
-* Calculates closest distance that collider comes to object represented
-* by tcKinematics. 
-* @param dx east separation in meters in world coordinates
-* @param dy north separation in meters in world coordinates
-* @param dz vertical separation in meters in world coordinates
-* @return time of closest distance in seconds, negative indicates past
+* 计算碰撞体与由tcKinematics表示的对象之间的最近距离时间点。
+* @param dx 世界坐标系中东方向的距离差（米）
+* @param dy 世界坐标系中北方向的距离差（米）
+* @param dz 世界坐标系中垂直方向的距离差（米）
+* @return 碰撞发生时的最近时间（秒），负值表示已过去
 */
-
 
 float tcKinematics::CalculateCollisionPoint(const tcKinematics& collider, float& dxi, float& dyi, float& dzi)
 {
+    // 计算经度差和纬度差（弧度）
     double dlon = mfLon_rad - collider.mfLon_rad;
     double dlat = mfLat_rad - collider.mfLat_rad;
-    
-    float dx = C_RADTOM*cosf(mfLat_rad)*((float)dlon);
+
+    // 根据经度差和纬度差计算东西方向和南北方向上的距离差（米）
+    float dx = C_RADTOM*cosf(mfLat_rad)*((float)dlon); // C_RADTOM 是弧度到米的转换系数
     float dy = C_RADTOM*((float)dlat);
+    // 计算垂直方向上的距离差（米）
     float dz = mfAlt_m - collider.mfAlt_m;
 
-    float v = C_KTSTOMPS*mfSpeed_kts;
+    // 将速度（节）转换为速度（米/秒）
+    float v = C_KTSTOMPS*mfSpeed_kts; // C_KTSTOMPS 是节到米/秒的转换系数
     float vc = C_KTSTOMPS*collider.mfSpeed_kts;
+    // 计算垂直方向上的速度差
     float dvz = v*sinf(mfPitch_rad) - vc*sinf(collider.mfPitch_rad);
+    // 计算俯仰角的余弦值
     float cospitch = cosf(mfPitch_rad);
     float cospitchc = cosf(collider.mfPitch_rad);
+    // 计算东西方向和南北方向上的速度差
     float dvx = v*cospitch*sinf(mfHeading_rad) - vc*cospitchc*sinf(collider.mfHeading_rad);
     float dvy = v*cospitch*cosf(mfHeading_rad) - vc*cospitchc*cosf(collider.mfHeading_rad);
 
+    // 断言确保速度差不为零，避免除以零错误
     assert(dvx*dvx + dvy*dvy + dvz*dvz != 0);
 
+    // 计算最近的碰撞时间（秒）???
     float tclosest = -(dx*dvx + dy*dvy + dz*dvz) /
-            (dvx*dvx + dvy*dvy + dvz*dvz);
-    
+                     (dvx*dvx + dvy*dvy + dvz*dvz);
+
+    // 计算碰撞发生时的距离差（米）
     dxi = dx + dvx*tclosest;
     dyi = dy + dvy*tclosest;
     dzi = dz + dvz*tclosest;
 
+    // 返回最近的碰撞时间
     return tclosest;
 }
 
@@ -602,7 +611,8 @@ float tcKinematics::CalculateRangeRate(const tcKinematics& k) const
 
 
 /**
-* Extrapolates position ahead in time by dt_s (or behind if dt_s < 0)
+*  Extrapolates position ahead in time by dt_s (or behind if dt_s < 0)
+*  预测推断目标的位置dt_s 秒
 */
 void tcKinematics::Extrapolate(float dt_s)
 {

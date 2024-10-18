@@ -65,9 +65,9 @@
 #define C_KTSTODEGPS 4.6296296296296e-6f
 #define C_KTSTORADPS 8.0802280e-8f
 #define C_REARTHKM 6378.140f
-#define C_REARTHM 6378140.0f 
-#define C_RADTOKM 6378.140f
-#define C_RADTOM 6378140.0f
+#define C_REARTHM 6378140.0f
+#define C_RADTOKM 6378.140f //假设地球是个圆球
+#define C_RADTOM 6378140.0f //假设地球是个圆球
 #define C_KMTORAD 1.5678552e-4f
 #define C_MTORAD 1.5678552e-7f
 #define C_MTOFT 3.2808399f

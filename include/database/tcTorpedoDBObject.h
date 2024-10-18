@@ -48,7 +48,12 @@ namespace database
     class tcTorpedoDBObject : public tcWeaponDBObject, public tcWaterDetectionDBObject
     {
     public:
-        enum {TORPEDO = 1, DEPTH_CHARGE = 2, BOTTOM_MINE = 3, BOTTOM_MINE_CAPTOR = 4};
+        enum {
+            TORPEDO = 1,///鱼雷
+            DEPTH_CHARGE = 2,///深水炸弹
+            BOTTOM_MINE = 3, ///沉底水雷
+            BOTTOM_MINE_CAPTOR = 4 ///底部地雷捕获器
+        };
 
         // model parameters
         float maxTurnRate_degps;          ///< max turn rate

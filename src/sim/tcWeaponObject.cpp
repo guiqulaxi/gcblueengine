@@ -125,73 +125,87 @@ tcGameStream& tcWeaponObject::operator>>(tcGameStream& stream)
 */
 float tcWeaponObject::ApplyAdvancedDamage(const Damage& damage, tcGameObject* damager)
 {
-    float impactDamage = 0;
-    float internalDamage = 0;
-    float blastDamage = 0;
-    float waterBlastDamage = 0;
-    float thermalDamage = 0;
-    float fragDamage = 0;
+    // 初始化不同类型的伤害值为0
+    float impactDamage = 0; // 冲击伤害
+    float internalDamage = 0; // 内部伤害
+    float blastDamage = 0; // 爆炸伤害
+    float waterBlastDamage = 0; // 水下爆炸伤害
+    float thermalDamage = 0; // 热辐射伤害
+    float fragDamage = 0; // 破片伤害
 
+    // 如果当前损伤等级已满（1表示完全损坏），则不再接受新伤害
     if (mfDamageLevel >= 1) return 0;
 
+    // 保存当前损伤等级，用于后续计算
     float priorDamage = mfDamageLevel;
 
-    const database::tcDamageEffect* damageEffect = 
+    // 从数据库中获取当前对象的伤害效果数据
+    const database::tcDamageEffect* damageEffect =
         database->GetDamageEffectData(mpDBObject->damageEffect);
-    
+
+    // 如果没有找到伤害效果数据，则输出错误信息并断言失败
     if (damageEffect == 0)
     {
         fprintf(stderr, "tcWeaponObject::ApplyAdvancedDamage -- NULL damageEffect for %s\n",
-            mzClass.c_str());
+                mzClass.c_str());
         assert(false);
         return 0;
     }
 
+    // 根据动能计算冲击伤害
     impactDamage = damageEffect->GetFragmentDamageFactor(damage.kinetic_J);
+    // 如果穿透成功且冲击伤害大于一定值，则计算内部伤害
     if (damage.isPenetration && (impactDamage > 0.02f))
     {
         internalDamage = damageEffect->GetInternalDamageFactor(damage.explosive_kg);
     }
+    // 根据爆炸压力计算爆炸伤害
     blastDamage = damageEffect->GetBlastDamageFactor(damage.blast_psi);
+    // 根据水下爆炸压力计算水下爆炸伤害
     waterBlastDamage = damageEffect->GetWaterBlastDamageFactor(damage.waterBlast_psi);
+    // 根据热辐射能量计算热辐射伤害
     thermalDamage = damageEffect->GetRadiationDamageFactor(damage.thermal_J_cm2);
+    // 根据破片数量和能量计算破片伤害
     fragDamage = sqrtf(damage.fragHits) * damageEffect->GetFragmentDamageFactor(damage.fragEnergy_J);
 
-
+    // 计算总伤害值
     float cumulativeDamage = impactDamage + internalDamage + blastDamage + waterBlastDamage + thermalDamage + fragDamage;
 
+    // 构建伤害描述字符串
     std::string damageDescription;
-    if (impactDamage > 0) damageDescription.append("K");
-    if (internalDamage > 0) damageDescription.append("X");
-    if (blastDamage > 0) damageDescription.append("B");
-    if (waterBlastDamage > 0) damageDescription.append("U");
-    if (thermalDamage > 0) damageDescription.append("T");
-    if (fragDamage > 0) damageDescription.append("F");
-    SetLastDamageDescription(damageDescription);
+    if (impactDamage > 0) damageDescription.append("K"); // 冲击
+    if (internalDamage > 0) damageDescription.append("X"); // 内部
+    if (blastDamage > 0) damageDescription.append("B"); // 爆炸
+    if (waterBlastDamage > 0) damageDescription.append("U"); // 水下爆炸
+    if (thermalDamage > 0) damageDescription.append("T"); // 热辐射
+    if (fragDamage > 0) damageDescription.append("F"); // 破片
+    SetLastDamageDescription(damageDescription); // 设置最后的伤害描述
 
-    
+    // 如果总伤害值小于等于0，则没有伤害，直接返回
+    if (cumulativeDamage <= 0) return 0;
 
-    if (cumulativeDamage <= 0) return 0; // no damage, exit now
-
-    //float newDamage = randf() * cumulativeDamage;
+    // 计算新的伤害值，使用随机数使伤害值在一定范围内波动
+    // 这里使用了一个范围调整，使得伤害值在70%到130%的累计伤害值之间
     float newDamage = (0.7 + (randf() * 0.6)) * cumulativeDamage;
-	// Amram - calming this down, a fluctuation from 0 through 200% is a bit much?  The doubling factor already replaced with equivalence
-	//		   Set to achieve 100%  30%, for a range from 70% through 130%.
 
+    // 更新当前对象的损伤等级
     mfDamageLevel += newDamage;
 
+    // 确保损伤等级不超过1
     mfDamageLevel = std::min(mfDamageLevel, 1.0f);
 
+    // 根据伤害更新分数
     UpdateScoreForDamage(damager, priorDamage);
 
-	if (mfDamageLevel >= 1.0f)
-	{
-		simState->mcSensorMap.MarkObjectDestroyed(this);
-	}
+    // 如果损伤等级达到或超过1，标记对象被摧毁
+    if (mfDamageLevel >= 1.0f)
+    {
+        simState->mcSensorMap.MarkObjectDestroyed(this);
+    }
 
+    // 返回新造成的伤害值
     return newDamage;
 }
-
 
 
 /**
@@ -314,28 +328,37 @@ float tcWeaponObject::GetMassKg() const
 }
 
 /**
-* ?????????????
-* Handles case where object has wrapped over +/- 90 latitude at pole
-* Same as what tcPlatformObject::Move is doing
-*/
+ * 处理对象在极地附近经度超过±90度的情况（即纬度跨越极点）
+ * 与tcPlatformObject::Move函数中的处理方式相同
+ */
 void tcWeaponObject::HandlePoleWrap()
 {
+    // 判断经度是否小于-π（即西半球超过-90度经线，但这里用浮点数表示布尔值可能不是最佳实践）
     float wrapLow = float(mcKin.mfLon_rad < -C_PI);
+
+    // 判断经度是否大于等于π（即东半球超过90度经线）
     float wrapHigh = float(mcKin.mfLon_rad >= C_PI);
 
+    // 根据经度是否跨越-π或π来调整经度，确保经度在[-π, π)范围内
+    // 如果经度小于-π，则加上2π；如果经度大于等于π，则减去2π（但由于wrapLow和wrapHigh是互斥的，所以实际上只会执行其中一个操作）
     mcKin.mfLon_rad += (wrapLow - wrapHigh) * C_TWOPI;
 
-    // check for pole crossing
-    if (fabsf(mcKin.mfLat_rad) >= C_PIOVER2)
+    // 检查是否跨越了极点
+    if (fabsf(mcKin.mfLat_rad) >= C_PIOVER2) // fabsf计算浮点数的绝对值，C_PIOVER2表示π/2
     {
+        // 如果纬度大于等于π/2（即北半球极点附近）
         if (mcKin.mfLat_rad >= C_PIOVER2)
         {
+            // 将纬度调整为南半球对称的位置（用π减去原纬度）
             mcKin.mfLat_rad = C_PI - mcKin.mfLat_rad;
         }
-        else
+        else // 如果纬度小于-π/2（即南半球极点附近）
         {
+            // 将纬度调整为北半球对称的位置（用-π减去原纬度）
             mcKin.mfLat_rad = -C_PI - mcKin.mfLat_rad;
         }
+
+        // 调整航向，确保在跨越极点后航向正确（用π减去原航向）
         mcKin.mfHeading_rad = C_PI - mcKin.mfHeading_rad;
     }
 }

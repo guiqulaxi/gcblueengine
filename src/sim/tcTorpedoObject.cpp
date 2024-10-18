@@ -514,7 +514,7 @@ void tcTorpedoObject::Update(double afStatusTime)
 
     assert(mpDBObject);
 
-    // air launched torpedoes drop into water first
+    // air launched torpedoes drop into water first 在空中显示
     bool outOfWater = (mcKin.mfAlt_m > 0.0f);
     if (outOfWater)
     {
@@ -524,7 +524,7 @@ void tcTorpedoObject::Update(double afStatusTime)
 
     switch (mpDBObject->weaponType)
     {
-    case tcTorpedoDBObject::DEPTH_CHARGE:
+    case tcTorpedoDBObject::DEPTH_CHARGE: ///深水炸弹
         UpdateDepthCharge(dt_s);
         return;
     case tcTorpedoDBObject::BOTTOM_MINE:
@@ -707,81 +707,106 @@ void tcTorpedoObject::UpdateDepthCharge(float dt_s)
 */
 void tcTorpedoObject::UpdateDepthChargeDetonation()
 {
-    // if we're this close to the detonation point then detonate, otherwise defer to future time step
-    const float tminDet_s = 0.05f; 
+    // 如果我们距离引爆点非常近，则引爆，否则推迟到未来的时间步
+    const float tminDet_s = 0.05f; // 最小引爆时间，单位秒
 
+    // 从数据库对象中获取引爆范围
     float detRange_m = mpDBObject->detonationRange_m;
 
+    // 定义一个地理矩形区域用于搜索潜在目标
     tcGeoRect region;
-    float checkDistance_rad = (100.0f + detRange_m) * C_MTORAD;
+    // 将引爆范围和额外安全距离（100米）转换为弧度，并设置为搜索区域的边界
+    float checkDistance_rad = (100.0f + detRange_m) * C_MTORAD; // C_MTORAD可能是米到弧度的转换常数
 
+    // 根据当前位置和搜索距离设置地理矩形区域
     region.Set(mcKin.mfLon_rad-checkDistance_rad, mcKin.mfLon_rad+checkDistance_rad,
                mcKin.mfLat_rad-checkDistance_rad, mcKin.mfLat_rad+checkDistance_rad);
 
+    // 创建一个游戏对象迭代器，用于遍历搜索区域内的所有对象
     tcGameObjIterator iter(region);
 
+    // 遍历搜索区域内的所有对象
     for (iter.First();iter.NotDone();iter.Next())
     {
-        tcGameObject *target = iter.Get();
-        if ((target != this) && (target->mpDBObject != mpDBObject)) // no self detection, and cheat and ignore other depth charges
+        tcGameObject *target = iter.Get(); // 获取当前遍历到的对象
+        // 忽略自己和其他同类型的深度炸弹
+        if ((target != this) && (target->mpDBObject != mpDBObject))
         {
+            // 用于存储碰撞点的坐标和时间差的变量
             float dx, dy, dz, dt;
-            Vector3d collisionPoint;
-            float collisionRange_m;
+            Vector3d collisionPoint; // 碰撞点的三维坐标
+            float collisionRange_m; // 碰撞时的实际距离
 
-            // first check for impact
+            // 首先检查是否会发生碰撞
             if (target->CalculateCollisionPoint(this, collisionPoint, dt, collisionRange_m))
             {
-                // if this isn't a direct hit weapon, check if we're close enough despite impending collision
+                // 如果这不是一个直接命中的武器，检查尽管即将发生碰撞，但我们是否足够接近引爆点
                 if (detRange_m > 0)
                 {
+                    // 根据碰撞距离和引爆范围计算引爆时间差
                     float dt_det_s = dt * (1.0 - (detRange_m / collisionRange_m));
+                    // 如果引爆时间差大于最小引爆时间，则推迟引爆
                     if (dt_det_s > tminDet_s) return;
 
+                    // 引爆深度炸弹
                     Detonate(dt_det_s);
+                    // 设置直接命中的目标ID为-1（表示没有直接命中特定目标）
                     SetDirectHitTargetId(-1);
+                    // 提前返回，因为已经引爆
                     return;
                 }
 
+                // 如果是直接命中的情况，并且碰撞时间小于最小引爆时间
                 if (dt <= tminDet_s)
                 {
+                    // 将碰撞点从模型坐标转换为世界坐标
                     collisionPoint = target->ConvertModelCoordinatesToWorld(collisionPoint);
+                    // 获取碰撞点的三维坐标
                     dx = collisionPoint.x();
                     dy = collisionPoint.y();
                     dz = collisionPoint.z();
 
+                    // 引爆深度炸弹
                     Detonate(dt);
+                    // 设置直接命中的目标ID
                     SetDirectHitTargetId(target->mnID);
+                    // 设置碰撞点的三维坐标
                     SetImpactPoint(Vector3d(dx, dy, dz));
+                    // 提前返回，因为已经引爆
                     return;
                 }
             }
 
-            // check for proximity detonation if this isn't a direct hit weapon
+            // 如果这不是一个直接命中的武器，检查近距离引爆条件
             if (detRange_m > 0)
             {
-                // check for future closest point of approach
+                // 检查未来最近的接近点
                 dt = target->mcKin.CalculateCollisionPoint(mcKin, dx, dy, dz);
 
+                // 如果接近点的时间小于最小引爆时间
                 if (dt <= tminDet_s)
                 {
-                    float damageRange_m = sqrtf(dx*dx + dy*dy + dz*dz); // start with range to model origin
+                    // 计算到模型原点的距离作为初始损伤范围
+                    float damageRange_m = sqrtf(dx*dx + dy*dy + dz*dz);
 
-                    // check if "up" ray is closer
+                    // 检查向上的射线是否更接近
                     if (target->CalculateCollisionPointDir(this, Vector3d(0, 1, 0), collisionPoint, collisionRange_m))
                     {
+                        // 更新损伤范围为射线碰撞范围和初始损伤范围中的较小值
                         damageRange_m = std::min(collisionRange_m, damageRange_m);
                     }
 
+                    // 如果损伤范围在两倍引爆范围内，则引爆
                     if (damageRange_m <= 2*detRange_m)
                     {
                         Detonate(dt);
+                        // 设置直接命中的目标ID为-1（表示没有直接命中特定目标）
                         SetDirectHitTargetId(-1);
+                        // 提前返回，因为已经引爆
                         return;
                     }
                 }
             }
-
         }
     }
 }
@@ -789,106 +814,93 @@ void tcTorpedoObject::UpdateDepthChargeDetonation()
 
 void tcTorpedoObject::UpdateDetonation()
 {
-    // if we're this close to the detonation point then detonate, otherwise defer to future time step
-    const float tminDet_s = 0.05f; 
-    
+    // 如果我们距离爆炸点这么近，则爆炸，否则延迟到未来的时间步
+    const float tminDet_s = 0.05f; // 最小爆炸延迟时间，单位秒
 
-    tcSensorState* sensor = GetSensorMutable(0);
+    tcSensorState* sensor = GetSensorMutable(0); // 获取第一个可变传感器状态
     if (sensor == 0)
     {
-        UpdateDetonationUnguided();
+        UpdateDetonationUnguided(); // 如果没有传感器，则更新非制导爆炸逻辑
         return;
     }
 
-    assert(sensor != 0);
-    if (sensor->mnMode != SSMODE_SEEKERTRACK) return; 
+    assert(sensor != 0); // 断言确保传感器不为空
+    if (sensor->mnMode != SSMODE_SEEKERTRACK) return; // 如果传感器不是追踪模式，则返回
 
-    if ((interceptTime > 3.0f) || (sensor->mcTrack.mnID == -1)) return;
+    if ((interceptTime > 3.0f) || (sensor->mcTrack.mnID == -1)) return; // 如果拦截时间超过3秒或追踪目标ID为-1，则返回
 
-    tcGameObject* target = simState->GetObject(sensor->mcTrack.mnID);
+    tcGameObject* target = simState->GetObject(sensor->mcTrack.mnID); // 从模拟状态中获取追踪的目标对象
 
     if (target != 0)
     {
-        SetIntendedTarget(sensor->mcTrack.mnID); // in case it doesn't match
+        SetIntendedTarget(sensor->mcTrack.mnID); // 如果目标存在，则设置意图目标ID
     }
     else
     {
-        SetIntendedTarget(-1);
-        sensor->mcTrack.mnID = -1;
+        SetIntendedTarget(-1); // 如果目标不存在，则清除意图目标ID
+        sensor->mcTrack.mnID = -1; // 清除追踪目标ID
         return;
     }
 
-    float dx, dy, dz, dt;
-    Vector3d collisionPoint;
-    float collisionRange_m;
+    float dx, dy, dz, dt; // 定义变量dx, dy, dz用于存储碰撞点的坐标，dt用于存储碰撞时间
+    Vector3d collisionPoint; // 定义碰撞点向量
+    float collisionRange_m; // 定义碰撞范围，单位米
 
-    float detRange_m = mpDBObject->detonationRange_m;
+    float detRange_m = mpDBObject->detonationRange_m; // 获取爆炸范围，单位米
 
-    // first check for impact
+    // 首先检查是否碰撞
     if (target->CalculateCollisionPoint(this, collisionPoint, dt, collisionRange_m))
     {
-        // if this isn't a direct hit weapon, check if we're close enough despite impending collision
+        // 如果这不是直接命中武器，检查是否尽管即将碰撞但仍足够接近
         if (detRange_m > 0)
         {
-            float dt_det_s = dt * (1.0 - (detRange_m / collisionRange_m));
-            if (dt_det_s > tminDet_s) return;
+            float dt_det_s = dt * (1.0 - (detRange_m / collisionRange_m)); // 计算实际爆炸时间
+            if (dt_det_s > tminDet_s) return; // 如果实际爆炸时间大于最小爆炸延迟时间，则返回
 
-            Detonate(dt_det_s);
-            SetDirectHitTargetId(-1);
+            Detonate(dt_det_s); // 爆炸
+            SetDirectHitTargetId(-1); // 清除直接命中目标ID
             return;
         }
 
-        /*fprintf(stdout, "Collision detect: dt: %f, x: %.1f, y:%.1f, z:%.1f\n",
-            dt, collisionPoint.x, collisionPoint.y, collisionPoint.z);*/
-        if (dt > tminDet_s) return; // defer until future time step
+        // 直接命中武器，检查是否延迟到未来时间步
+        if (dt > tminDet_s) return; // 如果碰撞时间大于最小爆炸延迟时间，则返回
 
-        collisionPoint = target->ConvertModelCoordinatesToWorld(collisionPoint);
-        dx = collisionPoint.x();
-        dy = collisionPoint.y();
-        dz = collisionPoint.z();
+        collisionPoint = target->ConvertModelCoordinatesToWorld(collisionPoint); // 将碰撞点从模型坐标转换为世界坐标
+        dx = collisionPoint.x(); // 获取碰撞点x坐标
+        dy = collisionPoint.y(); // 获取碰撞点y坐标
+        dz = collisionPoint.z(); // 获取碰撞点z坐标
 
-        Detonate(dt);
-        SetDirectHitTargetId(target->mnID);
-        SetImpactPoint(Vector3d(dx, dy, dz));
+        Detonate(dt); // 爆炸
+        SetDirectHitTargetId(target->mnID); // 设置直接命中目标ID
+        SetImpactPoint(Vector3d(dx, dy, dz)); // 设置爆炸点
         return;
     }
 
-    // if this is a direct hit weapon (detonation range == 0) then return
+    // 如果是直接命中武器（爆炸范围==0），则返回
     if (detRange_m == 0) return;
 
-    //// check for sufficient proximity to target now
+    // 检查当前是否足够接近目标
     //float currentRange_m = 1000.0f * target->mcKin.RangeToKmAlt(mcKin);
+    // 此部分代码已被注释，可能是因为它在当前逻辑中不是必需的
 
-    //if (currentRange_m <= detRange_m)
-    //{
-    //    Detonate(0);
-    //    SetDamageRange(0);
-    //    SetDirectHitTargetId(-1);
-    //    return;
-    //}
+    // 检查未来的最近接近点
+    dt = target->mcKin.CalculateCollisionPoint(mcKin, dx, dy, dz); // 计算与目标的最近接近点
 
-    // check for future closest point of approach
-    dt = target->mcKin.CalculateCollisionPoint(mcKin, dx, dy, dz);
+    if (dt > tminDet_s) return; // 如果最近接近时间大于最小爆炸延迟时间，则返回
 
-    //float keelDepth_m = target->GetZmin();
+    float damageRange_m = sqrtf(dx*dx + dy*dy + dz*dz); // 计算到模型原点的距离作为初始损伤范围
 
-    if (dt > tminDet_s) return; // defer until future time step
-
-    float damageRange_m = sqrtf(dx*dx + dy*dy + dz*dz); // start with range to model origin
-
-    // check if "up" ray is closer
-    if (target->CalculateCollisionPointDir(this, Vector3d(0, 1, 0), collisionPoint, collisionRange_m))
+    // 检查“向上”射线是否更近
+    if (target->CalculateCollisionPointDir(this, Vector3d(0, 0, 1), collisionPoint, collisionRange_m))
     {
-        damageRange_m = std::min(collisionRange_m, damageRange_m);
+        damageRange_m = std::min(collisionRange_m, damageRange_m); // 更新损伤范围为最小碰撞范围
     }
 
     if (damageRange_m <= 2*detRange_m)
     {
-        Detonate(dt);
-        SetDirectHitTargetId(-1);
+        Detonate(dt); // 爆炸
+        SetDirectHitTargetId(-1); // 清除直接命中目标ID
     }
-
-
 }
 
 // expensive since does collision testing on all objects that are close to this torpedo every update
@@ -1335,161 +1347,157 @@ void tcTorpedoObject::UpdateGuidance(double t)
 }
 
 
-void tcTorpedoObject::UpdateBottomMine(float dt_s)
+void tcTorpedoObject::UpdateBottomMine(float dt_s) // 更新底部水雷的方法，dt_s为时间间隔（秒）
 {
-    if ((mcKin.mfSpeed_kts == 0) && (mcKin.mfAlt_m < 0))
-    { 
-        UpdateBottomMineTrigger(mfStatusTime);
+    if ((mcKin.mfSpeed_kts == 0) && (mcKin.mfAlt_m < 0)) // 如果速度为零且高度为负（即在水下）
+    {
+        UpdateBottomMineTrigger(mfStatusTime); // 更新底部水雷触发条件
     }
     else
     {
-        // sink to bottom
-        const float sinkSpeed_kts = 8.0f;
-        float alpha = 0.1f * dt_s;
-        mcKin.mfClimbAngle_rad = (1.0f-alpha)*mcKin.mfClimbAngle_rad - alpha*1.55f; // slowly change to -89 deg
-        mcKin.mfPitch_rad = mcKin.mfClimbAngle_rad;
+        // sink to bottom // 沉到水底
+        const float sinkSpeed_kts = 8.0f; // 下沉速度，单位：节
+        float alpha = 0.1f * dt_s; // 用于平滑过渡的系数
+        mcKin.mfClimbAngle_rad = (1.0f-alpha)*mcKin.mfClimbAngle_rad - alpha*1.55f; // 缓慢改变爬升角到-89度（向下）
+        mcKin.mfPitch_rad = mcKin.mfClimbAngle_rad; // 将俯仰角设置为爬升角
 
-        goalSpeed_kts = sinkSpeed_kts;
-        UpdateSpeedSimple(dt_s);
+        goalSpeed_kts = sinkSpeed_kts; // 目标速度设为下沉速度
+        UpdateSpeedSimple(dt_s); // 更新速度
 
-        float speed_mps = C_KTSTOMPS * mcKin.mfSpeed_kts;
-        float disp_m = speed_mps * dt_s; // distance moved this update
+        float speed_mps = C_KTSTOMPS * mcKin.mfSpeed_kts; // 将速度从节转换为米/秒
+        float disp_m = speed_mps * dt_s; // 在此次更新中移动的距离
 
-        float disp_z_m = disp_m * sinf(mcKin.mfClimbAngle_rad);
-        mcKin.mfAlt_m += disp_z_m;
+        float disp_z_m = disp_m * sinf(mcKin.mfClimbAngle_rad); // 在垂直方向上移动的距离
+        mcKin.mfAlt_m += disp_z_m; // 更新高度
 
-        if (mcKin.mfClimbAngle_rad > -1.50f)
+        if (mcKin.mfClimbAngle_rad > -1.50f) // 如果爬升角大于-1.5弧度（即未完全向下）
         {
-            float disp_rad = C_MTORAD * disp_m; // distance in equator radians
-            float heading_rad = mcKin.mfHeading_rad;
-            float disp_xy_rad = disp_rad * cosf(mcKin.mfClimbAngle_rad);
-            mcKin.mfLon_rad += disp_xy_rad * (double)(sinf(heading_rad) / cosf((float)mcKin.mfLat_rad));
-            mcKin.mfLat_rad += (double)cosf(heading_rad) * disp_xy_rad;
+            float disp_rad = C_MTORAD * disp_m; // 将距离转换为赤道弧度
+            float heading_rad = mcKin.mfHeading_rad; // 当前朝向
+            float disp_xy_rad = disp_rad * cosf(mcKin.mfClimbAngle_rad); // 在水平面上移动的距离
+            mcKin.mfLon_rad += disp_xy_rad * (double)(sinf(heading_rad) / cosf((float)mcKin.mfLat_rad)); // 更新经度
+            mcKin.mfLat_rad += (double)cosf(heading_rad) * disp_xy_rad; // 更新纬度
 
-            HandlePoleWrap();
+            HandlePoleWrap(); // 处理极地环绕问题
         }
-        guidanceUpdateInterval = 30.0;
+        guidanceUpdateInterval = 30.0; // 设定制导更新间隔
 
-        if (mcKin.mfAlt_m < -mpDBObject->maxDepth_m)
+        if (mcKin.mfAlt_m < -mpDBObject->maxDepth_m) // 如果当前高度低于最大深度
         {
-            ApplyGeneralDamage(1.0f, 0);
+            ApplyGeneralDamage(1.0f, 0); // 应用一般伤害
         }
 
-        if (mcKin.mfAlt_m <= mcTerrain.mfHeight_m)
-        {   
-            // deploy mine
-            mcKin.mfSpeed_kts = 0;
-            mcKin.mfAlt_m = std::max(std::min(-goalDepth_m, -10.0f), mcTerrain.mfHeight_m);
-            mcKin.mfPitch_rad = 1.55f;
-            mcKin.mfClimbAngle_rad = mcKin.mfPitch_rad;
-            lastGuidanceUpdate = mfStatusTime + 60.0; // delay arming
+        if (mcKin.mfAlt_m <= mcTerrain.mfHeight_m) // 如果当前高度小于或等于地形高度
+        {
+            // deploy mine // 部署水雷
+            mcKin.mfSpeed_kts = 0; // 速度设为零
+            mcKin.mfAlt_m = std::max(std::min(-goalDepth_m, -10.0f), mcTerrain.mfHeight_m); // 将高度设置为目标深度（不低于-10米，不高于地形高度）
+            mcKin.mfPitch_rad = 1.55f; // 俯仰角设为-89度（向下）
+            mcKin.mfClimbAngle_rad = mcKin.mfPitch_rad; // 爬升角设为俯仰角
+            lastGuidanceUpdate = mfStatusTime + 60.0; // 延迟制导更新
         }
     }
 
-    //UpdateEffects();
+    //UpdateEffects(); // 更新效果（已注释）
 
-    //Update3D();
-
-
+    //Update3D(); // 更新3D模型（已注释）
 }
 
-void tcTorpedoObject::UpdateBottomMineTrigger(double t)
+void tcTorpedoObject::UpdateBottomMineTrigger(double t) // 更新底部水雷触发条件的方法，t为当前时间
 {
-    float dt_s = t - lastGuidanceUpdate;
-    if ((dt_s < guidanceUpdateInterval) || (clientMode)) return;
-    lastGuidanceUpdate = t;
+    float dt_s = t - lastGuidanceUpdate; // 计算从上次制导更新到现在的时间间隔
+    if ((dt_s < guidanceUpdateInterval) || (clientMode)) return; // 如果时间间隔小于更新间隔或处于客户端模式，则直接返回
+    lastGuidanceUpdate = t; // 更新上次制导更新的时间
 
+    // 根据武器类型执行不同的逻辑
     switch (mpDBObject->weaponType)
     {
-    case  tcTorpedoDBObject::BOTTOM_MINE:
+    case tcTorpedoDBObject::BOTTOM_MINE: // 如果是底部水雷
     {
-        // find all objects within +/- 1 km
-        float rangeY_rad = C_KMTORAD*1.0f;
-        float rangeX_rad = rangeY_rad/cosf(mcKin.mfLat_rad);
-        tcGeoRect region;
-        region.left = mcKin.mfLon_rad - rangeX_rad;
-        region.right = mcKin.mfLon_rad + rangeX_rad;
-        region.bottom = mcKin.mfLat_rad - rangeY_rad;
-        region.top = mcKin.mfLat_rad + rangeY_rad;
+        // 在以当前位置为中心，半径为1公里的范围内查找所有对象
+        float rangeY_rad = C_KMTORAD * 1.0f; // 将1公里转换为弧度
+        float rangeX_rad = rangeY_rad / cosf(mcKin.mfLat_rad); // 根据纬度计算经度上的范围
+        tcGeoRect region; // 定义一个地理矩形区域
+        region.left = mcKin.mfLon_rad - rangeX_rad; // 设置区域的左边界
+        region.right = mcKin.mfLon_rad + rangeX_rad; // 设置区域的右边界
+        region.bottom = mcKin.mfLat_rad - rangeY_rad; // 设置区域的下边界
+        region.top = mcKin.mfLat_rad + rangeY_rad; // 设置区域的上边界
 
-        tcGameObjIterator iter(region);
-        float closestRange_km = 999.0f;
-        tcGameObject* closestTarget = 0;
-        for (iter.First();iter.NotDone();iter.Next())
+        tcGameObjIterator iter(region); // 创建一个迭代器来遍历区域内的对象
+        float closestRange_km = 999.0f; // 初始化最近距离为一个很大的值
+        tcGameObject* closestTarget = 0; // 初始化最近目标为nullptr
+        for (iter.First(); iter.NotDone(); iter.Next()) // 遍历区域内的所有对象
         {
-            tcGameObject* target = iter.Get();
+            tcGameObject* target = iter.Get(); // 获取当前对象
 
+            // 检查对象是否为水面或潜艇类型，并且不是自身
             bool isEligible = ((target->mpDBObject->mnType & PTYPE_SURFACE) != 0) ||
                               (target->mpDBObject->mnType == PTYPE_SUBMARINE);
-            isEligible = isEligible && (target != this); // no self detection
-            if (isEligible)
+            isEligible = isEligible && (target != this); // 排除自身检测
+            if (isEligible) // 如果对象符合条件
             {
-                float range_km = this->mcKin.RangeToKmAlt(target->mcKin);
-                if (range_km < closestRange_km)
+                float range_km = this->mcKin.RangeToKmAlt(target->mcKin); // 计算与当前对象的距离
+                if (range_km < closestRange_km) // 如果当前对象距离更近
                 {
-                    closestTarget = target;
-                    closestRange_km = range_km;
+                    closestTarget = target; // 更新最近目标
+                    closestRange_km = range_km; // 更新最近距离
                 }
             }
         }
 
-        float detonationRange_km = 0.001f*mpDBObject->detonationRange_m;
+        float detonationRange_km = 0.001f * mpDBObject->detonationRange_m; // 将水雷的爆炸范围从米转换为公里
 
+        // 如果最近距离小于或等于爆炸范围
         if (closestRange_km <= detonationRange_km)
         {
-            tcKinematics targetKin = closestTarget->mcKin;
-            targetKin.Extrapolate(0.25f);
-            float futureRange_km = targetKin.RangeToKmAlt(this->mcKin);
-            if (futureRange_km < closestRange_km)
+            tcKinematics targetKin = closestTarget->mcKin; // 获取最近目标的运动学状态
+            targetKin.Extrapolate(0.25f); // 对目标的位置进行外推，预测0.25秒后的位置
+            float futureRange_km = targetKin.RangeToKmAlt(this->mcKin); // 计算预测位置与当前对象的距离
+            if (futureRange_km < closestRange_km) // 如果预测的距离更近
             {
-                guidanceUpdateInterval = 0.25f;
+                guidanceUpdateInterval = 0.25f; // 设置制导更新间隔为0.25秒
             }
             else
             {
-                Detonate(0);
+                Detonate(0); // 触发爆炸
             }
         }
-        else if (closestRange_km < 1.0f)
+        else if (closestRange_km < 1.0f) // 如果最近距离在1公里以内但大于爆炸范围
         {
-            guidanceUpdateInterval = 1.0f + 10.0f*closestRange_km;
+            guidanceUpdateInterval = 1.0f + 10.0f * closestRange_km; // 根据最近距离动态设置制导更新间隔
         }
         else
         {
-            guidanceUpdateInterval = 30.0f;
+            guidanceUpdateInterval = 30.0f; // 设置默认的制导更新间隔为30秒
         }
     }
     break;
-    case tcTorpedoDBObject::BOTTOM_MINE_CAPTOR:
+    case tcTorpedoDBObject::BOTTOM_MINE_CAPTOR: // 如果是捕获型底部水雷
     {
-        if (seeker == 0)
+        if (seeker == 0) // 如果没有导引头
         {
-            assert(false);
-            return;
+            assert(false); // 断言失败，表示不应该执行到这里
+            return; // 直接返回
         }
 
-        if (!seeker->IsActive())
+        if (!seeker->IsActive()) // 如果导引头未激活
         {
-            seeker->SetActive(true);
-            seeker->mnMode = SSMODE_SEEKERSEARCH;
+            seeker->SetActive(true); // 激活导引头
+            seeker->mnMode = SSMODE_SEEKERSEARCH; // 设置导引头为搜索模式
         }
-        tcSensorPlatform::Update(mfStatusTime);
-        if (seeker->mnMode == SSMODE_SEEKERTRACK)
+        tcSensorPlatform::Update(mfStatusTime); // 更新传感器平台的状态
+        if (seeker->mnMode == SSMODE_SEEKERTRACK) // 如果导引头处于跟踪模式
         {
-            if (!payloadDeployed) DeployPayload();
-            else SelfDestruct();
+            if (!payloadDeployed) DeployPayload(); // 如果未部署有效载荷，则部署
+            else SelfDestruct(); // 如果已部署，则自毁
         }
     }
     break;
-    default:
-        assert(false);
+    default: // 如果武器类型不匹配
+        assert(false); // 断言失败，表示不应该执行到这里
         break;
     }
-    
-
-
-    
 }
-
 
 /**
 * Simple model for speed update
