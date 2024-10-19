@@ -227,6 +227,7 @@ void tcECM::Update(double t)
 
 /**
 * Barrage jamming that affects all opfor radars in coverage sector
+* 影响覆盖区所有作战雷达的抑制干扰
 */
 void tcECM::UpdateBarrage()
 {
@@ -281,6 +282,10 @@ void tcECM::UpdateBarrageTarget(tcGameObject* target)
 /**
 * Test if radar is within coverage az and radar horizon
 * If so then add jammer to radar even if radar is off to prevent switch on/off exploits by game player
+*
+* 更新干扰机（ECM）针对目标雷达的干扰状态。
+* 如果雷达在ECM系统的方位角和雷达地平线范围内，
+* 则将干扰机添加到雷达上，即使雷达关闭也能防止游戏玩家通过开关雷达来规避干扰。
 */
 void tcECM::UpdateBarrageTargetRadar(tcRadar* radar, unsigned sensorIdx)
 {
@@ -298,6 +303,7 @@ void tcECM::UpdateBarrageTargetRadar(tcRadar* radar, unsigned sensorIdx)
                                 radar_kin.mfLat_rad, radar_kin.mfLon_rad);
 
     // test if radar is within az coverage of ECM system
+    // 如果ECM系统的视野小于360度，则检查雷达是否在方位角覆盖范围内
     if (mpDBObj->mfFieldOfView_deg < 360.0f)
     { 
         float lookAz_rad = ecm_kin.mfHeading_rad + mountAz_rad;
@@ -310,6 +316,8 @@ void tcECM::UpdateBarrageTargetRadar(tcRadar* radar, unsigned sensorIdx)
     }
 
     // test if radar platform is within radar horizon of ECM system
+    //检查雷达平台是否在ECM系统的雷达地平线范围内
+
     float fRadarHorizon = C_RADARHOR * (sqrtf(radar_kin.mfAlt_m) + sqrtf(ecm_kin.mfAlt_m));
     
     float targetRange_km = C_RADTOKM * nsNav::GCDistanceApprox_rad(
@@ -346,9 +354,10 @@ void tcECM::UpdateBarrageTargetRadar(tcRadar* radar, unsigned sensorIdx)
     //float range2 = mfRefRange_km * mfRefRange_km;
     //jamConstant_dB = 10*log10f(A * B * range2 * range2 / (cpi_s * bandwidth_Hz)) - ERPaverage_dBW;
 	// free space power density calculation
+    //计算干扰噪声比（JNR，以dB为单位）
     float Pdens_dBWm2 = mpDBObj->ERP_dBW - 10*log10f((C_FOURPI*1e6f) * targetRange_km * targetRange_km * bandwidthMismatch);
     float JNR_dB = Pdens_dBWm2 + radarData->antennaGain_dBi + radarData->jamConstant_dB;
-
+    //将干扰机添加到目标雷达上，并更新其干扰参数。
     AddOrUpdateJammerToTarget(radar, sensorIdx, JNR_dB, jammerBearing_rad, jammerElevation_rad);
 }
 

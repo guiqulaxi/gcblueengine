@@ -205,6 +205,13 @@ tcRadar& tcRadar::operator=(tcRadar& ss)
 * This will not work correctly if there is more than one active jammer on the same platform
 * that affects this radar. Need generalized key that includes sensor idx to do this correctly.
 * @param JNR_dB mainbeam JNR, sidelobes are modeled for jammer out of az/el beam to target
+* 如果同一平台上存在多个影响此雷达的主动干扰器，则此函数将无法正确工作。
+* 为了正确执行，需要一个包含传感器索引的通用键。
+* @param id 干扰器的唯一标识符。
+* @param JNR_dB 主波束的干扰噪声比（Jamming to Noise Ratio），
+* 对于不在雷达方位角/俯仰角波束指向目标的干扰器，其旁瓣已被建模。
+* @param az_rad 干扰器相对于雷达的方位角（以弧度为单位）。
+* @param el_rad 干扰器相对于雷达的俯仰角（以弧度为单位）。
 */
 void tcRadar::AddOrUpdateJammer(long id, float JNR_dB, float az_rad, float el_rad)
 {
@@ -297,72 +304,80 @@ float tcRadar::CalculateJammingDegradation()
 */
 float tcRadar::CalculateJammingDegradation2(float az_rad, float el_rad)
 {
+    // 如果干扰映射表为空，则返回0，表示没有干扰降级
     if (jamMap.size() == 0) return 0;
 
-    /* Iterate through jam map
-    ** Find max jammer power in coverage (don't add powers for now)
-    **
-    ** Interference power is dropped 30 dB for jammers outside of sensor coverage. 
-    ** Eventually upgrade this (or add realism option) to recalculate for each target based on separation between 
-    ** jammer and target angle.
-    */
-
-    // calculate az coverage
-    bool covers360 = false;
-    float az1_rad = 0;
-    float az2_rad = 0;
-    if (mpDBObj->mfFieldOfView_deg >= 360.0f) 
+    // 初始化变量，用于计算方位角覆盖范围
+    bool covers360 = false; // 是否覆盖360度
+    float az1_rad = 0; // 方位角覆盖范围的起始角度（弧度）
+    float az2_rad = 0; // 方位角覆盖范围的结束角度（弧度）
+    // 如果雷达的视场角大于等于360度，则设置covers360为true
+    if (mpDBObj->mfFieldOfView_deg >= 360.0f)
     {
         covers360 = true;
     }
-    else 
+    else
     {
+        // 计算雷达当前朝向的方位角（弧度）
         float lookAz_rad = parent->mcKin.mfHeading_rad + mountAz_rad;
 
+        // 计算半视场角（弧度）
         float fHalfFOV_rad = (0.5f*C_PIOVER180)*mpDBObj->mfFieldOfView_deg;
+        // 计算方位角覆盖范围的起始和结束角度（弧度）
         az1_rad = lookAz_rad - fHalfFOV_rad;
         az2_rad = lookAz_rad + fHalfFOV_rad;
 
-        // assume that the target (not the jammer necessarily) is within the az/el coverage of the sensor
+        // 断言目标（不一定是干扰源）在雷达的方位角和俯仰角覆盖范围内
         assert(AngleWithinRange(az_rad, az1_rad, az2_rad) != 0);
     }
 
+    // 初始化变量，用于累加干扰源的干扰功率（线性值，非dB）
+    float jnr_sum = 0;
 
-    // for each jammer, assume that radar beam is centered on target
-    float jnr_sum = 0; // linear (not dB) value to accumulate sum
-
+    // 遍历干扰映射表
     std::map<long, JamInfo>::iterator iter = jamMap.begin();
     for(;iter != jamMap.end(); ++iter)
     {
-        float effectiveJNR = iter->second.JNR_dB; // dB value
+        // 获取当前干扰源的干扰噪声比（dB值）
+        float effectiveJNR = iter->second.JNR_dB;
 
+        // 计算当前干扰源与目标之间的方位角差（弧度）
         float daz_rad = iter->second.az_rad - az_rad;
+        // 调整方位角差，确保其在[-π, π]范围内
         daz_rad += C_TWOPI * (float(daz_rad < -C_PI) - float(daz_rad > C_PI));
 
+        // 计算方位角差相对于方位波束宽度的倍数
         float daz_beamwidths = fabsf(C_180OVERPI * daz_rad) * mpDBObj->invAzBeamwidth_deg;
-        
+
+        // 根据方位角差调整干扰噪声比
         if (daz_beamwidths > 2)
         {
-            effectiveJNR += mpDBObj->effectiveSidelobes_dB; // effective SLL always negative
+            effectiveJNR += mpDBObj->effectiveSidelobes_dB; // 如果超出主瓣范围两倍以上，使用有效旁瓣电平
         }
         else if (daz_beamwidths > 1)
         {
-            effectiveJNR += (daz_beamwidths - 1) * mpDBObj->effectiveSidelobes_dB;
+            effectiveJNR += (daz_beamwidths - 1) * mpDBObj->effectiveSidelobes_dB; // 如果在主瓣和两倍主瓣之间，按比例调整
         }
-        else // check elevation offset if az within beam, avoid doubling jammer rejection from being out of both az and el beams
+        else // 如果在方位波束宽度内，则进一步检查俯仰角偏移
         {
+            // 计算当前干扰源与目标之间的俯仰角差（弧度）
             float del_rad = iter->second.el_rad - el_rad;
+            // 计算俯仰角差相对于俯仰波束宽度的倍数
             float del_beamwidths = fabsf(C_180OVERPI * del_rad) * mpDBObj->invElBeamwidth_deg;
 
+            // 根据俯仰角差调整干扰噪声比
             if (del_beamwidths > 2) effectiveJNR += mpDBObj->effectiveSidelobes_dB;
             else if (del_beamwidths > 1) effectiveJNR += (del_beamwidths - 1) * mpDBObj->effectiveSidelobes_dB;
         }
-       
+
+        // 将调整后的干扰噪声比（线性值）累加到总和中
         jnr_sum += powf(10.0f, 0.1f * effectiveJNR);
     }
 
+    // 计算总的干扰降级（dB值）
     float noise_degradation_dB = 10.0f * log10f(1.0f + jnr_sum);
-    
+
+    // 返回总的干扰降级（dB值）
     return noise_degradation_dB;
 }
 

@@ -73,6 +73,8 @@
 #define C_MTOFT 3.2808399f
 #define C_MTOMI 0.000621371f
 #define C_FTTOM 0.30480f
+//https://math.stackexchange.com/questions/386003/distance-between-two-antennas
+//https://blog.csdn.net/guiqulaxi920/article/details/143080970
 #define C_RADARHOR 3.92482f ///< radar horizon in km = constant*sqrt(h in meters)
 #define C_VISUALHOR 2.78f ///< visible horizon in km = constant*sqrt(h in meters)
 #define C_RADTOHRS 3.819719f

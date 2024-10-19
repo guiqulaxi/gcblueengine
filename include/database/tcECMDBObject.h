@@ -43,11 +43,11 @@ namespace database
 	class tcECMDBObject : public tcSensorDBObject 
 	{
 	public:
-		std::string ecmType;     ///< "Jammer" "Deception"
-		float ERP_dBW;           ///< [dBW] effective radiated power (assume bandwidth matched to target radars)
-		float effectivenessRating; ///< 0 - 1.0
-		bool isEffectiveVsSurveillance;
-		bool isEffectiveVsSeeker;
+        std::string ecmType;     ///< ECM类型，包括"Jammer"（干扰机）和"Deception"（欺骗） ///< 保留原有注释： "Jammer" "Deception"
+        float ERP_dBW;           ///< ERP_dBW：有效辐射功率（单位：dBW），假设带宽与目标雷达匹配 ///< 保留原有注释： [dBW] effective radiated power (assume bandwidth matched to target radars)
+        float effectivenessRating; ///< effectivenessRating：效能评分，范围在0到1.0之间
+        bool isEffectiveVsSurveillance; ///< 是否对监视雷达有效
+        bool isEffectiveVsSeeker; ///< 是否对制导雷达（导引头）有效
 
 		virtual tcSensorState* CreateSensor(tcGameObject* parent); ///< factory method
 		virtual const char* GetClassName() const {return "ECM";} ///< returns class name of database object
