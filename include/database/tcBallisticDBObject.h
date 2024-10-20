@@ -39,7 +39,21 @@ namespace database
 	class tcBallisticDBObject : public tcWeaponDBObject 
 	{
 	public:
-        enum {GUN_ROUND = 0, GRAVITY_BOMB = 1, AUTO_CANNON = 2, SMART_BOMB = 3, CM_ROUND = 4, ROCKET = 5};
+        // 定义一个匿名枚举类型，用于表示不同类型的弹药或投射物
+        enum {
+            // 炮弹类型，赋值为0，表示这是枚举中的第一个元素
+            GUN_ROUND = 0,
+            // 重力炸弹类型，赋值为1，表示这是枚举中的第二个元素
+            GRAVITY_BOMB = 1,
+            // 自动加农炮类型，赋值为2，表示这是枚举中的第三个元素
+            AUTO_CANNON = 2,
+            // 智能炸弹类型，赋值为3，表示这是枚举中的第四个元素
+            SMART_BOMB = 3,
+            // 穿甲弹类型，赋值为4，表示这是枚举中的第五个元素
+            CM_ROUND = 4,
+            // 火箭类型，赋值为5，表示这是枚举中的第六个元素
+            ROCKET = 5
+        };
         int ballisticType;
         //float maxRange_km; ///< maximum effective range (replaced with maxRange_km in tcWeaponDBObject
         float angleError_rad; ///< angular error for gun rounds and point defense

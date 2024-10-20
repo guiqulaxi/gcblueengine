@@ -721,15 +721,55 @@ bool tcGameObject::CalculateCollisionPointDir(tcGameObject* collider, const Vect
 */
 bool tcGameObject::CalculateCollisionPointOrigin(tcGameObject* collider, Vector3d& pos, float& distance_m)
 {
-	Vector3d x_collider; // position of collider in model frame
-	Vector3d v_collider; // velocity of collider in model frame
 
-	GetRelativeStateLocal(collider, x_collider, v_collider);
+    //获得对应的包围盒
+    tcOBBBoundingBox aBBox=GetOBBBoundingBox();
+    tcOBBBoundingBox bBBox=collider->GetOBBBoundingBox();
+    Vector3d av = GetWorldVelocity();
+    Vector3d bv = collider->GetWorldVelocity();
+    std::vector<Vector3d> bcs=  bBBox.GetCorners();
+    //假设self不动a相对b的速度
+    Vector3d rv = av - bv;
+    //计算a的8个顶点沿着速度方向的射线与b的6个平面相交的点
+    auto planes=bBBox.GetPlanes();
+    std::vector<Vector3d> acs=aBBox.GetCorners();
+    double min_len=999999999;
+    bool isIntersect=false;
+    Vector3d firstIntersectPoint;//交点
 
-    distance_m = 9999.0f;
+    for(size_t i=0;i<planes.size();i++)
+    {
+        for(size_t j=0;j<acs.size();j++)
+        {
+            Vector3d i_p;
+            if(RayIntersectPlane(acs[j],rv,
+                                  planes[i][0],planes[i][1],planes[i][2],i_p))
+            {
+                min_len=std::min((i_p-acs[j]).norm(),min_len);//点之间距离
+                isIntersect=true;
+                firstIntersectPoint=i_p;
+            }
+        }
+    }
+    distance_m=min_len;
+    if(isIntersect)
+    {
+        //dt= min_len/rv.norm();
+        pos=firstIntersectPoint;
+    }
 
-	Vector3d x2_collider(0, 0, 0);
-    Vector3d x1_collider = x_collider;
+
+    return isIntersect;
+
+    // Vector3d x_collider; // position of collider in model frame
+    // Vector3d v_collider; // velocity of collider in model frame
+
+    // GetRelativeStateLocal(collider, x_collider, v_collider);
+
+ //    distance_m = 9999.0f;
+
+    // Vector3d x2_collider(0, 0, 0);
+ //    Vector3d x1_collider = x_collider;
 
 //    CTVMesh* mesh = GetDatabaseMesh(); // use database mesh, because obj mesh seems to be affected by rendering
 //    if (mesh == 0)

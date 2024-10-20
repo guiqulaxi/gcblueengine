@@ -45,7 +45,9 @@ class tcGameStream;
 * Class for unguided ballistic weapons e.g. gun rounds, dumb bombs.
 * Detonation is on impact with terrain or ocean surface.
 * Currently this does not model drag to make targeting easy.
-*
+* 无制导弹道武器类（例如炮弹、无制导炸弹）的类。
+* 爆炸发生在撞击地面或海面时。
+* 目前该类模型未考虑空气阻力，以使瞄准更加简单。
 * @see tcWeaponObject
 */
 class tcBallisticWeapon : public tcWeaponObject

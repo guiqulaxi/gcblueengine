@@ -711,51 +711,64 @@ void tcPlatformObject::ApplyGeneralDamage(float damage, tcGameObject* damager)
 */
 float tcPlatformObject::ApplyAdvancedDamage(const Damage& damage, tcGameObject* damager)
 {
-    float impactDamage = 0;
-    float internalDamage = 0;
-    float blastDamage = 0;
-    float waterBlastDamage = 0;
-    float thermalDamage = 0;
-    float fragDamage = 0;
+    // 初始化各种伤害类型为0
+    float impactDamage = 0; // 撞击伤害
+    float internalDamage = 0; // 内部伤害
+    float blastDamage = 0; // 爆炸伤害
+    float waterBlastDamage = 0; // 水下爆炸伤害
+    float thermalDamage = 0; // 热辐射伤害
+    float fragDamage = 0; // 破片伤害
 
+    // 如果当前对象已经严重损坏（mfDamageLevel >= 1），则不再接受新伤害
     if (mfDamageLevel >= 1) return 0;
 
+    // 记录应用伤害前的损坏程度
     float priorDamage = mfDamageLevel;
 
-    const database::tcDamageEffect* damageEffect = 
+    // 从数据库中获取当前对象的伤害效果数据
+    const database::tcDamageEffect* damageEffect =
         database->GetDamageEffectData(mpDBObject->damageEffect);
-    
+
+    // 如果没有找到伤害效果数据，输出错误信息并断言失败
     if (damageEffect == 0)
     {
         fprintf(stderr, "tcPlatformObject::ApplyAdvancedDamage -- NULL damageEffect for %s\n",
-            mzClass.c_str());
+                mzClass.c_str());
         assert(false);
         return 0;
     }
 
+    // 根据动能计算撞击伤害
     impactDamage = damageEffect->GetFragmentDamageFactor(damage.kinetic_J);
-    if (damage.isPenetration && ((impactDamage > 0.002f) || damager->mcKin.mfAlt_m < -1.0f)) // if it's underwater always apply penetration damage
+    // 如果伤害类型为穿透且撞击伤害大于一定值或攻击者在水下，则计算内部伤害
+    if (damage.isPenetration && ((impactDamage > 0.002f) || damager->mcKin.mfAlt_m < -1.0f))
     {
         internalDamage = damageEffect->GetInternalDamageFactor(damage.explosive_kg);
     }
+    // 根据爆炸压力计算爆炸伤害
     blastDamage = damageEffect->GetBlastDamageFactor(damage.blast_psi);
+    // 根据水下爆炸压力计算水下爆炸伤害
     waterBlastDamage = damageEffect->GetWaterBlastDamageFactor(damage.waterBlast_psi);
+    // 根据热辐射能量计算热辐射伤害
     thermalDamage = damageEffect->GetRadiationDamageFactor(damage.thermal_J_cm2);
 
+    // 如果破片命中数大于0，则根据破片能量计算破片伤害
     if (damage.fragHits > 0)
     {
-        float hitsFactor = 1.0f + log10f(float(damage.fragHits)); 
+        float hitsFactor = 1.0f + log10f(float(damage.fragHits)); // 计算命中因子
         fragDamage = hitsFactor * damageEffect->GetFragmentDamageFactor(damage.fragEnergy_J);
     }
 
-
+    // 计算累计伤害
     float cumulativeDamage = impactDamage + internalDamage + blastDamage + waterBlastDamage + thermalDamage + fragDamage;
 
-    std::string damageDescription;
-    float newDamage = 0;
+    std::string damageDescription; // 用于记录伤害类型的字符串
+    float newDamage = 0; // 新增伤害值
 
-    if (cumulativeDamage > 0) 
+    // 如果累计伤害大于0，则进行后续处理
+    if (cumulativeDamage > 0)
     {
+        // 根据不同的伤害类型，在damageDescription字符串中添加相应的标记
         if (impactDamage > 0) damageDescription.append("K");
         if (internalDamage > 0) damageDescription.append("X");
         if (blastDamage > 0) damageDescription.append("B");
@@ -763,34 +776,42 @@ float tcPlatformObject::ApplyAdvancedDamage(const Damage& damage, tcGameObject* 
         if (thermalDamage > 0) damageDescription.append("T");
         if (fragDamage > 0) damageDescription.append("F");
 
+        // 根据高斯分布生成一个随机数，用于调整实际伤害值
         float rand_val = GaussianRandom::Get()->randn_fast();
-        rand_val = 0.642f * fabsf(rand_val) + 0.05f; // median about 0.5, min 0.05 (database factors are doubled on load see tcDamageEffect::ParseEffectString)
+        rand_val = 0.642f * fabsf(rand_val) + 0.05f; // 调整随机数的范围和分布
         newDamage = rand_val * cumulativeDamage;
 
+        // 更新当前对象的损坏程度
         mfDamageLevel += newDamage;
 
+        // 确保损坏程度不超过1
         mfDamageLevel = std::min(mfDamageLevel, 1.0f);
 
+        // 根据伤害值更新分数
         UpdateScoreForDamage(damager, priorDamage);
 
+        // 应用伤害对发射器的影响
         ApplyLauncherDamage(newDamage, damager);
     }
-    
 
+    // 检查并处理传感器伤害
     bool sensorDamage = tcSensorPlatform::ApplyAdvancedDamage(damage, damager, newDamage);
     if (sensorDamage)
     {
-        damageDescription.append("S");
-        newDamage += 0.0001f; // so that new damage is reported
+        damageDescription.append("S"); // 在伤害描述中添加传感器伤害标记
+        newDamage += 0.0001f; // 确保报告有新的伤害
     }
 
+    // 设置最后的伤害描述
     SetLastDamageDescription(damageDescription);
 
+    // 如果新增伤害大于0，则通知事件管理器对象受到了伤害
     if (newDamage > 0)
     {
         tcEventManager::Get()->DamageReceived(GetAlliance());
     }
 
+    // 返回新增伤害值
     return newDamage;
 }
 

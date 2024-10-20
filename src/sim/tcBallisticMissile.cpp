@@ -684,6 +684,7 @@ void tcBallisticMissile::CalculateECEF()
 
 /**
 * Update mcKin based on ECEF parameters
+* 地心坐标转经纬度
 */
 void tcBallisticMissile::CalculateLLA()
 {
