@@ -546,7 +546,7 @@ float tcKinematics::CalculateCollisionPoint(const tcKinematics& collider, float&
 // 解方程: 在三维空间中，上述方程可以分解为三个独立的方程（每个维度一个）。
 // 但更简洁地，我们可以使用向量的点积来求解。将方程两边同时点乘(v1​−v2​)，得到(r1​(0)−r2​(0))⋅(v1​−v2​)+(v1​−v2​)⋅(v1​−v2​)t=0。
 // 解这个方程得到tclosest​=−(v1​−v2​)⋅(v1​−v2​)(r1​(0)−r2​(0))⋅(v1​−v2​)​。
-  // 计算最近的碰撞时间（秒）???
+  // 计算最近的碰撞时间（秒）
     float tclosest = -(dx*dvx + dy*dvy + dz*dvz) /
                      (dvx*dvx + dvy*dvy + dvz*dvz);
 

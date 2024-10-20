@@ -305,43 +305,62 @@ void tcBallisticMissile::Update(double t)
  */
 void tcBallisticMissile::UpdateSubsurface(double t)
 {
+    // 确保导弹是在水下发射的
     assert(subSurfaceLaunch);
 
-    float dt_s = (float)(t - mfStatusTime);//
+    // 计算从上一次状态更新到现在的时间差（秒）
+    float dt_s = (float)(t - mfStatusTime);
 
+    // 将速度从节（kts）转换为米每秒（mps），C_KTSTOMPS是节到米每秒的转换常数
     float speed_mps = C_KTSTOMPS * mcKin.mfSpeed_kts;
-    
+
+    // alpha是一个随时间变化的因子，用于平滑过渡速度
     float alpha = dt_s;
-    speed_mps = (1-alpha)*speed_mps + alpha*2.0f; // settle to 2 m/s
+    // 将速度平滑过渡到2米每秒
+    speed_mps = (1-alpha)*speed_mps + alpha*2.0f;
+    // 将速度从米每秒转换回节
     mcKin.mfSpeed_kts = speed_mps*(float)C_MPSTOKTS;
 
-    mcKin.mfClimbAngle_rad = (1-alpha)*mcKin.mfClimbAngle_rad + alpha*1.55f; // settle to 89 deg pitch, floating up
+    // 将爬升角度平滑过渡到1.55弧度（约89度），表示导弹接近垂直向上
+    mcKin.mfClimbAngle_rad = (1-alpha)*mcKin.mfClimbAngle_rad + alpha*1.55f;
+    // 俯仰角与爬升角相同
     mcKin.mfPitch_rad = mcKin.mfClimbAngle_rad;
 
+    // 获取导弹当前的航向角（弧度）
     float heading_rad = mcKin.mfHeading_rad;
 
+    // 计算导弹在这段时间内移动的距离（米）
     float distance_m = speed_mps * dt_s;
+    // 将距离转换为弧度，用于后续计算经纬度变化，C_MTORAD是米到弧度的转换常数
     double distance_rad = (double)distance_m * C_MTORAD;
+    // 更新经度，考虑纬度的余弦修正，因为地球表面在纬度方向上的长度随纬度变化?????
     mcKin.mfLon_rad += distance_rad*(double)(sinf(heading_rad)/cosf((float)mcKin.mfLat_rad));
-    mcKin.mfLat_rad += distance_rad*(double)cosf(heading_rad); 
+    // 更新纬度
+    mcKin.mfLat_rad += distance_rad*(double)cosf(heading_rad);
+    // 更新高度，考虑爬升角度
     mcKin.mfAlt_m += distance_m * sinf(mcKin.mfClimbAngle_rad);
 
+    // 处理经度越过极点的情况
     HandlePoleWrap();
 
+    // 判断导弹是否仍在水下
     bool underWater = (mcKin.mfAlt_m <= 0.0f);
 
-    // clear subSurfaceLaunch once weapon breaks surface
+    // 如果导弹已经浮出水面，则清除subSurfaceLaunch标志，并执行相关操作
     if (!underWater)
     {
+        // 计算导弹在地球中心地固坐标系（ECEF）中的位置
         CalculateECEF();
+        // 清除水下发射标志
         subSurfaceLaunch = false;
     }
 
+    // 更新上一次状态更新的时间
     mfStatusTime = t;
 
-//    UpdateEffects();
-
-    //Update3D();
+    // 以下两行代码被注释掉，可能是因为它们在当前上下文中不是必需的或需要进一步优化
+    // UpdateEffects(); // 更新导弹的视觉效果
+    // Update3D(); // 更新导弹的3D模型
 }
 
 
@@ -396,37 +415,42 @@ void tcBallisticMissile::UpdateDetonation()
 
 void tcBallisticMissile::UpdateFlight(float dt_s)
 {
+    // 如果时间增量小于等于0，则直接返回，不进行更新
     if (dt_s <= 0) return;
 
-    // determine stage
-    float t1 = mpDBObject->timeStage1_s;
-    float t2 = t1 + mpDBObject->timeStage2_s;
-    float t3 = t2 + mpDBObject->timeStage3_s;
-    float t4 = t3 + mpDBObject->timeStage4_s;
+    // 根据飞行时间确定当前所处的飞行阶段
+    float t1 = mpDBObject->timeStage1_s; // 第一阶段时间
+    float t2 = t1 + mpDBObject->timeStage2_s; // 第二阶段时间
+    float t3 = t2 + mpDBObject->timeStage3_s; // 第三阶段时间
+    float t4 = t3 + mpDBObject->timeStage4_s; // 第四阶段时间
 
+    // 通过比较飞行时间与各阶段时间来确定当前阶段
+    // 使用了一种巧妙的整数运算方式来确定阶段编号
     int stage = int(flightTime_s < t1) * int(1) +
                 int((flightTime_s >= t1) && (flightTime_s < t2)) * int(2) +
                 int((flightTime_s >= t2) && (flightTime_s < t3)) * int(3) +
                 int((flightTime_s >= t3) && (flightTime_s < t4)) * int(4) +
                 int(flightTime_s >= t4) * int(5);
+    // 确保阶段编号在有效范围内
     assert((stage >= 1) && (stage <= 5));
 
+    // 更新总飞行时间
     flightTime_s += dt_s;
 
-    // calculate thrust acceleration based on flight time (stage #)
-    float thrustAccel_mps2 = 0;
-    float invBC = 0;
+    // 根据飞行阶段计算推力加速度和弹道系数倒数
+    float thrustAccel_mps2 = 0; // 推力加速度
+    float invBC = 0; // 弹道系数倒数
     switch (stage)
     {
     case 1:
         thrustAccel_mps2 = mpDBObject->accelStage1_mps2;
         invBC = mpDBObject->inv_bcStage1;
         break;
-    case 2: 
+    case 2:
         thrustAccel_mps2 = mpDBObject->accelStage2_mps2;
         invBC = mpDBObject->inv_bcStage2;
         break;
-    case 3: 
+    case 3:
         thrustAccel_mps2 = mpDBObject->accelStage3_mps2;
         invBC = mpDBObject->inv_bcStage3;
         break;
@@ -434,33 +458,37 @@ void tcBallisticMissile::UpdateFlight(float dt_s)
         thrustAccel_mps2 = mpDBObject->accelStage4_mps2;
         invBC = mpDBObject->inv_bcStage4;
         break;
-    default: 
+    default:
         thrustAccel_mps2 = 0;
-        invBC = mpDBObject->inv_bcStage4;
+        invBC = mpDBObject->inv_bcStage4; // 假设第五阶段（如果有）使用第四阶段的弹道系数倒数
         break;
     }
 
+    // 假设speed_mps（速度）和speed2_mps2（速度的平方）是有效的
 
-    // assume speed_mps and speed2_mps2 are valid
-
+    // 如果存在推力加速度，则进行以下计算
     if (thrustAccel_mps2 > 0)
     {
-        // apply "steering" to adjust ECEF velocity vector orientation, limit by g limit        
-        // might be better to just use a rotation instead of doing it this way
-        float dvx = speed_mps*gx - vx;
-        float dvy = speed_mps*gy - vy;
-        float dvz = speed_mps*gz - vz;
+        // 应用“导向”来调整ECEF速度向量的方向，受最大过载限制
+        // 可能使用旋转会更优，但这里采用另一种方式
+        float dvx = speed_mps*gx - vx; // x方向速度变化量（考虑重力分量）
+        float dvy = speed_mps*gy - vy; // y方向速度变化量
+        float dvz = speed_mps*gz - vz; // z方向速度变化量
 
-        // remove component in direction of v to get the perpendicular component
+        // 移除与速度方向相同的分量，得到垂直分量
         float a_proj = (dvx*vx + dvy*vy + dvz*vz) / speed2_mps2;
         dvx -= a_proj*vx;
         dvy -= a_proj*vy;
         dvz -= a_proj*vz;
 
+        // 计算速度变化量的模
         float dv = sqrtf(dvx*dvx + dvy*dvy + dvz*dvz);
-        float max_dv = dt_s * C_G * mpDBObject->gmax;
+        // 计算允许的最大速度变化量
+        float max_dv = dt_s * C_G * mpDBObject->gmax; // C_G可能是重力加速度到推力加速度的转换系数
 
-        bool allowPerfectSteering = (flightTime_s > (thrustShutoffTime_s - 1.0f)); // cheat and allow perfect steering right before burnout
+        // 在推力关闭前一秒允许完美导向（作弊）
+        bool allowPerfectSteering = (flightTime_s > (thrustShutoffTime_s - 1.0f));
+        // 如果速度变化量超过限制且不允许完美导向，则进行限制
         if ((dv > max_dv) && (!allowPerfectSteering))
         {
             float a_limit = (max_dv / dv);
@@ -469,147 +497,163 @@ void tcBallisticMissile::UpdateFlight(float dt_s)
             dvz *= a_limit;
         }
 
+        // 更新速度分量
         vx += dvx;
         vy += dvy;
         vz += dvz;
     }
 
-    
-    // calculate drag based on BC, altitude, and speed
-    float rhov2 = Aero::GetAirDensity(mcKin.mfAlt_m) * speed2_mps2;
-    float dragAccel_mps2 = (stage < 5) ? rhov2 * invBC : 0;
-    
+    // 根据弹道系数、高度和速度计算阻力加速度
+    float rhov2 = Aero::GetAirDensity(mcKin.mfAlt_m) * speed2_mps2; // 空气密度与速度平方的乘积
+    float dragAccel_mps2 = (stage < 5) ? rhov2 * invBC : 0; // 如果不是最终阶段，则计算阻力加速度
+
+    // 如果推力已经关闭，则推力加速度为0
     thrustAccel_mps2 = (flightTime_s > thrustShutoffTime_s) ? 0 : thrustAccel_mps2;
 
-    // update speed
-    speed_mps += dt_s * (thrustAccel_mps2 - dragAccel_mps2);
+    // 更新速度
+    speed_mps += dt_s * (thrustAccel_mps2 - dragAccel_mps2); // 考虑推力和阻力加速度
 
-    // adjust magnitude of (vx,vy,vz) to match updated speed from thrust/drag acceleration, also removes any small speed change from steering
+    // 调整速度向量的模以匹配更新后的速度，同时去除导向带来的微小速度变化
     float a_rescale = speed_mps / sqrtf(vx*vx + vy*vy + vz*vz);
     vx *= a_rescale;
     vy *= a_rescale;
     vz *= a_rescale;
 
-    // apply acceleration from gravity
-    float a_grav = dt_s * C_GM / (r_ecef * r_ecef * r_ecef);
-    vx -= a_grav * x;
-    vy -= a_grav * y;
-    vz -= a_grav * z;
+    // 应用重力加速度
+    float a_grav = dt_s * C_GM / (r_ecef * r_ecef * r_ecef); // C_GM可能是地球引力常数与质量的乘积
+    vx -= a_grav * x; // 更新x方向速度
+    vy -= a_grav * y; // 更新y方向速度
+    vz -= a_grav * z; // 更新z方向速度
 
+    // 更新速度的平方和速度本身
     speed2_mps2 = vx*vx + vy*vy + vz*vz;
     speed_mps = sqrtf(speed2_mps2);
-    
-    // move unit
+
+    // 根据速度更新导弹位置
     x += dt_s * vx;
     y += dt_s * vy;
     z += dt_s * vz;
 
+    // 更新导弹到地心的距离
     r_ecef = sqrt(x*x + y*y + z*z);
 
-    // update LLA
+    // 根据ECEF坐标更新经纬度高度（LLA）
     CalculateLLA();
 
-
-    // malfunction check
+    // 如果尚未检查过故障且导弹处于第三阶段或之后，则进行故障检查
     if (!tcWeaponObject::malfunctionChecked && (stage >= 3))
     {
-        MalfunctionCheck();
+        MalfunctionCheck(); // 调用基类中的故障检查函数
     }
 
 }
 
 
-
 /**
-* Update goal heading and pitch controls
-*/
-void tcBallisticMissile::UpdateGuidance(double t) 
+ * 更新导弹的目标航向和俯仰控制
+ */
+void tcBallisticMissile::UpdateGuidance(double t)
 {
-	if ((t - lastGuidanceUpdateTime) < guidanceUpdateInterval)
-	{
-		return;
-	}
+    // 如果当前时间与上次更新指导的时间之差小于指导更新间隔，则直接返回
+    if ((t - lastGuidanceUpdateTime) < guidanceUpdateInterval)
+    {
+        return;
+    }
+    // 更新上次指导更新的时间
     lastGuidanceUpdateTime = t;
 
+    // 计算目标位置与导弹当前位置在ECEF坐标系下的差值（x, y, z方向）
     float dx = float(xt - x);
     float dy = float(yt - y);
     float dz = float(zt - z);
 
+    // 初始化东、北、上方向的差值变量
     float ke = 0;
     float kn = 0;
     float ku = 0;
-    Ecef2enu(mcKin.mfLat_rad, mcKin.mfLon_rad, dx, dy, dz, ke, kn, ku); // enu vector toward target datum
+    // 将ECEF坐标系下的差值转换为ENU（东-北-天）坐标系下的差值
+    Ecef2enu(mcKin.mfLat_rad, mcKin.mfLon_rad, dx, dy, dz, ke, kn, ku); // 指向目标数据的ENU向量
 
-    // just keep east-north component and normalize to 1
+    // 仅保留东-北分量，并将其归一化为1
     float ken_norm = sqrtf(ke*ke + kn*kn);
     float inv_ken_norm = 1.0f / ken_norm;
     ke *= inv_ken_norm;
     kn *= inv_ken_norm;
-    ku = 0;
+    ku = 0; // 将上方向分量置为0
 
+    // 如果飞行时间小于30秒，则采用特定的爬升角度和速度比例
     if (flightTime_s < 30.0f)
     {
-        ku = 0.98544973f; // about 80 deg climb
-        ke *= 0.1700f;
-        kn *= 0.1700f;
+        ku = 0.98544973f; // 约80度的爬升角
+        ke *= 0.1700f; // 东方向速度比例
+        kn *= 0.1700f; // 北方向速度比例
 
+        // 将ENU坐标系下的速度分量转换为ECEF坐标系下的速度分量
         Enu2ecef(mcKin.mfLat_rad, mcKin.mfLon_rad, ke, kn, ku, gx, gy, gz);
         return;
     }
 
-
-
-    // project into 2D u-v plane
+    // 以下代码块用于计算导弹在二维u-v平面上的投影和相关参数
+    // 计算导弹到目标的直线距离
     double dst = sqrt((xt-x)*(xt-x)+ (yt-y)*(yt-y) + (zt-z)*(zt-z));
 
+    // 计算导弹与目标的连线与导弹当前位置的切线之间的夹角（余弦值和正弦值）
     double cos_gamma_rad = (r_ecef*r_ecef + rt*rt - dst*dst) / (2*r_ecef*rt);
     double sin_gamma_rad = sqrt(1 - cos_gamma_rad*cos_gamma_rad);
+    // 导弹当前位置的u-v坐标
     float us = r_ecef;
     float vs = 0;
+    // 目标位置的u-v坐标
     float ut = rt * cos_gamma_rad;
     float vt = rt * sin_gamma_rad;
-    
-    float two_over_r = 2.0f / r_ecef; 
-    float a_orbit = 1.0f / (two_over_r - (speed2_mps2 * C_GMINV)); // semi major axis of orbit ellipse
 
+    // 计算与导弹当前位置相关的轨道半长轴
+    float two_over_r = 2.0f / r_ecef;
+    float a_orbit = 1.0f / (two_over_r - (speed2_mps2 * C_GMINV)); // 轨道椭圆的半长轴
+
+    // 计算第二焦点的u-v坐标
     float uf;
     float vf;
     CalculateSecondFocus(us, vs, ut, vt, a_orbit, uf, vf);
-    
-    float aa2 = us*us + vs*vs;
-    float aa = sqrtf(aa2);  //sqrt((us - 0)^2 + (vs - 0)^2);
-    float bb2 = (us-uf)*(us-uf) + (vs-vf)*(vs-vf);
-    float bb = sqrtf(bb2); //sqrt((us - uf)^2 + (vs - vf)^2);
-    float cc2 = uf*uf + vf*vf;
 
-    // beta is climb angle in local LLA frame
+    // 计算导弹当前位置、第二焦点和目标位置之间的距离
+    float aa2 = us*us + vs*vs;
+    float aa = sqrtf(aa2);  // 导弹当前位置到原点的距离
+    float bb2 = (us-uf)*(us-uf) + (vs-vf)*(vs-vf);
+    float bb = sqrtf(bb2); // 第二焦点到导弹当前位置的距离
+    float cc2 = uf*uf + vf*vf; // 第二焦点到原点的距离的平方（未直接使用）
+
+    // 计算导弹爬升角（在局部LLA框架中）的余弦值
     float acos_arg = (aa2 + bb2 - cc2) / (2*aa*bb);
+    // 如果余弦值的参数在有效范围内，则计算爬升角
     if ((acos_arg >= -1.0f) && (acos_arg <= 1.0f))
     {
-        float beta_rad = 0.5f * acosf((aa2 + bb2 - cc2) / (2*aa*bb));
-    
-        float cos_beta = cosf(beta_rad);
-        float sin_beta = sinf(beta_rad);
+        float beta_rad = 0.5f * acosf((aa2 + bb2 - cc2) / (2*aa*bb)); // 爬升角的一半
 
-        ku = sin_beta;
-        ke *= cos_beta;
-        kn *= cos_beta;
+        float cos_beta = cosf(beta_rad); // 爬升角的余弦值
+        float sin_beta = sinf(beta_rad); // 爬升角的正弦值
+
+        ku = sin_beta; // 更新上方向的速度分量
+        ke *= cos_beta; // 更新东方向的速度分量
+        kn *= cos_beta; // 更新北方向的速度分量
     }
     else
     {
-        ku = 0.707107f; // 45 deg climb
-        ke *= 0.707107f;
-        kn *= 0.707107f;
+        // 如果参数无效，则采用默认的45度爬升角
+        ku = 0.707107f; // 45度爬升角的正弦值
+        ke *= 0.707107f; // 东方向速度比例
+        kn *= 0.707107f; // 北方向速度比例
     }
 
+    // 将ENU坐标系下的速度分量转换为ECEF坐标系下的速度分量
     Enu2ecef(mcKin.mfLat_rad, mcKin.mfLon_rad, ke, kn, ku, gx, gy, gz);
 
-    // shut off thrust early if have enough speed to comfortably reach target, should reduce flight time
-    float a_orbit_min = 0.25*(dst + r_ecef +  rt);
-    float min_speed_mps = sqrtf(C_GM * (two_over_r - (1.0f/a_orbit_min)));
-    if (speed_mps > (min_speed_mps + 300.0f))
+    // 如果导弹速度足够大，能够舒适地到达目标，则提前关闭推力，以减少飞行时间
+    float a_orbit_min = 0.25*(dst + r_ecef +  rt); // 计算最小轨道半长轴
+    float min_speed_mps = sqrtf(C_GM * (two_over_r - (1.0f/a_orbit_min))); // 计算达到最小轨道所需的最小速度
+    if (speed_mps > (min_speed_mps + 300.0f)) // 如果当前速度大于最小速度加上一个安全余量
     {
-        thrustShutoffTime_s = std::min(thrustShutoffTime_s, flightTime_s + 2.0f);
+        thrustShutoffTime_s = std::min(thrustShutoffTime_s, flightTime_s + 2.0f); // 更新推力关闭时间
     }
 
 }
@@ -665,32 +709,53 @@ void tcBallisticMissile::CalculateLLA()
 /**
 * Calculates second focus of ellipse (xf, yf) with one focus assumed at (0, 0) and given
 * two points on the ellipse (xa, ya) and (xb, yb), and semimajor axis ae
+* 计算椭圆的第二个焦点（xf, yf），假设其中一个焦点位于（0, 0），
+* 并给定椭圆上的两个点（xa, ya）和（xb, yb），
+* 以及椭圆的半长轴 ae
 */
 void tcBallisticMissile::CalculateSecondFocus(float xa, float ya, float xb, float yb, float ae, float& xf, float& yf)
 {
+    // 计算点(xa, ya)到原点(0, 0)的距离
     float da = sqrtf(xa*xa + ya*ya);
+    // 计算点(xb, yb)到原点(0, 0)的距离
     float db = sqrtf(xb*xb + yb*yb);
+    // 计算点(xa, ya)和点(xb, yb)之间的距离
     float d = sqrtf((xa-xb)*(xa-xb) + (ya-yb)*(ya-yb));
+    // 计算d的倒数
     float inv_d = 1.0f / d;
 
+    // 椭圆的长轴长度
     float major_axis = 2.0f * ae;
+    // 点(xa, ya)到椭圆长轴另一端的距离（假设椭圆长轴通过原点）
     float ra = major_axis - da;
+    // 点(xb, yb)到椭圆长轴另一端的距离（假设椭圆长轴通过原点）
     float rb = major_axis - db;
-    
+
+    // 计算ra的平方
     float ra2 = ra*ra;
+    // 计算rb的平方
     float rb2 = rb*rb;
+    // 计算d的平方
     float d2 = d*d;
 
+    // 根据椭圆焦点公式计算a的值，a是与椭圆中心、两个焦点和椭圆上一点相关的几何量
     float a = 0.5f * inv_d * (ra2 - rb2 + d2);
+    // 计算h的值，h是垂直于椭圆中心到椭圆上一点的连线，并且经过椭圆另一焦点的线段长度
     float h = sqrtf(ra2 - a*a);
 
+    // 计算a除以d的值
     float a_over_d = a * inv_d;
+    // 计算椭圆上两点连线的中点m的x坐标
     float xm = xa + a_over_d * (xb - xa);
+    // 计算椭圆上两点连线的中点m的y坐标
     float ym = ya + a_over_d * (yb - ya);
 
+    // 计算h除以d的值
     float h_over_d = h * inv_d;
-    
+
+    // 根据几何关系计算第二个焦点xf的x坐标
     xf = xm + h_over_d * (yb - ya);
+    // 根据几何关系计算第二个焦点yf的y坐标
     yf = ym - h_over_d * (xb - xa);
 }
 

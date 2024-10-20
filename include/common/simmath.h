@@ -328,7 +328,7 @@ template <typename T>
 bool IsEqual(const T& a, const T& b) {
     if constexpr (std::is_floating_point_v<T>) {
         // 对于浮点数类型
-        const T epsilon = 0.0000001; // 使用类型的epsilon
+        const T epsilon = C_EPSILON; // 使用类型的epsilon
         return std::fabs(a - b) < epsilon;
     } else {
         // 对于其他类型

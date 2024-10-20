@@ -466,25 +466,33 @@ void tcWeaponObject::LaunchPayload(tcGameObject* payload)
 }
 
 /**
-* ????
-* If malfunctionChecked, just return. Otherwise test for malfunction and 
-* SelfDestruct on malfunction.
-*/
+ * 武器故障检查函数
+ * 如果已经检查过故障，则直接返回。否则，检查是否存在故障，并在发现故障时执行自毁操作。
+ */
 void tcWeaponObject::MalfunctionCheck()
 {
+    // 如果已经检查过故障，则直接返回，避免重复检查
     if (malfunctionChecked) return;
 
+    // 标记为已检查过故障，避免后续重复检查
     malfunctionChecked = true;
 
+    // 使用随机数生成函数randf()生成一个随机数，并与无故障概率probNoFaults比较
+    // 如果随机数大于无故障概率，则认为存在故障
     bool malfunction = (randf() > mpDBObject->probNoFaults);
 
+    // 如果检测到故障
     if (malfunction)
     {
-        SelfDestruct();//????
+        // 执行自毁操作，销毁当前武器对象
+        SelfDestruct(); // 自毁函数，具体实现可能包括释放资源、更新状态等
 
+        // 以下代码仅在调试模式下编译和执行
 #ifdef _DEBUG
+        // 向标准输出打印故障信息，包括武器类别、单位标识和无故障概率
         fprintf(stdout, "%s %s malfunctioned (pr_nf:%.2f)\n", mzClass.c_str(), mzUnit.c_str(), mpDBObject->probNoFaults);
 
+        // 构造故障信息字符串，并通过消息接口输出到控制台
         std::string msg = strutil::format("WPN MALFUNCTION (%s)", mzClass.c_str());
         tcMessageInterface::Get()->ConsoleMessage(msg);
 #endif

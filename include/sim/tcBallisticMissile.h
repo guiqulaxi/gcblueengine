@@ -69,34 +69,35 @@ private:
 
     bool subSurfaceLaunch; ///< true during subsurface launch phase for sub-launched missiles
 
-    double lastGuidanceUpdateTime;
-    double guidanceUpdateInterval;
+    double lastGuidanceUpdateTime; ///< 上次制导更新时间（单位：秒）
+    double guidanceUpdateInterval; ///< 制导更新间隔（单位：秒）
 
-    float flightTime_s;
-    float thrustShutoffTime_s; ///< allows for early shutoff of thrust for closer range target
+    float flightTime_s; ///< 飞行时间（单位：秒）
 
-    GeoPoint targetDatum;
+    float thrustShutoffTime_s; ///< allows for early shutoff of thrust for closer range target 推力关闭时间（单位：秒），允许针对近距离目标提前关闭推力
 
-    // ECEF parameters 东北天
-    double x;
-    double y;
-    double z;
-    float vx;
-    float vy;
-    float vz;
+    GeoPoint targetDatum; ///< 目标位置数据（地理坐标）
 
-    double xt; // targetDatum ECEF
-    double yt;
-    double zt;
-    double rt; // mag (xt,yt,zt)
+    // ECEF parameters 地心坐标
+    double x; ///< 在ECEF坐标系中的X坐标（单位：米）
+    double y; ///< 在ECEF坐标系中的Y坐标（单位：米）
+    double z; ///< 在ECEF坐标系中的Z坐标（单位：米）
+    float vx; ///< 在ECEF坐标系中的X方向速度（单位：米/秒）
+    float vy; ///< 在ECEF坐标系中的Y方向速度（单位：米/秒）
+    float vz; ///< 在ECEF坐标系中的Z方向速度（单位：米/秒）
 
-    float gx; // ECEF goal velocity, unit vector, updated by guidance
-    float gy;
-    float gz;
+    double xt; ///< 目标位置在ECEF坐标系中的X坐标（单位：米）
+    double yt; ///< 目标位置在ECEF坐标系中的Y坐标（单位：米）
+    double zt; ///< 目标位置在ECEF坐标系中的Z坐标（单位：米）
+    double rt; ///< 目标位置到ECEF原点的距离（单位：米）
+
+    float gx; ///< ECEF目标速度的单位向量X分量，由制导系统更新
+    float gy; ///< ECEF目标速度的单位向量Y分量，由制导系统更新
+    float gz; ///< ECEF目标速度的单位向量Z分量，由制导系统更新
 
     float speed_mps;
     float speed2_mps2;//速度的平方
-    double r_ecef; // distance from ECEF origin [m]
+    double r_ecef; // distance from ECEF origin [m] 到ECEF原点的距离
 
     
     void CalculateECEF();
