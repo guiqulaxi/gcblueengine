@@ -1783,162 +1783,178 @@ void tcStores::Update(double t)
 
 void tcStores::UpdateAutomation()
 {
-    const int finishOp = 86;
+    const int finishOp = 86; // 定义一个常量，表示操作完成的阶段
 
-    // first verify valid op target, otherwise set stage to finishOp
-    for (size_t n=0; n<automationOps.size(); n++)
-	{
-        AutomationOperation& op = automationOps[n];
-        tcGameObject* obj = GetChildOrParent(op.obj);
-        if (obj == 0) op.stage = finishOp;
+    // 首先验证有效的操作目标，否则将阶段设置为finishOp
+    for (size_t n=0; n<automationOps.size(); n++) // 遍历所有的自动化操作
+    {
+        AutomationOperation& op = automationOps[n]; // 获取当前操作的引用
+        tcGameObject* obj = GetChildOrParent(op.obj); // 获取操作目标对象
+        if (obj == 0) op.stage = finishOp; // 如果对象无效，将操作阶段设置为完成
     }
 
-	for (size_t n=0; n<automationOps.size(); n++)
-	{
-		AutomationOperation& op = automationOps[n];
-		if (op.stage == 0)
-		{
-			// all ops start with completely unloading the platform
-			if (UnloadPlatform(op.obj))
-			{
-				op.stage = 1;	
-			}
-			else
-			{
-				op.stage = finishOp;
-			}
-		}
-		else if (op.stage == 1)
-		{
-			if (AllLaunchersEmpty(op.obj))
-			{
-				if (op.type == "Empty")
-				{
-					op.stage = finishOp;
-				}
-				else
-				{
-					if (LoadPlatform(op.obj, op.type))
-					{
-						op.stage = 2;
-					}
-					else
-					{
-						op.stage = finishOp;
-					}
-				}
-			}
-		}
-		else if (op.stage == 2)
-		{
-			if (AllLaunchersReady(op.obj))
-			{
-				op.stage = finishOp;
-			}
-		}
-		else
-		{
-			op.stage = finishOp;
-		}
-	}
-
-	// remove all automation ops at delete stage (op.stage == finishOp)
-	std::vector<AutomationOperation> temp;
-
-	for (size_t n=0; n<automationOps.size(); n++)
+    for (size_t n=0; n<automationOps.size(); n++) // 再次遍历所有的自动化操作
     {
-		if (automationOps[n].stage != finishOp)
-		{
-			temp.push_back(automationOps[n]);
-		}
-		else
-		{
+        AutomationOperation& op = automationOps[n]; // 获取当前操作的引用
+        if (op.stage == 0) // 如果操作处于初始阶段
+        {
+            // 所有操作都从完全卸载平台开始
+            if (UnloadPlatform(op.obj)) // 尝试卸载平台
+            {
+                op.stage = 1;	// 如果成功，将阶段设置为1
+            }
+            else
+            {
+                op.stage = finishOp; // 如果失败，将阶段设置为完成
+            }
+        }
+        else if (op.stage == 1) // 如果操作处于阶段1
+        {
+            if (AllLaunchersEmpty(op.obj)) // 如果所有发射器都为空
+            {
+                if (op.type == "Empty") // 如果操作类型为"Empty"
+                {
+                    op.stage = finishOp; // 将阶段设置为完成
+                }
+                else
+                {
+                    if (LoadPlatform(op.obj, op.type)) // 尝试加载平台
+                    {
+                        op.stage = 2; // 如果成功，将阶段设置为2
+                    }
+                    else
+                    {
+                        op.stage = finishOp; // 如果失败，将阶段设置为完成
+                    }
+                }
+            }
+        }
+        else if (op.stage == 2) // 如果操作处于阶段2
+        {
+            if (AllLaunchersReady(op.obj)) // 如果所有发射器都已准备好
+            {
+                op.stage = finishOp; // 将阶段设置为完成
+            }
+        }
+        else
+        {
+            op.stage = finishOp; // 对于其他阶段，也将阶段设置为完成
+        }
+    }
+
+    // 移除所有处于完成阶段（op.stage == finishOp）的自动化操作
+    std::vector<AutomationOperation> temp; // 创建一个临时向量用于存储未完成的操作
+
+    for (size_t n=0; n<automationOps.size(); n++) // 遍历所有的自动化操作
+    {
+        if (automationOps[n].stage != finishOp) // 如果操作未完成
+        {
+            temp.push_back(automationOps[n]); // 将操作添加到临时向量中
+        }
+        else
+        {
+            // 构造一个消息字符串，表示操作已完成
             std::string s = strutil::format("%s (%s) - Completed loadout automation (%s)\n",
-                parent->mzUnit.c_str(), parent->mzClass.c_str(), automationOps[n].type.c_str());
+                                            parent->mzUnit.c_str(), parent->mzClass.c_str(), automationOps[n].type.c_str());
+            // 下面的代码被注释掉了，原本用于发送消息到某个频道
             //tcMessageInterface::Get()->ChannelMessage("Info", s, parent->GetAlliance());
-		}
-	}
-	automationOps = temp;
+        }
+    }
+    automationOps = temp; // 将未完成的操作从临时向量复制回原始向量
 
 
 }
-
 /**
 * Gets best calculated generic loadout based on target type
 * @param type "AAW" targetMask = AIR_TARGET; "ASuW" targetMask = SURFACE_TARGET; "ASW" targetMask = SUBSURFACE_TARGET;
 *	"Strike" targetMask = LAND_TARGET; "Nuclear"
 */
+/**
+ * 根据目标类型获取最佳通用装备配置
+ * @param obj 平台对象指针
+ * @param type 目标类型字符串，如"AAW"、"ASuW"、"ASW"、"Strike"、"Nuclear"
+ * @param bestForLauncher 存储每个发射器的最佳武器信息的向量
+ * @return 如果成功获取配置，则返回true；否则返回false
+ */
 bool tcStores::GetBestGenericLoadout(tcPlatformObject* obj, const std::string& type, std::vector<WeaponInfo>& bestForLauncher)
 {
+    // 断言确保对象不为空，若为空则直接返回false
     assert(obj != 0);
     if (obj == 0) return false;
 
-    int targetMask = 0;
-    bool allowNuclear = false;
-	
-	if (type == "AAW") targetMask = AIR_TARGET;
-	else if (type == "ASuW") targetMask = SURFACE_TARGET;
-	else if (type == "ASW") targetMask = SUBSURFACE_TARGET;
-	else if (type == "Strike") targetMask = LAND_TARGET;
+    int targetMask = 0; // 目标掩码，用于筛选武器
+    bool allowNuclear = false; // 是否允许使用核武器
+
+    // 根据目标类型设置目标掩码和核武器使用权限
+    if (type == "AAW") targetMask = AIR_TARGET; // 空中目标
+    else if (type == "ASuW") targetMask = SURFACE_TARGET; // 水面目标
+    else if (type == "ASW") targetMask = SUBSURFACE_TARGET; // 水下目标
+    else if (type == "Strike") targetMask = LAND_TARGET; // 陆地目标
     else if (type == "Nuclear")
     {
-        targetMask = (AIR_TARGET | SURFACE_TARGET | LAND_TARGET);
-        allowNuclear = true;
+        targetMask = (AIR_TARGET | SURFACE_TARGET | LAND_TARGET); // 所有类型目标
+        allowNuclear = true; // 允许使用核武器
     }
 
-    // to load an assortment of CM
+    // 用于装载干扰弹和照明弹的标志
     bool haveFlares = false;
     bool haveChaff = false;
 
+    // 清空最佳武器信息向量
     bestForLauncher.clear();
+    // 获取发射器数量
     size_t nLaunchers = obj->GetLauncherCount();
 
-	for (size_t n=0; n<nLaunchers; n++)
-	{
-		tcLauncher* launcher = obj->GetLauncher(n);   
-		size_t nTypes = launcher->GetCompatibleCount();
-		assert(nTypes > 0);
+    // 遍历每个发射器
+    for (size_t n=0; n<nLaunchers; n++)
+    {
+        tcLauncher* launcher = obj->GetLauncher(n); // 获取当前发射器
+        size_t nTypes = launcher->GetCompatibleCount(); // 获取当前发射器兼容的武器类型数量
+        assert(nTypes > 0); // 断言确保至少有一种兼容的武器类型
 
-        
+        // 初始化最佳武器信息
         WeaponInfo best;
-        best.capacity = launcher->GetCompatibleQuantity(0);
-        best.quantity = CurrentItemQuantity(launcher->GetCompatibleName(0), best.name);
+        best.capacity = launcher->GetCompatibleQuantity(0); // 设置初始容量为第一种兼容武器的数量
+        best.quantity = CurrentItemQuantity(launcher->GetCompatibleName(0), best.name); // 获取当前存储数量
 
-		GetWeaponInfo(best);
+        GetWeaponInfo(best); // 获取最佳武器的详细信息
 
-		// cycle through other types and compare
-		for (size_t k=1; k<nTypes; k++)
-		{
-            WeaponInfo candidate;
-            candidate.capacity = launcher->GetCompatibleQuantity(k);
-            candidate.quantity = CurrentItemQuantity(launcher->GetCompatibleName(k), candidate.name); // quantity in stores
-			GetWeaponInfo(candidate);
+        // 遍历其他武器类型并进行比较
+        for (size_t k=1; k<nTypes; k++)
+        {
+            WeaponInfo candidate; // 候选武器信息
+            candidate.capacity = launcher->GetCompatibleQuantity(k); // 设置候选武器的容量
+            candidate.quantity = CurrentItemQuantity(launcher->GetCompatibleName(k), candidate.name); // 获取候选武器的当前存储数量
+            GetWeaponInfo(candidate); // 获取候选武器的详细信息
 
-			bool betterMissionFit = ((best.targetFlags & targetMask) == 0) && 
-				((candidate.targetFlags & targetMask) != 0);
-			bool worseMissionFit = ((best.targetFlags & targetMask) != 0) &&
-				((candidate.targetFlags & targetMask) == 0);
-//			bool fitsMission = ((candidate.targetFlags & targetMask) != 0);
-			bool betterRange = candidate.range_km > best.range_km;
-            bool isAvailable = (candidate.quantity > 0) && (!candidate.isNuclear || allowNuclear);
-            
-            bool betterNuclear = allowNuclear && (!best.isNuclear && candidate.isNuclear);
+            // 判断候选武器是否更适合当前任务
+            bool betterMissionFit = ((best.targetFlags & targetMask) == 0) &&
+                                    ((candidate.targetFlags & targetMask) != 0); // 最佳武器不适合而候选武器适合
+            bool worseMissionFit = ((best.targetFlags & targetMask) != 0) &&
+                                   ((candidate.targetFlags & targetMask) == 0); // 最佳武器适合而候选武器不适合
+            bool betterRange = candidate.range_km > best.range_km; // 候选武器射程更远
+            bool isAvailable = (candidate.quantity > 0) && (!candidate.isNuclear || allowNuclear); // 候选武器可用且符合核武器使用权限
 
-			bool better = isAvailable && 
-				         (betterMissionFit || (!worseMissionFit && betterRange) || 
-                         (!worseMissionFit && betterNuclear));
+            bool betterNuclear = allowNuclear && (!best.isNuclear && candidate.isNuclear); // 允许使用核武器且候选武器是核武器而最佳武器不是
 
-            // section to load both chaff and flares
+            // 判断候选武器是否优于最佳武器
+            bool better = isAvailable &&
+                          (betterMissionFit || (!worseMissionFit && betterRange) ||
+                           (!worseMissionFit && betterNuclear));
+
+            // 如果需要装载干扰弹和照明弹，则进行特殊处理
             if (candidate.miscType.size() > 0)
             {
-                bool isChaff = (candidate.miscType == "Chaff");
-                bool isFlares = (candidate.miscType == "Flare");
-               
+                bool isChaff = (candidate.miscType == "Chaff"); // 是否为干扰弹
+                bool isFlares = (candidate.miscType == "Flare"); // 是否为照明弹
+
+                // 如果尚未装载干扰弹且当前候选为干扰弹，则标记为已装载并认为候选更优
                 if (isChaff && (!haveChaff))
                 {
                     haveChaff = true;
                     better = true;
                 }
+                // 如果尚未装载照明弹且当前候选为照明弹，则标记为已装载并认为候选更优
                 if (isFlares && (!haveFlares))
                 {
                     haveFlares = true;
@@ -1946,41 +1962,46 @@ bool tcStores::GetBestGenericLoadout(tcPlatformObject* obj, const std::string& t
                 }
             }
 
-			if (better)
-			{
+            // 如果候选武器更优，则更新最佳武器信息
+            if (better)
+            {
                 best = candidate;
-			}
-		}
+            }
+        }
 
+        // 将最佳武器信息添加到向量中
         bestForLauncher.push_back(best);
-	}
+    }
 
+    // 如果对象是飞行器，则进行起飞重量检查
     if (tcAirObject* air = dynamic_cast<tcAirObject*>(obj))
     {
-        // check if overweight for takeoff (assuming fully fueled)
+        // 计算最大起飞重量（假设已加满燃油）
         float maxLoadWeight_kg = air->mpDBObject->maxTakeoffWeight_kg - air->mpDBObject->weight_kg -
-            air->mpDBObject->mfFuelCapacity_kg;
+                                 air->mpDBObject->mfFuelCapacity_kg;
 
-        // if overweight, iterate through, removing one of biggest capacity item until weight is okay
+        // 如果超重，则迭代移除最大容量的物品直到重量符合要求
         bool iteratingForWeight = true;
-        unsigned int nIterations = 0;
-        const unsigned int maxIterations = 32;
+        unsigned int nIterations = 0; // 迭代次数
+        const unsigned int maxIterations = 32; // 最大迭代次数
 
         while (iteratingForWeight && (nIterations++ < maxIterations))
         {
-            float loadWeight_kg = 0;
-            size_t bestIdx = 0;
-            size_t bestCapacity = 0;
-            float bestWeight = 99999.9f;
+            float loadWeight_kg = 0; // 当前装载重量
+            size_t bestIdx = 0; // 最佳移除索引
+            size_t bestCapacity = 0; // 最佳移除容量
+            float bestWeight = 99999.9f; // 最佳移除物品的单重（用于比较）
 
+            // 遍历每个发射器的最佳武器信息，计算总重量并找出最佳移除项
             for (size_t n=0; n<nLaunchers; n++)
             {
-//                tcLauncher* launcher = obj->GetLauncher(n);   
+                // tcLauncher* launcher = obj->GetLauncher(n); // 已在外部循环中获取，此处省略
 
-                size_t capacity = bestForLauncher[n].capacity;
-                float weight_kg = bestForLauncher[n].weight_kg;
-                loadWeight_kg += weight_kg * float(capacity);
-                
+                size_t capacity = bestForLauncher[n].capacity; // 当前武器的容量
+                float weight_kg = bestForLauncher[n].weight_kg; // 当前武器的单重
+                loadWeight_kg += weight_kg * float(capacity); // 计算当前武器的总重量并累加到总装载重量中
+
+                // 找出容量最大或（容量相同但单重最轻）的物品作为最佳移除项
                 if ((capacity > bestCapacity) || ((capacity == bestCapacity) && (weight_kg < bestWeight)))
                 {
                     bestIdx = n;
@@ -1989,27 +2010,30 @@ bool tcStores::GetBestGenericLoadout(tcPlatformObject* obj, const std::string& t
                 }
 
             }
-            
+
+            // 如果当前装载重量不超过最大起飞重量，则停止迭代
             if (loadWeight_kg <= maxLoadWeight_kg)
             {
                 iteratingForWeight = false;
             }
             else
             {
+                // 如果最佳移除项的容量大于0，则减少其容量
                 if (bestForLauncher[bestIdx].capacity > 0) bestForLauncher[bestIdx].capacity--;
             }
 
         }
 
+        // 如果达到最大迭代次数仍未找到满足条件的装载配置，则输出错误信息并返回false
         if (nIterations >= maxIterations)
         {
-            fprintf(stderr, "(%s: %s) Failed to find loadout satisfying takeoff weight restriction."
-                " Could be caused by database error\n", 
-                air->mzClass.c_str(), air->mzUnit.c_str());
+            fprintf(stderr, "(%s: %s) 未能找到满足起飞重量限制的装载配置。可能是数据库错误。\n",
+                    air->mzClass.c_str(), air->mzUnit.c_str());
             return false;
-        }   
+        }
     }
 
+    // 成功获取装载配置，返回true
     return true;
 }
 

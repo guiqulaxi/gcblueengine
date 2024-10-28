@@ -677,88 +677,115 @@ bool tcFlightPort::HasNewCommand() const
 * @param position Desired position for obj (e.g. which runway)
 * @return 1 success, 0 failure
 */
+/**
+* 将对象obj添加到指定位置loc，如果不可行，则添加到最佳可用位置。
+* 如果没有可用位置（无法添加），返回0，否则返回1。
+* @param obj 要添加的游戏对象。
+* @param loc obj的期望位置。
+* @param position obj的期望位置（例如哪个跑道）。
+* @return 1表示成功，0表示失败。
+*/
 int tcFlightPort::AddObject(tcAirObject *obj, teLocation loc, unsigned int position)
 {
-    std::vector<tsSpotInfo> *bestLocation = NULL;
-    int emptySpotIdx = -1;
+    std::vector<tsSpotInfo> *bestLocation = NULL; // 最佳位置指针，初始化为空
+    int emptySpotIdx = -1; // 空位索引，初始化为-1
 
-	// over-ride location if such location doesn't exist on this flightport
-	if ((loc == HANGAR) && (inHangarCount >= hangarCapacity)) loc = ALERT15;
-	if ((loc == ALERT15) && (ready_spots.size() == 0)) loc = ALERT5;
+    // 如果指定位置不存在于该飞行港口，则覆盖位置
+    if ((loc == HANGAR) && (inHangarCount >= hangarCapacity)) loc = ALERT15; // 如果指定为机库且机库已满，则改为ALERT15
+    if ((loc == ALERT15) && (ready_spots.size() == 0)) loc = ALERT5; // 如果指定为ALERT15且没有准备位置，则改为ALERT5
 
-    if (loc == ALERT5)
+    if (loc == ALERT5) // 如果位置是ALERT5
     {
-		if ((position < launch_spots.size()) && launch_spots[position].IsEmpty())
-		{
-			emptySpotIdx = (int)position;
-		}
-		else
-		{
-			emptySpotIdx = FindEmptySpot(&launch_spots);
-		}
+        // 如果指定位置在发射位置范围内且为空，则使用该位置
+        if ((position < launch_spots.size()) && launch_spots[position].IsEmpty())
+        {
+            emptySpotIdx = (int)position;
+        }
+        else
+        {
+            // 否则，查找发射位置中的空位置
+            emptySpotIdx = FindEmptySpot(&launch_spots);
+        }
+        // 如果找到空位，则设置最佳位置为发射位置
         if (emptySpotIdx >= 0)
             bestLocation = &launch_spots;
         else
-            loc = ALERT15; // try ALERT15 if no free launch_spots
+            loc = ALERT15; // 如果没有空发射位置，则尝试ALERT15
     }
-    if (loc == ALERT15)
+    if (loc == ALERT15) // 如果位置是ALERT15
     {
-		if ((position < ready_spots.size()) && ready_spots[position].IsEmpty())
-		{
-			emptySpotIdx = (int)position;
-		}
-		else
-		{
-			emptySpotIdx = FindEmptySpot(&ready_spots);
-		}
+        // 如果指定位置在准备位置范围内且为空，则使用该位置
+        if ((position < ready_spots.size()) && ready_spots[position].IsEmpty())
+        {
+            emptySpotIdx = (int)position;
+        }
+        else
+        {
+            // 否则，查找准备位置中的空位置
+            emptySpotIdx = FindEmptySpot(&ready_spots);
+        }
+        // 如果找到空位，则设置最佳位置为准备位置
         if (emptySpotIdx >= 0)
             bestLocation = &ready_spots;
         else
-            loc = HANGAR; 
+            loc = HANGAR; // 如果没有空准备位置，则尝试机库
     }
 
+    // 如果指定位置是机库且机库已满，则返回0（失败）
     if ((loc == HANGAR)&&(inHangarCount >= hangarCapacity)) return 0;
 
+    // 为新对象创建airstate
     tcAirState *airstate = new tcAirState;
-    airstate->obj = obj;
-	airstate->obj->mnID = localId++; // assign local id
-    airstate->op = OP_NONE;
-    airstate->ready_time = last_update_time;
-    airstate->current_location = loc;
-    airstate->current_spot = emptySpotIdx;
-    airstate->goal_location = loc;
-    airstate->goal_spot = airstate->current_spot;
-	airstate->inTransit = false;
-    airstate->lastMultiplayerUpdate = tcTime::Get()->GetUpdated30HzCount();
-    units.push_back(airstate); // add to fport units vector
+    airstate->obj = obj; // 设置对象
+    airstate->obj->mnID = localId++; // 为对象分配本地ID
+    airstate->op = OP_NONE; // 设置操作为无
+    airstate->ready_time = last_update_time; // 设置准备时间为最后更新时间
+    airstate->current_location = loc; // 设置当前位置
+    airstate->current_spot = emptySpotIdx; // 设置当前位置索引
+    airstate->goal_location = loc; // 设置目标位置为当前位置
+    airstate->goal_spot = airstate->current_spot; // 设置目标位置索引为当前位置索引
+    airstate->inTransit = false; // 设置不在运输中
+    airstate->lastMultiplayerUpdate = tcTime::Get()->GetUpdated30HzCount(); // 设置最后的多人更新时间
+    units.push_back(airstate); // 将airstate添加到飞行港口的units向量中
 
+    // 如果位置是机库，则增加机库中的对象计数
     if (loc == HANGAR) inHangarCount++;
+    // 如果最佳位置不为空且空位索引有效
     if ((bestLocation != NULL)&&(emptySpotIdx >= 0))
     {
-        tsSpotInfo *spot = &bestLocation->at(emptySpotIdx);
-        spot->obj_info = airstate;
+        tsSpotInfo *spot = &bestLocation->at(emptySpotIdx); // 获取空位信息
+        spot->obj_info = airstate; // 设置空位信息中的对象为airstate
     }
-    InitRelPos(airstate);
-    return 1;
+    InitRelPos(airstate); // 初始化airstate的相对位置
+    return 1; // 返回1（成功）
 }
 /**
 * Add spot to flightport. 
 */
-void tcFlightPort::AddSpot(teLocation loc, float x, float y, float z, 
+/**
+* 向飞行港添加停靠点。
+*/
+void tcFlightPort::AddSpot(teLocation loc, float x, float y, float z,
                            float orientation, float length)
 {
-    tsSpotInfo spot;
-    spot.x = x;
-    spot.y = y;
-    spot.z = z;
-    spot.orientation = orientation;
-    spot.length = length;
-    spot.obj_info = NULL; // empty initially
+    tsSpotInfo spot; // 定义一个停靠点信息结构体变量
+    spot.x = x; // 设置停靠点的x坐标
+    spot.y = y; // 设置停靠点的y坐标
+    spot.z = z; // 设置停靠点的z坐标
+    spot.orientation = orientation; // 设置停靠点的朝向
+    spot.length = length; // 设置停靠点的长度
+    spot.obj_info = NULL; // 初始时，停靠点的对象信息为空
 
-    if (loc == ALERT5) {launch_spots.push_back(spot);return;}
-    else if (loc == ALERT15) {ready_spots.push_back(spot);return;}
+    // 根据传入的地点类型，将停靠点添加到不同的列表中
+    if (loc == ALERT5) { // 如果地点是ALERT5
+        launch_spots.push_back(spot); // 将停靠点添加到发射点列表中
+        return; // 添加完成后返回
+    }
+    else if (loc == ALERT15) { // 如果地点是ALERT15
+        ready_spots.push_back(spot); // 将停靠点添加到准备点列表中
+        return; // 添加完成后返回
+    }
 }
-
 /**
 * Determines if obj has landed on runway or crashed into flightport.
 * If object successfully lands, it is added to the toLand queue.
@@ -768,41 +795,52 @@ void tcFlightPort::AddSpot(teLocation loc, float x, float y, float z,
 * @param obj Object to attempt landing
 * @return -1 if crash, 0 if not close enough for landing, 1 if landed
 */
+/**
+* 判断对象是否已在跑道上着陆或撞毁在飞行港上。
+* 如果对象成功着陆，则将其添加到待着陆队列中。
+* 此版本的着陆判定非常粗略。任何接近的对象都被视为已着陆。
+* 不检查坠毁情况。依赖更高层次的代码来检查对象是否在下降。
+* @param obj 尝试着陆的对象
+* @return -1 表示坠毁，0 表示距离着陆点不够近，1 表示已着陆
+*/
 int tcFlightPort::CheckLanding(tcAirObject *obj)
 {
-	tcAirObject* air = obj;
-    bool isAir = (air != 0);
-	//bool isHelo = dynamic_cast<tcHeloObject*>(air) != 0;
-    bool isHelo = typeid(*air) == typeid(tcHeloObject);
-	bool compatible = isAir && (!mpDBObject->heloOnly || isHelo);
+    tcAirObject* air = obj; // 将传入的对象指针赋值给局部变量air
+    bool isAir = (air != 0); // 判断air是否非空，即是否为有效的空中对象
+    //bool isHelo = dynamic_cast<tcHeloObject*>(air) != 0; // 原始代码中的动态类型转换，用于判断是否为直升机（已被注释）
+    bool isHelo = typeid(*air) == typeid(tcHeloObject); // 使用RTTI（运行时类型识别）判断air是否为直升机对象
+    bool compatible = isAir && (!mpDBObject->heloOnly || isHelo); // 判断对象是否与飞行港兼容（是否为空中对象且飞行港接受直升机或对象为直升机）
 
-    tcCarrierObject* carrier = dynamic_cast<tcCarrierObject*>(parent);
-    bool carrierLanding = (carrier != 0);
-    bool carrierCompatible = air->mpDBObject->IsCarrierCompatible();
+    tcCarrierObject* carrier = dynamic_cast<tcCarrierObject*>(parent); // 判断父对象是否为航母
+    bool carrierLanding = (carrier != 0); // 判断是否在航母上着陆
+    bool carrierCompatible = air->mpDBObject->IsCarrierCompatible(); // 判断对象是否与航母兼容
 
-    compatible = compatible && (!carrierLanding || carrierCompatible);
+    compatible = compatible && (!carrierLanding || carrierCompatible); // 更新兼容状态，确保对象与当前着陆环境（飞行港或航母）兼容
 
-	if (!compatible) return 0;
+    if (!compatible) return 0; // 如果不兼容，则返回0表示未着陆
 
-    int nRunways = (int)launch_spots.size();
-    for (int n=0;n<nRunways;n++)
+    int nRunways = (int)launch_spots.size(); // 获取跑道（发射点）的数量
+    for (int n=0;n<nRunways;n++) // 遍历所有跑道
     {
-        tsSpotInfo *spot = &launch_spots.at(n);
+        tsSpotInfo *spot = &launch_spots.at(n); // 获取当前跑道的信息指针
+        // 下面的代码块被注释掉了，原用于计算对象与跑道中心的相对位置
         //float dx = obj->rel_pos.dx - spot->x;
         //float dy = obj->rel_pos.dy - spot->y;
         //float dz = obj->rel_pos.dz - spot->z;
 
+        // 下面的条件判断被简化，原用于检查对象是否在跑道附近着陆
         //if ((dx*dx + dz*dz <= 1600.0f)&&(dy < 25.0f)&&(dy > -25.0f))
+        // 简化后的条件判断：如果跑道长度足够或正在航母上着陆
         if ((spot->length >= air->mpDBObject->minimumRunway_m) || carrierLanding)
         {
-			air->GetBrain()->RemoveAllTasks();
-			air->SetLandingState(false); // retract landing gear
-            toLand.push_back(obj);
-            return 1;
+            air->GetBrain()->RemoveAllTasks(); // 清除对象的所有任务
+            air->SetLandingState(false); // 收回起落架
+            toLand.push_back(obj); // 将对象添加到待着陆队列中
+            return 1; // 返回1表示已着陆
         }
     }
 
-    return 0;
+    return 0; // 如果没有在任何跑道上着陆，则返回0
 }
 
 
@@ -1494,24 +1532,39 @@ void tcFlightPort::InitFromDatabase(database::tcFlightportDBObject *dbObj)
 * once during initialization. Additional calls can be used to handle non-animated
 * movement. Eventually UpdateRelPos should handle all of the movement after init.
 */
+/**
+* 设置单位的位置和方向以匹配当前停机位的信息。
+* 如果飞机在机库内，则将其设置为不可见，否则设置为可见。这个方法应在初始化时调用一次。
+* 额外的调用可用于处理非动画移动。最终，UpdateRelPos方法应处理初始化后的所有移动。
+*/
 void tcFlightPort::InitRelPos(tcAirState *airstate)
 {
+    // 获取与当前飞机状态相关联的游戏对象
     tcGameObject *pGameObj = airstate->obj;
+    // 如果飞机当前位于机库或预警15分钟内区域
     if ((airstate->current_location == HANGAR)||(airstate->current_location == ALERT15))
     {
+        // 将游戏对象的位置设置为原点（0,0,0）
         pGameObj->SetRelativePosition(0,0,0);
+        // 将游戏对象设置为不可见
         pGameObj->SetVisible(false);
+        // 结束当前方法的执行
         return;
     }
+    // 如果飞机不在机库或预警区域内，则将其设置为可见
     pGameObj->SetVisible(true);
 
+    // 获取当前停机位的信息
     tsSpotInfo *spotinfo = GetCurrentSpotInfo(airstate);
+    // 如果无法获取停机位信息（即spotinfo为NULL），则返回并处理错误
     if (spotinfo == NULL) return; // error
 
+    // 根据停机位信息设置游戏对象的位置
     pGameObj->SetRelativePosition(spotinfo->x,spotinfo->y,spotinfo->z);
+    // 设置游戏对象的方向，使用停机位信息的方向并转换为弧度（C_PIOVER180是π/180的常量，用于将角度转换为弧度）
+    // 这里只设置了y轴方向的角度，x轴和z轴方向的角度保持为0
     pGameObj->SetRelativeOrientation(C_PIOVER180*spotinfo->orientation, 0, 0);
 }
-
 /**
 * @return true if all launch spots are heloOnly
 */
@@ -1816,97 +1869,97 @@ void tcFlightPort::SetReadyTime(double t, tcAirState* airstate, teLocation nextL
 */
 void tcFlightPort::Update(double t)
 {
-	if (((t - last_update_time) < 1.0f) && !tcGameObject::IsEditMode()) return;  // restrict to slower update, increased to 1 sec, 23OCT2010
-    last_update_time = t;
+    // 如果距离上次更新时间不到1秒且不在编辑模式下，则直接返回
+    if (((t - last_update_time) < 1.0f) && !tcGameObject::IsEditMode()) return;
+    last_update_time = t; // 更新上次更新时间
 
-    RemoveDestroyedUnits();
+    RemoveDestroyedUnits(); // 移除已销毁的单位
 
-	// in mp client mode, update relative pos for display purposes, omit other updates
-	if (parent->IsClientMode())
-	{    
-        RemoveStaleUnits();
+    // 如果是多人游戏客户端模式，则仅更新相对位置用于显示，省略其他更新
+    if (parent->IsClientMode())
+    {
+        RemoveStaleUnits(); // 移除过时单位
 
-		size_t obj_count = units.size();
-		for(size_t n=0;n<obj_count;n++)
-		{
-			UpdateRelPos(units[n], t);
-            units[n]->inTransit = (units[n]->goal_location != units[n]->current_location);
-		}
+        size_t obj_count = units.size(); // 获取单位数量
+        for(size_t n=0;n<obj_count;n++) // 遍历每个单位
+        {
+            UpdateRelPos(units[n], t); // 更新相对位置
+            units[n]->inTransit = (units[n]->goal_location != units[n]->current_location); // 设置是否在运输中
+        }
 
-        if (missionManager != 0) missionManager->PerformDeletions();
+        if (missionManager != 0) missionManager->PerformDeletions(); // 如果任务管理器存在，则执行删除操作
 
-		return;
-	}
+        return; // 客户端模式更新完毕，返回
+    }
 
-    UpdateLanded();
+    UpdateLanded(); // 更新已着陆的单位
 
-	
+    std::vector<long> idsToLaunch; // 初始化待起飞ID队列
 
-	std::vector<long> idsToLaunch; // queue to launch when done updating all airstates
-
+    // 遍历每个单位
     size_t obj_count = units.size();
     for(size_t n=0;n<obj_count;n++)
     {
-        tcAirState *airstate = units.at(n);
-        
-        UpdateMaintenance(airstate);
+        tcAirState *airstate = units.at(n); // 获取当前单位的状态
 
-		UpdateRefueling(airstate);
+        UpdateMaintenance(airstate); // 更新维护状态
 
-        UpdatePlatform(airstate);
+        UpdateRefueling(airstate); // 更新加油状态
 
-        bool moveable = false;
-        if (tcAirObject* air = airstate->obj)
+        UpdatePlatform(airstate); // 更新平台状态
+
+        bool moveable = false; // 是否可移动
+        if (tcAirObject* air = airstate->obj) // 如果存在对应的航空对象
         {
+            // 如果不在加油、不在装载且不在维护状态，则设置为可移动
             moveable = !air->IsRefueling() && !air->IsLoading() && (airstate->op != OP_MAINTENANCE);
 
-            air->mfStatusTime = t; // added this 9JAN2010 to get time into tcGoalTracker::damageLog
+            air->mfStatusTime = t; // 更新状态时间
         }
         else
         {
-            assert(false);
+            assert(false); // 断言失败，表示不应该执行到这里
         }
 
-        /* if the unit is not in transit and is not at goal location, 
-        ** check for a free spot in goal location. If there is a free spot in 
-        ** goal location, then take spot and set current location to TRANSIT */
+        // 如果单位不在运输中、可移动且当前位置不是目标位置
         bool inTransit = airstate->inTransit;
-        
         bool needsAction = (!inTransit) && moveable && (airstate->current_location != airstate->goal_location);
-        if (needsAction) 
+        if (needsAction)
         {
-            assert(airstate->current_location != TAKEOFF);
+            assert(airstate->current_location != TAKEOFF); // 断言当前位置不是起飞状态
 
-			if (airstate->current_location == PRETAKEOFF)
-			{
-				idsToLaunch.push_back(airstate->obj->mnID);
-			}
-			else
-			{
-				teLocation nextLoc = GetNextStop(airstate->current_location, airstate->goal_location);
-				int nextSpot = airstate->goal_spot; // guess goal_spot
+            // 如果是预起飞状态，则将其ID加入待起飞队列
+            if (airstate->current_location == PRETAKEOFF)
+            {
+                idsToLaunch.push_back(airstate->obj->mnID);
+            }
+            else
+            {
+                teLocation nextLoc = GetNextStop(airstate->current_location, airstate->goal_location); // 获取下一个位置
+                int nextSpot = airstate->goal_spot; // 猜测目标位置
 
-				// goal_spot has spot for next destination if more than one move is required
-				if (!IsSpotEmpty(nextLoc, nextSpot))
-				{
-					std::vector<tsSpotInfo> *loc_vector = 0;
-					int spot_idx = FindEmptySpot(nextLoc, loc_vector);
-					nextSpot = spot_idx;
-				}
-                SetReadyTime(t, airstate, nextLoc);
+                // 如果目标位置没有空位，则寻找空位
+                if (!IsSpotEmpty(nextLoc, nextSpot))
+                {
+                    std::vector<tsSpotInfo> *loc_vector = 0; // 初始化位置向量（此处未使用，可能是遗留代码）
+                    int spot_idx = FindEmptySpot(nextLoc, loc_vector); // 寻找空位
+                    nextSpot = spot_idx; // 更新目标位置索引
+                }
+                SetReadyTime(t, airstate, nextLoc); // 设置准备时间
 
-				MoveObjectToDestination(airstate, nextLoc, nextSpot);
-			}
+                MoveObjectToDestination(airstate, nextLoc, nextSpot); // 移动对象到目标位置
+            }
         }
-        UpdateRelPos(airstate, t);
+        UpdateRelPos(airstate, t); // 更新相对位置
     }
 
-	for (size_t n=0; n<idsToLaunch.size(); n++)
-	{
-		LaunchID(idsToLaunch[n]);
-	}
+    // 遍历待起飞队列，执行起飞操作
+    for (size_t n=0; n<idsToLaunch.size(); n++)
+    {
+        LaunchID(idsToLaunch[n]); // 执行起飞
+    }
 
-	if (missionManager != 0) missionManager->Update(t);
+    if (missionManager != 0) missionManager->Update(t); // 如果任务管理器存在，则更新任务管理器
 }
 
 /**
@@ -1914,46 +1967,54 @@ void tcFlightPort::Update(double t)
 * and set unit spot to the appropriate landing area. Launch spots may
 * see double use as landing areas
 */
+/**
+* 将着陆单位移动到机库。未来这将包括着陆动画
+* 并将单位位置设置为适当的着陆区域。发射点
+* 可能也用作着陆区域
+*/
 void tcFlightPort::UpdateLanded()
 {
-    size_t landing_count = toLand.size();
-    for(size_t n=0;n<landing_count;n++)
+    size_t landing_count = toLand.size(); // 获取待着陆对象数量
+    for(size_t n=0;n<landing_count;n++) // 遍历待着陆对象
     {
-        tcAirObject* obj = toLand.at(n);
+        tcAirObject* obj = toLand.at(n); // 获取当前待着陆对象
 
-		// add landed objects to hangar and set to maintenance state
+        // 将着陆对象添加到机库并设置为维护状态
         if (AddObject(obj, HANGAR, 0))
-		{
-            double maintenanceTime_s = 300.0; // "fast" maintenance time
+        {
+            double maintenanceTime_s = 300.0; // "快速"维护时间
 
+            // 确认对象是指向tcAirObject的有效指针
             if (tcAirObject* air = obj)
             {
-                air->SetLoadoutTag(""); // clear loadout tag on land, regardless of equip state
-                air->UnloadAllLaunchers();
+                air->SetLoadoutTag(""); // 着陆时清除负载标签，无论装备状态如何
+                air->UnloadAllLaunchers(); // 卸载所有发射器
+                // 如果选项中的快速维护被禁用
                 if (tcOptions::Get()->fastMaintenance == 0)
                 {
-                    maintenanceTime_s = (double)air->mpDBObject->GetRandomMaintenanceTime();
+                    maintenanceTime_s = (double)air->mpDBObject->GetRandomMaintenanceTime(); // 使用随机维护时间
                 }
             }
-            int airStateIdx = FindAirState(obj);
+            int airStateIdx = FindAirState(obj); // 查找当前对象的飞行状态索引
+            // 获取飞行状态对象
             if (tcAirState* airState = GetAirState((unsigned int)(airStateIdx)))
             {
-                airState->op = OP_MAINTENANCE;
-                airState->ready_time = last_update_time + maintenanceTime_s;
+                airState->op = OP_MAINTENANCE; // 设置操作状态为维护
+                airState->ready_time = last_update_time + maintenanceTime_s; // 设置就绪时间为当前时间加上维护时间
             }
             else
             {
-                assert(false);
+                assert(false); // 如果未找到飞行状态对象，则断言失败
             }
 
         }
         else
         {
-			//obj->mfDamageLevel += 10000; // destroy object
-			toLaunch.push_back(obj); // kick it out
-		}
+            // 将无法添加到机库的对象移到待发射列表中（之前代码注释掉的是销毁对象的操作）
+            toLaunch.push_back(obj); // 将其踢出着陆列表，加入发射列表
+        }
     }
-    toLand.clear();
+    toLand.clear(); // 清空待着陆列表
 }
 
 void tcFlightPort::UpdateMaintenance(tcAirState* airstate)
@@ -1985,22 +2046,26 @@ void tcFlightPort::UpdatePlatform(tcAirState* airstate)
 * If units not in hangar, schedule refuel operations to top off fuel if needed
 * Assumes that 
 */
-void tcFlightPort::UpdateRefueling(tcAirState *airstate)
+/**
+* 如果飞机不在机库中，根据需要安排加油操作以加满燃油
+* 假设...（此处省略了具体假设）
+*/
+void tcFlightPort::UpdateRefueling(tcAirState *airstate) // 定义UpdateRefueling函数，用于更新加油状态，接收一个指向tcAirState的指针作为参数
 {
-	assert(airstate != 0);
-	tcAirObject* aircraft = airstate->obj;
-	if ((aircraft != 0) && (airstate->current_location != HANGAR) &&
-		(!aircraft->IsOverweight()) && (!aircraft->IsRefueling()))
-	{
-		float fuelMargin_kg = aircraft->GetFuelCapacity() - aircraft->fuel_kg;
-		float weightMargin_kg = aircraft->mpDBObject->maxTakeoffWeight_kg - aircraft->GetTotalWeight();
-		if ((fuelMargin_kg > 1.0f) && (weightMargin_kg > 10.0f))
-		{
-			unsigned long fuelToAdd_kg = (unsigned long)floorf(std::min(fuelMargin_kg, weightMargin_kg));
-			tcPlatformInterface platformInterface(aircraft);
-			platformInterface.LoadOther("Fuel", fuelToAdd_kg);
-		}
-	}
+    assert(airstate != 0); // 断言airstate指针不为空，确保传入了一个有效的指针
+    tcAirObject* aircraft = airstate->obj; // 从airstate中获取指向飞机的指针
+    if ((aircraft != 0) && (airstate->current_location != HANGAR) && // 如果飞机指针不为空，且飞机当前位置不在机库
+        (!aircraft->IsOverweight()) && (!aircraft->IsRefueling())) // 并且飞机没有超重，也没有正在进行加油操作
+    {
+        float fuelMargin_kg = aircraft->GetFuelCapacity() - aircraft->fuel_kg; // 计算飞机的剩余燃油容量（千克）
+        float weightMargin_kg = aircraft->mpDBObject->maxTakeoffWeight_kg - aircraft->GetTotalWeight(); // 计算飞机的最大起飞重量与当前总重量之差（千克）
+        if ((fuelMargin_kg > 1.0f) && (weightMargin_kg > 10.0f)) // 如果剩余燃油容量大于1千克，且重量裕量大于10千克
+        {
+            unsigned long fuelToAdd_kg = (unsigned long)floorf(std::min(fuelMargin_kg, weightMargin_kg)); // 计算需要添加的燃油量（千克），取剩余燃油容量和重量裕量中的较小值，并向下取整
+            tcPlatformInterface platformInterface(aircraft); // 创建一个平台接口对象，用于与飞机进行交互
+            platformInterface.LoadOther("Fuel", fuelToAdd_kg); // 通过平台接口为飞机加载指定量的燃油
+        }
+    }
 }
 
 tcFlightPort::tcFlightPort() 

@@ -410,42 +410,56 @@ void tcAttackMission::TransformToAbsolutePatrolArea()
 * Update active status of aircraft
 * @param nActive set to number of active aircraft
 */
+/**
+* 更新飞机的活动状态
+* @param nActive 设置为活动飞机的数量
+*/
 void tcAttackMission::UpdateActiveAircraft(unsigned int& nActive)
 {
+    // 初始化活动飞机数量为0
     nActive = 0;
+    // 断言确保missionManager对象已初始化
     assert(missionManager != 0);
 
+    // 获取模拟状态对象
     tcSimState* simState = tcSimState::Get();
 
+    // 创建一个临时向量用于存储可能的活动飞机信息（这里实际上未使用，可能是为了后续扩展）
     std::vector<MissionAircraftInfo> temp;
+    // 遍历missionAircraft向量中的每一个元素
     for (size_t n=0; n<missionAircraft.size(); n++)
     {
+        // 如果当前飞机被标记为活动
         if (missionAircraft[n].active)
         {
-            // if aircraft is in the air, then keep it, otherwise remove
+            // 通过名称从模拟状态对象中获取对应的飞机对象，并进行动态类型转换
             tcAirObject* air = dynamic_cast<tcAirObject*>(simState->GetObjectByName(missionAircraft[n].name));
 
+            // 检查飞机是否在空中（即没有父对象）
             bool inAir = (air != 0) && (air->parent == 0);
+            // 检查飞机是否已降落在基地（即父对象是飞行港口）
             bool landedAtHome = (air != 0) && (air->parent == missionManager->GetFlightportParent());
 
+            // 如果飞机在空中但任务中包含“降落”任务，则将其标记为非活动
             if (inAir)
             {
-                ai::Brain* brain = air->GetBrain();
-                if (brain->TaskExists("Land"))
+                ai::Brain* brain = air->GetBrain(); // 获取飞机的AI大脑
+                if (brain->TaskExists("Land")) // 检查是否存在“降落”任务
                 {
-                    missionAircraft[n].active = false;
+                    missionAircraft[n].active = false; // 标记为非活动
                 }
             }
+            // 如果飞机已降落在基地，也将其标记为非活动
             else if (landedAtHome)
             {
-                missionAircraft[n].active = false;
+                missionAircraft[n].active = false; // 标记为非活动
             }
         }
 
+        // 如果当前飞机仍被标记为活动，则增加活动飞机计数器
         if (missionAircraft[n].active) nActive++;
     }
 }
-
 /**
 * Update mission parameters of in-flight aircraft to match mission
 */
@@ -735,19 +749,25 @@ unsigned int tcAttackMission::GetAirborneAircraftCount() const
 }
 
 /**
-* Gets vector of aircraft indices that are loaded and ready to launch for the mission
+* 获取已装载且准备好执行任务的飞机索引向量
 */
 void tcAttackMission::GetReadyAircraft(std::vector<unsigned int>& readyAircraft)
 {
+    // 清空readyAircraft向量，准备填充新的数据
     readyAircraft.clear();
 
+    // 遍历missionAircraft向量中的每一个元素
     for (size_t n=0; n<missionAircraft.size(); n++)
     {
+        // 通过飞机名称从missionManager中获取对应的飞机对象
         tcAirObject* aircraft = missionManager->GetAircraft(missionAircraft[n].name);
+        // 检查是否成功获取到飞机对象，并且该飞机当前未被标记为活动状态
         if ((aircraft != 0) && (!missionAircraft[n].active))
         {
+            // 检查飞机是否不在装载中、没有超重、不在加油中、并且没有在维护暂停状态
             if (!aircraft->IsLoading() && !aircraft->IsOverweight() && !aircraft->IsRefueling() && !aircraft->MaintenanceHold())
             {
+                // 如果上述条件都满足，将该飞机的索引添加到readyAircraft向量中
                 readyAircraft.push_back(n);
             }
         }
@@ -1007,99 +1027,126 @@ void tcAttackMission::SetTargetType(int val)
     targetType = val;
 }
 
-
 void tcAttackMission::Update(double t)
 {
+    // 确保missionManager不是空指针
     assert(missionManager != 0);
+    // 如果missionManager是空指针，则直接返回
     if (missionManager == 0) return;
 
+    // 更新相对位置信息
     UpdateRelativePosition();
+        // step 1, get aircraft for mission
+        // step 2, wait for launch time
+        // step 2, outfit aircraft
+        // step 3, create tasks for mission on each aircraft
+        // step 4, order launch of aircraft
+        // step 5, when all aircraft launched, wait until aircraft landed
+        // step 6, start over if target not destroyed
 
-    // step 1, get aircraft for mission
-    // step 2, wait for launch time
-    // step 2, outfit aircraft
-    // step 3, create tasks for mission on each aircraft
-    // step 4, order launch of aircraft
-    // step 5, when all aircraft launched, wait until aircraft landed
-    // step 6, start over if target not destroyed
-
+    // 获取当前模拟状态
     tcSimState* simState = tcSimState::Get();
 
+    // 初始化阶段，将阶段设置为等待
     if (stage == "init")
     {
         stage = "wait";
     }
+    // 等待阶段
     else if (stage == "wait")
     {
+        // 准备所有飞机
         ReadyAllAircraft();
 
-        // wait until at least <quantity> aircraft are ready
+        // 获取已经准备好的飞机列表
         std::vector<unsigned int> readyAircraft;
         GetReadyAircraft(readyAircraft);
         size_t nReady = readyAircraft.size();
 
+        // 获取当前时间
         tcDateTime currentTime = simState->GetDateTime();
+        // 如果准备好的飞机数量达到要求，当前时间超过发射时间，且任务类型已就绪，则进入发射阶段
         if ((nReady >= quantity) && (currentTime > launchTime) && MissionTypeIsReady())
         {
             stage = "launch";
         }
+        // 如果准备好的飞机数量不足，且当前任务飞机数量少于需求量的三倍，且允许自动添加，则尝试自动添加飞机
         else if ((nReady < quantity) && (missionAircraft.size() < 3*quantity) && autoAdd)
         {
+            // 计算需要添加的飞机数量
             size_t numberToAdd = size_t(quantity) - nReady;
+            // 获取可用的飞机列表
             std::vector<MissionAircraftInfo> candidates = missionManager->GetAvailableAircraft(targetType);
+            // 记录初始需求量，防止自动添加时需求量被错误增加
             unsigned int startQuantity = quantity;
+            // 遍历候选飞机列表，添加飞机
             for (size_t n=0; (n<numberToAdd)&&(n<candidates.size()); n++)
             {
                 AddMissionAircraft(candidates[n].name, candidates[n].role);
-                quantity = startQuantity; // hack to keep autoadd from increasing quantity
+                quantity = startQuantity; // 修正自动添加时可能改变的需求量
             }
         }
     }
+    // 发射阶段
     else if (stage == "launch")
     {
+        // 锁定任务，防止在发射过程中被修改
         isLocked = true;
 
+        // 获取已经准备好的飞机列表
         std::vector<unsigned int> readyAircraft;
         GetReadyAircraft(readyAircraft);
 
+        // 遍历准备好的飞机，上传任务信息并发射
         for (size_t k=0; (k<readyAircraft.size()) && (k < quantity); k++)
         {
             size_t n = readyAircraft[k];
 
+            // 获取飞机对象
             if (tcAirObject* air = missionManager->GetAircraft(missionAircraft[n].name))
             {
+                // 上传单位任务信息
                 UploadUnitMissionInfo(air);
 
-                // record loadout so we can reload the same for repeat missions
+                // 记录飞机的装备配置，以便重复任务时使用
                 missionAircraft[n].loadout = air->GetLoadoutCommand();
                 missionAircraft[n].active = true;
+                // 发射飞机
                 missionManager->LaunchAircraft(missionAircraft[n].id);
             }
         }
+        // 进入等待发射完成阶段
         stage = "waitlaunch";
     }
+    // 等待发射完成阶段
     else if (stage == "waitlaunch")
     {
-        // verify all aircraft have launched and end mission
+        // 验证所有飞机是否都已发射，如果是，则进入等待降落阶段
         if (AllMissionAircraftDeparted())
         {
             stage = "waitland";
         }
     }
+    // 等待降落阶段
     else if (stage == "waitland")
     {
-        // do following at slower update
+        // 如果更新间隔时间小于30秒，则直接返回
         double dt = t - lastUpdate;
         if (dt < 30.0) return;
+        // 更新最后更新时间
         lastUpdate = t;
 
+        // 移除不活动的飞机
         RemoveInactiveAircraft();
 
+        // 更新活动飞机的数量
         unsigned int nActive = 0;
         UpdateActiveAircraft(nActive);
 
+        // 准备所有飞机
         ReadyAllAircraft();
 
+        // 如果没有活动的飞机，且任务飞机列表为空或重复间隔小于等于0，则任务完成
         if (nActive == 0)
         {
             if ((missionAircraft.size() == 0) || (repeatInterval_hr <= 0))
@@ -1108,26 +1155,152 @@ void tcAttackMission::Update(double t)
             }
             else
             {
+                // 否则，进入重新装载阶段
                 stage = "reload";
             }
         }
     }
+    // 重新装载阶段
     else if (stage == "reload")
     {
-        // schedule next launch
+        // 解锁任务，允许修改
         isLocked = false;
+        // 计算下一次发射时间
         tcDateTime nextLaunch = launchTime;
         nextLaunch.AdjustTimeHours(repeatInterval_hr);
+        // 设置随机的发射时间窗口
         SetRandomLaunchTime(nextLaunch, launchWindow_min);
 
-        stage = "wait"; // loop back to wait stage for next mission
+        // 回到等待阶段，等待下一次任务
+        stage = "wait";
     }
 
+    // 如果任务完成，则结束任务
     if (stage == "complete")
     {
         EndMission();
     }
 }
+// void tcAttackMission::Update(double t)
+// {
+//     assert(missionManager != 0);
+//     if (missionManager == 0) return;
+
+//     UpdateRelativePosition();
+
+//     // step 1, get aircraft for mission
+//     // step 2, wait for launch time
+//     // step 2, outfit aircraft
+//     // step 3, create tasks for mission on each aircraft
+//     // step 4, order launch of aircraft
+//     // step 5, when all aircraft launched, wait until aircraft landed
+//     // step 6, start over if target not destroyed
+
+//     tcSimState* simState = tcSimState::Get();
+
+//     if (stage == "init")
+//     {
+//         stage = "wait";
+//     }
+//     else if (stage == "wait")
+//     {
+//         ReadyAllAircraft();
+
+//         // wait until at least <quantity> aircraft are ready
+//         std::vector<unsigned int> readyAircraft;
+//         GetReadyAircraft(readyAircraft);
+//         size_t nReady = readyAircraft.size();
+
+//         tcDateTime currentTime = simState->GetDateTime();
+//         if ((nReady >= quantity) && (currentTime > launchTime) && MissionTypeIsReady())
+//         {
+//             stage = "launch";
+//         }
+//         else if ((nReady < quantity) && (missionAircraft.size() < 3*quantity) && autoAdd)
+//         {
+//             size_t numberToAdd = size_t(quantity) - nReady;
+//             std::vector<MissionAircraftInfo> candidates = missionManager->GetAvailableAircraft(targetType);
+//             unsigned int startQuantity = quantity;
+//             for (size_t n=0; (n<numberToAdd)&&(n<candidates.size()); n++)
+//             {
+//                 AddMissionAircraft(candidates[n].name, candidates[n].role);
+//                 quantity = startQuantity; // hack to keep autoadd from increasing quantity
+//             }
+//         }
+//     }
+//     else if (stage == "launch")
+//     {
+//         isLocked = true;
+
+//         std::vector<unsigned int> readyAircraft;
+//         GetReadyAircraft(readyAircraft);
+
+//         for (size_t k=0; (k<readyAircraft.size()) && (k < quantity); k++)
+//         {
+//             size_t n = readyAircraft[k];
+
+//             if (tcAirObject* air = missionManager->GetAircraft(missionAircraft[n].name))
+//             {
+//                 UploadUnitMissionInfo(air);
+
+//                 // record loadout so we can reload the same for repeat missions
+//                 missionAircraft[n].loadout = air->GetLoadoutCommand();
+//                 missionAircraft[n].active = true;
+//                 missionManager->LaunchAircraft(missionAircraft[n].id);
+//             }
+//         }
+//         stage = "waitlaunch";
+//     }
+//     else if (stage == "waitlaunch")
+//     {
+//         // verify all aircraft have launched and end mission
+//         if (AllMissionAircraftDeparted())
+//         {
+//             stage = "waitland";
+//         }
+//     }
+//     else if (stage == "waitland")
+//     {
+//         // do following at slower update
+//         double dt = t - lastUpdate;
+//         if (dt < 30.0) return;
+//         lastUpdate = t;
+
+//         RemoveInactiveAircraft();
+
+//         unsigned int nActive = 0;
+//         UpdateActiveAircraft(nActive);
+
+//         ReadyAllAircraft();
+
+//         if (nActive == 0)
+//         {
+//             if ((missionAircraft.size() == 0) || (repeatInterval_hr <= 0))
+//             {
+//                 stage = "complete";
+//             }
+//             else
+//             {
+//                 stage = "reload";
+//             }
+//         }
+//     }
+//     else if (stage == "reload")
+//     {
+//         // schedule next launch
+//         isLocked = false;
+//         tcDateTime nextLaunch = launchTime;
+//         nextLaunch.AdjustTimeHours(repeatInterval_hr);
+//         SetRandomLaunchTime(nextLaunch, launchWindow_min);
+
+//         stage = "wait"; // loop back to wait stage for next mission
+//     }
+
+//     if (stage == "complete")
+//     {
+//         EndMission();
+//     }
+// }
 
 /**
 * Attempt to reload and ready all aircraft that aren't active or currently ready

@@ -122,29 +122,29 @@ public:
 	virtual ~tcAttackMission();
 
 protected:
-//    std::chrono::system_clock::time_point earliestLaunchTime;
-   tcDateTime earliestLaunchTime; ///< earliest time for random launch
-    float launchWindow_min; ///< randomly pick a time between earliest and earliest + launchWindow
-//    tcDateTime launchTime; // actual time to start launching mission aircraft
-   tcDateTime launchTime;
+    //    std::chrono::system_clock::time_point earliestLaunchTime; // 这行代码被注释掉了，原本用于定义最早发射时间的系统时钟时间点
+    tcDateTime earliestLaunchTime; ///< 最早随机发射时间
+    float launchWindow_min; ///< 在最早发射时间和最早发射时间加上发射窗口之间的时间范围内随机选择一个时间
+    //    tcDateTime launchTime; // 这行代码被注释掉了，原本用于表示实际开始发射任务飞机的时间
+    tcDateTime launchTime; ///< 实际开始发射任务飞机的时间
 
-    float repeatInterval_hr; ///< 0 for no repeat, number of hours after launch to re-launch mission
+    float repeatInterval_hr; ///< 如果没有设置重复，则为0；表示发射后多少小时重新发射任务
 
-	unsigned int quantity; // number aircraft for mission
-    int targetType; ///< derived
-	bool autoAdd; ///< automatically add aircraft based on target type
+    unsigned int quantity; ///< 执行任务所需的飞机数量
+    int targetType; ///< 派生出的目标类型
+    bool autoAdd; ///< 是否根据目标类型自动添加飞机
 
-    float targetLon_rad;
-    float targetLat_rad;
-    std::string landingTarget; ///< unit to land on
-    std::vector<GeoPoint> patrolArea; ///< patrol area
-    std::string patrolAnchorUnit;
-    int patrolAnchorMode; ///< enum {NO_ANCHOR=0, NORTH_ANCHOR=1, HEADING_ANCHOR=2};
-    std::string missionType; // type string to pass info to script mission planner template
+    float targetLon_rad; ///< 目标经度（弧度制）
+    float targetLat_rad; ///< 目标纬度（弧度制）
+    std::string landingTarget; ///< 着陆单位
+    std::vector<GeoPoint> patrolArea; ///< 巡逻区域，包含多个地理坐标点
+    std::string patrolAnchorUnit; ///< 巡逻锚点单位
+    int patrolAnchorMode; ///< 枚举类型 {NO_ANCHOR=0, NORTH_ANCHOR=1, HEADING_ANCHOR=2}；表示没有锚点、以正北为锚点、以当前航向为锚点
+    std::string missionType; ///< 类型字符串，用于向脚本任务规划模板传递信息
 
-    // keep route relative to host platform if patrolAnchorMode != 0
-    GeoPoint referencePosition;
-    float referenceHeading_rad;
+    // 如果patrolAnchorMode不为0，则使路线相对于主机平台
+    GeoPoint referencePosition; ///< 参考位置
+    float referenceHeading_rad; ///< 参考航向（弧度制）
 
     virtual void AddMissionAircraft(const std::string& name, const std::string& role);
     virtual void RemoveMissionAircraft(const std::string& name);

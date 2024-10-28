@@ -236,88 +236,93 @@ bool tcAirObject::IsTanker() const
 /**
 * If overweight, automatically lighten load to reduce weight
 */
+/**
+* 如果超重，则自动减轻负载以减重
+*/
 void tcAirObject::LightenLoad()
 {
-    const float defuelThreshold = 0.15; // defuel up to this fraction of INTERNAL fuel load to lighten weight
+    const float defuelThreshold = 0.15; // 定义一个阈值，表示为了减重可以卸载的内部燃油量的最大比例
 
-    if (IsLoading() || IsRefueling()) return; // wait for current load or fuel op to finish
+    // 如果当前正在进行装载或加油操作，则等待其完成
+    if (IsLoading() || IsRefueling()) return;
 
+    // 尝试将父对象转换为tcPlatformObject类型，如果转换失败（即父对象不是平台对象），则进行错误处理
     tcPlatformObject* parentPlatform = dynamic_cast<tcPlatformObject*>(parent);
     if (parentPlatform == 0)
     {
-        fprintf(stderr, "tcAirObject::LightenLoad - no host platform (%s)\n", 
-            GetName());
-        assert(false);
-        return; // not landed or docked, or parent is not tcPlatformObject
+        // 输出错误信息，表示没有找到宿主平台
+        fprintf(stderr, "tcAirObject::LightenLoad - no host platform (%s)\n",
+                GetName());
+        assert(false); // 断言失败，表示程序状态不正确
+        return; // 如果没有宿主平台，则无法减重，直接返回
     }
 
+    // 计算超重量
     float excessWeight_kg = GetTotalWeight() - mpDBObject->maxTakeoffWeight_kg;
-    if (excessWeight_kg <= 0) return;
+    if (excessWeight_kg <= 0) return; // 如果没有超重，则直接返回
 
-
-
-
-    // defuel a little if that fixes it
+    // 如果超重量小于内部燃油容量的阈值，则尝试通过卸载燃油来减重
     if (excessWeight_kg < (defuelThreshold*mpDBObject->GetInternalFuelCapacity()))
     {
-        size_t nMagazines = parentPlatform->GetMagazineCount();
-        bool searching = true;
-        for (size_t n=0; (n<nMagazines) && searching; n++)
+        size_t nMagazines = parentPlatform->GetMagazineCount(); // 获取宿主平台的弹药库数量
+        bool searching = true; // 标记是否仍在搜索可卸载的弹药库
+        for (size_t n=0; (n<nMagazines) && searching; n++) // 遍历所有弹药库
         {
-            tcStores* mag = parentPlatform->GetMagazine(n);
-            if (mag->IsCompatible("Fuel"))
+            tcStores* mag = parentPlatform->GetMagazine(n); // 获取当前弹药库
+            if (mag->IsCompatible("Fuel")) // 如果弹药库兼容燃油
             {
+                // 尝试从弹药库中卸载指定量的燃油（超重量+1，确保能完全卸载超重量）
                 bool result = mag->UnloadOther("Fuel", (unsigned long)(excessWeight_kg)+1, this);
-                searching = false;
-                if (result) return;
+                searching = false; // 无论是否成功，都停止搜索
+                if (result) return; // 如果成功卸载，则直接返回
             }
         }
     }
 
-    // try to unload one of the heaviest weapons or fuel tanks
-    size_t nLaunchers = GetLauncherCount();
+    // 如果无法通过卸载燃油来减重，则尝试卸载最重的武器或燃油箱
+    size_t nLaunchers = GetLauncherCount(); // 获取发射器数量
 
-    int heaviestIdx = -1;
-    float heaviestItem_kg = 1e9f;
-    for (size_t n=0; n<nLaunchers; n++)
+    int heaviestIdx = -1; // 最重物品的索引，初始化为-1表示未找到
+    float heaviestItem_kg = 1e9f; // 最重物品的重量，初始化为一个很大的数
+    for (size_t n=0; n<nLaunchers; n++) // 遍历所有发射器
     {
-        const tcLauncher* launcher = GetLauncher(n);
-        float itemWeight_kg = launcher->GetItemWeight();
+        const tcLauncher* launcher = GetLauncher(n); // 获取当前发射器
+        float itemWeight_kg = launcher->GetItemWeight(); // 获取当前发射器内物品的重量
+        // 尝试将发射器的子对象转换为武器或燃油箱数据对象
         tcWeaponDBObject* weaponData = dynamic_cast<tcWeaponDBObject*>(launcher->mpChildDBObj);
         tcFuelTankDBObject* tankData = dynamic_cast<tcFuelTankDBObject*>(launcher->mpChildDBObj);
-        if ((launcher->mnCurrent > 0) && (itemWeight_kg < heaviestItem_kg) && 
+        // 如果发射器内有物品，且当前物品比已知最重物品轻（注意这里的逻辑是找最“轻”的重物，即排除更重的），且物品是武器或燃油箱
+        if ((launcher->mnCurrent > 0) && (itemWeight_kg < heaviestItem_kg) &&
             ((weaponData != 0) || (tankData != 0)))
         {
-            heaviestItem_kg = itemWeight_kg;
-            heaviestIdx = int(n);
+            heaviestItem_kg = itemWeight_kg; // 更新最重物品的重量
+            heaviestIdx = int(n); // 更新最重物品的索引
         }
     }
 
+    // 如果找到了最重的物品，则尝试将其卸载到弹药库中
     if (heaviestIdx >= 0)
     {
-        // find a mag that will accept unload, and schedule unload
-        const tcLauncher* launcher = GetLauncher(heaviestIdx);
-        assert(launcher != 0);
-        std::string itemName = launcher->GetChildClassName();
-        
-        size_t nMagazines = parentPlatform->GetMagazineCount();
-        for (size_t n=0; n<nMagazines; n++)
+        const tcLauncher* launcher = GetLauncher(heaviestIdx); // 获取最重物品的发射器
+        assert(launcher != 0); // 断言发射器不为空
+        std::string itemName = launcher->GetChildClassName(); // 获取最重物品的类型名称
+
+        size_t nMagazines = parentPlatform->GetMagazineCount(); // 再次获取宿主平台的弹药库数量
+        for (size_t n=0; n<nMagazines; n++) // 遍历所有弹药库
         {
-            tcStores* mag = parentPlatform->GetMagazine(n);
-            if (mag->CanUnloadThisObject(this) && (mag->IsCompatible(itemName)))
+            tcStores* mag = parentPlatform->GetMagazine(n); // 获取当前弹药库
+            if (mag->CanUnloadThisObject(this) && (mag->IsCompatible(itemName))) // 如果弹药库可以接收当前对象，且兼容最重物品的类型
             {
+                // 尝试从发射器中卸载一个最重物品到弹药库
                 bool result = mag->UnloadLauncher(heaviestIdx, this, 1);
                 if (result)
                 {
-                    return;
+                    return; // 如果成功卸载，则直接返回
                 }
             }
         }
     }
-
-
 }
-
 
 void tcAirObject::Clear()  
 {  
