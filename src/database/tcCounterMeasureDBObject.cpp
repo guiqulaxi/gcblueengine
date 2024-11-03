@@ -31,12 +31,11 @@
 
 #include "tcCounterMeasureDBObject.h"
 #include "math_constants.h"
-#include "randfn.h"
-#include "CsvTranslator.h"
-#include "tinyxml2.h"
 #include "database/tcSqlReader.h"
 #include <sstream>
 #include <cassert>
+#include "tcAirCM.h"
+#include "tcWaterCM.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -121,7 +120,7 @@ namespace database
         CalculateParams();
     }
 
-    void tcCounterMeasureDBObject::WriteSql(std::string& valueString)
+    void tcCounterMeasureDBObject::WriteSql(std::string& valueString) const
     {
         tcDatabaseObject::WriteSql(valueString);
 
@@ -170,6 +169,19 @@ namespace database
 
     tcCounterMeasureDBObject::~tcCounterMeasureDBObject() 
     {
+    }
+
+    tcGameObject *tcCounterMeasureDBObject::CreateGameObject()
+    {
+        if (this->mnModelType == MTYPE_AIRCM)
+        {
+            return new tcAirCM(this);
+        }
+        else
+        {
+            assert(this->mnModelType == MTYPE_WATERCM);
+            return new tcWaterCM(this);
+        }
     }
 
 }

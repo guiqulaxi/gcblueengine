@@ -48,6 +48,7 @@ namespace database
         tcSimpleAirDBObject();
         tcSimpleAirDBObject(const tcSimpleAirDBObject& obj); ///< copy constructor
         virtual ~tcSimpleAirDBObject();
+        virtual tcGameObject* CreateGameObject() override;///<创建平台
 	private:
 		
 

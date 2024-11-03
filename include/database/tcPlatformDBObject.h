@@ -40,7 +40,7 @@
 //#include <tc3DModel.h>
 using Eigen::Vector2d;
 struct animationDBInfo;
-
+class tcGameObject;
 
 namespace database
 {
@@ -107,11 +107,12 @@ namespace database
         
 		static void AddSqlColumns(std::string& columnString);
 		void ReadSql(tcSqlReader& entry);
-		void WriteSql(std::string& valueString);
+        void WriteSql(std::string& valueString) const;
 
         tcPlatformDBObject();
         tcPlatformDBObject(const tcPlatformDBObject& obj); ///< copy constructor
         virtual ~tcPlatformDBObject();
+
 	protected:
 		float fuelConsumptionConstant; ///< = (fuel rate / max speed)
 		float invMaxSpeed; ///< 1/max_speed

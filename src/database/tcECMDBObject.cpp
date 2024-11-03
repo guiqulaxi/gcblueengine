@@ -100,7 +100,7 @@ void tcECMDBObject::ReadSql(tcSqlReader& entry)
 	isEffectiveVsSeeker = entry.GetInt("IsEffectiveVsSeeker") != 0;
 }
 
-void tcECMDBObject::WriteSql(std::string& valueString)
+void tcECMDBObject::WriteSql(std::string& valueString) const
 {
 	tcSensorDBObject::WriteSql(valueString);
 

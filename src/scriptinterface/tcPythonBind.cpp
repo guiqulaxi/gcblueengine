@@ -1,9 +1,7 @@
-#include <pybind11-global/pybind11/pybind11.h>
-#include <pybind11-global/pybind11/eval.h>
-#include <pybind11-global/pybind11/embed.h>
+#include "tcPythonBind.h"
+
 #include <ScriptedTaskInterface.h>
 #include "tcFlightPortInterface.h"
-#include "BlackboardItem.h"
 #include "tcPlatformInterface.h"
 #include "tcMissionInterface.h"
 #include "tcGroupInterface.h"
@@ -11,12 +9,15 @@
 #include "BlackboardInterface.h"
 #include "tcWeaponInterface.h"
 #include "tcScenarioInterface.h"
+#include "BlackboardItem.h"
 #include "tcGoal.h"
-using namespace scriptinterface ;
-namespace py = pybind11;
-using namespace py;
+using namespace scriptinterface;
+
 //内嵌模块
 PYBIND11_EMBEDDED_MODULE(gcblue, m) {
+    BindDBObject(m);
+    BindDatabase(m);
+
     py::class_<tcFlightUnitStatus>(m, "FlightUnitStatus")
         .def_readonly("name", &tcFlightUnitStatus::unit_name)
         .def_readonly("current_loc", &tcFlightUnitStatus::current_loc)

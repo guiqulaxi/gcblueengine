@@ -112,7 +112,7 @@ void tcSignatureModel::ReadSql(tcSqlReader& entry)
     
 }
 
-void tcSignatureModel::WriteSql(std::string& valueString)
+void tcSignatureModel::WriteSql(std::string& valueString) const
 {
 	std::stringstream s;
 

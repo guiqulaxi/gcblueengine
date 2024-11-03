@@ -266,7 +266,7 @@ namespace database
         //firingArc_deg = entry.GetDouble("FiringArc_deg");	
 	}
 
-	void tcLauncherDBObject::WriteSql(std::string& valueString)
+    void tcLauncherDBObject::WriteSql(std::string& valueString) const
 	{
         assert(false); // no longer using this table (for now 13Jun2009)
 		tcDatabaseObject::WriteSql(valueString);

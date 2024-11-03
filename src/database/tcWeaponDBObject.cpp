@@ -111,7 +111,7 @@ namespace database
 		payloadQuantity = std::max(std::min(payloadQuantity, (unsigned int)16), (unsigned int)1);
     }
 
-    void tcWeaponDBObject::WriteSql(std::string& valueString)
+    void tcWeaponDBObject::WriteSql(std::string& valueString) const
     {
         tcDatabaseObject::WriteSql(valueString);
 

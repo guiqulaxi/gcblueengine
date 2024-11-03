@@ -147,7 +147,7 @@ void tcOpticalDBObject::ReadSql(tcSqlReader& entry)
     if (rangeError <= 0) rangeError = 1.5f; // 0 previously interpreted as active sensor with perfect range, now 0 < x <= 1 is passive, > 1 is active
 }
 
-void tcOpticalDBObject::WriteSql(std::string& valueString)
+void tcOpticalDBObject::WriteSql(std::string& valueString) const
 {
 	tcSensorDBObject::WriteSql(valueString);
 
@@ -167,7 +167,7 @@ void tcOpticalDBObject::WriteSql(std::string& valueString)
 
 	valueString += s.str();
 
-    if (rangeError <= 0) rangeError = 1.5f; // 0+ to 1 interpreted as fractional range error, > 1 as absolute error
+    //if (rangeError <= 0) rangeError = 1.5f; // 0+ to 1 interpreted as fractional range error, > 1 as absolute error
 
 }
 

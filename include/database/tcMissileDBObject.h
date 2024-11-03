@@ -132,7 +132,7 @@ namespace database
 
       /// flight profile, array of flight segment info
       unsigned mnNumSegments;
-      tsMissileFlightSegment maFlightProfile[MAX_MISSILE_FLIGHT_SEGMENTS];   
+      std::array<tsMissileFlightSegment,MAX_MISSILE_FLIGHT_SEGMENTS>  maFlightProfile;
 
       virtual const char* GetClassName() const {return "Missile";} ///< returns class name of database object
       teWeaponLaunchMode GetLaunchMode() const;
@@ -149,13 +149,15 @@ namespace database
 
 	  static void AddSqlColumns(std::string& columnString);
 	  void ReadSql(tcSqlReader& entry);
-	  void WriteSql(std::string& valueString);
+      void WriteSql(std::string& valueString) const;
 
       void CalculateParams();
 
       tcMissileDBObject();
       tcMissileDBObject(const tcMissileDBObject& obj); ///< copy constructor
       virtual ~tcMissileDBObject();
+      virtual  tcGameObject *CreateGameObject() override;
+
    };
 
 }

@@ -31,14 +31,14 @@ public:
 
     static void AddSqlColumns(std::string& columnString);
     void ReadSql(tcSqlReader& entry);
-    void WriteSql(std::string& valueString);
+    void WriteSql(std::string& valueString) const;
 
 
 
     tcSpaceDBObject();
     tcSpaceDBObject(const tcSpaceDBObject& obj); ///< copy constructor
     virtual ~tcSpaceDBObject();
-
+virtual tcGameObject *CreateGameObject() override;
 private:
     void CalculateParams();
 

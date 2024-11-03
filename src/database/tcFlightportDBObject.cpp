@@ -111,7 +111,7 @@ namespace database
 
     }
 
-    void tcFlightportDBObject::WriteSql(std::string& valueString)
+    void tcFlightportDBObject::WriteSql(std::string& valueString) const
     {
         tcDatabaseObject::WriteSql(valueString);
 

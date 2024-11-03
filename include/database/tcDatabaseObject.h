@@ -30,15 +30,15 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-////#include "wx/wx.h" 
+////#include "wx/wx.h"
 
-#include "tcString.h"
+
 #include "tcFile.h"
 #include "tcDBString.h"
 #include "gctypes.h"
 #include <memory>
 #include <vector>
-
+class tcGameObject;
 //#include <wx/string.h>
 
 class tcGeometry;
@@ -168,8 +168,8 @@ void ClassificationToString(UINT16 anType, char *azString);
         virtual teWeaponLaunchMode GetLaunchMode() const;
 
 		static void AddSqlColumns(std::string& columnString);
-		void ReadSql(tcSqlReader& entry);
-		void WriteSql(std::string& valueString);
+        virtual void ReadSql(tcSqlReader& entry);
+        virtual void WriteSql(std::string& valueString)const;
 
         static const char* CostToString(float cost_);
         static bool displayNATO; ///< true to display NATO/ASCC names
@@ -178,6 +178,7 @@ void ClassificationToString(UINT16 anType, char *azString);
         tcDatabaseObject(const tcDatabaseObject& obj); ///< copy constructor
         tcDatabaseObject(const std::string& databaseClass);
         virtual ~tcDatabaseObject();
+         virtual tcGameObject* CreateGameObject();///<创建平台
     protected:
         static tcDatabase *database; ///< allows db objects to query for other db objects
 //        tc3DModel *model;

@@ -146,7 +146,7 @@ namespace database
         CalculateParams();
     }
 
-    void tcSonarDBObject::WriteSql(std::string& valueString)
+    void tcSonarDBObject::WriteSql(std::string& valueString) const
     {
         tcSensorDBObject::WriteSql(valueString);
 

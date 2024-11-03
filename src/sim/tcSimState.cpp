@@ -2252,152 +2252,156 @@ void tcSimState::AddLaunchedPlatform(long newKey, tcGameObject* launchingPlatfor
 * Factory method to create new objects from a database object.
 * Recently reworked this so that game objects initialize themselves.
 */
-tcGameObject* tcSimState::CreateGameObject(tcDatabaseObject *apDBObject) 
+tcGameObject* tcSimState::CreateGameObject(tcDatabaseObject *apDBObject)
 {
-    if (apDBObject == 0) {return 0;}
-
-    // make sure more specialized classes are tested first to avoid
-    // accidental upcast
-    if (tcJetDBObject *pAirData = dynamic_cast<tcJetDBObject*>(apDBObject))
-    {
-        return new tcAeroAirObject(pAirData);
-    }
-    else if (tcSubDBObject* subData = dynamic_cast<tcSubDBObject*>(apDBObject))
-    {
-        return new tcSubObject(subData);
-    }
-    else if (tcShipDBObject* shipData = dynamic_cast<tcShipDBObject*>(apDBObject))
-    {
-        /* these types are defined in tcDatabase.h */
-        switch (apDBObject->mnModelType)
-        {
-        case MTYPE_CARRIER:
-        {
-            if (mpDatabase->GetObject(shipData->flightportClass.c_str()) != 0)
-            {
-                return new tcCarrierObject(shipData);
-            }
-            else
-            {
-                std::string msg = strutil::format("Error creating carrier type surface ship (%s), reverting to non-carrier model. Invalid flightport class (%s). Check database.",
-                                                  shipData->mzClass.c_str(), shipData->flightportClass.c_str());
-                fprintf(stderr, "%s\n", msg.c_str());
-#ifdef _DEBUG
-                //wxMessageBox(msg, "Object Create Error");
-#endif
-                return new tcSurfaceObject(shipData);
-            }
-        }
-            break;
-        case MTYPE_SURFACE:
-            return new tcSurfaceObject(shipData);
-            break;
-        default:
-            fprintf(stderr, "tcSimState::CreateGameObject - "
-                            "Invalid model type for Ship DB obj (%d)\n", apDBObject->mnModelType);
-            return 0;
-        }
-    }
-    else if (tcSimpleAirDBObject* airData = dynamic_cast<tcSimpleAirDBObject*>(apDBObject))
-    {
-        /* these types are defined in tcDatabase.h */
-        switch (apDBObject->mnModelType)
-        {
-        case MTYPE_FIXEDWING:
-        case MTYPE_AIR:
-            return new tcAirObject(airData);
-            break;
-        case MTYPE_HELO:
-            return new tcHeloObject(airData);
-            break;
-        default:
-            fprintf(stderr, "tcSimState::CreateGameObject - "
-                            "Invalid model type for Simple Air DB obj (%d)\n", apDBObject->mnModelType);
-            return NULL;
-        }
-    }
-    else if (tcGroundDBObject* groundData = dynamic_cast<tcGroundDBObject*>(apDBObject))
-    {
-        /* these types are defined in tcDatabase.h */
-        switch (apDBObject->mnModelType)
-        {
-        case MTYPE_AIRFIELD:
-            return new tcAirfieldObject(groundData);
-            break;
-        case MTYPE_FIXED:
-            return new tcGroundObject(groundData);
-            break;
-
-        case MTYPE_GROUNDVEHICLE:
-            return new tcGroundVehicleObject(groundData);
-            break;
-        default:
-            fprintf(stderr, "tcSimState::CreateGameObject - "
-                            "Invalid model type for ground DB obj (%d)\n", apDBObject->mnModelType);
-            return NULL;
-        }
-    }
-    else if (tcMissileDBObject *pMissileData = dynamic_cast<tcMissileDBObject*>(apDBObject))
-    {
-        return new tcMissileObject(pMissileData);
-    }
-    else if (tcTorpedoDBObject *torpData = dynamic_cast<tcTorpedoDBObject*>(apDBObject))
-    {
-        return new tcTorpedoObject(torpData);
-    }
-    else if (tcBallisticDBObject* ballisticData = dynamic_cast<tcBallisticDBObject*>(apDBObject))
-    {
-        switch (apDBObject->mnModelType)
-        {
-        case MTYPE_LASERGUIDEDBOMB:
-        {
-            return new tcGuidedBomb(ballisticData);
-        }
-            break;
-        case MTYPE_ROCKET:
-        {
-            return new tcRocket(ballisticData);
-        }
-            break;
-        default:
-        {
-            return new tcBallisticWeapon(ballisticData);
-        }
-            break;
-        }
-    }
-    else if (tcSonobuoyDBObject* sonobuoyData = dynamic_cast<tcSonobuoyDBObject*>(apDBObject))
-    {
-        return new tcSonobuoy(sonobuoyData);
-    }
-    else if (tcCounterMeasureDBObject* cmData = dynamic_cast<tcCounterMeasureDBObject*>(apDBObject))
-    {
-        if (apDBObject->mnModelType == MTYPE_AIRCM)
-        {
-            return new tcAirCM(cmData);
-        }
-        else
-        {
-            assert(apDBObject->mnModelType == MTYPE_WATERCM);
-            return new tcWaterCM(cmData);
-        }
-    }
-    else if (tcBallisticMissileDBObject* bmData = dynamic_cast<tcBallisticMissileDBObject*>(apDBObject))
-    {
-        return new tcBallisticMissile(bmData);
-    }
-    else if(tcSpaceDBObject *spData=dynamic_cast<tcSpaceDBObject*>(apDBObject))
-    {
-        return new tcSpaceObject(spData);
-    }
-
-    else
-    {
-        assert(false);
-        WTL("Error - tcSimState::CreateGameObject - Unrecognized database object");
-        return NULL;
-    }
+    apDBObject->CreateGameObject();
 }
+// tcGameObject* tcSimState::CreateGameObject(tcDatabaseObject *apDBObject)
+// {
+//     if (apDBObject == 0) {return 0;}
+
+//     // make sure more specialized classes are tested first to avoid
+//     // accidental upcast
+//     if (tcJetDBObject *pAirData = dynamic_cast<tcJetDBObject*>(apDBObject))
+//     {
+//         return new tcAeroAirObject(pAirData);
+//     }
+//     else if (tcSubDBObject* subData = dynamic_cast<tcSubDBObject*>(apDBObject))
+//     {
+//         return new tcSubObject(subData);
+//     }
+//     else if (tcShipDBObject* shipData = dynamic_cast<tcShipDBObject*>(apDBObject))
+//     {
+//         /* these types are defined in tcDatabase.h */
+//         switch (apDBObject->mnModelType)
+//         {
+//         case MTYPE_CARRIER:
+//         {
+//             if (mpDatabase->GetObject(shipData->flightportClass.c_str()) != 0)
+//             {
+//                 return new tcCarrierObject(shipData);
+//             }
+//             else
+//             {
+//                 std::string msg = strutil::format("Error creating carrier type surface ship (%s), reverting to non-carrier model. Invalid flightport class (%s). Check database.",
+//                                                   shipData->mzClass.c_str(), shipData->flightportClass.c_str());
+//                 fprintf(stderr, "%s\n", msg.c_str());
+// #ifdef _DEBUG
+//                 //wxMessageBox(msg, "Object Create Error");
+// #endif
+//                 return new tcSurfaceObject(shipData);
+//             }
+//         }
+//             break;
+//         case MTYPE_SURFACE:
+//             return new tcSurfaceObject(shipData);
+//             break;
+//         default:
+//             fprintf(stderr, "tcSimState::CreateGameObject - "
+//                             "Invalid model type for Ship DB obj (%d)\n", apDBObject->mnModelType);
+//             return 0;
+//         }
+//     }
+//     else if (tcSimpleAirDBObject* airData = dynamic_cast<tcSimpleAirDBObject*>(apDBObject))
+//     {
+//         /* these types are defined in tcDatabase.h */
+//         switch (apDBObject->mnModelType)
+//         {
+//         case MTYPE_FIXEDWING:
+//         case MTYPE_AIR:
+//             return new tcAirObject(airData);
+//             break;
+//         case MTYPE_HELO:
+//             return new tcHeloObject(airData);
+//             break;
+//         default:
+//             fprintf(stderr, "tcSimState::CreateGameObject - "
+//                             "Invalid model type for Simple Air DB obj (%d)\n", apDBObject->mnModelType);
+//             return NULL;
+//         }
+//     }
+//     else if (tcGroundDBObject* groundData = dynamic_cast<tcGroundDBObject*>(apDBObject))
+//     {
+//         /* these types are defined in tcDatabase.h */
+//         switch (apDBObject->mnModelType)
+//         {
+//         case MTYPE_AIRFIELD:
+//             return new tcAirfieldObject(groundData);
+//             break;
+//         case MTYPE_FIXED:
+//             return new tcGroundObject(groundData);
+//             break;
+
+//         case MTYPE_GROUNDVEHICLE:
+//             return new tcGroundVehicleObject(groundData);
+//             break;
+//         default:
+//             fprintf(stderr, "tcSimState::CreateGameObject - "
+//                             "Invalid model type for ground DB obj (%d)\n", apDBObject->mnModelType);
+//             return NULL;
+//         }
+//     }
+//     else if (tcMissileDBObject *pMissileData = dynamic_cast<tcMissileDBObject*>(apDBObject))
+//     {
+//         return new tcMissileObject(pMissileData);
+//     }
+//     else if (tcTorpedoDBObject *torpData = dynamic_cast<tcTorpedoDBObject*>(apDBObject))
+//     {
+//         return new tcTorpedoObject(torpData);
+//     }
+//     else if (tcBallisticDBObject* ballisticData = dynamic_cast<tcBallisticDBObject*>(apDBObject))
+//     {
+//         switch (apDBObject->mnModelType)
+//         {
+//         case MTYPE_LASERGUIDEDBOMB:
+//         {
+//             return new tcGuidedBomb(ballisticData);
+//         }
+//             break;
+//         case MTYPE_ROCKET:
+//         {
+//             return new tcRocket(ballisticData);
+//         }
+//             break;
+//         default:
+//         {
+//             return new tcBallisticWeapon(ballisticData);
+//         }
+//             break;
+//         }
+//     }
+//     else if (tcSonobuoyDBObject* sonobuoyData = dynamic_cast<tcSonobuoyDBObject*>(apDBObject))
+//     {
+//         return new tcSonobuoy(sonobuoyData);
+//     }
+//     else if (tcCounterMeasureDBObject* cmData = dynamic_cast<tcCounterMeasureDBObject*>(apDBObject))
+//     {
+//         if (apDBObject->mnModelType == MTYPE_AIRCM)
+//         {
+//             return new tcAirCM(cmData);
+//         }
+//         else
+//         {
+//             assert(apDBObject->mnModelType == MTYPE_WATERCM);
+//             return new tcWaterCM(cmData);
+//         }
+//     }
+//     else if (tcBallisticMissileDBObject* bmData = dynamic_cast<tcBallisticMissileDBObject*>(apDBObject))
+//     {
+//         return new tcBallisticMissile(bmData);
+//     }
+//     else if(tcSpaceDBObject *spData=dynamic_cast<tcSpaceDBObject*>(apDBObject))
+//     {
+//         return new tcSpaceObject(spData);
+//     }
+
+//     else
+//     {
+//         assert(false);
+//         WTL("Error - tcSimState::CreateGameObject - Unrecognized database object");
+//         return NULL;
+//     }
+// }
 
 /**
 * Removes game object from simulation

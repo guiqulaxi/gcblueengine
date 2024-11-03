@@ -32,11 +32,10 @@
 #include "tcShipDBObject.h"
 #include "tcDatabase.h"
 #include "tcFlightportDBObject.h"
-#include "math_constants.h"
-#include "randfn.h"
+
 #include "database/tcSqlReader.h"
 #include <sstream>
-
+#include "tcCarrierObject.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -48,7 +47,7 @@ namespace database
 
 tcDatabaseObject* tcShipDBObject::AsDatabaseObject()
 {
-	return this;
+    return this;
 }
 
 void tcShipDBObject::CalculateParams()
@@ -58,38 +57,38 @@ void tcShipDBObject::CalculateParams()
 
 tcFlightportDBObject* tcShipDBObject::GetFlightport()
 {
-	tcFlightportDBObject* flightport = dynamic_cast<tcFlightportDBObject*>
+    tcFlightportDBObject* flightport = dynamic_cast<tcFlightportDBObject*>
         (database->GetObject(flightportClass.c_str()));
 
     if (!flightport)
-	{
-		fprintf(stderr, "Error - Class: %s - flightport (%s) not found\n",
-			mzClass.c_str(), flightportClass.c_str());
-	}
-	return flightport;
+    {
+        fprintf(stderr, "Error - Class: %s - flightport (%s) not found\n",
+                mzClass.c_str(), flightportClass.c_str());
+    }
+    return flightport;
 }
 
 float tcShipDBObject::GetFuelConsumptionConstant(float speed_kts) const
 {
-	// Fuel burn penalty:
-	// penalty = 0 for speed <= 2/3 max, above 2/3 penalty increases to 2 at max speed
-	float excess_speed_penalty = 6.0 * ((speed_kts * invMaxSpeed) - 0.67f); 
+    // Fuel burn penalty:
+    // penalty = 0 for speed <= 2/3 max, above 2/3 penalty increases to 2 at max speed
+    float excess_speed_penalty = 6.0 * ((speed_kts * invMaxSpeed) - 0.67f);
 
-	if (excess_speed_penalty < 0)
-	{
-		return fuelConsumptionConstant;
-	}
-	else
-	{
-		return fuelConsumptionConstant * (1.0 + excess_speed_penalty);
-	}
+    if (excess_speed_penalty < 0)
+    {
+        return fuelConsumptionConstant;
+    }
+    else
+    {
+        return fuelConsumptionConstant * (1.0 + excess_speed_penalty);
+    }
 }
 
 void tcShipDBObject::PrintToFile(tcFile& file) 
 {
-   tcString s;
-   
-   tcPlatformDBObject::PrintToFile(file);
+    tcString s;
+
+    tcPlatformDBObject::PrintToFile(file);
 }
 
 
@@ -99,34 +98,34 @@ void tcShipDBObject::PrintToFile(tcFile& file)
 */
 void tcShipDBObject::AddSqlColumns(std::string& columnString)
 {
-	tcPlatformDBObject::AddSqlColumns(columnString);
-	
-	columnString += ",";
+    tcPlatformDBObject::AddSqlColumns(columnString);
+
+    columnString += ",";
 
     columnString += "Draft_m real,";
 
-	columnString += "Length_m real";
-	columnString += "Beam_m real";
-	columnString += "PowerPlantType text";
-	columnString += "TotalShaft_HP real";
-	columnString += "ExhaustStacks real";
-	columnString += "PropulsionShafts real";
-	columnString += "PropulsiveEfficiency real";
-	columnString += "CivilianPaintScheme real";
-	columnString += "FlashyPaintScheme real";
+    columnString += "Length_m real";
+    columnString += "Beam_m real";
+    columnString += "PowerPlantType text";
+    columnString += "TotalShaft_HP real";
+    columnString += "ExhaustStacks real";
+    columnString += "PropulsionShafts real";
+    columnString += "PropulsiveEfficiency real";
+    columnString += "CivilianPaintScheme real";
+    columnString += "FlashyPaintScheme real";
     columnString += "FlightportClass varchar(30)";
     
 
     tcAirDetectionDBObject::AddSqlColumns(columnString);
 
     tcWaterDetectionDBObject::AddSqlColumns(columnString);
-	
+
 
 }
 
 void tcShipDBObject::ReadSql(tcSqlReader& entry)
 {
-	tcPlatformDBObject::ReadSql(entry);
+    tcPlatformDBObject::ReadSql(entry);
 
     draft_m = (float)entry.GetDouble("Draft_m");
 
@@ -139,7 +138,7 @@ void tcShipDBObject::ReadSql(tcSqlReader& entry)
     PropulsiveEfficiency = (float)entry.GetDouble("PropulsiveEfficiency");
     CivilianPaintScheme = (float)entry.GetDouble("CivilianPaintScheme");
     FlashyPaintScheme = (float)entry.GetDouble("FlashyPaintScheme");
-	flightportClass = entry.GetString("FlightportClass").c_str();
+    flightportClass = entry.GetString("FlightportClass").c_str();
 
     tcAirDetectionDBObject::ReadSql(entry);
 
@@ -148,13 +147,13 @@ void tcShipDBObject::ReadSql(tcSqlReader& entry)
     CalculateParams();
 }
 
-void tcShipDBObject::WriteSql(std::string& valueString)
+void tcShipDBObject::WriteSql(std::string& valueString) const
 {
-	tcPlatformDBObject::WriteSql(valueString);
+    tcPlatformDBObject::WriteSql(valueString);
 
-	std::stringstream s;
+    std::stringstream s;
 
-	s << ",";
+    s << ",";
 
     s << draft_m << ",";
     s << length_m << ",";
@@ -167,10 +166,10 @@ void tcShipDBObject::WriteSql(std::string& valueString)
     s << CivilianPaintScheme << ",";
     s << FlashyPaintScheme << ",";
 
-	s << "'" << flightportClass.c_str() << "'";
+    s << "'" << flightportClass.c_str() << "'";
 
-	valueString += s.str();
-	
+    valueString += s.str();
+
     tcAirDetectionDBObject::WriteSql(valueString);
 
     tcWaterDetectionDBObject::WriteSql(valueString);
@@ -182,29 +181,62 @@ tcShipDBObject::tcShipDBObject() :
     tcAirDetectionDBObject(),
     tcWaterDetectionDBObject()
 {
-   mnModelType = MTYPE_SURFACE;
+    mnModelType = MTYPE_SURFACE;
 }
 
 tcShipDBObject::tcShipDBObject(const tcShipDBObject& obj)
-: tcPlatformDBObject(obj), 
-  tcAirDetectionDBObject(obj), 
-  tcWaterDetectionDBObject(obj),
-  draft_m(obj.draft_m),
-  length_m(obj.length_m),
-  beam_m(obj.beam_m),
-  PowerPlantType(obj.PowerPlantType),
-  TotalShaft_HP(obj.TotalShaft_HP),
-  ExhaustStacks(obj.ExhaustStacks),
-  PropulsionShafts(obj.PropulsionShafts),
-  PropulsiveEfficiency(obj.PropulsiveEfficiency),
-  CivilianPaintScheme(obj.CivilianPaintScheme),
-  FlashyPaintScheme(obj.FlashyPaintScheme),
-  flightportClass(obj.flightportClass)
+    : tcPlatformDBObject(obj),
+    tcAirDetectionDBObject(obj),
+    tcWaterDetectionDBObject(obj),
+    draft_m(obj.draft_m),
+    length_m(obj.length_m),
+    beam_m(obj.beam_m),
+    PowerPlantType(obj.PowerPlantType),
+    TotalShaft_HP(obj.TotalShaft_HP),
+    ExhaustStacks(obj.ExhaustStacks),
+    PropulsionShafts(obj.PropulsionShafts),
+    PropulsiveEfficiency(obj.PropulsiveEfficiency),
+    CivilianPaintScheme(obj.CivilianPaintScheme),
+    FlashyPaintScheme(obj.FlashyPaintScheme),
+    flightportClass(obj.flightportClass)
 {
 }
 
 tcShipDBObject::~tcShipDBObject() 
 {
+}
+
+tcGameObject *tcShipDBObject::CreateGameObject()
+{
+    auto mpDatabase =tcDatabase::Get();
+    switch (this->mnModelType)
+    {
+    case MTYPE_CARRIER:
+    {
+        if (mpDatabase->GetObject(this->flightportClass.c_str()) != 0)
+        {
+            return new tcCarrierObject(this);
+        }
+        else
+        {
+            std::string msg = strutil::format("Error creating carrier type surface ship (%s), reverting to non-carrier model. Invalid flightport class (%s). Check database.",
+                                              this->mzClass.c_str(), this->flightportClass.c_str());
+            fprintf(stderr, "%s\n", msg.c_str());
+#ifdef _DEBUG \
+    //wxMessageBox(msg, "Object Create Error");
+#endif
+            return new tcSurfaceObject(this);
+        }
+    }
+    break;
+    case MTYPE_SURFACE:
+        return new tcSurfaceObject(this);
+        break;
+    default:
+        fprintf(stderr, "tcSimState::CreateGameObject - "
+                        "Invalid model type for Ship DB obj (%d)\n", this->mnModelType);
+        return nullptr;
+    }
 }
 
 }

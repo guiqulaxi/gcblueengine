@@ -68,7 +68,7 @@ void tcWaterDetectionDBObject::ReadSql(tcSqlReader& entry)
     BindSignatureModels();
 }
 
-void tcWaterDetectionDBObject::WriteSql(std::string& valueString)
+void tcWaterDetectionDBObject::WriteSql(std::string& valueString) const
 {
 	std::stringstream s;
 
@@ -86,58 +86,64 @@ void tcWaterDetectionDBObject::BindSignatureModels()
 {
     tcDatabase* database = tcDatabase::Get();
 
-    TS_pattern = database->GetSignatureModel(TS_Model);
-    SL_pattern = database->GetSignatureModel(SL_Model);
-    acousticNoise = database->GetAcousticModel(acousticModel);
+    auto _TS_pattern = database->GetSignatureModel(TS_Model);
+    auto _SL_pattern = database->GetSignatureModel(SL_Model);
+    auto _acousticNoise = database->GetAcousticModel(acousticModel);
 
-    if (TS_pattern == 0)
+    if (!_TS_pattern)
     {
-        TS_pattern = database->GetSignatureModel("Default");
+        TS_pattern = *(database->GetSignatureModel("Default"));
         fprintf(stderr, "tcWaterDetectionDBObject::BindSignatureModels - TS pattern (%s) missing\n",
             TS_Model.c_str());
     }
-    if (SL_pattern == 0)
+    else
+            TS_pattern=*_TS_pattern;
+    if (!_SL_pattern )
     {
-        SL_pattern = database->GetSignatureModel("Default");
+        SL_pattern = *(database->GetSignatureModel("Default"));
         fprintf(stderr, "tcWaterDetectionDBObject::BindSignatureModels - SL pattern (%s) missing\n",
             SL_Model.c_str());
     }
-    if (acousticNoise == 0)
+    else
+        SL_pattern=*_SL_pattern;
+    if (!_acousticNoise)
     {
-        acousticNoise = database->GetAcousticModel("Default");
+        acousticNoise = *(database->GetAcousticModel("Default"));
         fprintf(stderr, "tcWaterDetectionDBObject::BindSignatureModels - acoustic model (%s) missing\n",
             SL_Model.c_str());
     }
+    else
+        acousticNoise=*_acousticNoise;
 }
 
 float tcWaterDetectionDBObject::GetCavitatingSourceLevel() const
 {
-    return acousticNoise->cavitationSL_dB;
+    return acousticNoise.cavitationSL_dB;
 }
 
 float tcWaterDetectionDBObject::GetCavitationSpeedKts(float depth_m) const
 {
-    return acousticNoise->GetCavitationSpeedKts(depth_m);
+    return acousticNoise.GetCavitationSpeedKts(depth_m);
 }
 
 float tcWaterDetectionDBObject::GetMinNonCavitatingDepth(float speed_kts) const
 {
-    return acousticNoise->GetCavitationDepth(speed_kts);
+    return acousticNoise.GetCavitationDepth(speed_kts);
 }
 
 float tcWaterDetectionDBObject::GetNoiseLevelForSpeed(float speed_mps) const
 {
-    return acousticNoise->GetNoiseLevelForSpeed(speed_mps);
+    return acousticNoise.GetNoiseLevelForSpeed(speed_mps);
 }
 
 float tcWaterDetectionDBObject::GetNoiseLevelForSpeedKts(float speed_kts) const
 {
-    return acousticNoise->GetNoiseLevelForSpeedKts(speed_kts);
+    return acousticNoise.GetNoiseLevelForSpeedKts(speed_kts);
 }
 
 float tcWaterDetectionDBObject::GetSnorkelingSourceLevel() const
 {
-    return acousticNoise->snorkelingSL_dB;
+    return acousticNoise.snorkelingSL_dB;
 }
 
 /**
@@ -148,32 +154,33 @@ float tcWaterDetectionDBObject::GetSnorkelingSourceLevel() const
 */
 float tcWaterDetectionDBObject::GetSourceLevel(float speed_mps, float depth_m, float az_deg) const
 {
-    float SL_base = acousticNoise->GetSourceLevel(C_MPSTOKTS*speed_mps, depth_m);
-    float patternModifier = SL_pattern->GetModifier(az_deg, 0);
+    float SL_base = acousticNoise.GetSourceLevel(C_MPSTOKTS*speed_mps, depth_m);
+    float patternModifier = SL_pattern.GetModifier(az_deg, 0);
 
     return SL_base + patternModifier;
 }
 
 float tcWaterDetectionDBObject::GetTargetStrength(float az_deg) const
 {
-    return TS + TS_pattern->GetModifier(az_deg, 0);
+    return TS + TS_pattern.GetModifier(az_deg, 0);
 }
 
 
 tcWaterDetectionDBObject::tcWaterDetectionDBObject()
-:   TS(0),
-    TS_pattern(0),
-    SL_pattern(0),
-    acousticNoise(0)
+:   TS(0)
+    // ,
+    // TS_pattern(0),
+    // SL_pattern(0),
+    // acousticNoise(0)
 {
 
 }
 
 tcWaterDetectionDBObject::tcWaterDetectionDBObject(const tcWaterDetectionDBObject& obj)
 :   TS(obj.TS),
-    TS_pattern(0),
-    SL_pattern(0),
-    acousticNoise(0)
+    TS_pattern(obj.TS_pattern),
+    SL_pattern(obj.SL_pattern),
+    acousticNoise(obj.acousticNoise)
 {
     
 }

@@ -66,7 +66,7 @@ namespace database
         void PrintToFile(tcFile& file);
       
 		void ReadSql(tcSqlReader& entry);
-		void WriteSql(std::string& valueString);
+        void WriteSql(std::string& valueString) const;
 		static void AddSqlColumns(std::string& columnString);
 
         tcSensorPlatformDBObject();

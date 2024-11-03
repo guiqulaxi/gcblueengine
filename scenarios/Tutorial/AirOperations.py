@@ -9,24 +9,24 @@ class Point:
 # SM is ScenarioManager object
 def CreateScenario(SM):
 
-    SM.SetUserAlliance(1)
+
 
 
     alliance_a = 1
     alliance_b = 2
     SM.SetScenarioDescription('Tutorial scenario for air operations\n')
     SM.SetScenarioName('Air Operations Tutorial')
-    SM.SetSideCode(1)
 
 
 
     SM.CreateAlliance(alliance_a, 'Training')
     SM.CreateAlliance(alliance_b, 'OPFOR')
+    SM.SetUserAlliance(1)
     SM.SetScenarioLoaded(1)
     SM.SetDateTime(2005, 10, 31, 10, 0, 0)
     SM.SetStartTheater(119.6, 25)  # (lon, lat) in degrees, negative is West or South
 
-    AddOverlayGraphics(SM)
+    # AddOverlayGraphics(SM)
 
 
     unit = SM.GetDefaultUnit()
@@ -117,7 +117,7 @@ def CreateScenario(SM):
     
     intel_b = 'NO ADDITIONAL INTELLIGENCE AVAILABLE.\n'
 
-    CreateBriefing(SM, alliance_a, alliance_b, intel_a, intel_b)
+    #CreateBriefing(SM, alliance_a, alliance_b, intel_a, intel_b)
 
     ### Add goals for each side
     AddGoals(SM, alliance_a, alliance_b)
@@ -179,39 +179,39 @@ def AddGoals(SM, side_a, side_b):
     
 
 # BM is BriefingManager (same as ScenarioManager for now) object
-def CreateBriefing(BM, alliance_a, alliance_b, intel_a, intel_b):  
+# def CreateBriefing(BM, alliance_a, alliance_b, intel_a, intel_b):
 
-    a_tasks = 'TASKING ORDERS:\n\n'
-    a_tasks += 'SEE MANUAL FOR TUTORIAL INSTRUCTIONS\n'
-    a_tasks += '\n'
-    a_tasks += intel_a
+#     a_tasks = 'TASKING ORDERS:\n\n'
+#     a_tasks += 'SEE MANUAL FOR TUTORIAL INSTRUCTIONS\n'
+#     a_tasks += '\n'
+#     a_tasks += intel_a
 
-    b_tasks = 'TASKING ORDERS:\n\n'
-    b_tasks += 'OPFOR SIDE, THIS TEXT SHOULD NEVER BE SEEN\n'
-    b_tasks += intel_b
+#     b_tasks = 'TASKING ORDERS:\n\n'
+#     b_tasks += 'OPFOR SIDE, THIS TEXT SHOULD NEVER BE SEEN\n'
+#     b_tasks += intel_b
 
-    BM.SetSimpleBriefing(alliance_a, a_tasks)
-    BM.SetSimpleBriefing(alliance_b, b_tasks)
+#     BM.SetSimpleBriefing(alliance_a, a_tasks)
+#     BM.SetSimpleBriefing(alliance_b, b_tasks)
 
  
-    BM.SetEventTime(0)
-    BM.Pause()
-    BM.PauseAudio()
-    BM.SetBriefingMode(1)  # 0 - normal tactical display, 1 - briefing disp
-    BM.Set3DMode(1)   # 0 - off, 1 - small, 2 - med, 3 - full screen
-    if (alliance_a == 1):
-        BM.ConsoleText(a_tasks)
-    else:
-        BM.ConsoleText(b_tasks)
+#     BM.SetEventTime(0)
+#     BM.Pause()
+#     BM.PauseAudio()
+#     BM.SetBriefingMode(1)  # 0 - normal tactical display, 1 - briefing disp
+#     BM.Set3DMode(1)   # 0 - off, 1 - small, 2 - med, 3 - full screen
+#     if (alliance_a == 1):
+#         BM.ConsoleText(a_tasks)
+#     else:
+#         BM.ConsoleText(b_tasks)
 
 
-    BM.Set3DMode(1)
-    BM.SetBriefingMode(0) # leave briefing mode
-    BM.PlayAudio('tension1',0)   # name, seek time from beginning of song
-    BM.Resume()    # resumes game
+#     BM.Set3DMode(1)
+#     BM.SetBriefingMode(0) # leave briefing mode
+#     BM.PlayAudio('tension1',0)   # name, seek time from beginning of song
+#     BM.Resume()    # resumes game
 
 
-def AddOverlayGraphics(SM):
+#def AddOverlayGraphics(SM):
     #SM.OverlayText('Taipei', 121.533, 25.083)
 
     # China airbases
@@ -220,7 +220,7 @@ def AddOverlayGraphics(SM):
     #SM.OverlayText('Chin Chiang AB', 118.583, 24.783)
     #SM.OverlayText('Chang-Chou AB', 117.667, 24.583)
     #SM.OverlayText('Shantou AB', 116.75, 23.417)
-    SM.OverlayText('Mei-Xian AB', 116.133, 24.25)
+    #SM.OverlayText('Mei-Xian AB', 116.133, 24.25)
     #SM.OverlayText('Ningbo', 121.550, 29.867) # port, fleet HQ
 
     # Taiwan airbases
@@ -230,7 +230,7 @@ def AddOverlayGraphics(SM):
     #SM.OverlayText('Hsinchu AB', 120.939167, 24.818056)
     #SM.OverlayText('Pingtung AB North', 120.477778, 22.695278)
     #SM.OverlayText('Pingtung AB South', 120.461667, 22.672222)
-    SM.OverlayText('Tainan AB', 120.205556, 22.950278)
+    #SM.OverlayText('Tainan AB', 120.205556, 22.950278)
     #SM.OverlayText('Taitung AB', 121.181944,  22.793056)
     #SM.OverlayText('Tsoying', 120.28, 22.704444) # port
 

@@ -149,7 +149,7 @@ namespace database
         return (*this);
     }
     
-    int tcDBString::operator== (tcDBString& s) const
+    bool tcDBString::operator== (const tcDBString &s) const
     {
         return (str==s.str);
     }

@@ -27,16 +27,11 @@
 
 
 #include "tcBallisticMissileDBObject.h"
-#include "math_constants.h"
-#include "randfn.h"
-#include "CsvTranslator.h"
-#include "tcDatabase.h"
-#include "tinyxml2.h"
 #include "database/tcSqlReader.h"
 #include "tcAirDetectionDBObject.h"
-#include "tcAero.h"
-#include <sstream>
 
+#include <sstream>
+#include "tcBallisticMissile.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -220,6 +215,11 @@ namespace database
 
     tcBallisticMissileDBObject::~tcBallisticMissileDBObject() 
     {
+    }
+
+    tcGameObject *tcBallisticMissileDBObject::CreateGameObject()
+    {
+        return new tcBallisticMissile(this);
     }
 
 } // namespace database

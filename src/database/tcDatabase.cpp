@@ -2471,7 +2471,8 @@ void tcDatabase::PrintToFile(tcString sFileName)
 
 const tcWeaponDamage* tcDatabase::GetWeaponDamageData(const std::string& s) const
 {
-    if (const tcWeaponDamage* weapDamage = weaponDamageData.GetData(s))
+
+    if ( const tcWeaponDamage* weapDamage=weaponDamageData.GetData(s))
     {
         return weapDamage;
     }
@@ -2483,18 +2484,18 @@ const tcWeaponDamage* tcDatabase::GetWeaponDamageData(const std::string& s) cons
     }
 }
 
-tcAcousticModel* tcDatabase::GetAcousticModel(const std::string& modelName)
+const tcAcousticModel* tcDatabase::GetAcousticModel(const std::string& modelName) const
 {
-    std::map<std::string, tcAcousticModel*>::iterator iter =
+    std::map<std::string, tcAcousticModel>::const_iterator iter =
         acousticModelData.find(modelName);
 
     if (iter != acousticModelData.end())
     {
-        return iter->second;
+        return &iter->second;
     }
     else
     {
-        return 0;
+        return nullptr;
     }
 }
 
@@ -2767,18 +2768,18 @@ long tcDatabase::GetRandomKey() {
     return nKey;
 }
 
-tcSignatureModel* tcDatabase::GetSignatureModel(const std::string& modelName)
+const tcSignatureModel* tcDatabase::GetSignatureModel(const std::string& modelName) const
 {
-    std::map<std::string, tcSignatureModel*>::iterator iter =
+    std::map<std::string, tcSignatureModel>::const_iterator iter =
         signatureModelData.find(modelName);
 
     if (iter != signatureModelData.end())
     {
-        return iter->second;
+        return &iter->second;
     }
     else
     {
-        return 0;
+        return nullptr;
     }
 }
 
@@ -2786,8 +2787,23 @@ tcSignatureModel* tcDatabase::GetSignatureModel(const std::string& modelName)
 * lookup object by key reference
 * @return 0 if not found, non-zero otherwise
 */
-int tcDatabase::GetObject(long anKey, tcDatabaseObject*& rpobj) {
+bool tcDatabase::GetObject(long anKey, tcDatabaseObject*& rpobj) {
     return mcObjectData.Lookup(anKey,rpobj);
+}
+
+long tcDatabase::AddOrUpdateObject(tcDatabaseObject *rpobj)
+{
+    if (ObjectExists(rpobj->GetName()))
+    {
+        fprintf(stdout, "Updating database class: %s\n", rpobj->GetName());
+        tcDatabaseObject* oldObj = GetObject(rpobj->GetName());
+        assert(oldObj != 0);
+        DeleteObject(oldObj->mnKey);
+    }
+    long  key;
+    mcObjectData.AddElement(rpobj, key); // add to database, key gets new key val
+    rpobj->mnKey = key; // set key val of object (may not be necessary anymore)
+    return key;
 }
 
 /**

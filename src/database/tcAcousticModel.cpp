@@ -223,7 +223,7 @@ void tcAcousticModel::ReadSql(tcSqlReader& entry)
     
 }
 
-void tcAcousticModel::WriteSql(std::string& valueString)
+void tcAcousticModel::WriteSql(std::string& valueString) const
 {
 	std::stringstream s;
 

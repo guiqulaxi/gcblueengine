@@ -73,15 +73,13 @@ namespace database
 
 		static void AddSqlColumns(std::string& columnString);
 		void ReadSql(tcSqlReader& entry);
-		void WriteSql(std::string& valueString);
+        void WriteSql(std::string& valueString) const;
 
-
+        tcSensorDBObject();
+        tcSensorDBObject(const tcSensorDBObject& obj); ///< copy constructor
+        virtual ~tcSensorDBObject();
 	protected:
         void CalculateParams();
-
-		tcSensorDBObject();
-		tcSensorDBObject(const tcSensorDBObject& obj); ///< copy constructor
-		virtual ~tcSensorDBObject();
 	};
 
 } // namespace database

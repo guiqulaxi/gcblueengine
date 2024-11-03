@@ -2,10 +2,8 @@
 
 #include "tcDatabase.h"
 #include "tcFlightportDBObject.h"
-#include "math_constants.h"
-#include "randfn.h"
 #include "database/tcSqlReader.h"
-#include <sstream>
+#include "tcSpaceObject.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -79,7 +77,7 @@ void tcSpaceDBObject::ReadSql(tcSqlReader& entry)
     CalculateParams();
 }
 
-void tcSpaceDBObject::WriteSql(std::string& valueString)
+void tcSpaceDBObject::WriteSql(std::string& valueString) const
 {
     tcPlatformDBObject::WriteSql(valueString);
 }
@@ -99,6 +97,11 @@ tcSpaceDBObject::tcSpaceDBObject(const tcSpaceDBObject& obj)
 
 tcSpaceDBObject::~tcSpaceDBObject()
 {
+}
+
+tcGameObject *tcSpaceDBObject::CreateGameObject()
+{
+ return new tcSpaceObject(this);
 }
 
 }

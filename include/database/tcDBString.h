@@ -58,7 +58,7 @@ namespace database
         tcDBString& operator= (const tcDBString& c);
         tcDBString& operator= (const char* s);
         tcDBString& operator+=(const char* s);
-        int operator== (tcDBString&) const;
+        bool operator== ( const tcDBString&) const;
         bool operator== (const char* s) const;
 
         tcStream& operator<<(tcStream& stream);

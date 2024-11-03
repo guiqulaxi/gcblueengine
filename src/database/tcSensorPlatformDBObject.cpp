@@ -164,7 +164,7 @@ void tcSensorPlatformDBObject::ReadSql(tcSqlReader& entry)
 
 }
 
-void tcSensorPlatformDBObject::WriteSql(std::string& valueString)
+void tcSensorPlatformDBObject::WriteSql(std::string& valueString) const
 {
     // no longer needed since all covered by platform_sensors table
     /*

@@ -70,14 +70,14 @@ namespace database
         
 		static void AddSqlColumns(std::string& columnString);
 		void ReadSql(tcSqlReader& entry);
-		void WriteSql(std::string& valueString);
+        void WriteSql(std::string& valueString) const;
 
 
 
         tcShipDBObject();
         tcShipDBObject(const tcShipDBObject& obj); ///< copy constructor
         virtual ~tcShipDBObject();
-
+        virtual tcGameObject * CreateGameObject() override;
 	private:
         void CalculateParams();
 

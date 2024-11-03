@@ -79,6 +79,8 @@ namespace database
         tcBallisticMissileDBObject();
         tcBallisticMissileDBObject(const tcBallisticMissileDBObject& obj); ///< copy constructor
         virtual ~tcBallisticMissileDBObject();
+        virtual tcGameObject *CreateGameObject() override;
+
     };
 
 }

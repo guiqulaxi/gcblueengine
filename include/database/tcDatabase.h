@@ -127,7 +127,8 @@ public:
                               std::ofstream &log, unsigned int& errorCount);
 
     long GetSize() {return mcObjectData.GetCount();}
-    int GetObject(long anKey, tcDatabaseObject*& rpobj);
+    bool GetObject(long anKey, tcDatabaseObject*& rpobj);
+    long AddOrUpdateObject( tcDatabaseObject* rpobj);
     tcDatabaseObject* GetObject(long anKey);
     tcDatabaseObject* GetObject(const std::string& className); ///< gets object by class name
     const std::string& GetObjectClassName(long key);
@@ -146,9 +147,9 @@ public:
     const std::string& GetCountryNameSubstitution(const std::string& originalName, const std::chrono::system_clock::time_point& dateTime) const;
 
 
-    tcSignatureModel* GetSignatureModel(const std::string& modelName);
-    tcAcousticModel* GetAcousticModel(const std::string& modelName);
-    const tcWeaponDamage* GetWeaponDamageData(const std::string& s) const;
+    const tcSignatureModel* GetSignatureModel(const std::string& modelName) const;
+    const tcAcousticModel * GetAcousticModel(const std::string& modelName) const;
+    const tcWeaponDamage * GetWeaponDamageData(const std::string& s) const;
     const tcDamageEffect* GetDamageEffectData(const std::string& s) const;
     bool ObjectExists(const std::string& className) const; ///< check if obj matching className already in db
 
@@ -197,8 +198,8 @@ private:
     std::map<std::string, tcCountryNameChanges> countryNameChanges;
     //        std::shared_ptr<tcTexture2D> unknownEnsign; ///< ensign if country not found
 
-    std::map<std::string, tcSignatureModel*> signatureModelData;
-    std::map<std::string, tcAcousticModel*> acousticModelData;
+    std::map<std::string, tcSignatureModel> signatureModelData;
+    std::map<std::string,tcAcousticModel> acousticModelData;
 
     // special tables for advanced damage model
     tcDatabaseTable<tcWeaponDamage> weaponDamageData;

@@ -72,7 +72,7 @@ namespace database
         
         static void AddSqlColumns(std::string& columnString);
         void ReadSql(tcSqlReader& entry);
-        void WriteSql(std::string& valueString);
+        void WriteSql(std::string& valueString) const;
 
 		float EstimateDetectionRange(float rcs_dBsm, bool overWater, bool overLand) const;
         virtual const char* GetTypeDescription() const;

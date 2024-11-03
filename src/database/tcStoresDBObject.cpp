@@ -134,7 +134,7 @@ namespace database
 		}
 	}
 
-	void tcStoresDBObject::WriteSql(std::string& valueString)
+    void tcStoresDBObject::WriteSql(std::string& valueString) const
 	{
 		tcDatabaseObject::WriteSql(valueString);
 

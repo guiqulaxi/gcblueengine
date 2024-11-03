@@ -57,10 +57,12 @@ class tcStream;
 class tcCommandStream;
 class tcTacticalMapView;
 
+
 namespace ai
 {
     class ScriptedTask;
     class ScriptedTaskInterface;
+
 }
 using ai::ScriptedTask;
 using ai::ScriptedTaskInterface;
@@ -73,37 +75,7 @@ using ai::ScriptedTaskInterface;
 namespace scriptinterface 
 {
 	class tcScenarioInterface;
-
-    /**
-    * Interface class for creating popup mouse menus.
-    */
-//    class tcMenuInterface
-//    {
-//    public:
-//        void AddItem(std::string caption, std::string command);
-//        void AddItemWithParam(std::string caption, std::string command, int param);
-//        void AddItemWithTextParam(std::string caption, std::string command, std::string textParam);
-//        void AddItemUI(std::string caption, std::string callback, std::string input);
-//        void AddItemUIWithParam(std::string caption, std::string callback,
-//                                std::string input, int param);
-//		void AddItemUIWithTextParam(const std::string& caption, const std::string& callback,
-//			const std::string& input, const std::string &textParam);
-//        void BeginSubMenu();
-//        void Clear();
-//        void EndSubMenu();
-//        void SetStayOpen(bool state);
-
-//        tcMenuInterface();
-//        virtual ~tcMenuInterface();
-
-//        static void AttachMenu(tcMenu *apMenu) {mpMenu = apMenu;}
-//    private:
-//        static tcMenu* mpMenu;
-
-//        bool UITypeIsValid(const std::string& text) const;
-//    };
-
-
+    class tcDatabaseInterface;
     /**
     * Singleton class
     */
@@ -113,28 +85,12 @@ namespace scriptinterface
         void SetUnitInfo(tcPlatformObject *apObj);
         void Test();
 
-        // must be better way vs. all of these Attach methods?
-//        void AttachCommandQueue(tcCommandQueue *cq);
-//        void AttachConsole(tcSoundConsole *apConsole);
-//        void AttachDirector(tcDirector *dir);
+
         void AttachMapData(tcMapData *md);
-//        void AttachMapOverlay(tcMapOverlay* mo);
-//        void AttachMenu(tcMenu *apMenu) {tcMenuInterface::AttachMenu(apMenu);}
-//        void AttachPanel(tcPanel *apPanel) {tcPanelInterface::AttachPanel(apPanel);}
+
         void AttachSensorMap(tcAllianceSensorMap *apSM) {tcTrackInterface::SetSensorMap(apSM);}
         void AttachSimState(tcSimState *apSimState);
-//        void AttachTacticalMap(tcTacticalMapView* mv);
 
-//		void BuildEditMenu(); ///< top-level edit menu
-//		void BuildGroupMenu(); ///< creates menu customized to group of units
-//        void BuildPlatformMenu(); ///< creates menu customized to unit
-//		void BuildPlatformEditMenu();
-//        void BuildGroupEditMenu();
-//        void BuildTrackMenu(); ///< creates menu for track commands
-//        void BuildWeaponMenu();
-//        void BuildWeaponEditMenu();
-
-//        void BuildFlightPortPanel();
         int CallPython(const char *commandtext, const char *errortext);
         bool CallTaskScript(ScriptedTask* task, const char* azCommand);
 		tcPlatformObject* GetHookedObj() const;
@@ -145,7 +101,10 @@ namespace scriptinterface
         tcScenarioInterface* GetScenarioInterface() const;
 
         void ClearScenario();
+        void LoadDatabase(const std::string&filePath); ///< loads data from Python script file
         void LoadScenario(const std::string&filePath); ///< loads scenario from Python script file
+
+
 
         void ProcessCommand(const std::string& command, const std::vector<long>& id, 
             int param = -1, std::string textParam = "");
@@ -163,22 +122,8 @@ namespace scriptinterface
         void ProcessCallbackArgList(const std::string& command, const std::vector<long>& id, 
 										   const std::string& arguments);
 		void ProcessCallbackString(const std::string& command, const std::vector<long>& id);
-//        void ProcessHotKey(unsigned int key, unsigned int flags);
-//        void ProcessHotKeyGroup(unsigned int key, unsigned int flags);
-//		void ProcessDoubleClickHook(unsigned int flags);
-//        void ProcessSecondaryHook(long id);
-//        void PushMode();
-//        void PopMode();
-//		void ReimportModules(); ///< allows python code to be changed while game is running
         void ReportError(const char* text);
-//        void SelectFlightInterface(); ///< change to flightport menu
-//        void SelectTrackMenu(); ///< change to track menu
-//        void SelectUnitMenu(); ///< change to unit menu
-//		void SelectGroupMenu(); ///< change to group menu
-//		void SelectGameMenu(); ///< change to top-level game menu (no platforms hooked)
-//        void SelectWeaponMenu(); ///< change to weapon menu, for tcWeaponObject's
-//        void SetMenuPlatform(long anID);
-//		void SetMenuGroup(const std::vector<long>& unitIds);
+
 		
         void UpdateForDestroyedPlatform(long id);
 
@@ -209,10 +154,7 @@ namespace scriptinterface
 
         object HookedPlatformInterface; ///< interface for hooked platform for menu
         tcPlatformInterface *hookedInterface; ///< C++ handle to hooked plat interface
-//        object MenuInterfaceType;
-//        object MenuInterface;
-//        object PanelInterfaceType;
-//        object PanelInterface;
+
         object SubInterfaceType;
         object TrackInterfaceType;
         object TrackInterface;
@@ -227,6 +169,9 @@ namespace scriptinterface
         object ScenarioInterface;
         tcScenarioInterface* scenarioInterface; ///< C++ handle to scenario interface
 
+
+        object DatabaseInterface;
+        tcDatabaseInterface* databaseInterface; ///< C++ handle to database interface
 
         //        tcDirector *director;
         tcSimState *mpSimState;

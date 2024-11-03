@@ -82,18 +82,19 @@ namespace database
     }
 
     template <class T>
-    const T* tcDatabaseTable<T>::GetData(const std::string& databaseClass) const
+    const T*  tcDatabaseTable<T>::GetData(const std::string& databaseClass) const
     {
        typename std::map<std::string, T>::const_iterator iter =
             tableData.find(databaseClass);
 
         if (iter != tableData.end())
         {
-            return &iter->second;
+            return & iter->second;
+
         }
         else
         {
-            return 0;
+            return nullptr;
         }
     }
 

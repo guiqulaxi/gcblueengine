@@ -31,14 +31,13 @@
 
 #include "tcBallisticDBObject.h"
 #include "math_constants.h"
-#include "randfn.h"
-#include "CsvTranslator.h"
-#include "tinyxml2.h"
 #include "database/tcSqlReader.h"
 #include <sstream>
 #include <cassert>
 #include "tcDatabase.h"
-
+#include "tcGuidedBomb.h""
+#include "tcRocket.h"
+#include "tcBallisticWeapon.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -444,7 +443,7 @@ namespace database
         CalculateParams();
 	}
 
-	void tcBallisticDBObject::WriteSql(std::string& valueString)
+    void tcBallisticDBObject::WriteSql(std::string& valueString) const
 	{
 		tcWeaponDBObject::WriteSql(valueString);
 
@@ -485,6 +484,28 @@ namespace database
 	tcBallisticDBObject::~tcBallisticDBObject() 
 	{
 	}
+
+    tcGameObject *tcBallisticDBObject::CreateGameObject()
+    {
+        switch (this->mnModelType)
+        {
+        case MTYPE_LASERGUIDEDBOMB:
+        {
+            return new tcGuidedBomb(this);
+        }
+        break;
+        case MTYPE_ROCKET:
+        {
+            return new tcRocket(this);
+        }
+        break;
+        default:
+        {
+            return new tcBallisticWeapon(this);
+        }
+        break;
+        }
+    }
 
 }
 

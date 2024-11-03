@@ -70,15 +70,15 @@ namespace database
         const char* GetName() const; ///< returns name of this instance
 		static void AddSqlColumns(std::string& columnString);
 		void ReadSql(tcSqlReader& entry);
-		void WriteSql(std::string& valueString);
+        void WriteSql(std::string& valueString) const ;
 
         tcAcousticModel();
         tcAcousticModel(const tcAcousticModel& obj); ///< copy constructor
         virtual ~tcAcousticModel();
 	private:
         enum {SL_TABLE_SIZE=512};
-        const float dv_kts; ///< resolution of lookup table
-        const float one_over_dv; ///< 1.0 / resolution
+        float dv_kts; ///< resolution of lookup table
+        float one_over_dv; ///< 1.0 / resolution
         float SL_dB[SL_TABLE_SIZE]; ///< lookup table for SL
 
         float cavitationSlope_ktsperm; ///< kts/m version

@@ -27,11 +27,9 @@
 
 #include "tcSubDBObject.h"
 #include "tcPlatformDBObject.h"
-#include "CsvTranslator.h"
 #include "common/math_constants.h"
-#include "tinyxml2.h"
 #include <sstream>
-
+#include "tcSubObject.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -127,7 +125,7 @@ namespace database
         CalculateParams();
     }
 
-    void tcSubDBObject::WriteSql(std::string& valueString)
+    void tcSubDBObject::WriteSql(std::string& valueString) const
     {
         tcPlatformDBObject::WriteSql(valueString);
 
@@ -181,6 +179,11 @@ namespace database
 
     tcSubDBObject::~tcSubDBObject()
     {
+    }
+
+    tcGameObject *tcSubDBObject::CreateGameObject()
+    {
+        return new tcSubObject(this);
     }
 
 

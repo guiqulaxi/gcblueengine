@@ -60,12 +60,12 @@ namespace database
 		
 		static void AddSqlColumns(std::string& columnString);
 		void ReadSql(tcSqlReader& entry);
-		void WriteSql(std::string& valueString);
+        void WriteSql(std::string& valueString) const;
 
 		tcCounterMeasureDBObject();
 		tcCounterMeasureDBObject(const tcCounterMeasureDBObject& obj);
 		virtual ~tcCounterMeasureDBObject();
-
+        virtual tcGameObject *CreateGameObject() override;
     private:
         // calculated parameters
         float airDragFactor; ///< accel [m/s^2] = dragFactor * v_mps^2

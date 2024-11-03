@@ -46,7 +46,11 @@ namespace database
     public:
         //float cycleTime;   ///< down time between shots
         ///// firing arc in deg, use >= 360 to be equivalent to old isAutoPoint = 1, use 0 for old isAutoPoint=0
-        //float firingArc_deg; 
+        //float firingArc_deg;
+        std::vector<std::string> childClassList; ///< vector of different loadout configs
+        std::vector<unsigned short> childCapacityList; ///< corresponding vector of max quantities
+        std::vector<float> childLoadTime_s; ///< vector of load times
+        std::vector<float> childCycleTime_s; ///< vector of cycle times
 
         unsigned short GetCapacityForItem(const std::string& item) const;
         unsigned short GetCapacityForItem(const std::string& item, float& loadTime_s, float& cycleTime_s) const;
@@ -65,7 +69,7 @@ namespace database
         
         static void AddSqlColumns(std::string& columnString);
         void ReadSql(tcSqlReader& entry);
-        void WriteSql(std::string& valueString);
+        void WriteSql(std::string& valueString) const;
 
         void ClearConfigs();
         void AddConfig(const std::string& childClass, unsigned short capacity, float loadTime_s, float cycleTime_s);
@@ -75,12 +79,8 @@ namespace database
         tcLauncherDBObject(const std::string& databaseClass);
         virtual ~tcLauncherDBObject();
         
-    private:
-        // these should be combined as a structure
-        std::vector<std::string> childClassList; ///< vector of different loadout configs
-        std::vector<unsigned short> childCapacityList; ///< corresponding vector of max quantities
-        std::vector<float> childLoadTime_s; ///< vector of load times
-        std::vector<float> childCycleTime_s; ///< vector of cycle times
+
+
             
     };
 

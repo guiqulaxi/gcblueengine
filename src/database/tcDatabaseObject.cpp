@@ -392,7 +392,7 @@ void tcDatabaseObject::ReadSql(tcSqlReader& entry)
 #endif
 }
 
-void tcDatabaseObject::WriteSql(std::string& valueString)
+void tcDatabaseObject::WriteSql(std::string& valueString) const
 {
     std::string str = strutil::format("'%s','%s',%d,%d,%f,%f,%f,%f,%f,'%s','%s','%s','%s','%s','%s','%s',%f,%f,%f",
                                     mzClass.c_str(),
@@ -496,6 +496,11 @@ tcDatabaseObject::~tcDatabaseObject()
     //        {
     //            delete model;
     //        }
+}
+
+tcGameObject *tcDatabaseObject::CreateGameObject()
+{
+    return nullptr;
 }
 
 

@@ -216,7 +216,7 @@ void tcRadarDBObject::ReadSql(tcSqlReader& entry)
     CalculateParams();
 }
 
-void tcRadarDBObject::WriteSql(std::string& valueString)
+void tcRadarDBObject::WriteSql(std::string& valueString) const
 {
 	tcSensorDBObject::WriteSql(valueString);
 

@@ -35,7 +35,9 @@
 
 #include "database/tcSqlReader.h"
 #include <sstream>
-
+#include "tcAirfieldObject.h"
+#include "tcGroundVehicleObject.h"
+#include "tcGroundObject.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -87,7 +89,7 @@ void tcGroundDBObject::ReadSql(tcSqlReader& entry)
     tcAirDetectionDBObject::ReadSql(entry);
 }
 
-void tcGroundDBObject::WriteSql(std::string& valueString)
+void tcGroundDBObject::WriteSql(std::string& valueString) const
 {
 	tcPlatformDBObject::WriteSql(valueString);
 
@@ -119,6 +121,28 @@ tcGroundDBObject::tcGroundDBObject(const tcGroundDBObject& obj)
 
 tcGroundDBObject::~tcGroundDBObject() 
 {
+}
+
+tcGameObject *tcGroundDBObject::CreateGameObject()
+{
+    /* these types are defined in tcDatabase.h */
+    switch (this->mnModelType)
+    {
+    case MTYPE_AIRFIELD:
+        return new tcAirfieldObject(this);
+        break;
+    case MTYPE_FIXED:
+        return new tcGroundObject(this);
+        break;
+
+    case MTYPE_GROUNDVEHICLE:
+        return new tcGroundVehicleObject(this);
+        break;
+    default:
+        fprintf(stderr, "tcSimState::CreateGameObject - "
+                        "Invalid model type for ground DB obj (%d)\n", this->mnModelType);
+        return NULL;
+    }
 }
 
 }

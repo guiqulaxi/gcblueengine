@@ -95,7 +95,7 @@ void tcESMDBObject::ReadSql(tcSqlReader& entry)
     isRWR = entry.GetInt("IsRWR") != 0;
 }
 
-void tcESMDBObject::WriteSql(std::string& valueString)
+void tcESMDBObject::WriteSql(std::string& valueString) const
 {
 	tcSensorDBObject::WriteSql(valueString);
 

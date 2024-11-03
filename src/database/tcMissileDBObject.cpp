@@ -32,10 +32,7 @@
 
 #include "tcMissileDBObject.h"
 #include "math_constants.h"
-#include "randfn.h"
-#include "CsvTranslator.h"
 #include "tcDatabase.h"
-#include "tinyxml2.h"
 #include "database/tcSqlReader.h"
 #include "tcAirDetectionDBObject.h"
 #include "tcSensorDBObject.h"
@@ -44,7 +41,7 @@
 #include "tcAero.h"
 #include <sstream>
 #include <cassert>
-
+#include "tcMissileObject.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -379,7 +376,7 @@ void tcMissileDBObject::ReadSql(tcSqlReader& entry)
 
 }
 
-void tcMissileDBObject::WriteSql(std::string& valueString)
+void tcMissileDBObject::WriteSql(std::string& valueString) const
 {
 	tcWeaponDBObject::WriteSql(valueString);
     tcAirDetectionDBObject::WriteSql(valueString);
@@ -504,6 +501,11 @@ tcMissileDBObject::tcMissileDBObject() : tcWeaponDBObject(), tcAirDetectionDBObj
 
 tcMissileDBObject::~tcMissileDBObject() 
 {
+}
+
+tcGameObject *tcMissileDBObject::CreateGameObject()
+{
+    return new tcMissileObject(this);
 }
 
 } // namespace database

@@ -64,35 +64,40 @@ void tcAirDetectionDBObject::BindSignatureModels()
 {
     tcDatabase* database = tcDatabase::Get();
 
-    radarSignature = database->GetSignatureModel(RCS_Model);
-    irSignatureA = database->GetSignatureModel(IR_ModelA);
-    irSignatureB = database->GetSignatureModel(IR_ModelB);
-    irSignatureC = database->GetSignatureModel(IR_ModelC);
+    auto _radarSignature = database->GetSignatureModel(RCS_Model);
+    auto _irSignatureA = database->GetSignatureModel(IR_ModelA);
+    auto _irSignatureB = database->GetSignatureModel(IR_ModelB);
+    auto _irSignatureC = database->GetSignatureModel(IR_ModelC);
 
-    if (radarSignature == 0)
+    if (!_radarSignature )
     {
-        radarSignature = database->GetSignatureModel("Default");
+        radarSignature = *(database->GetSignatureModel("Default"));
         fprintf(stderr, "tcAirDetectionDBObject::BindSignatureModels - %s missing or bad RCS model\n",
             RCS_Model.c_str());
     }
-    if (irSignatureA == 0)
+    else
+        radarSignature=*_radarSignature;
+    if (!_irSignatureA )
     {
-        irSignatureA = database->GetSignatureModel("Default");
+        irSignatureA = *(database->GetSignatureModel("Default"));
         fprintf(stderr, "tcAirDetectionDBObject::BindSignatureModels - %s missing or bad IR model\n",
             IR_ModelA.c_str());
-    }
-    if (irSignatureB == 0)
+    }else
+        irSignatureA=*_irSignatureA;
+    if (!_irSignatureB )
     {
-        irSignatureB = database->GetSignatureModel("Default");
+        irSignatureB = *(database->GetSignatureModel("Default"));
         fprintf(stderr, "tcAirDetectionDBObject::BindSignatureModels - %s missing or bad IR model\n",
             IR_ModelB.c_str());
-    }
-    if (irSignatureC == 0)
+    }else
+        irSignatureB=*_irSignatureB;
+    if (!_irSignatureC )
     {
-        irSignatureC = database->GetSignatureModel("Default");
+        irSignatureC = *(database->GetSignatureModel("Default"));
         fprintf(stderr, "tcAirDetectionDBObject::BindSignatureModels - %s missing or bad IR model\n",
             IR_ModelC.c_str());
-    }
+    }else
+    irSignatureC=*_irSignatureC;
 
     // test code
     //for (float az_deg=-180.0f; az_deg<=180.0f; az_deg+=1.0f)
@@ -109,13 +114,13 @@ float tcAirDetectionDBObject::GetIRSig_dB(float az_deg, int irModel) const
     switch (irModel)
     {
     case IRMODELA:
-        val_dB += irSignatureA->GetModifier(az_deg, 0);
+        val_dB += irSignatureA.GetModifier(az_deg, 0);
         break;
     case IRMODELB:
-        val_dB += irSignatureB->GetModifier(az_deg, 0);
+        val_dB += irSignatureB.GetModifier(az_deg, 0);
         break;
     case IRMODELC:
-        val_dB += irSignatureC->GetModifier(az_deg, 0);
+        val_dB += irSignatureC.GetModifier(az_deg, 0);
         break;
     default:
         break;
@@ -127,7 +132,7 @@ float tcAirDetectionDBObject::GetIRSig_dB(float az_deg, int irModel) const
 
 float tcAirDetectionDBObject::GetRCS_dBsm(float az_deg) const
 {
-    return RCS_dBsm + radarSignature->GetModifier(az_deg, 0);
+    return RCS_dBsm + radarSignature.GetModifier(az_deg, 0);
 }
 
 void tcAirDetectionDBObject::ReadSql(tcSqlReader& entry)
@@ -144,7 +149,7 @@ void tcAirDetectionDBObject::ReadSql(tcSqlReader& entry)
     BindSignatureModels();
 }
 
-void tcAirDetectionDBObject::WriteSql(std::string& valueString)
+void tcAirDetectionDBObject::WriteSql(std::string& valueString) const
 {
 	std::stringstream s;
 
@@ -171,11 +176,11 @@ tcAirDetectionDBObject::tcAirDetectionDBObject()
     IR_ModelA(""),
     IR_ModelB(""),
     IR_ModelC(""),
-    effectiveHeight_m(0),
-    radarSignature(0),
-    irSignatureA(0),
-    irSignatureB(0),
-    irSignatureC(0)
+    effectiveHeight_m(0)
+    // radarSignature(0),
+    // irSignatureA(0),
+    // irSignatureB(0),
+    // irSignatureC(0)
 {
 
 }
@@ -188,11 +193,11 @@ tcAirDetectionDBObject::tcAirDetectionDBObject(const tcAirDetectionDBObject& obj
     IR_ModelA(obj.IR_ModelA),
     IR_ModelB(obj.IR_ModelB),
     IR_ModelC(obj.IR_ModelC),
-    effectiveHeight_m(obj.effectiveHeight_m),
-    radarSignature(0),
-    irSignatureA(0),
-    irSignatureB(0),
-    irSignatureC(0)
+    effectiveHeight_m(obj.effectiveHeight_m)
+    // radarSignature(0),
+    // irSignatureA(0),
+    // irSignatureB(0),
+    // irSignatureC(0)
 {
     BindSignatureModels();   
 }

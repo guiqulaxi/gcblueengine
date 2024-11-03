@@ -26,6 +26,7 @@
 #ifndef _AIRDETECTIONDBOBJECT_H_
 #define _AIRDETECTIONDBOBJECT_H_
 
+#include "tcSignatureModel.h"
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
@@ -55,9 +56,14 @@ namespace database
         std::string IR_ModelC;              ///< signature for supersonic flight 超音速飞行时的红外特征
         float effectiveHeight_m;            ///< effective height for horizon test 用于地平线测试的有效高度，单位为米
 
+        tcSignatureModel radarSignature;
+        tcSignatureModel irSignatureA;
+        tcSignatureModel irSignatureB;
+        tcSignatureModel irSignatureC;
+
 		static void AddSqlColumns(std::string& columnString);
 		void ReadSql(tcSqlReader& entry);
-		void WriteSql(std::string& valueString);
+        void WriteSql(std::string& valueString) const;
 
         float GetRCS_dBsm(float az_deg) const;
         float GetIRSig_dB(float az_deg, int irModel) const;
@@ -65,11 +71,8 @@ namespace database
         tcAirDetectionDBObject();
         tcAirDetectionDBObject(const tcAirDetectionDBObject& obj); ///< copy constructor
         virtual ~tcAirDetectionDBObject();
-	private:
-        tcSignatureModel* radarSignature;
-        tcSignatureModel* irSignatureA;
-        tcSignatureModel* irSignatureB;
-        tcSignatureModel* irSignatureC;
+
+
     
         void BindSignatureModels();
     };

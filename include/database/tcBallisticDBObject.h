@@ -88,11 +88,11 @@ namespace database
         long GetSensorKey();
 
 		virtual const char* GetClassName() const {return "Ballistic";} ///< returns class name of database object
-		virtual void PrintToFile(tcFile& file);
+        virtual void PrintToFile(tcFile& file) override;
 
 		static void AddSqlColumns(std::string& columnString);
-		void ReadSql(tcSqlReader& entry);
-		void WriteSql(std::string& valueString);
+        void ReadSql(tcSqlReader& entry) override;
+        void WriteSql(std::string& valueString) const override;
 
         static float CalculateBallisticElevation(float range_m, float dz_m, float v_mps, float min_x2, float& tti_s);
         static float CalculateMissDistance(float range_m, float dz_m, float v_mps, float el_rad);
@@ -100,7 +100,7 @@ namespace database
 		tcBallisticDBObject(const tcBallisticDBObject& obj); ///< copy constructor
 		tcBallisticDBObject();
 		virtual ~tcBallisticDBObject();
-
+virtual tcGameObject *CreateGameObject() override;
     private:
         void CalculateParams();
 

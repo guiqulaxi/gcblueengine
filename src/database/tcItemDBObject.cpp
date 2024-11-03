@@ -65,7 +65,7 @@ namespace database
 		tcDatabaseObject::ReadSql(entry);
 	}
 
-	void tcItemDBObject::WriteSql(std::string& valueString)
+    void tcItemDBObject::WriteSql(std::string& valueString) const
 	{
 		tcDatabaseObject::WriteSql(valueString);
 	}

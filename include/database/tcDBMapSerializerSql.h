@@ -63,14 +63,14 @@ namespace database
 	class tcDBMapSerializerSql
 	{
 	public:
-        tcDBMapSerializerSql(tcDatabase* db, std::map<std::string, T*>& m, 
+        tcDBMapSerializerSql(tcDatabase* db, std::map<std::string, T>& m,
             sqlite3x::sqlite3_connection& con, std::string s)
 			: database(db), dataMap(m), sqlConn(con), tableName(s) {}
 			bool Load();
 			bool Save();
 	private:
 		tcDatabase* database;
-        std::map<std::string, T*>& dataMap;
+        std::map<std::string, T>& dataMap;
 		std::string tableName;
 		sqlite3x::sqlite3_connection& sqlConn;
 
@@ -86,7 +86,7 @@ namespace database
 			// check if the table exists, abort if it doesn't
 			std::string command = strutil::format("select count(*) from sqlite_master where name='%s';",
 				tableName.c_str());
-			string countStr = sqlConn.executestring(command);
+            std::string countStr = sqlConn.executestring(command);
 
 			if (countStr == "0")
 			{
@@ -99,7 +99,7 @@ namespace database
 			}
 
 		}
-		catch (exception& ex)
+        catch (std::exception& ex)
 		{
             //wxMessageBox(ex.what(), "Error", wxICON_ERROR);
              std::cerr<<ex.what()<<std::endl;
@@ -124,20 +124,21 @@ namespace database
 
 			while (sqlReader.Read())
 			{
-				T* obj = new T;
-				obj->ReadSql(sqlReader);
-                
+    //             T* obj = new T;
+                // obj->ReadSql(sqlReader);
+                T obj;
+                obj.ReadSql(sqlReader);
                 // if the obj already exists, delete the old and add the new (update)
                 // (doesn't work for duplicates within database since BuildDictionaries needs to be called)
-                const std::string& s = obj->GetName();
-                typename std::map<std::string, T*>::iterator iter = dataMap.find(s);
+                const std::string& s = obj.GetName();
+                typename std::map<std::string, T>::iterator iter = dataMap.find(s);
                 if (iter != dataMap.end())
                 {
-                    fprintf(stdout, "Updating database map class: %s\n", obj->GetName());
-                    T* oldObj = iter->second;
-                    assert(oldObj != 0);
+                    fprintf(stdout, "Updating database map class: %s\n", obj.GetName());
+                    // T* oldObj = iter->second;
+                    // assert(oldObj != 0);
                     
-                    delete oldObj;
+                    // delete oldObj;
                     dataMap.erase(iter);
                 }
 
@@ -148,7 +149,7 @@ namespace database
 			tableData.close();
 
 		}
-		catch (exception& ex)
+        catch (std::exception& ex)
 		{
             //wxMessageBox(ex.what(), "Error", wxICON_ERROR);
 			return false;
@@ -174,7 +175,7 @@ namespace database
 			// delete table if it exists
 			std::string command = strutil::format("select count(*) from sqlite_master where name='%s';", 
 				tableName.c_str());
-			string countStr = sqlConn.executestring(command);
+            std::string countStr = sqlConn.executestring(command);
 
 
 			if (countStr != "0")
@@ -194,7 +195,7 @@ namespace database
 				tableName.c_str(), columnString.c_str());
 			sqlConn.executenonquery(command);
 		}
-		catch(exception &ex) 
+        catch(std::exception &ex)
 		{
 			std::string message = strutil::format("Database error in table %s: %s",
 				tableName.c_str(), ex.what());
@@ -202,18 +203,18 @@ namespace database
 		}
 
         // size_t nEntries = dataMap.size();
-        typename std::map<std::string, T*>::const_iterator iter = dataMap.begin();
+        typename std::map<std::string, T>::const_iterator iter = dataMap.begin();
 
 
 		for (;iter!=dataMap.end();++iter)
         {
-            T* obj = iter->second;
-            assert(obj != 0);
+            const T& obj = iter->second;
+            // assert(obj != 0);
 
             try
             {
                 std::string valueString;
-                obj->WriteSql(valueString);
+                obj.WriteSql(valueString);
 
 #ifdef _DEBUG
                 fprintf(stdout, "value str: (%s)\n", valueString.c_str());
@@ -222,11 +223,11 @@ namespace database
                     tableName.c_str(), valueString.c_str());
                 sqlConn.executenonquery(command);
             }
-            catch(exception &ex) 
+            catch(std::exception &ex)
             {
                 std::string message = strutil::format(
                     "Error in table: %s, entry: %s, %s",
-                    tableName.c_str(), obj->GetName(), ex.what());
+                    tableName.c_str(), obj.GetName(), ex.what());
                 //wxMessageBox(message.GetData(), "Database Error", wxICON_ERROR);
             }
 

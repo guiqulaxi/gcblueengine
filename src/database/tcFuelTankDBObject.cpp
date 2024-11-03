@@ -71,7 +71,7 @@ namespace database
 		fuelCapacity_kg = entry.GetDouble("FuelCapacity_kg");
 	}
 
-	void tcFuelTankDBObject::WriteSql(std::string& valueString)
+    void tcFuelTankDBObject::WriteSql(std::string& valueString) const
 	{
 		tcDatabaseObject::WriteSql(valueString);
 

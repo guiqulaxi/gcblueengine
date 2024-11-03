@@ -155,7 +155,7 @@ void tcAirDBObject::ReadSql(tcSqlReader& entry)
 }
 
 
-void tcAirDBObject::WriteSql(std::string& valueString)
+void tcAirDBObject::WriteSql(std::string& valueString) const
 {
 	tcPlatformDBObject::WriteSql(valueString);
 

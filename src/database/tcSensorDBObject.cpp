@@ -155,7 +155,7 @@ void tcSensorDBObject::ReadSql(tcSqlReader& entry)
 	CalculateParams();
 }
 
-void tcSensorDBObject::WriteSql(std::string& valueString)
+void tcSensorDBObject::WriteSql(std::string& valueString) const
 {
 	tcDatabaseObject::WriteSql(valueString);
 
@@ -227,5 +227,20 @@ tcSensorDBObject::~tcSensorDBObject()
 {
 }
 
+
 }
+// #include <pybind11-global/pybind11/pybind11.h>
+// #include <pybind11-global/pybind11/eval.h>
+// #include <pybind11-global/pybind11/embed.h>
+
+// using namespace scriptinterface ;
+// namespace py = pybind11;
+// using namespace py;
+// void init_file1_bindings(py::module &m) {
+
+//     // 绑定 file1.cpp 中的函数和类
+//     py::class_<tcSensorDBObject,tcDatabaseObject>(m,"tcSensorDBObject")
+//         .def_readwrite("mfMaxRange_km",&tcSensorDBObject::mfMaxRange_km);
+// }
+
 

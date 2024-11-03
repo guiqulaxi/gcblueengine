@@ -31,6 +31,7 @@
 #include "tcAero.h"
 #include "strutil.h"
 #include <cassert>
+#include "tcAeroAirObject.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -426,7 +427,7 @@ void tcJetDBObject::ReadSql(tcSqlReader& entry)
     CalculateParams();
 }
 
-void tcJetDBObject::WriteSql(std::string& valueString)
+void tcJetDBObject::WriteSql(std::string& valueString) const
 {
     tcAirDBObject::WriteSql(valueString);
 
@@ -504,6 +505,11 @@ tcJetDBObject::tcJetDBObject(tcJetDBObject& obj)
 
 tcJetDBObject::~tcJetDBObject()
 {
+}
+
+tcGameObject* tcJetDBObject::CreateGameObject()
+{
+        return new tcAeroAirObject(this);
 }
 
 

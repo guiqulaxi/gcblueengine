@@ -30,10 +30,9 @@
 #endif // _MSC_VER > 1000
 
 #include "tcSonobuoyDBObject.h"
-#include "tinyxml2.h"
 #include "database/tcSqlReader.h"
 #include <sstream>
-
+#include "tcSonobuoy.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -77,7 +76,7 @@ namespace database
         commRange_km = entry.GetDouble("CommRange_km");
 	}
 
-	void tcSonobuoyDBObject::WriteSql(std::string& valueString)
+    void tcSonobuoyDBObject::WriteSql(std::string& valueString) const
 	{
         tcDatabaseObject::WriteSql(valueString);
         tcSensorPlatformDBObject::WriteSql(valueString);
@@ -113,6 +112,11 @@ namespace database
 	tcSonobuoyDBObject::~tcSonobuoyDBObject() 
 	{
 	}
+
+    tcGameObject *tcSonobuoyDBObject::CreateGameObject()
+    {
+       return new tcSonobuoy(this);
+    }
 
 }
 

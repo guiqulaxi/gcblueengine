@@ -87,11 +87,12 @@ namespace database
 
         static void AddSqlColumns(std::string& columnString);
         void ReadSql(tcSqlReader& entry);
-        void WriteSql(std::string& valueString);
+        void WriteSql(std::string& valueString) const;
 
         tcTorpedoDBObject();
         tcTorpedoDBObject(const tcTorpedoDBObject& obj); ///< copy constructor
         virtual ~tcTorpedoDBObject();
+        virtual tcGameObject *CreateGameObject() override;
 
     private:
         void CalculateParams();

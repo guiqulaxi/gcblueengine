@@ -33,13 +33,11 @@
 #include "tcTorpedoDBObject.h"
 #include "tcSonarDBObject.h"
 #include "math_constants.h"
-#include "randfn.h"
-
 #include "tcDatabase.h"
-#include "tinyxml2.h"
 #include "database/tcSqlReader.h"
 #include <sstream>
 #include<cassert>
+#include "tcTorpedoObject.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -125,7 +123,7 @@ namespace database
         CalculateParams();
     }
 
-    void tcTorpedoDBObject::WriteSql(std::string& valueString)
+    void tcTorpedoDBObject::WriteSql(std::string& valueString) const
     {
         tcWeaponDBObject::WriteSql(valueString);
         tcWaterDetectionDBObject::WriteSql(valueString);
@@ -190,6 +188,11 @@ namespace database
 
     tcTorpedoDBObject::~tcTorpedoDBObject() 
     {
+    }
+
+    tcGameObject *tcTorpedoDBObject::CreateGameObject()
+    {
+        return new tcTorpedoObject(this);
     }
 
 } // namespace database

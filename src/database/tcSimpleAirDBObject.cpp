@@ -30,7 +30,8 @@
 #endif
 
 #include "tcSimpleAirDBObject.h"
-
+#include "tcAirObject.h"
+#include "tcHeloObject.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -52,6 +53,25 @@ tcSimpleAirDBObject::tcSimpleAirDBObject(const tcSimpleAirDBObject& obj)
 
 tcSimpleAirDBObject::~tcSimpleAirDBObject() 
 {
+}
+
+ tcGameObject* tcSimpleAirDBObject::CreateGameObject()
+{
+    /* these types are defined in tcDatabase.h */
+    switch (this->mnModelType)
+    {
+    case MTYPE_FIXEDWING:
+    case MTYPE_AIR:
+        return new tcAirObject(this);
+        break;
+    case MTYPE_HELO:
+        return new tcHeloObject(this);
+        break;
+    default:
+        fprintf(stderr, "tcSimState::CreateGameObject - "
+                        "Invalid model type for Simple Air DB obj (%d)\n", this->mnModelType);
+        return NULL;
+    }
 }
 
 }

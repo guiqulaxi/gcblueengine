@@ -32,7 +32,7 @@
 
 #include <string>
 #include "tcDBString.h"
-
+#include <array>
 namespace database
 {
 	class tcSqlReader;
@@ -45,21 +45,22 @@ namespace database
     public:
         /// fields from tcDatabaseObject, didn't want to fully derive (create more general base class?)
         tcDBString mzClass; ///< name of platform class, e.g. "Spruance"
-
+        //float aspectModifier_dB[37]; // every 10 deg starting with 0 plus wraparound value
+        std::array<float, 37> aspectModifier_dB;
+        float topModifier_dB; ///< looking down at target
+        float bottomModifier_dB; ///< looking up at target
         float GetModifier(float az_deg, float el_deg) const;
 
         const char* GetName() const; ///< returns name of this instance
 		static void AddSqlColumns(std::string& columnString);
 		void ReadSql(tcSqlReader& entry);
-		void WriteSql(std::string& valueString);
+        void WriteSql(std::string& valueString) const;
 
         tcSignatureModel();
         tcSignatureModel(const tcSignatureModel& obj); ///< copy constructor
         virtual ~tcSignatureModel();
 	private:
-        float aspectModifier_dB[37]; // every 10 deg starting with 0 plus wraparound value
-        float topModifier_dB; ///< looking down at target
-        float bottomModifier_dB; ///< looking up at target
+
 
     };
 

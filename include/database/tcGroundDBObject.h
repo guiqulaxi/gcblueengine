@@ -53,11 +53,12 @@ namespace database
 
 		static void AddSqlColumns(std::string& columnString);
 		void ReadSql(tcSqlReader& entry);
-		void WriteSql(std::string& valueString);
+        void WriteSql(std::string& valueString) const;
 
         tcGroundDBObject();
         tcGroundDBObject(const tcGroundDBObject& obj); ///< copy constructor
         virtual ~tcGroundDBObject();
+        virtual tcGameObject * CreateGameObject() override;
 
 	private:
 

@@ -70,14 +70,15 @@ namespace database
 
 		static void AddSqlColumns(std::string& columnString);
 		void ReadSql(tcSqlReader& entry);
-		void WriteSql(std::string& valueString);
+        void WriteSql(std::string& valueString) const;
 
         bool IsNuclear() const;
 
-	protected:
+
 		tcWeaponDBObject();
 		tcWeaponDBObject(const tcWeaponDBObject& obj); ///< copy constructor
 		virtual ~tcWeaponDBObject();
+
 	};
 
 } // namespace database

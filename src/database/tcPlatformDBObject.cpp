@@ -34,14 +34,12 @@
 #include "tcFlightportDBObject.h"
 #include "tcLauncherDBObject.h"
 #include "math_constants.h"
-#include "randfn.h"
-#include "CsvTranslator.h"
 //#include "tc3DModel.h"
-#include "tinyxml2.h"
 #include "database/tcSqlReader.h"
 #include <sstream>
 #include "tcStoresDBObject.h"
 #include <cassert>
+#include "tcGameObject.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -445,7 +443,7 @@ void tcPlatformDBObject::ReadSql(tcSqlReader& entry)
 
 }
 
-void tcPlatformDBObject::WriteSql(std::string& valueString)
+void tcPlatformDBObject::WriteSql(std::string& valueString) const
 {
 	tcDatabaseObject::WriteSql(valueString);
 
@@ -566,5 +564,7 @@ tcPlatformDBObject::tcPlatformDBObject(const tcPlatformDBObject& obj)
 tcPlatformDBObject::~tcPlatformDBObject() 
 {
 }
+
+
 
 }
