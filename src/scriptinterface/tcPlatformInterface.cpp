@@ -207,7 +207,7 @@ namespace scriptinterface {
     /**
     * @return altitude in m
     */
-	float tcPlatformInterface::GetAltitude() const
+    float tcPlatformInterface::GetAltitude() const
     {
         if (mpPlatformObj != 0)
         {

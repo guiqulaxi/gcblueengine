@@ -1,7 +1,7 @@
 #include "tcPythonBind.h"
 #include "tcDatabaseInterface.h"
 using namespace scriptinterface ;
-void BindDatabase(py::module &m)
+void BindDatabase(module &m)
 {
     py::class_<tcDatabaseInterface>(m, "tcDatabaseInterface")
         .def(py::init<>())

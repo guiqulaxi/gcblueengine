@@ -1,5 +1,5 @@
-/** 
-**  @file tcStringTable.h
+/**
+**  @file Task.h
 */
 /*
 **  Copyright (c) 2014, GCBLUE PROJECT
@@ -23,53 +23,88 @@
 **  IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _STRINGTABLE_H_
-#define _STRINGTABLE_H_
+#ifndef _TASK_H_
+#define _TASK_H_
 
-#ifdef WIN32
+#if _MSC_VER > 1000
 #pragma once
 #endif
 
-#include "tcStringArray.h"
+#include "ai/BlackboardInterface.h"
+
+#include <map>
 #include <string>
 #include <vector>
 
-/**
-*
-*/
-namespace scriptinterface 
+namespace scriptinterface
 {
-	/**
-	* Class for array of stringarrays to pass to python
-	*/
-	class tcStringTable
+    class tcPlatformInterface;
+}
+
+using scriptinterface::tcPlatformInterface;
+
+class tcPlatformObject;
+class tcGameStream;
+
+namespace ai
+{
+
+class Blackboard;
+
+/**
+* Base class for ai tasks. Could also call these behaviors.
+*/
+class Task : public BlackboardInterface
+{
+public:
+	/** task type bit field */
+	enum
 	{
-	public:
-		std::vector<tcStringArray> stringTable;
-
-		void AddStringArray(const tcStringArray& s);
-        void PushBack(const tcStringArray& s);
-		tcStringArray GetStringArray(unsigned n) const;
-		std::string GetString(unsigned n) const;
-		unsigned int Size();
-
-        void Clear();
-        tcStringTable(const std::vector<std::vector<std::string>> & other) {
-
-            for (int  i= 0; i < other.size(); ++i) {
-                tcStringArray sa;
-                for (int j = 0; j < other[i].size(); ++j) {
-                    sa.PushBack(other[i][j]);
-                }
-                this->PushBack(sa);
-            }
-
-        }
-		tcStringTable();
-		~tcStringTable();
+		DEFAULT_ATTRIBUTES = 0,
+		HIDDEN = 1, ///< task not displayed on user task list
+		PERMANENT = 2 ///< task not removed when user clears tasks
 	};
+
+
+   tcPlatformInterface GetPlatformInterface();
+    
+    void EndTask();
+    void FinishUpdate(double t);
+    const std::string& GetTaskName() const;
+    bool IsReadyForUpdate(double t) const;
+
+	int GetAttributes() const;
+	void SetAttributes(int attributes_);
+	bool IsHidden() const;
+	bool IsPermanent() const;
+
+    bool IsRunning() const;
+    void SetRunState(bool state);
+
+    void SetUpdateInterval(float interval);
+    virtual void Update(double t);
+
+    virtual tcGameStream& operator<<(tcGameStream& stream);
+	virtual tcGameStream& operator>>(tcGameStream& stream);
+
+    Task(tcPlatformObject* platform_, Blackboard* bb, 
+        long id_, double priority_, int attributes_, const std::string& taskName_);
+    virtual ~Task();
+    
+
+    tcPlatformObject*  platform;
+protected:
+   	const std::string taskName;
+	int attributes; ///< bitfield of task attributes
+    bool isRunning; ///< true if task should receive updates
+
+private:
+    double lastUpdateTime;
+    float updateInterval;   
+};
+
+
 
 }
 
 #endif
-

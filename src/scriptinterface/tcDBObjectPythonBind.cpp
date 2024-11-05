@@ -11,28 +11,22 @@
 #include "tcBallisticMissileDBObject.h"
 #include "tcCounterMeasureDBObject.h"
 #include "tcCountryData.h"
-#include "tcECMDBObject.h"
-#include "tcESMDBObject.h"
+
 #include "tcFlightportDBObject.h"
 #include "tcFuelTankDBObject.h"
 #include "tcGroundDBObject.h"
 #include "tcJetDBObject.h"
 #include "tcLauncherDBObject.h"
 #include "tcMissileDBObject.h"
-#include "tcOpticalDBObject.h"
-#include "tcRadarDBObject.h"
 #include "tcShipDBObject.h"
-#include "tcSonarDBObject.h"
-#include "tcSonobuoyDBObject.h"
+
 #include "tcSpaceDBObject.h"
 #include "tcStoresDBObject.h"
-#include "tcSubDBObject.h"
-#include "tcTorpedoDBObject.h"
-#include "tcTableObject.h"
-#include "tcWeaponDamage.h"
-#include "tcDamageEffect.h"
+
+
 #include "tcItemDBObject.h"
 using namespace database;
+
 void BindDBObject(module &m)
 {
     py::class_<tcDBString>(m, "tcDBString")
@@ -98,39 +92,6 @@ void BindDBObject(module &m)
         .def_readwrite("cavitationSlope_ktsperft", &tcAcousticModel::cavitationSlope_ktsperft)
         .def_readwrite("cavitationSL_dB", &tcAcousticModel::cavitationSL_dB)
         .def_readwrite("snorkelingSL_dB", &tcAcousticModel::snorkelingSL_dB);
-    pybind11::class_<tcSensorPlatformDBObject>(m, "tcSensorPlatformDBObject")
-        .def(pybind11::init<>()) // 绑定默认构造函数
-        .def_readwrite("sensorClass", &tcSensorPlatformDBObject::sensorClass)
-        .def_readwrite("sensorId", &tcSensorPlatformDBObject::sensorId)
-        .def_readwrite("sensorAz", &tcSensorPlatformDBObject::sensorAz);
-    // .def_static("MAXSENSORS", (int)tcSensorPlatformDBObject::MAXSENSORS, "Maximum number of sensor entries supported in database");
-    pybind11::class_<tcPlatformDBObject, tcDatabaseObject, tcSensorPlatformDBObject>(m, "PlatformDBObject")
-        .def(pybind11::init<>())
-        .def_readwrite("mfMaxSpeed_kts", &tcPlatformDBObject::mfMaxSpeed_kts)
-        .def_readwrite("mfAccel_ktsps", &tcPlatformDBObject::mfAccel_ktsps)
-        .def_readwrite("mfTurnRate_degps", &tcPlatformDBObject::mfTurnRate_degps)
-        .def_readwrite("mfFuelCapacity_kg", &tcPlatformDBObject::mfFuelCapacity_kg)
-        .def_readwrite("mfFuelRate_kgps", &tcPlatformDBObject::mfFuelRate_kgps)
-        .def_readwrite("mfToughness", &tcPlatformDBObject::mfToughness)
-        .def_readwrite("damageEffect", &tcPlatformDBObject::damageEffect)
-        .def_readwrite("mnNumLaunchers", &tcPlatformDBObject::mnNumLaunchers)
-        .def_readwrite("mnNumMagazines", &tcPlatformDBObject::mnNumMagazines)
-        .def_readwrite("maLauncherClass", &tcPlatformDBObject::maLauncherClass)
-        .def_readwrite("maMagazineClass", &tcPlatformDBObject::maMagazineClass)
-        .def_readwrite("magazineId", &tcPlatformDBObject::magazineId)
-        .def_readwrite("launcherId", &tcPlatformDBObject::launcherId)
-        .def_readwrite("launcherDescription", &tcPlatformDBObject::launcherDescription)
-        .def_readwrite("launcherName", &tcPlatformDBObject::launcherName)
-        .def_readwrite("launcherFOV_deg", &tcPlatformDBObject::launcherFOV_deg)
-        .def_readwrite("launcherAz_deg", &tcPlatformDBObject::launcherAz_deg)
-        .def_readwrite("launcherEl_deg", &tcPlatformDBObject::launcherEl_deg)
-        .def_readwrite("launcherFireControl", &tcPlatformDBObject::launcherFireControl)
-        .def_readwrite("launcherFireControl2", &tcPlatformDBObject::launcherFireControl2)
-        .def_readwrite("launcherIsReloadable", &tcPlatformDBObject::launcherIsReloadable);/*
-        .def_static("MAXLAUNCHERS", tcPlatformDBObject::MAXLAUNCHERS, "Maximum number of launchers")
-        .def_static("MAXANIMATIONS", tcPlatformDBObject::MAXANIMATIONS, "Maximum number of animations")
-        .def_static("MAXMAGAZINES", tcPlatformDBObject::MAXMAGAZINES, "Maximum number of magazines");*/
-
     py::class_<tcSignatureModel>(m, "tcSignatureModel")
         .def(pybind11::init<>())
         .def_readwrite("mzClass", &tcSignatureModel::mzClass)
@@ -138,6 +99,14 @@ void BindDBObject(module &m)
         .def_readwrite("topModifier_dB", &tcSignatureModel::topModifier_dB)
         .def_readwrite("bottomModifier_dB", &tcSignatureModel::bottomModifier_dB)
         .def("GetModifier", &tcSignatureModel::GetModifier, "az_deg"_a, "el_deg"_a);
+    pybind11::class_<tcSensorPlatformDBObject>(m, "tcSensorPlatformDBObject")
+        .def(pybind11::init<>()) // 绑定默认构造函数
+        .def_readwrite("sensorClass", &tcSensorPlatformDBObject::sensorClass)
+        .def_readwrite("sensorId", &tcSensorPlatformDBObject::sensorId)
+        .def_readwrite("sensorAz", &tcSensorPlatformDBObject::sensorAz);
+    // .def_static("MAXSENSORS", (int)tcSensorPlatformDBObject::MAXSENSORS, "Maximum number of sensor entries supported in database");
+    BindPlatformDBObject(m);
+
     pybind11::class_<tcAirDetectionDBObject>(m, "tcAirDetectionDBObject")
         .def(pybind11::init<>())
         .def_readwrite("RCS_dBsm", &tcAirDetectionDBObject::RCS_dBsm)
@@ -188,26 +157,7 @@ void BindDBObject(module &m)
         .def_readwrite("one_over_launchSpeed", &tcBallisticDBObject::one_over_launchSpeed)
         .def_readwrite("launchSpeed2", &tcBallisticDBObject::launchSpeed2);
 
-    py::class_<tcBallisticMissileDBObject, tcWeaponDBObject, tcAirDetectionDBObject>(m, "tcBallisticMissileDBObject")
-        .def(py::init<>()) // 假设有一个默认构造函数
-        .def_readwrite("gmax", &tcBallisticMissileDBObject::gmax)
-        .def_readwrite("timeStage1_s", &tcBallisticMissileDBObject::timeStage1_s)
-        .def_readwrite("accelStage1_mps2", &tcBallisticMissileDBObject::accelStage1_mps2)
-        .def_readwrite("bcStage1", &tcBallisticMissileDBObject::bcStage1)
-        .def_readwrite("inv_bcStage1", &tcBallisticMissileDBObject::inv_bcStage1)
-        .def_readwrite("timeStage2_s", &tcBallisticMissileDBObject::timeStage2_s)
-        .def_readwrite("accelStage2_mps2", &tcBallisticMissileDBObject::accelStage2_mps2)
-        .def_readwrite("bcStage2", &tcBallisticMissileDBObject::bcStage2)
-        .def_readwrite("inv_bcStage2", &tcBallisticMissileDBObject::inv_bcStage2)
-        .def_readwrite("timeStage3_s", &tcBallisticMissileDBObject::timeStage3_s)
-        .def_readwrite("accelStage3_mps2", &tcBallisticMissileDBObject::accelStage3_mps2)
-        .def_readwrite("bcStage3", &tcBallisticMissileDBObject::bcStage3)
-        .def_readwrite("inv_bcStage3", &tcBallisticMissileDBObject::inv_bcStage3)
-        .def_readwrite("timeStage4_s", &tcBallisticMissileDBObject::timeStage4_s)
-        .def_readwrite("accelStage4_mps2", &tcBallisticMissileDBObject::accelStage4_mps2)
-        .def_readwrite("bcStage4", &tcBallisticMissileDBObject::bcStage4)
-        .def_readwrite("inv_bcStage4", &tcBallisticMissileDBObject::inv_bcStage4)
-        .def_readwrite("thrustShutoffTime_s", &tcBallisticMissileDBObject::thrustShutoffTime_s);
+
 
     py::class_<tcWaterDetectionDBObject>(m, "tcWaterDetectionDBObject")
         .def(py::init<>())
@@ -227,33 +177,7 @@ void BindDBObject(module &m)
         .def(py::init<>())
         .def_readwrite("countryName", &tcCountryData::countryName)
         .def_readwrite("navalEnsign", &tcCountryData::navalEnsign);
-    py::class_<tcSensorDBObject,tcDatabaseObject>(m, "tcSensorDBObject")
-        .def(py::init<>())
-        .def_readwrite("mfMaxRange_km", &tcSensorDBObject::mfMaxRange_km)
-        .def_readwrite("mfRefRange_km", &tcSensorDBObject::mfRefRange_km)
-        .def_readwrite("mfFieldOfView_deg", &tcSensorDBObject::mfFieldOfView_deg)
-        .def_readwrite("minElevation_deg", &tcSensorDBObject::minElevation_deg)
-        .def_readwrite("maxElevation_deg", &tcSensorDBObject::maxElevation_deg)
-        .def_readwrite("mfScanPeriod_s", &tcSensorDBObject::mfScanPeriod_s)
-        .def_readwrite("damageEffect", &tcSensorDBObject::damageEffect)
-        .def_readwrite("rangeError", &tcSensorDBObject::rangeError)
-        .def_readwrite("angleError_deg", &tcSensorDBObject::angleError_deg)
-        .def_readwrite("elevationError_deg", &tcSensorDBObject::elevationError_deg)
-        .def_readwrite("minFrequency_Hz", &tcSensorDBObject::minFrequency_Hz)
-        .def_readwrite("maxFrequency_Hz", &tcSensorDBObject::maxFrequency_Hz)
-        .def_readwrite("idThreshold_dB", &tcSensorDBObject::idThreshold_dB)
-        .def_readwrite("counterMeasureFactor", &tcSensorDBObject::counterMeasureFactor)
-        .def_readwrite("isSurveillance", &tcSensorDBObject::isSurveillance);
-    py::class_<tcECMDBObject,tcSensorDBObject>(m, "tcECMDBObject")
-        .def(py::init<>())
-        .def_readwrite("ecmType", &tcECMDBObject::ecmType)
-        .def_readwrite("ERP_dBW", &tcECMDBObject::ERP_dBW)
-        .def_readwrite("effectivenessRating", &tcECMDBObject::effectivenessRating)
-        .def_readwrite("isEffectiveVsSurveillance", &tcECMDBObject::isEffectiveVsSurveillance)
-        .def_readwrite("isEffectiveVsSeeker", &tcECMDBObject::isEffectiveVsSeeker);
-    py::class_< tcESMDBObject,tcSensorDBObject>(m, "tcESMDBObject")
-        .def(py::init<>())
-        .def_readwrite("ecmType", &tcESMDBObject::isRWR);
+
     py::class_<tcFlightportDBObject,tcDatabaseObject>(m, "tcFlightportDBObject")
         .def(py::init<>())
         .def_readwrite("heloOnly", &tcFlightportDBObject::heloOnly)
@@ -336,105 +260,14 @@ void BindDBObject(module &m)
         .value("GM_DEPLOY", teGuidanceMode::GM_DEPLOY)
         .export_values();
 
-    py::class_<tcMissileDBObject, tcWeaponDBObject, tcAirDetectionDBObject>(m, "tcMissileDBObject")
-        .def(py::init<>())
-        .def_readwrite("mfDragArea_sm", &tcMissileDBObject::mfDragArea_sm)
-        .def_readwrite("mfGmax", &tcMissileDBObject::mfGmax)
-        .def_readwrite("mfMaxTurnRate_degps", &tcMissileDBObject::mfMaxTurnRate_degps)
-        .def_readwrite("mfCdpsub", &tcMissileDBObject::mfCdpsub)
-        .def_readwrite("mfCdptran", &tcMissileDBObject::mfCdptran)
-        .def_readwrite("mfCdpsup", &tcMissileDBObject::mfCdpsup)
-        .def_readwrite("mfMcm", &tcMissileDBObject::mfMcm)
-        .def_readwrite("mfMsupm", &tcMissileDBObject::mfMsupm)
-        .def_readwrite("mfBoostThrust_N", &tcMissileDBObject::mfBoostThrust_N)
-        .def_readwrite("mfBoostTime_s", &tcMissileDBObject::mfBoostTime_s)
-        .def_readwrite("mfSustThrust_N", &tcMissileDBObject::mfSustThrust_N)
-        .def_readwrite("mfSustTime_s", &tcMissileDBObject::mfSustTime_s)
-        .def_readwrite("mfShutdownSpeed_mps", &tcMissileDBObject::mfShutdownSpeed_mps)
-        .def_readwrite("maSensorClass", &tcMissileDBObject::maSensorClass)
-        .def_readwrite("sensorKey", &tcMissileDBObject::sensorKey)
-        .def_readwrite("needsFireControl", &tcMissileDBObject::needsFireControl)
-        .def_readwrite("acceptsWaypoints", &tcMissileDBObject::acceptsWaypoints)
-        .def_readwrite("fireAndForget", &tcMissileDBObject::fireAndForget)
-        .def_readwrite("isARM", &tcMissileDBObject::isARM)
-        .def_readwrite("seekerFOV_rad", &tcMissileDBObject::seekerFOV_rad)
-        .def_readwrite("aczConstant_kts", &tcMissileDBObject::aczConstant_kts)
-        .def_readwrite("invMass_kg", &tcMissileDBObject::invMass_kg)
-        .def_readwrite("mnNumSegments", &tcMissileDBObject::mnNumSegments)
-        .def_readwrite("maFlightProfile", &tcMissileDBObject::maFlightProfile);
 
-    py::class_<tcOpticalDBObject,tcSensorDBObject>(m, "tcOpticalDBObject")
-        .def(py::init<>()) // 默认构造函数
-        .def_readwrite("maxFireControlTracks", &tcOpticalDBObject::maxFireControlTracks)
-        .def_readwrite("isSemiactive", &tcOpticalDBObject::isSemiactive)
-        .def_readwrite("isDesignator", &tcOpticalDBObject::isDesignator)
-        .def_readwrite("mbDetectsSurface", &tcOpticalDBObject::mbDetectsSurface)
-        .def_readwrite("mbDetectsAir", &tcOpticalDBObject::mbDetectsAir)
-        .def_readwrite("mbDetectsMissile", &tcOpticalDBObject::mbDetectsMissile)
-        .def_readwrite("mbDetectsGround", &tcOpticalDBObject::mbDetectsGround)
-        .def_readwrite("isIR", &tcOpticalDBObject::isIR)
-        .def_readwrite("nightFactor", &tcOpticalDBObject::nightFactor);
-    py::class_<tcRadarDBObject, tcSensorDBObject>(m, "tcRadarDBObject")
-        .def(py::init<>())
-        .def_readwrite("ERPpeak_dBW", &tcRadarDBObject::ERPpeak_dBW)
-        .def_readwrite("ERPaverage_dBW", &tcRadarDBObject::ERPaverage_dBW)
-        .def_readwrite("maxFireControlTracks", &tcRadarDBObject::maxFireControlTracks)
-        .def_readwrite("isSemiactive", &tcRadarDBObject::isSemiactive)
-        .def_readwrite("blindSpeed_mps", &tcRadarDBObject::blindSpeed_mps)
-        .def_readwrite("lookdownWater_dB", &tcRadarDBObject::lookdownWater_dB)
-        .def_readwrite("lookdownLand_dB", &tcRadarDBObject::lookdownLand_dB)
-        .def_readwrite("bandwidth_Hz", &tcRadarDBObject::bandwidth_Hz)
-        .def_readwrite("azimuthBeamwidth_deg", &tcRadarDBObject::azimuthBeamwidth_deg)
-        .def_readwrite("elevationBeamwidth_deg", &tcRadarDBObject::elevationBeamwidth_deg)
-        .def_readwrite("effectiveSidelobes_dB", &tcRadarDBObject::effectiveSidelobes_dB)
-        .def_readwrite("mbDetectsSurface", &tcRadarDBObject::mbDetectsSurface)
-        .def_readwrite("mbDetectsAir", &tcRadarDBObject::mbDetectsAir)
-        .def_readwrite("mbDetectsMissile", &tcRadarDBObject::mbDetectsMissile)
-        .def_readwrite("mbDetectsGround", &tcRadarDBObject::mbDetectsGround)
-        .def_readwrite("invBlindSpeed_mps", &tcRadarDBObject::invBlindSpeed_mps)
-        .def_readwrite("antennaGain", &tcRadarDBObject::antennaGain)
-        .def_readwrite("antennaGain_dBi", &tcRadarDBObject::antennaGain_dBi)
-        .def_readwrite("invAzBeamwidth_deg", &tcRadarDBObject::invAzBeamwidth_deg)
-        .def_readwrite("invElBeamwidth_deg", &tcRadarDBObject::invElBeamwidth_deg)
-        .def_readwrite("cpi_s", &tcRadarDBObject::cpi_s)
-        .def_readwrite("jamConstant_dB", &tcRadarDBObject::jamConstant_dB);
+    BindMissileDBObject(m);
+
+    BindShipDBObject(m);
 
 
-    py::class_<tcShipDBObject,tcPlatformDBObject,tcAirDetectionDBObject,tcWaterDetectionDBObject>(m, "tcShipDBObject")
-        .def(py::init<>())
-        .def_readwrite("draft_m", &tcShipDBObject::draft_m)
-        .def_readwrite("length_m", &tcShipDBObject::length_m)
-        .def_readwrite("beam_m", &tcShipDBObject::beam_m)
-        .def_readwrite("PowerPlantType", &tcShipDBObject::PowerPlantType)
-        .def_readwrite("TotalShaft_HP", &tcShipDBObject::TotalShaft_HP)
-        .def_readwrite("ExhaustStacks", &tcShipDBObject::ExhaustStacks)
-        .def_readwrite("PropulsionShafts", &tcShipDBObject::PropulsionShafts)
-        .def_readwrite("PropulsiveEfficiency", &tcShipDBObject::PropulsiveEfficiency)
-        .def_readwrite("CivilianPaintScheme", &tcShipDBObject::CivilianPaintScheme)
-        .def_readwrite("FlashyPaintScheme", &tcShipDBObject::FlashyPaintScheme)
-        .def_readwrite("flightportClass", &tcShipDBObject::flightportClass);
 
-    py::class_<tcSonarDBObject,tcSensorDBObject>(m, "tcSonarDBObject")
-        .def(py::init<>())
-        .def_readwrite("SL", &tcSonarDBObject::SL)
-        .def_readwrite("DI", &tcSonarDBObject::DI)
-        .def_readwrite("minFrequency_Hz", &tcSonarDBObject::minFrequency_Hz)
-        .def_readwrite("maxFrequency_Hz", &tcSonarDBObject::maxFrequency_Hz)
-        .def_readwrite("isPassive", &tcSonarDBObject::isPassive)
-        .def_readwrite("isActive", &tcSonarDBObject::isActive)
-        .def_readwrite("isTowed", &tcSonarDBObject::isTowed)
-        .def_readwrite("maxScope_m", &tcSonarDBObject::maxScope_m)
-        .def_readwrite("isWakeHoming", &tcSonarDBObject::isWakeHoming)
-        .def_readwrite("alpha", &tcSonarDBObject::alpha)
-        .def_readwrite("averageFreq_Hz", &tcSonarDBObject::averageFreq_Hz);
 
-    py::class_<tcSonobuoyDBObject,tcDatabaseObject,  tcSensorPlatformDBObject,  tcWaterDetectionDBObject>(m, "tcSonobuoyDBObject")
-        .def(py::init<>())
-        .def_readwrite("batteryLife_s", &tcSonobuoyDBObject::batteryLife_s)
-        .def_readwrite("commRange_km", &tcSonobuoyDBObject::commRange_km);
-
-    py::class_<tcSpaceDBObject,tcPlatformDBObject>(m, "tcSpaceDBObject")
-        .def(py::init<>());
     py::class_<tcStoresDBObject>(m, "tcStoresDBObject")
         .def(py::init<>())
         .def_readwrite("displayName", &tcStoresDBObject::displayName)
@@ -443,64 +276,10 @@ void BindDBObject(module &m)
         .def_readwrite("maxWeight_kg", &tcStoresDBObject::maxWeight_kg)
         .def_readwrite("moveTime", &tcStoresDBObject::moveTime)
         .def_readwrite("compatibleItems", &tcStoresDBObject::compatibleItems);
-
-    py::class_<tcSubDBObject,tcPlatformDBObject,  tcAirDetectionDBObject,  tcWaterDetectionDBObject>(m, "tcSubDBObject")
-        .def(py::init<>())
-        .def_readwrite("draft_m", &tcSubDBObject::draft_m)
-        .def_readwrite("surfaceSpeed_kts", &tcSubDBObject::surfaceSpeed_kts)
-        .def_readwrite("mfMaxDepth_m", &tcSubDBObject::mfMaxDepth_m)
-        .def_readwrite("isDieselElectric", &tcSubDBObject::isDieselElectric)
-        .def_readwrite("batteryCapacity_kJ", &tcSubDBObject::batteryCapacity_kJ)
-        .def_readwrite("batteryRate_kW", &tcSubDBObject::batteryRate_kW)
-        .def_readwrite("batteryCharge_kW", &tcSubDBObject::batteryCharge_kW);
-
-    py::class_<tcTorpedoDBObject, tcWeaponDBObject, tcWaterDetectionDBObject>(m, "tcTorpedoDBObject")
-        .def(py::init<>())
-        .def_readwrite("maxTurnRate_degps", &tcTorpedoDBObject::maxTurnRate_degps)
-        .def_readwrite("maxDepth_m", &tcTorpedoDBObject::maxDepth_m)
-        .def_readwrite("battery_kJ", &tcTorpedoDBObject::battery_kJ)
-        .def_readwrite("batteryRate_kW", &tcTorpedoDBObject::batteryRate_kW)
-        .def_readwrite("maxSpeed_kts", &tcTorpedoDBObject::maxSpeed_kts)
-        .def_readwrite("acceleration_ktsps", &tcTorpedoDBObject::acceleration_ktsps)
-        .def_readwrite("sonarClass", &tcTorpedoDBObject::sonarClass)
-        .def_readwrite("wireGuidance", &tcTorpedoDBObject::wireGuidance)
-        .def_readwrite("preEnableSpeed_kts", &tcTorpedoDBObject::preEnableSpeed_kts)
-        .def_readwrite("weaponType", &tcTorpedoDBObject::weaponType)
-        .def_readwrite("maxTurnRate_radps", &tcTorpedoDBObject::maxTurnRate_radps)
-        .def_readwrite("batteryRate_kWpkt", &tcTorpedoDBObject::batteryRate_kWpkt);
-
-    py::class_<tcTableObject>(m, "tcTableObject")
-        .def(py::init<>())
-        .def_readwrite("databaseClass", &tcTableObject::databaseClass);
-
-    py::class_<tcWeaponDamage, tcTableObject>(m, "tcWeaponDamage")
-        .def(py::init<>())
-        .def_readwrite("maxRange_m", &tcWeaponDamage::maxRange_m)
-        .def_readwrite("probDetonate", &tcWeaponDamage::probDetonate)
-        .def_readwrite("isPenetration", &tcWeaponDamage::isPenetration)
-        .def_readwrite("blastCharge_kg", &tcWeaponDamage::blastCharge_kg)
-        .def_readwrite("fragCharge_kg", &tcWeaponDamage::fragCharge_kg)
-        .def_readwrite("radCharge_kg", &tcWeaponDamage::radCharge_kg)
-        .def_readwrite("fragMetal_kg", &tcWeaponDamage::fragMetal_kg)
-        .def_readwrite("fragFragment_kg", &tcWeaponDamage::fragFragment_kg)
-        .def_readwrite("fragSpread", &tcWeaponDamage::fragSpread);
-
-
-
-
-    py::class_<tcDamageEffect::DamagePoint>(m, "DamagePoint")
-        .def(py::init<>())
-        .def_readwrite("effectLevel", &tcDamageEffect::DamagePoint::effectLevel)
-        .def_readwrite("damageFactor", &tcDamageEffect::DamagePoint::damageFactor);
-    py::class_<tcDamageEffect,tcTableObject>(m, "tcDamageEffect")
-        .def(py::init<>())
-        .def_readwrite("blastEffect", &tcDamageEffect::blastEffect)
-        .def_readwrite("waterBlastEffect", &tcDamageEffect::waterBlastEffect)
-        .def_readwrite("fragEffect", &tcDamageEffect::fragEffect)
-        .def_readwrite("radEffect", &tcDamageEffect::radEffect)
-        .def_readwrite("internalEffect", &tcDamageEffect::internalEffect);
+    BindSonobuoyDBObject(m);
+    BindSubDBObject(m);
+    BindTorpedoDBObject(m);
 
     py::class_<tcItemDBObject , tcDatabaseObject>(m, "tcItemDBObject")
         .def(py::init<>());
 }
-

@@ -35,3 +35,7 @@
 *.hback
 *.cppback
 *.pyc
+
+build/
+MapDataReader/
+client/

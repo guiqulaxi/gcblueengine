@@ -1,5 +1,5 @@
-/** 
-**  @file tcStringTable.h
+/**  
+**  @file tcScenarioLogger.h
 */
 /*
 **  Copyright (c) 2014, GCBLUE PROJECT
@@ -23,53 +23,68 @@
 **  IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _STRINGTABLE_H_
-#define _STRINGTABLE_H_
 
-#ifdef WIN32
+#ifndef _TCSCENARIOLOGGER_H_
+#define _TCSCENARIOLOGGER_H_
+
+#if _MSC_VER > 1000
 #pragma once
 #endif
 
-#include "tcStringArray.h"
-#include <string>
+#include <sstream>
 #include <vector>
+#include "tcFile.h"
+//#include "wx/string.h"
+class tcSimState;
+class tcUserInfo;
+class tcAllianceInfo;
+//class tcMapOverlay;
 
-/**
-*
-*/
 namespace scriptinterface 
 {
+    class tcScenarioInterface;
+
+
 	/**
-	* Class for array of stringarrays to pass to python
+	* Class to assist in writing game state to python-compliant scenario file
 	*/
-	class tcStringTable
+	class tcScenarioLogger
 	{
-	public:
-		std::vector<tcStringArray> stringTable;
+	public:		
+        void AddScenarioText(const char* s); ///< add scenario text with correct indent level and trailing '\n'
+		void AddScenarioText(const std::string& s);
+        void BuildScenarioFile();
+		
+		void WriteAll(); ///< write all scenario info to file
 
-		void AddStringArray(const tcStringArray& s);
-        void PushBack(const tcStringArray& s);
-		tcStringArray GetStringArray(unsigned n) const;
-		std::string GetString(unsigned n) const;
-		unsigned int Size();
+		tcScenarioLogger(const std::string& fileName);
+		~tcScenarioLogger();
+	private:
+		tcFile scenario;
+		const std::string scenarioName;
+		std::stringstream headerText;
+		std::stringstream scenarioText;
+        unsigned int indentLevel;
 
-        void Clear();
-        tcStringTable(const std::vector<std::vector<std::string>> & other) {
+        //tcScenarioInterface* scenarioInterface;
+        tcSimState* simState;
+        tcUserInfo* userInfo;
+        tcAllianceInfo* allianceInfo;
+//        tcMapOverlay* mapOverlay;
 
-            for (int  i= 0; i < other.size(); ++i) {
-                tcStringArray sa;
-                for (int j = 0; j < other[i].size(); ++j) {
-                    sa.PushBack(other[i][j]);
-                }
-                this->PushBack(sa);
-            }
-
-        }
-		tcStringTable();
-		~tcStringTable();
+		void CreateHeaderText();
+		void InitScenarioText();		
+        void EscapeBackslashes(std::string& s);
+        void SaveAllianceBriefings(const std::vector<unsigned>& alliances);
+        void SaveEntities(const std::vector<unsigned>& alliances);
+        void SaveGoals(const std::vector<unsigned>& alliances);
+//        void SaveMapGraphics();
+        void SaveRandomizationInfo();
+        void SetIndentLevel(unsigned int n);
 	};
+
 
 }
 
-#endif
+#endif // _TCSCENARIOLOGGER_H_
 

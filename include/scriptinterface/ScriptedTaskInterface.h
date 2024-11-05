@@ -1,5 +1,5 @@
-/** 
-**  @file tcStringTable.h
+/**
+**  @file ScriptedTaskInterface.h
 */
 /*
 **  Copyright (c) 2014, GCBLUE PROJECT
@@ -23,53 +23,70 @@
 **  IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _STRINGTABLE_H_
-#define _STRINGTABLE_H_
+#ifndef _SCRIPTEDTASKINTERFACE_H_
+#define _SCRIPTEDTASKINTERFACE_H_
 
-#ifdef WIN32
+#if _MSC_VER > 1000
 #pragma once
 #endif
 
-#include "tcStringArray.h"
+#include "Task.h"
+
+#include <map>
 #include <string>
 #include <vector>
+#include <pybind11-global/pybind11/pybind11.h>
+#include <pybind11-global/pybind11/eval.h>
+#include <pybind11-global/pybind11/embed.h>
+namespace py = pybind11;
+using namespace py;
+namespace scriptinterface
+{
+    class tcPlatformInterface;
+}
+
+
+namespace ai
+{
+class BlackboardInterface;
+class ScriptedTask;
 
 /**
-*
+* Interface for ScriptedTask passed to Python
 */
-namespace scriptinterface 
+class ScriptedTaskInterface
 {
-	/**
-	* Class for array of stringarrays to pass to python
-	*/
-	class tcStringTable
-	{
-	public:
-		std::vector<tcStringArray> stringTable;
+public:
+    object GetInterface();
 
-		void AddStringArray(const tcStringArray& s);
-        void PushBack(const tcStringArray& s);
-		tcStringArray GetStringArray(unsigned n) const;
-		std::string GetString(unsigned n) const;
-		unsigned int Size();
+    void EndTask(); ///< deletes task
+    BlackboardInterface GetBlackboardInterface();
+    tcPlatformInterface GetPlatformInterface();
+    void SetUpdateInterval(float interval);
+    
+    const std::string GetMemoryText(const std::string& key);
+    void SetMemoryText(const std::string& key, const std::string& text);
+    double GetMemoryValue(int key);
+    void SetMemoryValue(int key, double value);
+    void SetTaskAttributes(int attributes_);
+    
+    
+    
+    void SetTask(ScriptedTask* scriptedTask);
+       
+    ScriptedTaskInterface(ScriptedTask* scriptedTask);
+    ScriptedTaskInterface();
+    ~ScriptedTaskInterface();
+    
+protected:
+    ScriptedTask* task;
+    static bool pythonInitialized;
+    
+    static void InitPython();
+};
 
-        void Clear();
-        tcStringTable(const std::vector<std::vector<std::string>> & other) {
 
-            for (int  i= 0; i < other.size(); ++i) {
-                tcStringArray sa;
-                for (int j = 0; j < other[i].size(); ++j) {
-                    sa.PushBack(other[i][j]);
-                }
-                this->PushBack(sa);
-            }
-
-        }
-		tcStringTable();
-		~tcStringTable();
-	};
 
 }
 
 #endif
-

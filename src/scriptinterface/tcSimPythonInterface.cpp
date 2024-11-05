@@ -45,8 +45,7 @@
 #include "tcTime.h"
 // #include "network/tcMultiplayerInterface.h"
 
-#include "ai/ScriptedTask.h"
-#include "ai/ScriptedTaskInterface.h"
+#include "ScriptedTaskInterface.h"
 #include "common/tcStream.h"
 #include "common/tcObjStream.h"
 #include "common/tcOptions.h"
@@ -73,158 +72,6 @@ using namespace ai;
 
 namespace scriptinterface 
 {
-//    /**
-//    * Adds a menu item with command string
-//    * @param caption caption for menu item
-//    * @param command command string for item
-//    */
-//    void tcMenuInterface::AddItem(std::string caption, std::string command)
-//    {
-//        if (mpMenu == NULL) {return;}
-//        mpMenu->AddItem(caption, command);
-//    }
-//    /**
-//    * Adds a menu item with command string and command parameter
-//    * @param caption caption for menu item
-//    * @param command command string for item
-//    * @param param integer command parameter
-//    */
-//    void tcMenuInterface::AddItemWithParam(std::string caption, std::string command, int param)
-//    {
-//        if (mpMenu == NULL) {return;}
-//        mpMenu->AddItem(caption, command, param);
-//    }
-
-//    /**
-//    * Adds a menu item with command string and command parameter
-//    * @param caption caption for menu item
-//    * @param command command string for item
-//    * @param textParam std::string parameter
-//    */
-//    void tcMenuInterface::AddItemWithTextParam(std::string caption, std::string command,
-//        std::string textParam)
-//    {
-//        if (mpMenu == NULL) {return;}
-//        mpMenu->AddItem(caption, command, textParam);
-//    }
-
-//    /**
-//    * Adds a menu item that gets a coordinate or target from the user via a mouse click
-//    * @param caption caption for menu item
-//    * @param callback script to call after user data is obtained
-//    * @param input type of user data: "Heading", "Target", or "Datum"
-//    */
-//    void tcMenuInterface::AddItemUI(std::string caption, std::string callback, std::string input)
-//    {
-//        AddItemUIWithParam(caption, callback, input, -1);
-//    }
-
-//    /**
-//    * Adds a menu item that gets a coordinate or target from the user via a mouse click
-//    * @param caption caption for menu item
-//    * @param callback script to call after user data is obtained
-//    * @param input type of user data: "Null", "Heading", "Target", or "Datum" ("Null" is a way to treat as callback for multiplayer purposes)
-//    * @param param integer callback parameter for additional information
-//    */
-//    void tcMenuInterface::AddItemUIWithParam(std::string caption, std::string callback,
-//        std::string input, int param)
-//    {
-//        if (mpMenu == NULL) {return;}
-
-//        if (UITypeIsValid(input))
-//        {
-//            mpMenu->AddItemUI(caption, callback, input, param);
-//        }
-//        else
-//        {
-//            fprintf(stderr, "tcMenuInterface::AddItemUIWithParam -- Bad UI input type (%s)\n",
-//                input.c_str());
-//        }
-//    }
-
-//    /**
-//    * Adds a menu item that gets a coordinate or target from the user via a mouse click
-//    * @param caption caption for menu item
-//    * @param callback script to call after user data is obtained
-//    * @param input type of user data: "Null", "Heading", "Target", or "Datum" ("Null" is a way to treat as callback for multiplayer purposes)
-//    * @param textParam string callback parameter for additional information
-//    */
-//	void tcMenuInterface::AddItemUIWithTextParam(const std::string& caption, const std::string& callback,
-//			const std::string& input, const std::string &textParam)
-//	{
-//        if (mpMenu == NULL) {return;}
-
-//        if (UITypeIsValid(input))
-//        {
-//            mpMenu->AddItemUI(caption, callback, input, textParam);
-//        }
-//        else
-//        {
-//            fprintf(stderr, "tcMenuInterface::AddItemUIWithTextParam -- Bad UI input type (%s)\n",
-//                input.c_str());
-//        }
-//	}
-
-
-//    /**
-//    * Begin a submenu in current menu
-//    */
-//    void tcMenuInterface::BeginSubMenu() {
-//        if (mpMenu == NULL) {return;}
-//        mpMenu->BeginSubMenu();
-//    }
-
-//    /**
-//    * Clear menu
-//    */
-//    void tcMenuInterface::Clear() {
-//        if (mpMenu == NULL) {return;}
-//        mpMenu->Clear();
-//    }
-
-//    /**
-//    * End submenu in current menu
-//    */
-//    void tcMenuInterface::EndSubMenu() {
-//        if (mpMenu == NULL) {return;}
-//        mpMenu->EndSubMenu();
-//    }
-
-//    void tcMenuInterface::SetStayOpen(bool state)
-//    {
-//        tcMenu::SetStayOpen(state);
-//    }
-
-//    bool tcMenuInterface::UITypeIsValid(const std::string& text) const
-//    {
-//        std::string s(text.c_str());
-//        s = s.BeforeFirst(' ');
-
-//        bool valid = (s == "Null") ||
-//                     (s == "Heading") ||
-//                     (s == "Target") ||
-//                     (s == "Datum") ||
-//                     (s == "Box") ||
-//                     (s == "Text") ||
-//                     (s == "File") ||
-//                     (s == "Paragraph");
-
-//        return valid;
-//    }
-
-//    tcMenu* tcMenuInterface::mpMenu = NULL;
-
-//    tcMenuInterface::tcMenuInterface()
-//    {
-//    }
-
-//    tcMenuInterface::~tcMenuInterface()
-//    {
-//    }
-
-//}
-
-
 /**
 * Singleton accessor
 */
@@ -817,34 +664,7 @@ void tcSimPythonInterface::LoadScenario(const std::string &filePath)
     //        return;
     //    }
 
-    //    // import scenario file
-    //    //cmdText = strutil::format("from %s import *\n", fileNameWx.c_str());
-    //    cmdText = strutil::format("import %s\nreload(%s)\nfrom %s import *\n", fileNameWx.c_str(), fileNameWx.c_str(), fileNameWx.c_str());
-    //    //cmdText = strutil::format("execfile(%s)\n", fileNameWx.c_str());
-    //    errText = strutil::format("Error importing scenario file: %s\n", filePath);
-    //    int errorCode = CallPython(cmdText.c_str(), errText.c_str());
-    //    if (errorCode != 0)
-    //    {
-    //        mpSimState->Clear();
-    ////        director->ClearEvents();
-    ////        overlay->ClearMapObjects();
-    //        return;
-    //    }
 
-    //    // call CreateScenario method with ScenarioManager global object
-    //    errorCode = CallPython("CreateScenario(ScenarioManager)\n", "Error with CreateScenario method\n");
-    //    if (errorCode != 0)
-    //    {
-    //        mpSimState->Clear();
-    ////        director->ClearEvents();
-    ////        overlay->ClearMapObjects();
-    //        return;
-    //    }
-
-
-    // call CreateBriefing method with ScenarioManager global object
-    // ignore error here
-    //CallPython("CreateBriefing(ScenarioManager)\n", "Error with CreateBriefing method\n");
 }
 
 /**
@@ -1036,7 +856,7 @@ void tcSimPythonInterface::UpdateLogs()
 
 
 
-}
+
 
 tcSimPythonInterface::tcSimPythonInterface() :
     //    mpConsole(0),
@@ -1135,4 +955,5 @@ tcSimPythonInterface::~tcSimPythonInterface()
 {
 
 
+}
 }

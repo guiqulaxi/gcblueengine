@@ -1,5 +1,5 @@
-/** 
-**  @file tcStringTable.h
+/**
+**  @file PointDefense.h
 */
 /*
 **  Copyright (c) 2014, GCBLUE PROJECT
@@ -23,53 +23,61 @@
 **  IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _STRINGTABLE_H_
-#define _STRINGTABLE_H_
+#ifndef _POINTDEFENSE_H_
+#define _POINTDEFENSE_H_
 
-#ifdef WIN32
+#if _MSC_VER > 1000
 #pragma once
 #endif
 
-#include "tcStringArray.h"
+#include "ai/Task.h"
+
+#include <map>
 #include <string>
 #include <vector>
+#include "simmath.h"
+
+
+
+class tcPlatformObject;
+class GeoPoint;
+
+class tcStream;
+class tcCommandStream;
+class tcCreateStream;
+class tcUpdateStream;
+class tcGameStream;
+class tcSensorMapTrack;
+
+namespace ai
+{
 
 /**
-*
+* 
 */
-namespace scriptinterface 
+class PointDefense : public Task
 {
-	/**
-	* Class for array of stringarrays to pass to python
-	*/
-	class tcStringTable
-	{
-	public:
-		std::vector<tcStringArray> stringTable;
+public:
+    void Update(double t);
 
-		void AddStringArray(const tcStringArray& s);
-        void PushBack(const tcStringArray& s);
-		tcStringArray GetStringArray(unsigned n) const;
-		std::string GetString(unsigned n) const;
-		unsigned int Size();
+    virtual tcCommandStream& operator<<(tcCommandStream& stream);
+    virtual tcCommandStream& operator>>(tcCommandStream& stream);
 
-        void Clear();
-        tcStringTable(const std::vector<std::vector<std::string>> & other) {
+    virtual tcGameStream& operator<<(tcGameStream& stream);
+	virtual tcGameStream& operator>>(tcGameStream& stream);
 
-            for (int  i= 0; i < other.size(); ++i) {
-                tcStringArray sa;
-                for (int j = 0; j < other[i].size(); ++j) {
-                    sa.PushBack(other[i][j]);
-                }
-                this->PushBack(sa);
-            }
+    PointDefense(tcPlatformObject* platform_, Blackboard* bb, 
+        long id_, double priority_, int attributes_, const std::string& taskName_);
+    ~PointDefense();
+    
+private:
+    void GetPointDefenseLaunchers(std::vector<unsigned int>& launchers);
+    void GetPointDefenseTargets(std::vector<tcSensorMapTrack>& targets);
+    
+};
 
-        }
-		tcStringTable();
-		~tcStringTable();
-	};
+
 
 }
 
 #endif
-

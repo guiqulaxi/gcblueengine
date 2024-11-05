@@ -1,5 +1,5 @@
-/** 
-**  @file tcStringTable.h
+/**
+**  @file ScriptedTask.h
 */
 /*
 **  Copyright (c) 2014, GCBLUE PROJECT
@@ -23,53 +23,57 @@
 **  IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _STRINGTABLE_H_
-#define _STRINGTABLE_H_
+#ifndef _SCRIPTEDTASK_H_
+#define _SCRIPTEDTASK_H_
 
-#ifdef WIN32
+#if _MSC_VER > 1000
 #pragma once
 #endif
 
-#include "tcStringArray.h"
+#include "ai/Task.h"
+
+#include <map>
 #include <string>
 #include <vector>
 
-/**
-*
-*/
-namespace scriptinterface 
+class tcGameStream;
+
+namespace ai
 {
-	/**
-	* Class for array of stringarrays to pass to python
-	*/
-	class tcStringTable
-	{
-	public:
-		std::vector<tcStringArray> stringTable;
 
-		void AddStringArray(const tcStringArray& s);
-        void PushBack(const tcStringArray& s);
-		tcStringArray GetStringArray(unsigned n) const;
-		std::string GetString(unsigned n) const;
-		unsigned int Size();
+class Blackboard;
 
-        void Clear();
-        tcStringTable(const std::vector<std::vector<std::string>> & other) {
+/**
+* Task that is scripted through Python
+*/
+class ScriptedTask : public Task
+{
+public:
+    const std::string& GetMemoryText(const std::string& key);
+    void SetMemoryText(const std::string& key, const std::string& text);
+    
+    double GetMemoryValue(int key);
+    void SetMemoryValue(int key, double value);
+    
+    void Update(double t);   
+       
+    virtual tcGameStream& operator<<(tcGameStream& stream);
+	virtual tcGameStream& operator>>(tcGameStream& stream);
 
-            for (int  i= 0; i < other.size(); ++i) {
-                tcStringArray sa;
-                for (int j = 0; j < other[i].size(); ++j) {
-                    sa.PushBack(other[i][j]);
-                }
-                this->PushBack(sa);
-            }
+    ScriptedTask(tcPlatformObject* platform_, Blackboard* bb, 
+        long id_, double priority_, int attributes_, const std::string& scriptName_);
+    ~ScriptedTask();
+    
+protected:
+    std::map<std::string, std::string> textMemory;
+    std::map<int, double> numberMemory;
 
-        }
-		tcStringTable();
-		~tcStringTable();
-	};
+
+    const char* GetCommandString();
+private:
+    std::string commandString;
+};
 
 }
 
 #endif
-

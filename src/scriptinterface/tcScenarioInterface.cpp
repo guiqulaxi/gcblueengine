@@ -2230,7 +2230,7 @@ tcStringTable tcScenarioInterface::QueryDatabase(const std::string& table, const
 {
     tcDatabase* database = tcDatabase::Get();
 
-    tcStringTable result = database->GetFieldsForAllRows(table, databaseClass, fields);
+    tcStringTable result( database->GetFieldsForAllRows(table, databaseClass, fields));
 
     if (result.Size() > 0)
     {

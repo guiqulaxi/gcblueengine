@@ -31,7 +31,6 @@
 //#include "wx/msw/private.h" // for MS Windows specific definitions
 #endif // WIN32
 #endif
-
 #include "tcGroupInterface.h"
 #include "tcPlatformInterface.h"
 #include "tcWeaponInterface.h"
