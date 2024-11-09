@@ -625,6 +625,8 @@ void tcGame::SetInGame(bool state)
         }
     }
 }
+
+
 std::string GetFileExtension(const std::string& fileName) {
 
     size_t dotPos = fileName.rfind('.');
@@ -637,6 +639,22 @@ std::string GetFileExtension(const std::string& fileName) {
 
     return fileName.substr(dotPos + 1);
 
+}
+void tcGame::LoadDatabase(const std::string &filePath)
+{
+    tcSimPythonInterface* pythonInterface =	tcSimPythonInterface::Get();
+
+
+    // clear briefing in case scenario fails to set it
+    pythonInterface->GetScenarioInterface()->ClearSimpleBriefing();
+
+    string extension = GetFileExtension(filePath);
+
+    tcScenarioRandomizer::Get()->Clear();
+    if (extension == "py")
+    {
+        pythonInterface->LoadDatabase(filePath.c_str());
+    }
 }
 /**
 * Loads scenario with path+filename of 相对scenario文件夹

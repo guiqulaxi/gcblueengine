@@ -10,7 +10,7 @@ tcDatabaseInterface::~tcDatabaseInterface()
 
 object tcDatabaseInterface::GetInterface()
 {
-    py::module pybind11_module = py::module::import("gcblue");
+    py::module pybind11_module = py::module::import("pygcb");
     // 获取Python类的引用
     py::object  interfaceType = pybind11_module.attr("tcDatabaseInterface");
     return interfaceType;

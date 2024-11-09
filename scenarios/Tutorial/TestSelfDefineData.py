@@ -6,7 +6,7 @@ class Point:
     x = 0
     y = 0
 def LoadDatabase(DM):
-    cdd =tcShipDBObject()
+    cdd =DM.Clear()
     # DM.AddOrUpdateObject()
 # SM is ScenarioManager object
 def CreateScenario(SM):

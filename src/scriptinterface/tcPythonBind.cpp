@@ -12,7 +12,7 @@
 #include "BlackboardItem.h"
 using namespace scriptinterface;
 //内嵌模块
-PYBIND11_EMBEDDED_MODULE(gcblue, m) {
+PYBIND11_MODULE(pygcb, m) {
     BindDBObject(m);
     BindDatabase(m);
     BindFlightPort(m);

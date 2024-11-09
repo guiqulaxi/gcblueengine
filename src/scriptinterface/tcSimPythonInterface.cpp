@@ -867,7 +867,7 @@ tcSimPythonInterface::tcSimPythonInterface() :
     showPythonErrors(false)
 {
 
-    py::module pybind11_module = py::module::import("gcblue");
+    py::module pybind11_module = py::module::import("pygcb");
     mpSimState = tcSimState::Get();
 
     InitCommandBypass();
