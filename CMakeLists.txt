@@ -15,7 +15,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR})
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR})
 # 添加子目录  
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/gcb)
-add_subdirectory(${PROJECT_SOURCE_DIR}/src/scriptinterface)
+add_subdirectory(${PROJECT_SOURCE_DIR}/src/pygcb)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/game)
+# add_subdirectory(${PROJECT_SOURCE_DIR}/src/pygame)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/app)
 

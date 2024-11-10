@@ -172,8 +172,6 @@ public:
 
 
 	void HookRandomFriendly(); ///< hooks random friendly platform
-	void NewGroupHook(std::vector<long>& groupUnits); ///< implements group hook
-    void NewHook(long hookID);
     void ProcessCommandList();
     void ProcessTextCommand(tsCommandInfo cmd_info);
     void AddCommand(const std::string& cmd);///< 添加命令
@@ -182,7 +180,6 @@ public:
 
 	void SetTheater(float lat_deg, float lon_deg); ///< sets theater view center
 
-    void TheaterLowRes();
 
     void SetTimeAccel(long accel);
 
@@ -201,7 +198,6 @@ public:
     float GetClientSyncFactor();
 //    bool GetAppVersion(wchar_t* libName, unsigned short* majorVersion, unsigned short* minorVersion, unsigned short* buildNumber, unsigned short* revisionNumber);
 
-    void TestCrossSection();
     void ValidateHooked();
 
 
@@ -209,7 +205,6 @@ public:
     void SetInGame(bool state); ///< test command for multiplayer
 
 
-    bool ValidateCopyProtection();
 
     void LoadDatabase(const std::string& filePath);
 

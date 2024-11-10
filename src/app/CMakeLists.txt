@@ -26,7 +26,7 @@ target_include_directories(app PRIVATE
     ${PROJECT_SOURCE_DIR}/include/ai
     ${PROJECT_SOURCE_DIR}/include/common
     ${PROJECT_SOURCE_DIR}/include/database
-    ${PROJECT_SOURCE_DIR}/include/scriptinterface
+    ${PROJECT_SOURCE_DIR}/include/pygcb
     ${PROJECT_SOURCE_DIR}/include/sim
     ${PROJECT_SOURCE_DIR}/include/sqlite
     ${PROJECT_SOURCE_DIR}/include

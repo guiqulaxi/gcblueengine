@@ -13,11 +13,11 @@ file(GLOB SOURCE_FILES
 
 # 添加  动态库，并链接 gcb 库（如果需要）
 add_library(game SHARED ${SOURCE_FILES})
-target_link_libraries(game PRIVATE gcb pygcb)
+target_link_libraries(game PRIVATE pygcb gcb )
 target_link_libraries(game PRIVATE python3.lib python312.lib $<$<BOOL:${MINGW}>:ws2_32>)
 # 设置头文件目录  
 target_include_directories(game PRIVATE
-    ${PROJECT_SOURCE_DIR}/include/scriptinterface
+    ${PROJECT_SOURCE_DIR}/include/pygcb
     ${PROJECT_SOURCE_DIR}/include/gcb
     ${PROJECT_SOURCE_DIR}/include/gcb/ai
     ${PROJECT_SOURCE_DIR}/include/gcb/common
