@@ -1,12 +1,14 @@
 from math import *
 from random import *
 from UnitCommands import *
-
+import pygcb 
 class Point:
     x = 0
     y = 0
 def LoadDatabase(DM):
     cdd =DM.Clear()
+    ddd=pygcb.tcShipDBObject()
+    print(ddd)
     # DM.AddOrUpdateObject()
 # SM is ScenarioManager object
 def CreateScenario(SM):

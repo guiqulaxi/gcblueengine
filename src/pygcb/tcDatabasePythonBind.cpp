@@ -28,5 +28,6 @@ void BindDatabase(module &m)
         .def("GetPrevObjectOfSameClass", &tcDatabaseInterface::GetPrevObjectOfSameClass)
         .def("GetKey", &tcDatabaseInterface::GetKey)
         .def("GetVersion", &tcDatabaseInterface::GetVersion, py::arg("v1"), py::arg("v2"), py::arg("v3"))
-        .def("GetCountryList", &tcDatabaseInterface::GetCountryList, py::return_value_policy::copy);
+        .def("GetCountryList", &tcDatabaseInterface::GetCountryList, py::return_value_policy::copy)
+        .def("AddOrUpdateObject", &tcDatabaseInterface::AddOrUpdateObject, "rpobj"_a, py::return_value_policy::copy);
 }

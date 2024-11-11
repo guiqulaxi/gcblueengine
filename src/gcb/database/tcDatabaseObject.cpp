@@ -419,6 +419,32 @@ void tcDatabaseObject::WriteSql(std::string& valueString) const
 
 }
 
+void tcDatabaseObject::WritePython(std::string &valueString) const
+{
+    std::string str = strutil::format("'%s','%s',%d,%d,%f,%f,%f,%f,%f,'%s','%s','%s','%s','%s','%s','%s',%f,%f,%f",
+                                      mzClass.c_str(),
+                                      natoClass.c_str(),
+                                      mnModelType,
+                                      mnType,
+                                      cost,
+                                      weight_kg,
+                                      volume_m3,
+                                      initialYear,
+                                      finalYear,
+                                      country.c_str(),
+                                      designation.c_str(),
+                                      imageList.c_str(),
+                                      iconFileName.c_str(),
+                                      mz3DModelFileName.c_str(),
+                                      mzDescription.c_str(),
+                                      notes.c_str(),
+                                      length_m,
+                                      width_m,
+                                      height_m );
+
+    valueString += str;
+}
+
 tcDatabaseObject::tcDatabaseObject(const std::string& databaseClass) :
     mzClass(databaseClass.c_str()),
     cost(0),
