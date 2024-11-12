@@ -445,7 +445,7 @@ void tcPlatformDBObject::ReadSql(tcSqlReader& entry)
 
 void tcPlatformDBObject::WriteSql(std::string& valueString) const
 {
-	tcDatabaseObject::WriteSql(valueString);
+    tcDatabaseObject::WriteSql(valueString);
 
 	std::stringstream s;
 
@@ -497,6 +497,12 @@ void tcPlatformDBObject::WriteSql(std::string& valueString) const
 	valueString += s.str();
 	
     //tcSensorPlatformDBObject::WriteSql(valueString);
+}
+
+void tcPlatformDBObject::WritePython(std::string &valueString) const
+{
+    tcDatabaseObject::WritePython(valueString);
+    tcSensorPlatformDBObject::WritePython(valueString);
 }
 
 

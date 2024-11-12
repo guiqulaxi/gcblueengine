@@ -230,18 +230,18 @@ const std::vector<std::string> &tcDatabaseObject::GetParsedImageList()
 
     std::string s(imageList.c_str());
     parsedImageList=strutil::split(s,';');
-//    while (s.length()!=0)
-//    {
+    //    while (s.length()!=0)
+    //    {
 
-//        std::string fileName = strutil::split(s,';')[0];
-//        fileName=("db\\")+fileName;
-//        parsedImageList.push_back(fileName);
-//        s = strutil::split(s,';')[1];
+    //        std::string fileName = strutil::split(s,';')[0];
+    //        fileName=("db\\")+fileName;
+    //        parsedImageList.push_back(fileName);
+    //        s = strutil::split(s,';')[1];
 
-////        fileName.Prepend("db\\");
-////        parsedImageList.Add(fileName);
-////        s = s.AfterFirst(';');
-//    }
+    ////        fileName.Prepend("db\\");
+    ////        parsedImageList.Add(fileName);
+    ////        s = s.AfterFirst(';');
+    //    }
     return parsedImageList;
 
 }
@@ -283,8 +283,8 @@ void tcDatabaseObject::LoadFileDescription()
     std::ifstream in_stream(filename);
     if (!in_stream)
     {
-//        wxFprintf(stderr, "tcDatabaseObject::LoadFileDescription -- Bad file name (%s) in description field for %s\n",
-//                  filename.c_str(), mzClass.c_str());
+        //        wxFprintf(stderr, "tcDatabaseObject::LoadFileDescription -- Bad file name (%s) in description field for %s\n",
+        //                  filename.c_str(), mzClass.c_str());
         return;
     }
 
@@ -395,33 +395,6 @@ void tcDatabaseObject::ReadSql(tcSqlReader& entry)
 void tcDatabaseObject::WriteSql(std::string& valueString) const
 {
     std::string str = strutil::format("'%s','%s',%d,%d,%f,%f,%f,%f,%f,'%s','%s','%s','%s','%s','%s','%s',%f,%f,%f",
-                                    mzClass.c_str(),
-                                    natoClass.c_str(),
-                                    mnModelType,
-                                    mnType,
-                                    cost,
-                                    weight_kg,
-                                    volume_m3,
-                                    initialYear,
-                                    finalYear,
-                                    country.c_str(),
-                                    designation.c_str(),
-                                    imageList.c_str(),
-                                    iconFileName.c_str(),
-                                    mz3DModelFileName.c_str(),
-                                    mzDescription.c_str(),
-                                    notes.c_str(),
-                                    length_m,
-                                    width_m,
-                                    height_m );
-
-    valueString += str;
-
-}
-
-void tcDatabaseObject::WritePython(std::string &valueString) const
-{
-    std::string str = strutil::format("'%s','%s',%d,%d,%f,%f,%f,%f,%f,'%s','%s','%s','%s','%s','%s','%s',%f,%f,%f",
                                       mzClass.c_str(),
                                       natoClass.c_str(),
                                       mnModelType,
@@ -443,6 +416,29 @@ void tcDatabaseObject::WritePython(std::string &valueString) const
                                       height_m );
 
     valueString += str;
+
+}
+
+void tcDatabaseObject::WritePython(std::string &valueString) const
+{
+    valueString+= strutil::format("%s.mzClass='%s'\n", mzClass.c_str(),mzClass.c_str());
+    valueString+= strutil::format("%s.mzClass='%s'\n", mzClass.c_str(),natoClass.c_str());
+    valueString+= strutil::format("%s.mzClass=%d\n", mzClass.c_str(),mnModelType);
+    valueString+= strutil::format("%s.mzClass=%d\n", mzClass.c_str(),mnType);
+    valueString+= strutil::format("%s.mzClass=%f\n", mzClass.c_str(),cost);
+    valueString+= strutil::format("%s.mzClass=%f\n", mzClass.c_str(),weight_kg);
+    valueString+= strutil::format("%s.mzClass=%f\n", mzClass.c_str(),volume_m3);
+    valueString+= strutil::format("%s.mzClass=%f\n", mzClass.c_str(),initialYear);
+    valueString+= strutil::format("%s.mzClass='%s'\n", mzClass.c_str(),finalYear);
+    valueString+= strutil::format("%s.mzClass='%s'\n", mzClass.c_str(),country.c_str());
+    valueString+= strutil::format("%s.mzClass='%s'\n", mzClass.c_str(),designation.c_str());
+    valueString+= strutil::format("%s.mzClass='%s'\n", mzClass.c_str(),imageList.c_str());
+    valueString+= strutil::format("%s.mzClass='%s'\n", mzClass.c_str(),iconFileName.c_str());
+    valueString+= strutil::format("%s.mzClass='%s'\n", mzClass.c_str(), mz3DModelFileName.c_str());
+    valueString+= strutil::format("%s.mzClass='%s'\n", mzClass.c_str(),notes.c_str());
+    valueString+= strutil::format("%s.mzClass=%f\n", mzClass.c_str(),length_m);
+    valueString+= strutil::format("%s.mzClass=%f\n", mzClass.c_str(),width_m);
+    valueString+= strutil::format("%s.mzClass=%f\n", mzClass.c_str(),height_m);
 }
 
 tcDatabaseObject::tcDatabaseObject(const std::string& databaseClass) :

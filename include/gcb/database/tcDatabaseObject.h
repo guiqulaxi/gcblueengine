@@ -170,7 +170,7 @@ void ClassificationToString(UINT16 anType, char *azString);
 		static void AddSqlColumns(std::string& columnString);
         virtual void ReadSql(tcSqlReader& entry);
         virtual void WriteSql(std::string& valueString)const;
-         virtual void WritePython(std::string& valueString)const;
+        virtual void WritePython(std::string& valueString)const;
 
         static const char* CostToString(float cost_);
         static bool displayNATO; ///< true to display NATO/ASCC names
