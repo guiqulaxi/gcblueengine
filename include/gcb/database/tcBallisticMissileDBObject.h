@@ -73,6 +73,8 @@ namespace database
         static void AddSqlColumns(std::string& columnString);
         void ReadSql(tcSqlReader& entry);
         void WriteSql(std::string& valueString);
+        void WritePythonValue(std::string& valueString) const;
+        void WritePython(std::string &valueString) const;
 
         void CalculateParams();
 

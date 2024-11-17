@@ -25,6 +25,7 @@
 
 //#include "stdwx.h"
 
+#include "strutil.h"
 #if _MSC_VER > 1000
 #pragma warning(disable:4786) // suppress warning for STL bug in VC6, see Q167355 in the MSDN Library.
 #endif // _MSC_VER > 1000
@@ -169,6 +170,28 @@ void tcOpticalDBObject::WriteSql(std::string& valueString) const
 
     //if (rangeError <= 0) rangeError = 1.5f; // 0+ to 1 interpreted as fractional range error, > 1 as absolute error
 
+}
+
+void tcOpticalDBObject::WritePythonValue(std::string &valueString) const
+{
+    tcSensorDBObject::WritePythonValue(valueString);
+    valueString+=std::string(mzClass.c_str())+".maxFireControlTracks="+strutil::to_python_value(maxFireControlTracks);
+    valueString+=std::string(mzClass.c_str())+".isSemiactive="+strutil::to_python_value(isSemiactive);
+    valueString+=std::string(mzClass.c_str())+".isDesignator="+strutil::to_python_value(isDesignator);
+    valueString+=std::string(mzClass.c_str())+".mbDetectsSurface="+strutil::to_python_value(mbDetectsSurface);
+    valueString+=std::string(mzClass.c_str())+".mbDetectsAir="+strutil::to_python_value(mbDetectsAir);
+    valueString+=std::string(mzClass.c_str())+".mbDetectsMissile="+strutil::to_python_value(mbDetectsMissile);
+    valueString+=std::string(mzClass.c_str())+".mbDetectsGround="+strutil::to_python_value(mbDetectsGround);
+    valueString+=std::string(mzClass.c_str())+".isIR="+strutil::to_python_value(isIR);
+    valueString+=std::string(mzClass.c_str())+".nightFactor="+strutil::to_python_value(nightFactor);
+    valueString+=std::string(mzClass.c_str())+".CalculateParams()";
+
+}
+
+void tcOpticalDBObject::WritePython(std::string &valueString) const
+{
+    valueString+=std::string(mzClass.c_str())+"=pygcb.tcOpticalDBObject()";
+    WritePythonValue(valueString);
 }
 
 tcOpticalDBObject::tcOpticalDBObject() : tcSensorDBObject() 

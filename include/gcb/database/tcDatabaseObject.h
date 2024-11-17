@@ -110,7 +110,6 @@ void ClassificationToString(UINT16 anType, char *azString);
 #define MTYPE_BALLISTICMISSILE 23
 #define MTYPE_ROCKET 24
 #define MTYPE_SPACE 25 //卫星
-
     /**
     * Requirements for weapon launch
     */
@@ -170,6 +169,7 @@ void ClassificationToString(UINT16 anType, char *azString);
 		static void AddSqlColumns(std::string& columnString);
         virtual void ReadSql(tcSqlReader& entry);
         virtual void WriteSql(std::string& valueString)const;
+        virtual void WritePythonValue(std::string& valueString)const;
         virtual void WritePython(std::string& valueString)const;
 
         static const char* CostToString(float cost_);
@@ -179,7 +179,8 @@ void ClassificationToString(UINT16 anType, char *azString);
         tcDatabaseObject(const tcDatabaseObject& obj); ///< copy constructor
         tcDatabaseObject(const std::string& databaseClass);
         virtual ~tcDatabaseObject();
-         virtual tcGameObject* CreateGameObject();///<创建平台
+        virtual tcGameObject* CreateGameObject();///<创建平台
+        virtual void CalculateParams();
     protected:
         static tcDatabase *database; ///< allows db objects to query for other db objects
 //        tc3DModel *model;

@@ -48,268 +48,288 @@ using namespace std;
 
 namespace database
 {
-    void tcLauncherDBObject::ClearConfigs()
-    {
-        childClassList.clear();
-        childCapacityList.clear();
-        childLoadTime_s.clear();
-    }
+void tcLauncherDBObject::ClearConfigs()
+{
+    childClassList.clear();
+    childCapacityList.clear();
+    childLoadTime_s.clear();
+}
 
-    void tcLauncherDBObject::AddConfig(const std::string& childClass, unsigned short capacity, float loadTime_s, float cycleTime_s)
-    {
-        childClassList.push_back(childClass);
-        childCapacityList.push_back(capacity);
-        childLoadTime_s.push_back(loadTime_s);
-        childCycleTime_s.push_back(cycleTime_s);
-    }
+void tcLauncherDBObject::AddConfig(const std::string& childClass, unsigned short capacity, float loadTime_s, float cycleTime_s)
+{
+    childClassList.push_back(childClass);
+    childCapacityList.push_back(capacity);
+    childLoadTime_s.push_back(loadTime_s);
+    childCycleTime_s.push_back(cycleTime_s);
+}
 
 
-    /**
+/**
     * @return index of matching configuration or -1 if no match
     */
-    int tcLauncherDBObject::GetConfigurationIndex(const std::string& item) const
+int tcLauncherDBObject::GetConfigurationIndex(const std::string& item) const
+{
+    std::string s(item.c_str());
+
+    size_t nTypes = childClassList.size();
+    for (size_t k=0; k<nTypes; k++)
     {
-        std::string s(item.c_str());
 
-        size_t nTypes = childClassList.size();
-        for (size_t k=0; k<nTypes; k++)
+        //            if (s.Matches(childClassList[k].c_str()))
+        if(strutil::wildcard_match(s,childClassList[k]))
         {
-
-//            if (s.Matches(childClassList[k].c_str()))
-            if(strutil::wildcard_match(s,childClassList[k]))
-            { 
-                return int(k);
-            }
+            return int(k);
         }
-
-        return -1;
     }
 
-    /**
+    return -1;
+}
+
+/**
     * This can be a substitute for IsItemCompatible by testing != 0
     * @see IsItemCompatible
     */
-    unsigned short tcLauncherDBObject::GetCapacityForItem(const std::string& item) const
-    {
-        std::string s(item.c_str());
+unsigned short tcLauncherDBObject::GetCapacityForItem(const std::string& item) const
+{
+    std::string s(item.c_str());
 
-        size_t nTypes = childClassList.size();
-        for (size_t k=0; k<nTypes; k++)
+    size_t nTypes = childClassList.size();
+    for (size_t k=0; k<nTypes; k++)
+    {
+        //            if (s.Matches(childClassList[k].c_str()))
+        if(strutil::wildcard_match(s,childClassList[k]))
         {
-//            if (s.Matches(childClassList[k].c_str()))
-            if(strutil::wildcard_match(s,childClassList[k]))
-            { 
-                assert(childClassList.size() == childCapacityList.size());
-                return childCapacityList[k];
-            }
+            assert(childClassList.size() == childCapacityList.size());
+            return childCapacityList[k];
         }
-    
-        return 0; 
     }
+    
+    return 0;
+}
 
-    unsigned short tcLauncherDBObject::GetCapacityForItem(const std::string& item, float& loadTime_s, float& cycleTime_s) const
+unsigned short tcLauncherDBObject::GetCapacityForItem(const std::string& item, float& loadTime_s, float& cycleTime_s) const
+{
+    std::string s(item.c_str());
+
+    size_t nTypes = childClassList.size();
+    for (size_t k=0; k<nTypes; k++)
     {
-        std::string s(item.c_str());
-
-        size_t nTypes = childClassList.size();
-        for (size_t k=0; k<nTypes; k++)
+        //            std::regex e (s);
+        //            if ( std::regex_match(childClassList[k], e))
+        //            if (s.Matches(childClassList[k].c_str()))
+        if(strutil::wildcard_match(s,childClassList[k]))
         {
-//            std::regex e (s);
-//            if ( std::regex_match(childClassList[k], e))
-//            if (s.Matches(childClassList[k].c_str()))
-            if(strutil::wildcard_match(s,childClassList[k]))
-            { 
-                assert(childClassList.size() == childCapacityList.size());
-                loadTime_s = childLoadTime_s[k];
-                cycleTime_s = childCycleTime_s[k];
-                return childCapacityList[k];
-            }
+            assert(childClassList.size() == childCapacityList.size());
+            loadTime_s = childLoadTime_s[k];
+            cycleTime_s = childCycleTime_s[k];
+            return childCapacityList[k];
         }
-    
-        return 0; 
     }
     
-    unsigned short tcLauncherDBObject::GetConfigurationCapacity(unsigned int idx) const
-    {
-        assert(idx < childCapacityList.size());
-        return childCapacityList[idx];
-    }
-        
-    const std::string& tcLauncherDBObject::GetConfigurationClass(unsigned int idx) const
-    {
-        assert(idx < childClassList.size());
-        return childClassList[idx];
-    }
+    return 0;
+}
 
-    float tcLauncherDBObject::GetConfigurationCycleTime(unsigned int idx) const
+unsigned short tcLauncherDBObject::GetConfigurationCapacity(unsigned int idx) const
+{
+    assert(idx < childCapacityList.size());
+    return childCapacityList[idx];
+}
+
+const std::string& tcLauncherDBObject::GetConfigurationClass(unsigned int idx) const
+{
+    assert(idx < childClassList.size());
+    return childClassList[idx];
+}
+
+float tcLauncherDBObject::GetConfigurationCycleTime(unsigned int idx) const
+{
+    assert(idx < childCycleTime_s.size());
+    return childCycleTime_s[idx];
+}
+
+float tcLauncherDBObject::GetConfigurationLoadTime(unsigned int idx) const
+{
+    assert(idx < childClassList.size());
+    return childLoadTime_s[idx];
+}
+
+const std::string& tcLauncherDBObject::GetConfigurationDescription() const
+{
+    static std::string description;
+
+    description = "";
+
+    size_t nConfigs = GetNumberConfigurations();
+
+    for (size_t n=0; n<nConfigs; n++)
     {
-        assert(idx < childCycleTime_s.size());
-        return childCycleTime_s[idx];
-    }
+        std::string config_string=strutil::format("%d x %s", GetConfigurationCapacity((unsigned int)n),
+                                                    GetConfigurationClass((unsigned int)n).c_str());
+        //            config_string.Printf("%d x %s", GetConfigurationCapacity((unsigned int)n),
+        //				GetConfigurationClass((unsigned int)n).c_str());
 
-    float tcLauncherDBObject::GetConfigurationLoadTime(unsigned int idx) const
-    {
-        assert(idx < childClassList.size());
-        return childLoadTime_s[idx];
-    }
-    
-    const std::string& tcLauncherDBObject::GetConfigurationDescription() const
-    {
-        static std::string description;
-
-        description = "";
-
-        size_t nConfigs = GetNumberConfigurations();
-
-        for (size_t n=0; n<nConfigs; n++)
+        description.append(config_string);
+        if (n < nConfigs - 1)
         {
-            std::string config_string=strutil::format("%d x %s", GetConfigurationCapacity((unsigned int)n),
-                                                      GetConfigurationClass((unsigned int)n).c_str());
-//            config_string.Printf("%d x %s", GetConfigurationCapacity((unsigned int)n),
-//				GetConfigurationClass((unsigned int)n).c_str());
-
-            description.append(config_string);
-            if (n < nConfigs - 1)
-            {
-                description.append(",");
-            }
+            description.append(",");
         }
-
-        return description;
     }
 
-    unsigned int tcLauncherDBObject::GetNumberConfigurations() const
+    return description;
+}
+
+unsigned int tcLauncherDBObject::GetNumberConfigurations() const
+{
+    return (unsigned int)childClassList.size();
+}
+
+
+unsigned short tcLauncherDBObject::GetDefaultChildCapacity() const
+{
+    if (childCapacityList.size() == 0)
     {
-        return (unsigned int)childClassList.size();
+        return 0;
     }
-        
-    
-    unsigned short tcLauncherDBObject::GetDefaultChildCapacity() const
+    else
     {
-        if (childCapacityList.size() == 0)
-        {
-            return 0;
-        }
-        else
-        {
-            return childCapacityList[0];
-        }  
-    }   
-    
-    /**
+        return childCapacityList[0];
+    }
+}
+
+/**
     * @returns first configuration in childClassList as a default, or "" if error
     */
-    const char* tcLauncherDBObject::GetDefaultChildClass() const
+const char* tcLauncherDBObject::GetDefaultChildClass() const
+{
+    static std::string errorString = "";
+    static std::vector<std::string> matches;
+    if (childClassList.size() > 0)
     {
-        static std::string errorString = "";
-        static std::vector<std::string> matches;
-        if (childClassList.size() > 0)
+        std::string candidate(childClassList[0].c_str());
+        if ((candidate.find('?') == string::npos) && (candidate.find('*') == string::npos))
         {
-            std::string candidate(childClassList[0].c_str());
-            if ((candidate.find('?') == string::npos) && (candidate.find('*') == string::npos))
-            {
-                return childClassList[0].c_str();
-            }
-            else // default has a wild card
-            {
-                matches = tcDatabase::Get()->WildcardSearch(candidate, "loadout");
-                if (matches.size() > 0)
-                {
-                    return matches[0].c_str();
-                }
-                else
-                {
-                    return errorString.c_str();
-                }
-            }
+            return childClassList[0].c_str();
         }
-        else
+        else // default has a wild card
         {
-            return errorString.c_str();
+            matches = tcDatabase::Get()->WildcardSearch(candidate, "loadout");
+            if (matches.size() > 0)
+            {
+                return matches[0].c_str();
+            }
+            else
+            {
+                return errorString.c_str();
+            }
         }
     }
-    
+    else
+    {
+        return errorString.c_str();
+    }
+}
 
 
-	void tcLauncherDBObject::PrintToFile(tcFile& file) 
-	{
-		tcString s;
 
-		tcDatabaseObject::PrintToFile(file);
+void tcLauncherDBObject::PrintToFile(tcFile& file)
+{
+    tcString s;
 
-		s.Format("   default child class: %s mnCapacity:%d\n", 
-            GetDefaultChildClass(), GetDefaultChildCapacity());
-		file.WriteString(s.GetBuffer());
-	}
+    tcDatabaseObject::PrintToFile(file);
 
-	/**
+    s.Format("   default child class: %s mnCapacity:%d\n",
+             GetDefaultChildClass(), GetDefaultChildCapacity());
+    file.WriteString(s.GetBuffer());
+}
+
+/**
 	* Adds sql column definitions to columnString. This is used for
 	* SQL create table command
 	*/
-	void tcLauncherDBObject::AddSqlColumns(std::string& columnString)
-	{
-        assert(false); // no longer using this table (for now 13Jun2009)
-		tcDatabaseObject::AddSqlColumns(columnString);
+void tcLauncherDBObject::AddSqlColumns(std::string& columnString)
+{
+    assert(false); // no longer using this table (for now 13Jun2009)
+    tcDatabaseObject::AddSqlColumns(columnString);
 
-		columnString += ",";
+    columnString += ",";
 
-		columnString += "CycleTime_s number(5),";
-        columnString += "FiringArc_deg number(4)";
-	}
+    columnString += "CycleTime_s number(5),";
+    columnString += "FiringArc_deg number(4)";
+}
 
-	void tcLauncherDBObject::ReadSql(tcSqlReader& entry)
-	{
-        assert(false); // no longer using this table (for now 13Jun2009)
-		tcDatabaseObject::ReadSql(entry);
+void tcLauncherDBObject::ReadSql(tcSqlReader& entry)
+{
+    assert(false); // no longer using this table (for now 13Jun2009)
+    tcDatabaseObject::ReadSql(entry);
 
-		//cycleTime = entry.GetDouble("CycleTime_s");
-        //firingArc_deg = entry.GetDouble("FiringArc_deg");	
-	}
+    //cycleTime = entry.GetDouble("CycleTime_s");
+    //firingArc_deg = entry.GetDouble("FiringArc_deg");
+}
 
-    void tcLauncherDBObject::WriteSql(std::string& valueString) const
-	{
-        assert(false); // no longer using this table (for now 13Jun2009)
-		tcDatabaseObject::WriteSql(valueString);
+void tcLauncherDBObject::WriteSql(std::string& valueString) const
+{
+    assert(false); // no longer using this table (for now 13Jun2009)
+    tcDatabaseObject::WriteSql(valueString);
 
-		std::stringstream s;
+    std::stringstream s;
 
-		s << ",";
+    s << ",";
 
-		//s << cycleTime << ",";
-        //s << firingArc_deg;
+    //s << cycleTime << ",";
+    //s << firingArc_deg;
 
-		valueString += s.str();
-	}
+    valueString += s.str();
+}
 
+void tcLauncherDBObject::WritePythonValue(std::string &valueString) const
+{
+    tcDatabaseObject::WritePythonValue(valueString);
+    valueString+=std::string(mzClass.c_str())+".childClassList="+strutil::to_python_value(childClassList);
+    valueString+=std::string(mzClass.c_str())+".childCapacityList="+strutil::to_python_value(childCapacityList);
+    valueString+=std::string(mzClass.c_str())+".childLoadTime_s="+strutil::to_python_value(childLoadTime_s);
+    valueString+=std::string(mzClass.c_str())+".childCycleTime_s="+strutil::to_python_value(childCycleTime_s);
+    valueString+=std::string(mzClass.c_str())+".CalculateParams()";
 
-	tcLauncherDBObject::tcLauncherDBObject() : tcDatabaseObject()
-        //,
-        //cycleTime(0),
-        //firingArc_deg(0)
-	{        
-        mzClass = "Default Launcher";
-	}
+}
 
-	tcLauncherDBObject::tcLauncherDBObject(const tcLauncherDBObject& obj) 
-		: tcDatabaseObject(obj),
-        //cycleTime(obj.cycleTime),
-		childClassList(obj.childClassList),
-		childCapacityList(obj.childCapacityList)
-        //,firingArc_deg(obj.firingArc_deg)
-	{
-	}
-
-    tcLauncherDBObject::tcLauncherDBObject(const std::string& databaseClass)
-        : tcDatabaseObject(databaseClass)
-         //,cycleTime(0),
-         //firingArc_deg(0)
-    {
-    }
+void tcLauncherDBObject::WritePython(std::string &valueString) const
+{
+    valueString+=std::string(mzClass.c_str())+"=pygcb.tcLauncherDBObject()";
+    WritePythonValue(valueString);
+}
 
 
-	tcLauncherDBObject::~tcLauncherDBObject() 
-	{
-	}
+
+
+tcLauncherDBObject::tcLauncherDBObject() : tcDatabaseObject()
+    //,
+    //cycleTime(0),
+    //firingArc_deg(0)
+{
+    mzClass = "Default Launcher";
+}
+
+tcLauncherDBObject::tcLauncherDBObject(const tcLauncherDBObject& obj)
+    : tcDatabaseObject(obj),
+    //cycleTime(obj.cycleTime),
+    childClassList(obj.childClassList),
+    childCapacityList(obj.childCapacityList)
+//,firingArc_deg(obj.firingArc_deg)
+{
+}
+
+tcLauncherDBObject::tcLauncherDBObject(const std::string& databaseClass)
+    : tcDatabaseObject(databaseClass)
+    //,cycleTime(0),
+    //firingArc_deg(0)
+{
+}
+
+
+tcLauncherDBObject::~tcLauncherDBObject()
+{
+}
+
 
 
 }

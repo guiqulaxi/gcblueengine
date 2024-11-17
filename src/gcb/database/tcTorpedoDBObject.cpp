@@ -148,6 +148,30 @@ namespace database
 
     }
 
+    void tcTorpedoDBObject::WritePythonValue(std::string &valueString) const
+    {
+        tcWeaponDBObject::WritePythonValue(valueString);
+        tcWaterDetectionDBObject::WritePythonValue(mzClass.c_str(),valueString);
+        valueString+=std::string(mzClass.c_str())+".maxTurnRate_degps="+strutil::to_python_value(maxTurnRate_degps);
+        valueString+=std::string(mzClass.c_str())+".maxDepth_m="+strutil::to_python_value(maxDepth_m);
+        valueString+=std::string(mzClass.c_str())+".battery_kJ="+strutil::to_python_value(battery_kJ);
+        valueString+=std::string(mzClass.c_str())+".batteryRate_kW="+strutil::to_python_value(batteryRate_kW);
+        valueString+=std::string(mzClass.c_str())+".maxSpeed_kts="+strutil::to_python_value(maxSpeed_kts);
+        valueString+=std::string(mzClass.c_str())+".acceleration_ktsps="+strutil::to_python_value(acceleration_ktsps);
+        valueString+=std::string(mzClass.c_str())+".sonarClass="+strutil::to_python_value(sonarClass);
+        valueString+=std::string(mzClass.c_str())+".wireGuidance="+strutil::to_python_value(wireGuidance);
+        valueString+=std::string(mzClass.c_str())+".preEnableSpeed_kts="+strutil::to_python_value(preEnableSpeed_kts);
+        valueString+=std::string(mzClass.c_str())+".weaponType="+strutil::to_python_value(weaponType);
+        valueString+=std::string(mzClass.c_str())+".CalculateParams()";
+
+    }
+
+    void tcTorpedoDBObject::WritePython(std::string &valueString) const
+    {
+        valueString+=std::string(mzClass.c_str())+"=pygcb.tcTorpedoDBObject()";
+        WritePythonValue(valueString);
+    }
+
 
     tcTorpedoDBObject::tcTorpedoDBObject(const tcTorpedoDBObject& obj) 
         : tcWeaponDBObject(obj),

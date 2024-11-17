@@ -455,7 +455,7 @@ void tcJetDBObject::WriteSql(std::string& valueString) const
         s << thrustTable[idx];
     }
 
-    for (size_t idx=0; idx<tableAltitudes.size(); idx++)
+    for (size_t idx=0; idx<fuelEfficiencyTable.size(); idx++)
     {
         s << ",";
         s << fuelEfficiencyTable[idx];
@@ -463,6 +463,33 @@ void tcJetDBObject::WriteSql(std::string& valueString) const
 
     valueString += s.str();
 
+}
+
+void tcJetDBObject::WritePythonValue(std::string &valueString) const
+{
+    tcAirDBObject::WritePythonValue(valueString);
+    valueString+=std::string(mzClass.c_str())+".militaryThrust_N="+strutil::to_python_value(militaryThrust_N);
+    valueString+=std::string(mzClass.c_str())+".militaryThrustSpeedSlope="+strutil::to_python_value(militaryThrustSpeedSlope);
+    valueString+=std::string(mzClass.c_str())+".mfAfterburnThrust_N="+strutil::to_python_value(mfAfterburnThrust_N);
+    valueString+=std::string(mzClass.c_str())+".abThrustSpeedSlope="+strutil::to_python_value(abThrustSpeedSlope);
+    valueString+=std::string(mzClass.c_str())+".mfAfterburnFuelRate_kgps="+strutil::to_python_value(mfAfterburnFuelRate_kgps);
+    valueString+=std::string(mzClass.c_str())+".mfCdpsub="+strutil::to_python_value(mfCdpsub);
+    valueString+=std::string(mzClass.c_str())+".mfCdptran="+strutil::to_python_value(mfCdptran);
+    valueString+=std::string(mzClass.c_str())+".mfCdpsup="+strutil::to_python_value(mfCdpsup);
+    valueString+=std::string(mzClass.c_str())+".mfMcm="+strutil::to_python_value(mfMcm);
+    valueString+=std::string(mzClass.c_str())+".mfMsupm="+strutil::to_python_value(mfMsupm);
+    valueString+=std::string(mzClass.c_str())+".cruiseSpeed_mps="+strutil::to_python_value(cruiseSpeed_mps);
+    valueString+=std::string(mzClass.c_str())+".stallSpeed_mps="+strutil::to_python_value(stallSpeed_mps);
+    valueString+=std::string(mzClass.c_str())+".thrustTable="+strutil::to_python_value(thrustTable);
+    valueString+=std::string(mzClass.c_str())+".fuelEfficiencyTable="+strutil::to_python_value(fuelEfficiencyTable);
+    valueString+=std::string(mzClass.c_str())+".CalculateParams()";
+
+}
+
+void tcJetDBObject::WritePython(std::string &valueString) const
+{
+    valueString+=std::string(mzClass.c_str())+"=pygcb.tcJetDBObject()";
+    WritePythonValue(valueString);
 }
 
 

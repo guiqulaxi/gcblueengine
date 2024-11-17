@@ -51,7 +51,7 @@ namespace database
 
 tcDatabaseObject* tcPlatformDBObject::AsDatabaseObject()
 {
-	return this;
+    return this;
 }
 
 /**
@@ -59,15 +59,15 @@ tcDatabaseObject* tcPlatformDBObject::AsDatabaseObject()
 */
 void tcPlatformDBObject::CalculateParams()
 {
-	fuelConsumptionConstant = (mfMaxSpeed_kts > 0) ? (mfFuelRate_kgps / mfMaxSpeed_kts) : 0;
+    fuelConsumptionConstant = (mfMaxSpeed_kts > 0) ? (mfFuelRate_kgps / mfMaxSpeed_kts) : 0;
 
-	invMaxSpeed = (mfMaxSpeed_kts > 0) ? (1.0f / mfMaxSpeed_kts) : 0;
+    invMaxSpeed = (mfMaxSpeed_kts > 0) ? (1.0f / mfMaxSpeed_kts) : 0;
 }
 
 
 float tcPlatformDBObject::GetFuelConsumptionConstant(float speed_kts) const
 {
-	return fuelConsumptionConstant;
+    return fuelConsumptionConstant;
 }
 
 /**
@@ -141,13 +141,13 @@ float tcPlatformDBObject::GetLauncherFOV_deg(unsigned n) const
     assert(n < launcherFOV_deg.size());
 
     if ((int)n < mnNumLaunchers)
-	{
+    {
         return launcherFOV_deg[n];
     }
     else
     {		
         fprintf(stderr, "Error - GetLauncherFOV_deg - bad launcher index\n");
-		return 0;
+        return 0;
     }
 }
 
@@ -173,23 +173,23 @@ tc3DPoint tcPlatformDBObject::GetLauncherPosition(unsigned n)
 {
     tc3DPoint p;
 
-//	if ((int)n >= mnNumLaunchers)
-//	{
-//		fprintf(stderr, "Error - GetLauncherPosition - bad launcher index\n");
-//		return p;
-//	}
+    //	if ((int)n >= mnNumLaunchers)
+    //	{
+    //		fprintf(stderr, "Error - GetLauncherPosition - bad launcher index\n");
+    //		return p;
+    //	}
 
-//    if (tc3DModel* model = Get3DModel())
-//    {
-//        float az, el;
-//        Vector3d pos;
-//        model->GetLauncherInfo(n, pos, az, el);
-//        p.x = pos.x;
-//        p.y = pos.y;
-//        p.z = pos.z;
-//    }
+    //    if (tc3DModel* model = Get3DModel())
+    //    {
+    //        float az, el;
+    //        Vector3d pos;
+    //        model->GetLauncherInfo(n, pos, az, el);
+    //        p.x = pos.x;
+    //        p.y = pos.y;
+    //        p.z = pos.z;
+    //    }
 
-	return p;
+    return p;
 }
 
 /**
@@ -237,12 +237,12 @@ const std::vector<tcLoadoutData>& tcPlatformDBObject::GetLoadoutList(float searc
 
 float tcPlatformDBObject::GetInternalFuelCapacity() const
 {
-	return mfFuelCapacity_kg;
+    return mfFuelCapacity_kg;
 }
 
 bool tcPlatformDBObject::HasInfiniteFuel() const
 {
-	return (mfFuelCapacity_kg <= 0);
+    return (mfFuelCapacity_kg <= 0);
 }
 
 /**
@@ -259,18 +259,18 @@ void tcPlatformDBObject::ReorderMagazines()
     {
         tcDatabaseObject* databaseObject = database->GetObject(maMagazineClass[n].c_str());       
         if (tcStoresDBObject* storesDBObj = dynamic_cast<tcStoresDBObject*>(databaseObject))
-		{
+        {
             if (storesDBObj->capacity > maxCapacity)
             {
                 maxIdx = n;
                 maxCapacity = storesDBObj->capacity;
             }
-		}
-		else
-		{
-			fprintf(stderr, "Error - tcPlatformObject::ReorderMagazines"
-                " - Stores obj not found for magazine class (%s)\n", maMagazineClass[n].c_str());
-		}
+        }
+        else
+        {
+            fprintf(stderr, "Error - tcPlatformObject::ReorderMagazines"
+                            " - Stores obj not found for magazine class (%s)\n", maMagazineClass[n].c_str());
+        }
     }
 
     // swap biggest capacity magazine to front to workaround fuel issues
@@ -290,28 +290,28 @@ void tcPlatformDBObject::ReorderMagazines()
 
 void tcPlatformDBObject::PrintToFile(tcFile& file) 
 {
-   tcString s;
-   
-   tcDatabaseObject::PrintToFile(file);
+    tcString s;
 
-   float fG = (float)C_KTSTOMPS*(mfMaxSpeed_kts)*(mfTurnRate_degps)*
-      (float)C_TWOPI/((float)C_G*360.0F);
-   s.Format("   maxspeed:%2.1f kts accel:%1.2f kts/s turnrate:%2.1f deg/s (%2.2f G)\n",
-      mfMaxSpeed_kts,mfAccel_ktsps,mfTurnRate_degps,fG);
-   file.WriteString(s.GetBuffer());
-   for(int i=0;i<mnNumLaunchers;i++) 
-   {
-      s.Format("   Launcher %d: class:%s \n",i,maLauncherClass[i].c_str());
-      file.WriteString(s.GetBuffer());
-   }
-   
-   tcSensorPlatformDBObject::PrintToFile(file);
+    tcDatabaseObject::PrintToFile(file);
 
-   for(int i=0; i<mnNumMagazines; i++) 
-   {
-      s.Format("   Magazine %d: class:%s \n", i, maMagazineClass[i].c_str());
-      file.WriteString(s.GetBuffer());
-   }
+    float fG = (float)C_KTSTOMPS*(mfMaxSpeed_kts)*(mfTurnRate_degps)*
+               (float)C_TWOPI/((float)C_G*360.0F);
+    s.Format("   maxspeed:%2.1f kts accel:%1.2f kts/s turnrate:%2.1f deg/s (%2.2f G)\n",
+             mfMaxSpeed_kts,mfAccel_ktsps,mfTurnRate_degps,fG);
+    file.WriteString(s.GetBuffer());
+    for(int i=0;i<mnNumLaunchers;i++)
+    {
+        s.Format("   Launcher %d: class:%s \n",i,maLauncherClass[i].c_str());
+        file.WriteString(s.GetBuffer());
+    }
+
+    tcSensorPlatformDBObject::PrintToFile(file);
+
+    for(int i=0; i<mnNumMagazines; i++)
+    {
+        s.Format("   Magazine %d: class:%s \n", i, maMagazineClass[i].c_str());
+        file.WriteString(s.GetBuffer());
+    }
 }
 
 
@@ -322,9 +322,9 @@ void tcPlatformDBObject::PrintToFile(tcFile& file)
 */
 void tcPlatformDBObject::AddSqlColumns(std::string& columnString)
 {
-	tcDatabaseObject::AddSqlColumns(columnString);
-	
-	columnString += ",";
+    tcDatabaseObject::AddSqlColumns(columnString);
+
+    columnString += ",";
 
     columnString += "InitialYear number(4),";
     columnString += "FinalYear number(4),";
@@ -337,7 +337,7 @@ void tcPlatformDBObject::AddSqlColumns(std::string& columnString)
     columnString += "FuelCapacity_kg number(8),";
     columnString += "FuelRate_kgps number(8),";
     columnString += "Toughness number(8),";
-	columnString += "DamageEffect varchar(30)";
+    columnString += "DamageEffect varchar(30)";
 
     /*
     int i;
@@ -370,18 +370,18 @@ void tcPlatformDBObject::AddSqlColumns(std::string& columnString)
 
 void tcPlatformDBObject::ReadSql(tcSqlReader& entry)
 {
-	tcDatabaseObject::ReadSql(entry);
+    tcDatabaseObject::ReadSql(entry);
 
-	mfMaxSpeed_kts = entry.GetDouble("MaxSpeed_kts");               
-	mfAccel_ktsps = entry.GetDouble("Accel_ktsps");        
-	mfTurnRate_degps = entry.GetDouble("TurnRate_degps");            
-	mfFuelCapacity_kg = entry.GetDouble("FuelCapacity_kg");        
-	mfFuelRate_kgps = entry.GetDouble("FuelRate_kgps");            
-	mfToughness = entry.GetDouble("Toughness");
+    mfMaxSpeed_kts = entry.GetDouble("MaxSpeed_kts");
+    mfAccel_ktsps = entry.GetDouble("Accel_ktsps");
+    mfTurnRate_degps = entry.GetDouble("TurnRate_degps");
+    mfFuelCapacity_kg = entry.GetDouble("FuelCapacity_kg");
+    mfFuelRate_kgps = entry.GetDouble("FuelRate_kgps");
+    mfToughness = entry.GetDouble("Toughness");
     damageEffect = entry.GetString("DamageEffect");
 
-	// read launchers
-	mnNumLaunchers = 0;
+    // read launchers
+    mnNumLaunchers = 0;
     launcherName.clear();
     maLauncherClass.clear();
     launcherFireControl.clear();
@@ -413,8 +413,8 @@ void tcPlatformDBObject::ReadSql(tcSqlReader& entry)
 	}
     */
 
-	// read magazines
-	mnNumMagazines = 0;
+    // read magazines
+    mnNumMagazines = 0;
     maMagazineClass.clear();
     magazineId.clear();
 
@@ -437,7 +437,7 @@ void tcPlatformDBObject::ReadSql(tcSqlReader& entry)
 	}
     */
 
-	CalculateParams();
+    CalculateParams();
 
     tcSensorPlatformDBObject::ReadSql(entry);
 
@@ -447,18 +447,18 @@ void tcPlatformDBObject::WriteSql(std::string& valueString) const
 {
     tcDatabaseObject::WriteSql(valueString);
 
-	std::stringstream s;
+    std::stringstream s;
 
-	s << ",";
+    s << ",";
 
-	s << mfMaxSpeed_kts << ",";               
-	s << mfAccel_ktsps << ",";           
-	s << mfTurnRate_degps << ",";              
-	s << mfFuelCapacity_kg << ",";         
-	s << mfFuelRate_kgps << ",";              
-	s << mfToughness << ",";
+    s << mfMaxSpeed_kts << ",";
+    s << mfAccel_ktsps << ",";
+    s << mfTurnRate_degps << ",";
+    s << mfFuelCapacity_kg << ",";
+    s << mfFuelRate_kgps << ",";
+    s << mfToughness << ",";
     s << "'" << damageEffect.c_str() << "'";
-	
+
     /*
 	int i;
 	for(i=0; i<MAXLAUNCHERS; i++) 
@@ -494,22 +494,49 @@ void tcPlatformDBObject::WriteSql(std::string& valueString) const
 	}	
 	*/
 
-	valueString += s.str();
-	
+    valueString += s.str();
+
     //tcSensorPlatformDBObject::WriteSql(valueString);
+}
+
+void tcPlatformDBObject::WritePythonValue(std::string &valueString) const
+{
+    tcDatabaseObject::WritePythonValue(valueString);
+    tcSensorPlatformDBObject::WritePythonValue(mzClass.c_str(),valueString);
+    valueString+=std::string(mzClass.c_str())+".mfMaxSpeed_kts="+strutil::to_python_value(mfMaxSpeed_kts);
+    valueString+=std::string(mzClass.c_str())+".mfAccel_ktsps="+strutil::to_python_value(mfAccel_ktsps);
+    valueString+=std::string(mzClass.c_str())+".mfTurnRate_degps="+strutil::to_python_value(mfTurnRate_degps);
+    valueString+=std::string(mzClass.c_str())+".mfFuelCapacity_kg="+strutil::to_python_value(mfFuelCapacity_kg);
+    valueString+=std::string(mzClass.c_str())+".mfFuelRate_kgps="+strutil::to_python_value(mfFuelRate_kgps);
+    valueString+=std::string(mzClass.c_str())+".mfToughness="+strutil::to_python_value(mfToughness);
+    valueString+=std::string(mzClass.c_str())+".damageEffect="+strutil::to_python_value(damageEffect);
+    valueString+=std::string(mzClass.c_str())+".mnNumLaunchers="+strutil::to_python_value(mnNumLaunchers);
+    valueString+=std::string(mzClass.c_str())+".maLauncherClass="+strutil::to_python_value(maLauncherClass);
+    valueString+=std::string(mzClass.c_str())+".maMagazineClass="+strutil::to_python_value(maMagazineClass);
+    valueString+=std::string(mzClass.c_str())+".magazineId="+strutil::to_python_value(magazineId);
+    valueString+=std::string(mzClass.c_str())+".launcherId="+strutil::to_python_value(launcherId);
+    valueString+=std::string(mzClass.c_str())+".launcherName="+strutil::to_python_value(launcherName);
+    valueString+=std::string(mzClass.c_str())+".launcherFOV_deg="+strutil::to_python_value(launcherFOV_deg);
+    valueString+=std::string(mzClass.c_str())+".launcherAz_deg="+strutil::to_python_value(launcherAz_deg);
+    valueString+=std::string(mzClass.c_str())+".launcherEl_deg="+strutil::to_python_value(launcherEl_deg);
+    valueString+=std::string(mzClass.c_str())+".launcherFireControl="+strutil::to_python_value(launcherFireControl);
+    valueString+=std::string(mzClass.c_str())+".launcherFireControl2="+strutil::to_python_value(launcherFireControl2);
+    valueString+=std::string(mzClass.c_str())+".launcherIsReloadable="+strutil::to_python_value(launcherIsReloadable);
+    valueString+=std::string(mzClass.c_str())+".CalculateParams()";
+
 }
 
 void tcPlatformDBObject::WritePython(std::string &valueString) const
 {
-    tcDatabaseObject::WritePython(valueString);
-    tcSensorPlatformDBObject::WritePython(valueString);
+    valueString+=std::string(mzClass.c_str())+"=pygcb.tcPlatformDBObject()";
+    WritePythonValue(valueString);
 }
 
 
 tcPlatformDBObject::tcPlatformDBObject() : tcDatabaseObject(),
     tcSensorPlatformDBObject(),
     fuelConsumptionConstant(0),
-	invMaxSpeed(0),
+    invMaxSpeed(0),
     mfMaxSpeed_kts(0),
     mfAccel_ktsps(0),
     mfTurnRate_degps(0),
@@ -520,11 +547,11 @@ tcPlatformDBObject::tcPlatformDBObject() : tcDatabaseObject(),
     mnNumLaunchers(0),
     mnNumMagazines(0)
 {
-   mnModelType = MTYPE_SURFACE;
+    mnModelType = MTYPE_SURFACE;
 }
 
 tcPlatformDBObject::tcPlatformDBObject(const tcPlatformDBObject& obj)
-:   tcDatabaseObject(obj),
+    :   tcDatabaseObject(obj),
     tcSensorPlatformDBObject(obj),
     mfMaxSpeed_kts(obj.mfMaxSpeed_kts),
     mfAccel_ktsps(obj.mfAccel_ktsps),
@@ -557,14 +584,14 @@ tcPlatformDBObject::tcPlatformDBObject(const tcPlatformDBObject& obj)
         magazineId[i] = obj.magazineId[i]; // valid to do this? why not push_back?
     }
 
-//    animationInfo.clear();
-//    size_t nAn = obj.animationInfo.size();
-//    for(size_t n=0;n<nAn;n++)
-//    {
-//        animationInfo.push_back(obj.animationInfo[n]);
-//    }
+    //    animationInfo.clear();
+    //    size_t nAn = obj.animationInfo.size();
+    //    for(size_t n=0;n<nAn;n++)
+    //    {
+    //        animationInfo.push_back(obj.animationInfo[n]);
+    //    }
 
-	CalculateParams();
+    CalculateParams();
 }
 
 tcPlatformDBObject::~tcPlatformDBObject() 

@@ -108,17 +108,18 @@ namespace database
 		static void AddSqlColumns(std::string& columnString);
 		void ReadSql(tcSqlReader& entry);
         void WriteSql(std::string& valueString) const;
+        void WritePythonValue(std::string& valueString) const;
         void WritePython(std::string& valueString) const;
 
         tcPlatformDBObject();
         tcPlatformDBObject(const tcPlatformDBObject& obj); ///< copy constructor
         virtual ~tcPlatformDBObject();
-
+        void CalculateParams();
 	protected:
 		float fuelConsumptionConstant; ///< = (fuel rate / max speed)
 		float invMaxSpeed; ///< 1/max_speed
 
-		void CalculateParams();
+
 
     };
 

@@ -82,6 +82,20 @@ void tcSpaceDBObject::WriteSql(std::string& valueString) const
     tcPlatformDBObject::WriteSql(valueString);
 }
 
+void tcSpaceDBObject::WritePythonValue(std::string &valueString) const
+{
+    tcPlatformDBObject::WritePythonValue(valueString);
+    valueString+=std::string(mzClass.c_str())+".flightportClass="+strutil::to_python_value(flightportClass.c_str());
+    valueString+=std::string(mzClass.c_str())+".CalculateParams()";
+
+}
+
+void tcSpaceDBObject::WritePython(std::string &valueString) const
+{
+    valueString+=std::string(mzClass.c_str())+"=pygcb.tcSpaceDBObject()";
+    WritePythonValue(valueString);
+}
+
 
 tcSpaceDBObject::tcSpaceDBObject() :
     tcPlatformDBObject()

@@ -74,4 +74,10 @@ tcSimpleAirDBObject::~tcSimpleAirDBObject()
     }
 }
 
+void tcSimpleAirDBObject::WritePython(std::string &valueString) const
+{
+    valueString+=std::string(mzClass.c_str())+"=pygcb.tcSimpleAirDBObject()";
+    WritePythonValue(valueString);
+}
+
 }

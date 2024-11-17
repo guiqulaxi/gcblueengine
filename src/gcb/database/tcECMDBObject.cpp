@@ -117,6 +117,24 @@ void tcECMDBObject::WriteSql(std::string& valueString) const
 	valueString += s.str();
 }
 
+void tcECMDBObject::WritePythonValue(std::string &valueString) const
+{
+    tcSensorDBObject::WritePythonValue(valueString);
+    valueString+=std::string(mzClass.c_str())+".ecmType="+strutil::to_python_value(ecmType);
+    valueString+=std::string(mzClass.c_str())+".ERP_dBW="+strutil::to_python_value(ERP_dBW);
+    valueString+=std::string(mzClass.c_str())+".effectivenessRating="+strutil::to_python_value(effectivenessRating);
+    valueString+=std::string(mzClass.c_str())+".isEffectiveVsSurveillance="+strutil::to_python_value(isEffectiveVsSurveillance);
+    valueString+=std::string(mzClass.c_str())+".isEffectiveVsSeeker="+strutil::to_python_value(isEffectiveVsSeeker);
+    valueString+=std::string(mzClass.c_str())+".CalculateParams()";
+
+}
+
+void tcECMDBObject::WritePython(std::string &valueString) const
+{
+    valueString+=std::string(mzClass.c_str())+"=pygcb.tcECMDBObject()";
+    WritePythonValue(valueString);
+}
+
 
 tcECMDBObject::tcECMDBObject() : tcSensorDBObject(),
     ecmType("Undefined"),

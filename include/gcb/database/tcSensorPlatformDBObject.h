@@ -67,16 +67,19 @@ namespace database
       
 		void ReadSql(tcSqlReader& entry);
         void WriteSql(std::string& valueString) const;
-        void WritePython(std::string& valueString) const;
-		static void AddSqlColumns(std::string& columnString);
+        void WritePythonValue(const std::string&mzClass, std::string& valueString) const;
+        void WritePython(const std::string&mzClass, std::string& valueString) const;
+
+        static void AddSqlColumns(std::string& columnString);
 
         tcSensorPlatformDBObject();
         tcSensorPlatformDBObject(const tcSensorPlatformDBObject& obj); ///< copy constructor
         virtual ~tcSensorPlatformDBObject();
+        void UpdateSensorList();
 
 	private:
         
-		void UpdateSensorList();
+
     };
 
 }

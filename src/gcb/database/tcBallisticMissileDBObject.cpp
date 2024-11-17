@@ -28,6 +28,7 @@
 
 #include "tcBallisticMissileDBObject.h"
 #include "database/tcSqlReader.h"
+#include "strutil.h"
 #include "tcAirDetectionDBObject.h"
 
 #include <sstream>
@@ -169,6 +170,34 @@ namespace database
         s << bcStage4;
 
         valueString += s.str();
+    }
+
+    void tcBallisticMissileDBObject::WritePythonValue(std::string &valueString) const
+    {
+        tcWeaponDBObject::WritePythonValue(valueString);
+
+        tcAirDetectionDBObject::WritePythonValue(mzClass.c_str(),valueString);
+
+        valueString+=std::string(mzClass.c_str())+".gmax="+strutil::to_python_value(gmax);
+        valueString+=std::string(mzClass.c_str())+".timeStage1_s="+strutil::to_python_value(timeStage1_s);
+        valueString+=std::string(mzClass.c_str())+".accelStage1_mps2="+strutil::to_python_value(accelStage1_mps2);
+        valueString+=std::string(mzClass.c_str())+".bcStage1="+strutil::to_python_value(bcStage1);
+        valueString+=std::string(mzClass.c_str())+".timeStage2_s="+strutil::to_python_value(timeStage2_s);
+        valueString+=std::string(mzClass.c_str())+".accelStage2_mps2="+strutil::to_python_value(accelStage2_mps2);
+        valueString+=std::string(mzClass.c_str())+".bcStage2="+strutil::to_python_value(bcStage2);
+        valueString+=std::string(mzClass.c_str())+".timeStage3_s="+strutil::to_python_value(timeStage3_s);
+        valueString+=std::string(mzClass.c_str())+".accelStage3_mps2="+strutil::to_python_value(accelStage3_mps2);
+        valueString+=std::string(mzClass.c_str())+".bcStage3="+strutil::to_python_value(bcStage3);
+        valueString+=std::string(mzClass.c_str())+".timeStage4_s="+strutil::to_python_value(timeStage4_s);
+        valueString+=std::string(mzClass.c_str())+".accelStage4_mps2="+strutil::to_python_value(accelStage4_mps2);
+        valueString+=std::string(mzClass.c_str())+".bcStage4="+strutil::to_python_value(bcStage4);
+        valueString+=std::string(mzClass.c_str())+".CalculateParams()";
+    }
+
+    void tcBallisticMissileDBObject::WritePython(std::string &valueString) const
+    {
+        valueString+=std::string(mzClass.c_str())+"=pygcb.tcBallisticMissileDBObject()";
+        WritePythonValue(valueString);
     }
 
 

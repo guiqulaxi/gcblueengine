@@ -138,6 +138,34 @@ namespace database
         valueString += s.str();
     }
 
+    void tcWeaponDBObject::WritePythonValue(std::string &valueString) const
+    {
+        tcDatabaseObject::WritePythonValue(valueString);
+        valueString+=std::string(mzClass.c_str())+".mfDamage="+strutil::to_python_value(mfDamage);
+        valueString+=std::string(mzClass.c_str())+".damageModel="+strutil::to_python_value(damageModel);
+        valueString+=std::string(mzClass.c_str())+".damageEffect="+strutil::to_python_value(damageEffect);
+        valueString+=std::string(mzClass.c_str())+".launchSpeed_mps="+strutil::to_python_value(launchSpeed_mps);
+        valueString+=std::string(mzClass.c_str())+".targetFlags="+strutil::to_python_value(targetFlags);
+        valueString+=std::string(mzClass.c_str())+".minLaunchAlt_m="+strutil::to_python_value(minLaunchAlt_m);
+        valueString+=std::string(mzClass.c_str())+".maxLaunchAlt_m="+strutil::to_python_value(maxLaunchAlt_m);
+        valueString+=std::string(mzClass.c_str())+".minRange_km="+strutil::to_python_value(minRange_km);
+        valueString+=std::string(mzClass.c_str())+".maxRange_km="+strutil::to_python_value(maxRange_km);
+        valueString+=std::string(mzClass.c_str())+".probNoFaults="+strutil::to_python_value(probNoFaults);
+        valueString+=std::string(mzClass.c_str())+".payloadClass="+strutil::to_python_value(payloadClass);
+        valueString+=std::string(mzClass.c_str())+".payloadQuantity="+strutil::to_python_value(payloadQuantity);
+        valueString+=std::string(mzClass.c_str())+".datalinkRange_km="+strutil::to_python_value(datalinkRange_km);
+        valueString+=std::string(mzClass.c_str())+".acceptsUserCommands="+strutil::to_python_value(acceptsUserCommands);
+        valueString+=std::string(mzClass.c_str())+".detonationRange_m="+strutil::to_python_value(detonationRange_m);
+        valueString+=std::string(mzClass.c_str())+".CalculateParams()";
+
+    }
+
+    void tcWeaponDBObject::WritePython(std::string &valueString) const
+    {
+        valueString+=std::string(mzClass.c_str())+"=pygcb.tcWeaponDBObject()";
+        WritePythonValue(valueString);
+    }
+
     bool tcWeaponDBObject::IsNuclear() const
     {
         if (const tcWeaponDamage* weaponDamage = database->GetWeaponDamageData(damageModel))

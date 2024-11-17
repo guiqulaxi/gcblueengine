@@ -195,31 +195,19 @@ void tcSensorPlatformDBObject::WriteSql(std::string& valueString) const
 
 }
 
-void tcSensorPlatformDBObject::WritePython(std::string &valueString) const
+void tcSensorPlatformDBObject::WritePythonValue(const string &mzClass, std::string& valueString) const
 {
-   valueString+= "[";
-    for (size_t i = 0; i < sensorClass.size(); ++i) {
-        valueString += "'";
-        valueString += sensorClass[i];
-        valueString += "'";
-        if (i < sensorClass.size() - 1) {
-            valueString += ",";
-        }
-    }
-    valueString += "]\n";
-
-    valueString+= "[";
-    for (size_t i = 0; i < sensorAz.size(); ++i) {
-
-        valueString += std::to_string(sensorAz[i]);
-        if (i < sensorAz.size() - 1) {
-            valueString += ",";
-        }
-    }
-    valueString += "]\n";
+  valueString+= mzClass+".sensorClass="+strutil::to_python_value(sensorClass)+"\n";
+  valueString+= mzClass+".sensorAz="+strutil::to_python_value(sensorAz)+"\n";
+  valueString+=std::string(mzClass.c_str())+".UpdateSensorList()";
 
 }
 
+void tcSensorPlatformDBObject::WritePython(const std::string&mzClass, std::string& valueString) const
+{
+    valueString+=std::string(mzClass.c_str())+"=pygcb.tcSensorPlatformDBObject()";
+    WritePythonValue(mzClass,valueString);
+}
 
 tcSensorPlatformDBObject::tcSensorPlatformDBObject()
 {

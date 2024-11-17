@@ -33,7 +33,8 @@ public:
     void ReadSql(tcSqlReader& entry);
     void WriteSql(std::string& valueString) const;
 
-
+    void WritePythonValue(std::string& valueString) const;
+    void WritePython(std::string &valueString) const;
 
     tcSpaceDBObject();
     tcSpaceDBObject(const tcSpaceDBObject& obj); ///< copy constructor

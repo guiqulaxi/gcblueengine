@@ -25,6 +25,7 @@
 
 //#include "stdwx.h"
 
+#include "strutil.h"
 #if _MSC_VER > 1000
 #pragma warning(disable:4786) // suppress warning for STL bug in VC6, see Q167355 in the MSDN Library.
 #endif // _MSC_VER > 1000
@@ -42,81 +43,100 @@ using namespace std;
 namespace database
 {
 
-	void tcSonobuoyDBObject::PrintToFile(tcFile& file) 
-	{ 
-		tcDatabaseObject::PrintToFile(file);
-        tcSensorPlatformDBObject::PrintToFile(file);
-	}
+void tcSonobuoyDBObject::PrintToFile(tcFile& file)
+{
+    tcDatabaseObject::PrintToFile(file);
+    tcSensorPlatformDBObject::PrintToFile(file);
+}
 
 
 
-	/**
+/**
 	* Adds sql column definitions to columnString. This is used for
 	* SQL create table command
 	*/
-	void tcSonobuoyDBObject::AddSqlColumns(std::string& columnString)
-	{
-        tcDatabaseObject::AddSqlColumns(columnString);
-        tcSensorPlatformDBObject::AddSqlColumns(columnString);
-        tcWaterDetectionDBObject::AddSqlColumns(columnString);
+void tcSonobuoyDBObject::AddSqlColumns(std::string& columnString)
+{
+    tcDatabaseObject::AddSqlColumns(columnString);
+    tcSensorPlatformDBObject::AddSqlColumns(columnString);
+    tcWaterDetectionDBObject::AddSqlColumns(columnString);
 
-        columnString += ",";
+    columnString += ",";
 
-        columnString += "BatteryLife_s number(5),";
-        columnString += "CommRange_km number(5)";
-	}
+    columnString += "BatteryLife_s number(5),";
+    columnString += "CommRange_km number(5)";
+}
 
-	void tcSonobuoyDBObject::ReadSql(tcSqlReader& entry)
-	{
-        tcDatabaseObject::ReadSql(entry);
-        tcSensorPlatformDBObject::ReadSql(entry);
-        tcWaterDetectionDBObject::ReadSql(entry);
+void tcSonobuoyDBObject::ReadSql(tcSqlReader& entry)
+{
+    tcDatabaseObject::ReadSql(entry);
+    tcSensorPlatformDBObject::ReadSql(entry);
+    tcWaterDetectionDBObject::ReadSql(entry);
 
-        batteryLife_s = entry.GetDouble("BatteryLife_s");
-        commRange_km = entry.GetDouble("CommRange_km");
-	}
+    batteryLife_s = entry.GetDouble("BatteryLife_s");
+    commRange_km = entry.GetDouble("CommRange_km");
+}
 
-    void tcSonobuoyDBObject::WriteSql(std::string& valueString) const
-	{
-        tcDatabaseObject::WriteSql(valueString);
-        tcSensorPlatformDBObject::WriteSql(valueString);
-        tcWaterDetectionDBObject::WriteSql(valueString);
+void tcSonobuoyDBObject::WriteSql(std::string& valueString) const
+{
+    tcDatabaseObject::WriteSql(valueString);
+    tcSensorPlatformDBObject::WriteSql(valueString);
+    tcWaterDetectionDBObject::WriteSql(valueString);
 
-        std::stringstream s;
+    std::stringstream s;
 
-        s << ",";
+    s << ",";
 
-        s << batteryLife_s << ",";
-        s << commRange_km;
+    s << batteryLife_s << ",";
+    s << commRange_km;
 
-        valueString += s.str();
-	}
+    valueString += s.str();
+}
+
+void tcSonobuoyDBObject::WritePythonValue(std::string &valueString) const
+{
+    tcDatabaseObject::WritePythonValue(valueString);
+    tcSensorPlatformDBObject::WritePythonValue(mzClass.c_str(),valueString);
+    tcWaterDetectionDBObject::WritePythonValue(mzClass.c_str(),valueString);
+    valueString+=std::string(mzClass.c_str())+".batteryLife_s="+strutil::to_python_value(batteryLife_s);
+    valueString+=std::string(mzClass.c_str())+".commRange_km="+strutil::to_python_value(commRange_km);
+    valueString+=std::string(mzClass.c_str())+".CalculateParams()";
+
+}
+
+void tcSonobuoyDBObject::WritePython(std::string &valueString) const
+{
+    valueString+=std::string(mzClass.c_str())+"=pygcb.tcSonobuoyDBObject()";
+    WritePythonValue(valueString);
+}
 
 
-	tcSonobuoyDBObject::tcSonobuoyDBObject() : tcDatabaseObject(),
-        tcSensorPlatformDBObject(),
-        tcWaterDetectionDBObject()
-	{
-		mzClass = "Default Sonobuoy";
-	}
 
-	tcSonobuoyDBObject::tcSonobuoyDBObject(tcSonobuoyDBObject& obj) 
-		: tcDatabaseObject(obj), tcSensorPlatformDBObject(obj), 
-          tcWaterDetectionDBObject(obj),
-          batteryLife_s(obj.batteryLife_s),
-          commRange_km(obj.commRange_km)
-	{
 
-	}
+tcSonobuoyDBObject::tcSonobuoyDBObject() : tcDatabaseObject(),
+    tcSensorPlatformDBObject(),
+    tcWaterDetectionDBObject()
+{
+    mzClass = "Default Sonobuoy";
+}
 
-	tcSonobuoyDBObject::~tcSonobuoyDBObject() 
-	{
-	}
+tcSonobuoyDBObject::tcSonobuoyDBObject(tcSonobuoyDBObject& obj)
+    : tcDatabaseObject(obj), tcSensorPlatformDBObject(obj),
+    tcWaterDetectionDBObject(obj),
+    batteryLife_s(obj.batteryLife_s),
+    commRange_km(obj.commRange_km)
+{
 
-    tcGameObject *tcSonobuoyDBObject::CreateGameObject()
-    {
-       return new tcSonobuoy(this);
-    }
+}
+
+tcSonobuoyDBObject::~tcSonobuoyDBObject()
+{
+}
+
+tcGameObject *tcSonobuoyDBObject::CreateGameObject()
+{
+    return new tcSonobuoy(this);
+}
 
 }
 

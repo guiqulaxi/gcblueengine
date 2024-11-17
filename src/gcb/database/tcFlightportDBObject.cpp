@@ -22,6 +22,7 @@
 
 //#include "stdwx.h"
 
+#include "strutil.h"
 #if _MSC_VER > 1000
 #pragma warning(disable:4786) // suppress warning for STL bug in VC6, see Q167355 in the MSDN Library.
 #endif
@@ -151,6 +152,34 @@ namespace database
         valueString += s.str();
 
     }
+
+    void tcFlightportDBObject::WritePythonValue(std::string &valueString) const
+    {
+        tcDatabaseObject::WritePythonValue(valueString);
+        valueString+=std::string(mzClass.c_str())+".heloOnly="+strutil::to_python_value(mzClass.c_str());
+        valueString+=std::string(mzClass.c_str())+".hangarCapacity="+strutil::to_python_value(hangarCapacity);
+        for(size_t i=0;i<spotInfo.size();i++)
+        {
+            valueString+=std::string(mzClass.c_str())+".spotInfo.append(pygcb.SpotDBInfo())\n";
+            valueString+=std::string(mzClass.c_str())+".spotInfo["+std::to_string(i)+"].isLaunch="+strutil::to_python_value(spotInfo[i].isLaunch)+"\n";
+            valueString+=std::string(mzClass.c_str())+".spotInfo["+std::to_string(i)+"].x="+strutil::to_python_value(spotInfo[i].x)+"\n";
+            valueString+=std::string(mzClass.c_str())+".spotInfo["+std::to_string(i)+"].y="+strutil::to_python_value(spotInfo[i].y)+"\n";
+            valueString+=std::string(mzClass.c_str())+".spotInfo["+std::to_string(i)+"].z="+strutil::to_python_value(spotInfo[i].z)+"\n";
+            valueString+=std::string(mzClass.c_str())+".spotInfo["+std::to_string(i)+"].orientation_deg="+strutil::to_python_value(spotInfo[i].orientation_deg)+"\n";
+            valueString+=std::string(mzClass.c_str())+".spotInfo["+std::to_string(i)+"].length="+strutil::to_python_value(spotInfo[i].length)+"\n";
+
+        }
+        valueString+=std::string(mzClass.c_str())+".CalculateParams()";
+
+
+    }
+
+    void tcFlightportDBObject::WritePython(std::string &valueString) const
+    {
+        valueString+=std::string(mzClass.c_str())+"=pygcb.tcFlightportDBObject()";
+        WritePythonValue(valueString);
+    }
+
 
     tcFlightportDBObject::tcFlightportDBObject() : tcDatabaseObject() 
     {

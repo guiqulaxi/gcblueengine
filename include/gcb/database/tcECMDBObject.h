@@ -54,15 +54,15 @@ namespace database
 		virtual void PrintToFile(tcFile& file);
 
         virtual const char* GetTypeDescription() const;
-
-		tcECMDBObject();
+        tcECMDBObject();
 		tcECMDBObject(tcECMDBObject& obj); ///< copy constructor
 		virtual ~tcECMDBObject();
 
 		static void AddSqlColumns(std::string& columnString);
 		void ReadSql(tcSqlReader& entry);
         void WriteSql(std::string& valueString) const;
-
+        void WritePythonValue(std::string& valueString) const;
+        void WritePython(std::string& valueString) const;
 	};
 
 } // namespace database

@@ -56,6 +56,8 @@ namespace database
 		static void AddSqlColumns(std::string& columnString);
 		void ReadSql(tcSqlReader& entry);
         void WriteSql(std::string& valueString) const;
+        void WritePythonValue(const std::string& mzClass,std::string& valueString) const;
+        void WritePython(const std::string& mzClass,std::string& valueString) const;
 
         float GetSourceLevel(float speed_mps, float depth_m, float az_deg) const;
         float GetTargetStrength(float az_deg) const;
@@ -71,13 +73,13 @@ namespace database
         tcWaterDetectionDBObject();
         tcWaterDetectionDBObject(const tcWaterDetectionDBObject& obj); ///< copy constructor
         virtual ~tcWaterDetectionDBObject();
-
+        void BindSignatureModels();
     private:
         tcSignatureModel TS_pattern;
         tcSignatureModel SL_pattern;
         tcAcousticModel acousticNoise;
 
-        void BindSignatureModels();
+
         
     };
 

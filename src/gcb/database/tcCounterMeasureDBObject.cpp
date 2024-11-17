@@ -34,6 +34,7 @@
 #include "database/tcSqlReader.h"
 #include <sstream>
 #include <cassert>
+#include "strutil.h"
 #include "tcAirCM.h"
 #include "tcWaterCM.h"
 #ifdef _DEBUG
@@ -137,6 +138,25 @@ namespace database
 
         tcAirDetectionDBObject::WriteSql(valueString);
         tcWaterDetectionDBObject::WriteSql(valueString);
+    }
+
+    void tcCounterMeasureDBObject::WritePythonValue(std::string &valueString) const
+    {
+        tcDatabaseObject::WritePythonValue(valueString);
+        tcAirDetectionDBObject::WritePythonValue(mzClass.c_str(),valueString);
+        tcWaterDetectionDBObject::WritePythonValue(mzClass.c_str(),valueString);
+
+        valueString+=std::string(mzClass.c_str())+".subType="+strutil::to_python_value(subType);
+        valueString+=std::string(mzClass.c_str())+".lifeSpan_s="+strutil::to_python_value(lifeSpan_s);
+        valueString+=std::string(mzClass.c_str())+".effectiveness="+strutil::to_python_value(effectiveness);
+        valueString+=std::string(mzClass.c_str())+".maxSpeed_mps="+strutil::to_python_value(maxSpeed_mps);
+        valueString+=std::string(mzClass.c_str())+".CalculateParams()";
+    }
+
+    void tcCounterMeasureDBObject::WritePython(std::string &valueString) const
+    {
+        valueString+=std::string(mzClass.c_str())+"=pygcb.tcCounterMeasureDBObject()";
+        WritePythonValue(valueString);
     }
 
 

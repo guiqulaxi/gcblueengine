@@ -24,6 +24,7 @@
 */
 
 //#include "stdwx.h"
+#include "strutil.h"
 #if _MSC_VER > 1000
 #pragma warning(disable:4786) // suppress warning for STL bug in VC6, see Q167355 in the MSDN Library.
 #endif // _MSC_VER > 1000
@@ -81,6 +82,21 @@ namespace database
 
 		s << fuelCapacity_kg;
 	}
+
+    void tcFuelTankDBObject::WritePythonValue(std::string &valueString) const
+    {
+        tcDatabaseObject::WritePythonValue(valueString);
+        valueString+=std::string(mzClass.c_str())+".fuelCapacity_kg="+strutil::to_python_value(fuelCapacity_kg);
+
+        valueString+=std::string(mzClass.c_str())+".CalculateParams()";
+
+    }
+
+    void tcFuelTankDBObject::WritePython(std::string &valueString) const
+    {
+        valueString+=std::string(mzClass.c_str())+"=pygcb.tcFuelTankDBObject()";
+        WritePythonValue(valueString);
+    }
 
 
 	tcFuelTankDBObject::tcFuelTankDBObject()

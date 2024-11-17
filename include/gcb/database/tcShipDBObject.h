@@ -72,8 +72,8 @@ namespace database
 		void ReadSql(tcSqlReader& entry);
         void WriteSql(std::string& valueString) const;
 
-
-
+        void WritePythonValue(std::string& valueString) const;
+        void WritePython(std::string& valueString) const;
         tcShipDBObject();
         tcShipDBObject(const tcShipDBObject& obj); ///< copy constructor
         virtual ~tcShipDBObject();

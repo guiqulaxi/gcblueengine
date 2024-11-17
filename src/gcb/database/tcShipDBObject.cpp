@@ -175,6 +175,31 @@ void tcShipDBObject::WriteSql(std::string& valueString) const
     tcWaterDetectionDBObject::WriteSql(valueString);
 }
 
+void tcShipDBObject::WritePythonValue(std::string &valueString) const
+{
+ tcPlatformDBObject::WritePythonValue(valueString);
+    tcAirDetectionDBObject::WritePythonValue(mzClass.c_str(),valueString);
+ tcWaterDetectionDBObject::WritePythonValue(mzClass.c_str(),valueString);
+    valueString+=std::string(mzClass.c_str())+".draft_m="+strutil::to_python_value(mfMaxSpeed_kts);
+    valueString+=std::string(mzClass.c_str())+".beam_m="+strutil::to_python_value(mfAccel_ktsps);
+    valueString+=std::string(mzClass.c_str())+".PowerPlantType="+strutil::to_python_value(mfTurnRate_degps);
+    valueString+=std::string(mzClass.c_str())+".TotalShaft_HP="+strutil::to_python_value(mfFuelCapacity_kg);
+    valueString+=std::string(mzClass.c_str())+".ExhaustStacks="+strutil::to_python_value(mfFuelRate_kgps);
+    valueString+=std::string(mzClass.c_str())+".PropulsionShafts="+strutil::to_python_value(mfToughness);
+    valueString+=std::string(mzClass.c_str())+".PropulsiveEfficiency="+strutil::to_python_value(damageEffect);
+    valueString+=std::string(mzClass.c_str())+".CivilianPaintScheme="+strutil::to_python_value(damageEffect);
+    valueString+=std::string(mzClass.c_str())+".FlashyPaintScheme="+strutil::to_python_value(damageEffect);
+    valueString+=std::string(mzClass.c_str())+".flightportClass="+strutil::to_python_value(damageEffect);
+    valueString+=string(mzClass.c_str())+".CalculateParams()";
+}
+
+void tcShipDBObject::WritePython(std::string &valueString) const
+{
+    valueString+=string(mzClass.c_str())+"=pygcb.tcShipDBObject()";
+    WritePythonValue(valueString);
+
+}
+
 
 tcShipDBObject::tcShipDBObject() : 
     tcPlatformDBObject(),

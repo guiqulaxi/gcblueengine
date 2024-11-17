@@ -70,6 +70,8 @@ namespace database
         static void AddSqlColumns(std::string& columnString);
         void ReadSql(tcSqlReader& entry);
         void WriteSql(std::string& valueString) const;
+        void WritePythonValue(std::string& valueString) const;
+        void WritePython(std::string& valueString) const;
 
         void ClearConfigs();
         void AddConfig(const std::string& childClass, unsigned short capacity, float loadTime_s, float cycleTime_s);
@@ -79,7 +81,6 @@ namespace database
         tcLauncherDBObject(const std::string& databaseClass);
         virtual ~tcLauncherDBObject();
         
-
 
             
     };

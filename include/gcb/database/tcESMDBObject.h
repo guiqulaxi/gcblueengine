@@ -47,6 +47,8 @@ namespace database
         virtual void PrintToFile(tcFile& file);
 
         virtual const char* GetTypeDescription() const;
+        void WritePythonValue(std::string &valueString) const;
+        void WritePython(std::string &valueString) const;
 
         tcESMDBObject();
         tcESMDBObject(const tcESMDBObject& obj); ///< copy constructor

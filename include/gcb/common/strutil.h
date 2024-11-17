@@ -22,6 +22,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <array>
 #define MAX_STR_LEN 1024
 //! The strutil namespace
 namespace strutil
@@ -623,4 +624,136 @@ static bool wildcard_match(const std::string& s, const std::string& p)
     return dp.back().back();
 }
 
+static std::string to_python_value(const std::vector<int>& data)
+{
+    std::string valueString;
+    valueString+= "[";
+    for (size_t i = 0; i < data.size(); ++i) {
+        valueString += std::to_string(data[i]);
+        if (i < data.size() - 1) {
+            valueString += ",";
+        }
+    }
+    return valueString;
+}
+static std::string to_python_value(const std::vector<unsigned short>& data)
+{
+    std::string valueString;
+    valueString+= "[";
+    for (size_t i = 0; i < data.size(); ++i) {
+        valueString += std::to_string(data[i]);
+        if (i < data.size() - 1) {
+            valueString += ",";
+        }
+    }
+    return valueString;
+}
+
+static std::string to_python_value(const std::vector<unsigned int>& data)
+{
+    std::string valueString;
+    valueString+= "[";
+    for (size_t i = 0; i < data.size(); ++i) {
+        valueString += std::to_string(data[i]);
+        if (i < data.size() - 1) {
+            valueString += ",";
+        }
+    }
+    return valueString;
+}
+static std::string to_python_value(const std::vector<float>&  data)
+{
+    std::string valueString;
+    valueString+= "[";
+    for (size_t i = 0; i < data.size(); ++i) {
+        valueString += std::to_string(data[i]);
+        if (i < data.size() - 1) {
+            valueString += ",";
+        }
+    }
+    return valueString;
+}
+static std::string to_python_value(const std::vector<std::string>& data)
+{
+     std::string valueString;
+    valueString+= "[";
+    for (size_t i = 0; i < data.size(); ++i) {
+        valueString += "'";
+        valueString += data[i];
+        valueString += "'";
+        if (i < data.size() - 1) {
+            valueString += ",";
+        }
+    }
+    return valueString;
+}
+static std::string to_python_value(const std::vector<bool>& data)
+{
+    std::string valueString;
+    valueString+= "[";
+    for (size_t i = 0; i < data.size(); ++i) {
+        valueString += data[i]?"True":"False";
+        if (i < data.size() - 1) {
+            valueString += ",";
+        }
+    }
+
+    return valueString;
+}
+static std::string to_python_value(const std::string& data)
+{
+    std::string valueString;
+    valueString += "'"+data+"'";
+
+    return valueString;
+}
+static std::string to_python_value(bool data)
+{
+    std::string valueString;
+    valueString += data?"True":"False";
+
+    return valueString;
+}
+static std::string to_python_value(int data)
+{
+    std::string valueString;
+    valueString += std::to_string(data);
+
+    return valueString;
+}
+static std::string to_python_value(float data)
+{
+    std::string valueString;
+    valueString +=std::to_string(data);
+
+    return valueString;
+}
+static std::string to_python_value(double data)
+{
+    std::string valueString;
+    valueString +=std::to_string(data);
+
+    return valueString;
+}
+static std::string to_python_value(long data)
+{
+    std::string valueString;
+    valueString += std::to_string(data);
+
+    return valueString;
+}
+static std::string to_python_value(unsigned long data)
+{
+    std::string valueString;
+    valueString += std::to_string(data);
+
+    return valueString;
+}
+static std::string to_python_value(unsigned int data)
+{
+    std::string valueString;
+    valueString += std::to_string(data);
+
+    return valueString;
+}
 }

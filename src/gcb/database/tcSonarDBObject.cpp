@@ -25,6 +25,7 @@
 
 //#include "stdwx.h"
 
+#include "strutil.h"
 #if _MSC_VER > 1000
 #pragma warning(disable:4786) // suppress warning for STL bug in VC6, see Q167355 in the MSDN Library.
 #endif // _MSC_VER > 1000
@@ -166,6 +167,28 @@ namespace database
         s << (long)isWakeHoming;
 
         valueString += s.str();
+    }
+
+    void tcSonarDBObject::WritePythonValue(std::string &valueString) const
+    {
+        tcSensorDBObject::WritePythonValue(valueString);
+        valueString+=std::string(mzClass.c_str())+".SL="+strutil::to_python_value(SL);
+        valueString+=std::string(mzClass.c_str())+".DI="+strutil::to_python_value(DI);
+        valueString+=std::string(mzClass.c_str())+".maxFrequency_Hz="+strutil::to_python_value(maxFrequency_Hz);
+        valueString+=std::string(mzClass.c_str())+".isPassive="+strutil::to_python_value(isPassive);
+        valueString+=std::string(mzClass.c_str())+".isActive="+strutil::to_python_value(isActive);
+        valueString+=std::string(mzClass.c_str())+".isTowed="+strutil::to_python_value(isTowed);
+        valueString+=std::string(mzClass.c_str())+".maxScope_m="+strutil::to_python_value(maxScope_m);
+        valueString+=std::string(mzClass.c_str())+".isWakeHoming="+strutil::to_python_value(isWakeHoming);
+        valueString+=std::string(mzClass.c_str())+".CalculateParams()";
+
+    }
+
+    void tcSonarDBObject::WritePython(std::string &valueString) const
+    {
+        valueString+=std::string(mzClass.c_str())+"=pygcb.tcSonarDBObject()";
+        WritePythonValue(valueString);
+
     }
 
     tcSonarDBObject::tcSonarDBObject() : tcSensorDBObject(),

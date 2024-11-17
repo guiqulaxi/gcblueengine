@@ -26,6 +26,7 @@
 //#include "stdwx.h"
 
 #include "tcSubDBObject.h"
+#include "strutil.h"
 #include "tcPlatformDBObject.h"
 #include "common/math_constants.h"
 #include <sstream>
@@ -36,155 +37,175 @@
 
 namespace database
 {
-    /**
+/**
     * Calculate private parameters. Should be called after
     * object is loaded.
     */
-    void tcSubDBObject::CalculateParams()
-    {
-        invMaxSpeed_mps = 1.0f / (C_KTSTOMPS*mfMaxSpeed_kts);
-        batteryDrainConstant = batteryRate_kW * invMaxSpeed_mps;
-        invDraft_m = 1.0f / std::max(draft_m, 0.1f);
-    }
+void tcSubDBObject::CalculateParams()
+{
+    invMaxSpeed_mps = 1.0f / (C_KTSTOMPS*mfMaxSpeed_kts);
+    batteryDrainConstant = batteryRate_kW * invMaxSpeed_mps;
+    invDraft_m = 1.0f / std::max(draft_m, 0.1f);
+}
 
-	/**
+/**
 	* Drain rate is scaled to 4x at max speed, database rate is for near zero speed
 	*/
-    float tcSubDBObject::GetBatteryRate(float speed_mps) const
-    {
-		float speed_factor = 1.0f + 3.0f * speed_mps * invMaxSpeed_mps;
+float tcSubDBObject::GetBatteryRate(float speed_mps) const
+{
+    float speed_factor = 1.0f + 3.0f * speed_mps * invMaxSpeed_mps;
 
-        return batteryDrainConstant * speed_mps * speed_factor;
-    }
-    
-    float tcSubDBObject::GetInvDraft() const
-    {
-        return invDraft_m;
-    }
+    return batteryDrainConstant * speed_mps * speed_factor;
+}
 
-    /**
+float tcSubDBObject::GetInvDraft() const
+{
+    return invDraft_m;
+}
+
+/**
     * @returns max speed without cavitation in kts
     */
-    float tcSubDBObject::GetMaxNonCavitatingSpeed(float depth_m) const
-    {
-        return tcWaterDetectionDBObject::GetCavitationSpeedKts(depth_m);
-    }
-    
-    bool tcSubDBObject::IsCavitatingMps(float speed_mps, float depth_m) const
-    {
-        return (speed_mps > (C_KTSTOMPS*GetMaxNonCavitatingSpeed(depth_m)));
-    }
-    
-    bool tcSubDBObject::IsCavitatingKts(float speed_kts, float depth_m) const
-    {
-        return (speed_kts > GetMaxNonCavitatingSpeed(depth_m));
-    }
-    
+float tcSubDBObject::GetMaxNonCavitatingSpeed(float depth_m) const
+{
+    return tcWaterDetectionDBObject::GetCavitationSpeedKts(depth_m);
+}
 
-    /**
+bool tcSubDBObject::IsCavitatingMps(float speed_mps, float depth_m) const
+{
+    return (speed_mps > (C_KTSTOMPS*GetMaxNonCavitatingSpeed(depth_m)));
+}
+
+bool tcSubDBObject::IsCavitatingKts(float speed_kts, float depth_m) const
+{
+    return (speed_kts > GetMaxNonCavitatingSpeed(depth_m));
+}
+
+
+/**
     * Adds sql column definitions to columnString. This is used for
     * SQL create table command
     */
-    void tcSubDBObject::AddSqlColumns(std::string& columnString)
-    {
-        tcPlatformDBObject::AddSqlColumns(columnString);
+void tcSubDBObject::AddSqlColumns(std::string& columnString)
+{
+    tcPlatformDBObject::AddSqlColumns(columnString);
 
-        columnString += ",Draft_m real";
-        columnString += ",SurfaceSpeed_kts real";
+    columnString += ",Draft_m real";
+    columnString += ",SurfaceSpeed_kts real";
 
-        tcAirDetectionDBObject::AddSqlColumns(columnString); // Applies to surfaced sub
-        tcWaterDetectionDBObject::AddSqlColumns(columnString);
+    tcAirDetectionDBObject::AddSqlColumns(columnString); // Applies to surfaced sub
+    tcWaterDetectionDBObject::AddSqlColumns(columnString);
 
-        columnString += ",";
-        
-        columnString += "MaxDepth_m number(8),";
+    columnString += ",";
 
-        columnString += "IsDieselElectric number(1),";
-        columnString += "BatteryCapacity_kJ number(8),";
-        columnString += "BatteryRate_kW number(8),";
-        columnString += "BatteryCharge_kW number(8)";
-    }
+    columnString += "MaxDepth_m number(8),";
 
-    void tcSubDBObject::ReadSql(tcSqlReader& entry)
-    {
-        tcPlatformDBObject::ReadSql(entry);
+    columnString += "IsDieselElectric number(1),";
+    columnString += "BatteryCapacity_kJ number(8),";
+    columnString += "BatteryRate_kW number(8),";
+    columnString += "BatteryCharge_kW number(8)";
+}
 
-        draft_m = (float)entry.GetDouble("Draft_m");
-        surfaceSpeed_kts = (float)entry.GetDouble("SurfaceSpeed_kts");
+void tcSubDBObject::ReadSql(tcSqlReader& entry)
+{
+    tcPlatformDBObject::ReadSql(entry);
 
-        tcAirDetectionDBObject::ReadSql(entry);
-        tcWaterDetectionDBObject::ReadSql(entry);
+    draft_m = (float)entry.GetDouble("Draft_m");
+    surfaceSpeed_kts = (float)entry.GetDouble("SurfaceSpeed_kts");
 
-        mfMaxDepth_m = entry.GetDouble("MaxDepth_m");
+    tcAirDetectionDBObject::ReadSql(entry);
+    tcWaterDetectionDBObject::ReadSql(entry);
 
-        isDieselElectric = entry.GetInt("IsDieselElectric") != 0;
-        batteryCapacity_kJ = entry.GetDouble("BatteryCapacity_kJ");
-        batteryRate_kW = entry.GetDouble("BatteryRate_kW");
-        batteryCharge_kW = entry.GetDouble("BatteryCharge_kW");
+    mfMaxDepth_m = entry.GetDouble("MaxDepth_m");
 
-        CalculateParams();
-    }
+    isDieselElectric = entry.GetInt("IsDieselElectric") != 0;
+    batteryCapacity_kJ = entry.GetDouble("BatteryCapacity_kJ");
+    batteryRate_kW = entry.GetDouble("BatteryRate_kW");
+    batteryCharge_kW = entry.GetDouble("BatteryCharge_kW");
 
-    void tcSubDBObject::WriteSql(std::string& valueString) const
-    {
-        tcPlatformDBObject::WriteSql(valueString);
+    CalculateParams();
+}
 
-        std::stringstream s2;
-        s2 << ",";
-        s2 << draft_m << ",";
-        s2 << surfaceSpeed_kts;
-        valueString += s2.str();
+void tcSubDBObject::WriteSql(std::string& valueString) const
+{
+    tcPlatformDBObject::WriteSql(valueString);
 
-        tcAirDetectionDBObject::WriteSql(valueString);
-        tcWaterDetectionDBObject::WriteSql(valueString);
+    std::stringstream s2;
+    s2 << ",";
+    s2 << draft_m << ",";
+    s2 << surfaceSpeed_kts;
+    valueString += s2.str();
 
-        std::stringstream s;
-        s << ",";
+    tcAirDetectionDBObject::WriteSql(valueString);
+    tcWaterDetectionDBObject::WriteSql(valueString);
 
-        s << mfMaxDepth_m << ",";
+    std::stringstream s;
+    s << ",";
 
-        s << isDieselElectric << ",";
-        s << batteryCapacity_kJ << ",";
-        s << batteryRate_kW << ",";
-        s << batteryCharge_kW;
+    s << mfMaxDepth_m << ",";
 
-        valueString += s.str();
-    }
+    s << isDieselElectric << ",";
+    s << batteryCapacity_kJ << ",";
+    s << batteryRate_kW << ",";
+    s << batteryCharge_kW;
+
+    valueString += s.str();
+}
+
+void tcSubDBObject::WritePythonValue(std::string &valueString) const
+{
+    tcPlatformDBObject::WritePythonValue(valueString);
+    tcAirDetectionDBObject::WritePythonValue(mzClass.c_str(),valueString);
+    tcWaterDetectionDBObject::WritePythonValue(mzClass.c_str(),valueString);
+    valueString+=std::string(mzClass.c_str())+".draft_m="+strutil::to_python_value(draft_m);
+    valueString+=std::string(mzClass.c_str())+".surfaceSpeed_kts="+strutil::to_python_value(surfaceSpeed_kts);
+    valueString+=std::string(mzClass.c_str())+".mfMaxDepth_m="+strutil::to_python_value(mfMaxDepth_m);
+    valueString+=std::string(mzClass.c_str())+".isDieselElectric="+strutil::to_python_value(isDieselElectric);
+    valueString+=std::string(mzClass.c_str())+".batteryRate_kW="+strutil::to_python_value(batteryRate_kW);
+    valueString+=std::string(mzClass.c_str())+".batteryCharge_kW="+strutil::to_python_value(batteryCharge_kW);
+
+}
+
+void tcSubDBObject::WritePython(std::string &valueString) const
+{
+    valueString+=std::string(mzClass.c_str())+"=pygcb.tcSubDBObject()";
+    WritePythonValue(valueString);
+}
 
 
-    tcSubDBObject::tcSubDBObject()
+tcSubDBObject::tcSubDBObject()
     :   batteryDrainConstant(0),
-        invMaxSpeed_mps(0),
-        invDraft_m(0)
-    {
-        mnModelType = MTYPE_SUBMARINE;
-        mnType = PTYPE_SUBMARINE; // functional classification
-    }
+    invMaxSpeed_mps(0),
+    invDraft_m(0)
+{
+    mnModelType = MTYPE_SUBMARINE;
+    mnType = PTYPE_SUBMARINE; // functional classification
+}
 
-    tcSubDBObject::tcSubDBObject(const tcSubDBObject& obj)
-        :
-        draft_m(obj.draft_m),
-        surfaceSpeed_kts(obj.surfaceSpeed_kts),
-        invMaxSpeed_mps(obj.invMaxSpeed_mps),
-        invDraft_m(obj.invDraft_m),
-        batteryDrainConstant(obj.batteryDrainConstant),
-        mfMaxDepth_m(obj.mfMaxDepth_m),
-        isDieselElectric(obj.isDieselElectric),
-        batteryCapacity_kJ(obj.batteryCapacity_kJ),
-        batteryRate_kW(obj.batteryRate_kW),
-        batteryCharge_kW(obj.batteryCharge_kW)
-    {
-    }
+tcSubDBObject::tcSubDBObject(const tcSubDBObject& obj)
+    :
+    draft_m(obj.draft_m),
+    surfaceSpeed_kts(obj.surfaceSpeed_kts),
+    invMaxSpeed_mps(obj.invMaxSpeed_mps),
+    invDraft_m(obj.invDraft_m),
+    batteryDrainConstant(obj.batteryDrainConstant),
+    mfMaxDepth_m(obj.mfMaxDepth_m),
+    isDieselElectric(obj.isDieselElectric),
+    batteryCapacity_kJ(obj.batteryCapacity_kJ),
+    batteryRate_kW(obj.batteryRate_kW),
+    batteryCharge_kW(obj.batteryCharge_kW)
+{
+}
 
 
-    tcSubDBObject::~tcSubDBObject()
-    {
-    }
+tcSubDBObject::~tcSubDBObject()
+{
+}
 
-    tcGameObject *tcSubDBObject::CreateGameObject()
-    {
-        return new tcSubObject(this);
-    }
+tcGameObject *tcSubDBObject::CreateGameObject()
+{
+    return new tcSubObject(this);
+}
 
 
 }

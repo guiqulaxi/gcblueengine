@@ -61,9 +61,9 @@ void tcAcousticModel::AddSqlColumns(std::string& columnString)
     columnString += "SL4 real,";
 
     columnString += "SpeedMinNL_kts real,";
-	columnString += "NL_min real,";
+    columnString += "NL_min real,";
     columnString += "SpeedMaxNL_kts real,";
-	columnString += "NL_max real,";
+    columnString += "NL_max real,";
 
     columnString += "CavitationOffset_kts real,";
     columnString += "CavitationSlope_ktsperft real,";
@@ -82,7 +82,7 @@ void tcAcousticModel::BuildSLTable()
         assert(xSpeed_kts[n] > xSpeed_kts[n-1]);
         if (ySL_dB[n] < ySL_dB[n-1])
         {
-			fprintf(stderr, "tcAcousticModel (%s) -- SL must be non-decreasing, values were increased\n", databaseClass.c_str());
+            fprintf(stderr, "tcAcousticModel (%s) -- SL must be non-decreasing, values were increased\n", databaseClass.c_str());
             ySL_dB[n] = ySL_dB[n-1]; // force non-decreasing SL vs speed
         }
 
@@ -203,9 +203,9 @@ void tcAcousticModel::ReadSql(tcSqlReader& entry)
     }
 
     speedMinNL_kts = entry.GetDouble("SpeedMinNL_kts");
-	NL_min = entry.GetDouble("NL_min");
+    NL_min = entry.GetDouble("NL_min");
     speedMaxNL_kts = entry.GetDouble("SpeedMaxNL_kts");
-	NL_max = entry.GetDouble("NL_max");
+    NL_max = entry.GetDouble("NL_max");
 
     cavitationOffset_kts = entry.GetDouble("CavitationOffset_kts");
     cavitationSlope_ktsperft = entry.GetDouble("CavitationSlope_ktsperft");
@@ -225,11 +225,11 @@ void tcAcousticModel::ReadSql(tcSqlReader& entry)
 
 void tcAcousticModel::WriteSql(std::string& valueString) const
 {
-	std::stringstream s;
+    std::stringstream s;
 
     s << "'" << databaseClass.c_str() << "'";
 
-	s << ",";
+    s << ",";
 
     for (int n=0; n<4; n++)
     {
@@ -246,30 +246,48 @@ void tcAcousticModel::WriteSql(std::string& valueString) const
     s << cavitationSlope_ktsperft << ",";
     s << cavitationSL_dB << ",";
     s << snorkelingSL_dB;
-	
-	valueString += s.str();
+
+    valueString += s.str();
+}
+
+void tcAcousticModel::WritePythonValue(std::string &valueString) const
+{
+
+    valueString+=std::string(databaseClass.c_str())+".databaseClass="+strutil::to_python_value(databaseClass.c_str());
+    valueString+=std::string(databaseClass.c_str())+".xSpeed_kts="+strutil::to_python_value(xSpeed_kts);
+    valueString+=std::string(databaseClass.c_str())+".ySL_dB="+strutil::to_python_value(ySL_dB);
+    valueString+=std::string(databaseClass.c_str())+".speedMinNL_kts="+strutil::to_python_value(speedMinNL_kts);
+    valueString+=std::string(databaseClass.c_str())+".NL_min="+strutil::to_python_value(NL_min);
+    valueString+=std::string(databaseClass.c_str())+".speedMaxNL_kts="+strutil::to_python_value(speedMaxNL_kts);
+    valueString+=std::string(databaseClass.c_str())+".NL_max="+strutil::to_python_value(NL_max);
+    valueString+=std::string(databaseClass.c_str())+".cavitationOffset_kts="+strutil::to_python_value(cavitationOffset_kts);
+    valueString+=std::string(databaseClass.c_str())+".cavitationSlope_ktsperft="+strutil::to_python_value(cavitationSlope_ktsperft);
+    valueString+=std::string(databaseClass.c_str())+".cavitationSL_dB="+strutil::to_python_value(cavitationSL_dB);
+    valueString+=std::string(databaseClass.c_str())+".snorkelingSL_dB="+strutil::to_python_value(snorkelingSL_dB);
+    valueString+=std::string(databaseClass.c_str())+". BuildSLTable()";
+
 }
 
 
 tcAcousticModel::tcAcousticModel()
-: speedMinNL_kts(0),
-  NL_min(0),
-  speedMaxNL_kts(1),
-  NL_max(0),
-  cavitationOffset_kts(0),
-  cavitationSlope_ktsperft(0),
-  cavitationSlope_ktsperm(0),
-  invCavitationSlope_mperkts(0),
-  cavitationSL_dB(0),
-  snorkelingSL_dB(0),
-  dv_kts(0.25f),
-  one_over_dv(4.0f)
+    : speedMinNL_kts(0),
+    NL_min(0),
+    speedMaxNL_kts(1),
+    NL_max(0),
+    cavitationOffset_kts(0),
+    cavitationSlope_ktsperft(0),
+    cavitationSlope_ktsperm(0),
+    invCavitationSlope_mperkts(0),
+    cavitationSL_dB(0),
+    snorkelingSL_dB(0),
+    dv_kts(0.25f),
+    one_over_dv(4.0f)
 {
 
 }
 
 tcAcousticModel::tcAcousticModel(const tcAcousticModel& obj)
-:   speedMinNL_kts(obj.speedMinNL_kts),
+    :   speedMinNL_kts(obj.speedMinNL_kts),
     NL_min(obj.NL_min),
     speedMaxNL_kts(obj.speedMaxNL_kts),
     NL_max(obj.NL_max),

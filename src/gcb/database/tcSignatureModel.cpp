@@ -133,6 +133,22 @@ void tcSignatureModel::WriteSql(std::string& valueString) const
 	valueString += s.str();
 }
 
+void tcSignatureModel::WritePythonValue(std::string &valueString) const
+{
+
+    valueString+=std::string(mzClass.c_str())+".mzClass="+strutil::to_python_value(mzClass.c_str());
+    valueString+=std::string(mzClass.c_str())+".aspectModifier_dB="+strutil::to_python_value(std::vector<float>(aspectModifier_dB.begin(),aspectModifier_dB.end()));
+    valueString+=std::string(mzClass.c_str())+".topModifier_dB="+strutil::to_python_value(topModifier_dB);
+    valueString+=std::string(mzClass.c_str())+".bottomModifier_dB="+strutil::to_python_value(bottomModifier_dB);
+
+}
+
+void tcSignatureModel::WritePython(std::string &valueString) const
+{
+    valueString+=std::string(mzClass.c_str())+"=pygcb.tcSignatureModel()";
+    WritePythonValue(valueString);
+}
+
 
 tcSignatureModel::tcSignatureModel()
 :   topModifier_dB(0),

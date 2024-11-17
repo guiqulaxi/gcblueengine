@@ -70,6 +70,18 @@ namespace database
 		tcDatabaseObject::WriteSql(valueString);
 	}
 
+    void tcItemDBObject::WritePythonValue(std::string &valueString) const
+    {
+        tcDatabaseObject::WritePythonValue(valueString);
+        valueString+=std::string(mzClass.c_str())+".CalculateParams()";
+    }
+
+    void tcItemDBObject::WritePython(std::string &valueString) const
+    {
+        valueString+=std::string(mzClass.c_str())+"=pygcb.tcItemDBObject()";
+        WritePythonValue(valueString);
+    }
+
 
 	tcItemDBObject::tcItemDBObject()
 	{

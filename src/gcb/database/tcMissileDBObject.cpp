@@ -96,22 +96,22 @@ float tcMissileDBObject::EstimateSpeed_mps() const
 
 teWeaponLaunchMode tcMissileDBObject::GetLaunchMode() const
 {
-   if (mnNumSegments==0) {return AUTO;}
+    if (mnNumSegments==0) {return AUTO;}
 
-   const tsMissileFlightSegment *firstSegment = &maFlightProfile[0];
+    const tsMissileFlightSegment *firstSegment = &maFlightProfile[0];
 
-   if (firstSegment->meGuidanceMode == GM_NAV) 
-   {
-       return DATUM_ONLY;
-   }
-   else if (firstSegment->meGuidanceMode == GM_COMMAND)
-   {
-	   return needsFireControl ? FC_TRACK : TARGET_ONLY;
-   }
-   else 
-   {
-       return SEEKER_TRACK; 
-   }
+    if (firstSegment->meGuidanceMode == GM_NAV)
+    {
+        return DATUM_ONLY;
+    }
+    else if (firstSegment->meGuidanceMode == GM_COMMAND)
+    {
+        return needsFireControl ? FC_TRACK : TARGET_ONLY;
+    }
+    else
+    {
+        return SEEKER_TRACK;
+    }
 }
 
 long tcMissileDBObject::GetSensorKey()
@@ -124,7 +124,7 @@ long tcMissileDBObject::GetSensorKey()
     if ((sensorKey == NULL_INDEX) && (maSensorClass.size() > 0))
     {
         fprintf(stderr, "tcMissileDBObject::GetSensorKey -- not found "
-            "(%s)\n", maSensorClass.c_str());
+                        "(%s)\n", maSensorClass.c_str());
     }
     return sensorKey;
 }
@@ -147,7 +147,7 @@ float tcMissileDBObject::GetSeekerFOV()
         if ((targetFlags != 4) && (payloadClass.length() == 0))
         {
             fprintf(stderr, "tcMissileDBObject::GetSeekerFOV - (%s) no seeker or payload and has non-land target\n",
-                mzClass.c_str());
+                    mzClass.c_str());
             assert(false);
         }
         seekerFOV_rad = C_TWOPI;
@@ -166,17 +166,17 @@ float tcMissileDBObject::GetSeekerFOV()
 */
 bool tcMissileDBObject::HasAllEmitters(std::vector<long>& emitters)
 {
-	size_t nEmitters = emitters.size();
+    size_t nEmitters = emitters.size();
 
     long seekerKey = GetSensorKey();
 
-	for (size_t k=0; k<nEmitters; k++)
-	{
-		long emitterId = emitters[k];
+    for (size_t k=0; k<nEmitters; k++)
+    {
+        long emitterId = emitters[k];
 
-		if (seekerKey != emitterId) return false;
-	}
-	return true;
+        if (seekerKey != emitterId) return false;
+    }
+    return true;
 }
 
 /**
@@ -185,7 +185,7 @@ bool tcMissileDBObject::HasAllEmitters(std::vector<long>& emitters)
 bool tcMissileDBObject::IsARM()
 {
     if (isARM == -1)
-	{
+    {
         tcDatabaseObject* obj = database->GetObject(GetSensorKey());
         if (tcESMDBObject* esm = dynamic_cast<tcESMDBObject*>(obj))
         {
@@ -195,9 +195,9 @@ bool tcMissileDBObject::IsARM()
         {
             isARM = 0;
         }
-	}
+    }
 
-	return (isARM != 0);
+    return (isARM != 0);
 }
 
 /**
@@ -213,34 +213,34 @@ bool tcMissileDBObject::IsCommandLaunched() const
 */
 bool tcMissileDBObject::IsFireAndForget()
 {
-	if (fireAndForget == -1)
-	{
-		teWeaponLaunchMode launchMode = GetLaunchMode();
-		if ((launchMode == DATUM_ONLY) || (launchMode == AUTO))
-		{
-			fireAndForget = 1;
-		}
-		else if (launchMode == FC_TRACK)
-		{
-			fireAndForget = 0;
-		}
-		else // launchMode == SEEKER_TRACK
-		{
-			assert(launchMode == SEEKER_TRACK);
-			tcDatabaseObject* obj = database->GetObject(GetSensorKey());
-			if (tcRadarDBObject* radar = dynamic_cast<tcRadarDBObject*>(obj))
-			{
-				fireAndForget = (IsCommandLaunched() || radar->isSemiactive) ? 0 : 1;
-			}
-			else 
-			{
-				fireAndForget = 1;
-			}
-		}
-			
-	}
+    if (fireAndForget == -1)
+    {
+        teWeaponLaunchMode launchMode = GetLaunchMode();
+        if ((launchMode == DATUM_ONLY) || (launchMode == AUTO))
+        {
+            fireAndForget = 1;
+        }
+        else if (launchMode == FC_TRACK)
+        {
+            fireAndForget = 0;
+        }
+        else // launchMode == SEEKER_TRACK
+        {
+            assert(launchMode == SEEKER_TRACK);
+            tcDatabaseObject* obj = database->GetObject(GetSensorKey());
+            if (tcRadarDBObject* radar = dynamic_cast<tcRadarDBObject*>(obj))
+            {
+                fireAndForget = (IsCommandLaunched() || radar->isSemiactive) ? 0 : 1;
+            }
+            else
+            {
+                fireAndForget = 1;
+            }
+        }
 
-	return (fireAndForget != 0);
+    }
+
+    return (fireAndForget != 0);
 }
 
 /**
@@ -248,18 +248,18 @@ bool tcMissileDBObject::IsFireAndForget()
 */
 bool tcMissileDBObject::NeedsFireControl() const
 {
-	return needsFireControl;
+    return needsFireControl;
 }
 
 
 void tcMissileDBObject::PrintToFile(tcFile& file) 
 {
-   tcString s;
-   
-   tcWeaponDBObject::PrintToFile(file);
-   
-   s.Format("   ");
-   file.WriteString(s.GetBuffer());
+    tcString s;
+
+    tcWeaponDBObject::PrintToFile(file);
+
+    s.Format("   ");
+    file.WriteString(s.GetBuffer());
 }
 
 
@@ -269,102 +269,102 @@ void tcMissileDBObject::PrintToFile(tcFile& file)
 */
 void tcMissileDBObject::AddSqlColumns(std::string& columnString)
 {
-	tcWeaponDBObject::AddSqlColumns(columnString);
+    tcWeaponDBObject::AddSqlColumns(columnString);
 
     tcAirDetectionDBObject::AddSqlColumns(columnString);
 
-	columnString += ",";
+    columnString += ",";
 
-	columnString += "DragArea_sm number(8),";
-	columnString += "Gmax number(8),";
-	columnString += "MaxTurnRate_degps number(4),";
-	columnString += "Cdpsub number(8),";
-	columnString += "Cdptran number(8),";
-	columnString += "Cdpsup number(8),";
-	columnString += "Mcm number(8),";
-	columnString += "Msupm number(8),";
-	columnString += "BoostThrust_N number(8),";
-	columnString += "BoostTime_s number(8),";
-	columnString += "SustThrust_N number(8),";
-	columnString += "SustTime_s number(8),";
-	columnString += "Range_km number(5),";
-	columnString += "ShutdownSpeed_mps number(5),";
-	columnString += "SensorClass varchar(30),";
-	columnString += "NeedsFireControl number(1),";
+    columnString += "DragArea_sm number(8),";
+    columnString += "Gmax number(8),";
+    columnString += "MaxTurnRate_degps number(4),";
+    columnString += "Cdpsub number(8),";
+    columnString += "Cdptran number(8),";
+    columnString += "Cdpsup number(8),";
+    columnString += "Mcm number(8),";
+    columnString += "Msupm number(8),";
+    columnString += "BoostThrust_N number(8),";
+    columnString += "BoostTime_s number(8),";
+    columnString += "SustThrust_N number(8),";
+    columnString += "SustTime_s number(8),";
+    columnString += "Range_km number(5),";
+    columnString += "ShutdownSpeed_mps number(5),";
+    columnString += "SensorClass varchar(30),";
+    columnString += "NeedsFireControl number(1),";
     columnString += "AcceptsWaypoints numeric,";
 
-	for(unsigned i=0;i<MAX_MISSILE_FLIGHT_SEGMENTS;i++) 
-	{
-		tcString s;
+    for(unsigned i=0;i<MAX_MISSILE_FLIGHT_SEGMENTS;i++)
+    {
+        tcString s;
 
-		s.Format("Rng%d_km number(5),",i+1);
-		columnString += s.GetBuffer();
+        s.Format("Rng%d_km number(5),",i+1);
+        columnString += s.GetBuffer();
 
-		s.Format("Alt%d_m number(5),",i+1);
-		columnString += s.GetBuffer();
+        s.Format("Alt%d_m number(5),",i+1);
+        columnString += s.GetBuffer();
 
-		s.Format("AltMode%d number(2),",i+1);
-		columnString += s.GetBuffer();
+        s.Format("AltMode%d number(2),",i+1);
+        columnString += s.GetBuffer();
 
-		s.Format("GuidMode%d number(2)",i+1);
-		columnString += s.GetBuffer();
+        s.Format("GuidMode%d number(2)",i+1);
+        columnString += s.GetBuffer();
 
         if (i < MAX_MISSILE_FLIGHT_SEGMENTS-1)
         {
             columnString += ",";
         }
-	}
+    }
 }
 
 void tcMissileDBObject::ReadSql(tcSqlReader& entry)
 {
-	tcWeaponDBObject::ReadSql(entry);
+    tcWeaponDBObject::ReadSql(entry);
     tcAirDetectionDBObject::ReadSql(entry);
 
-	mfDragArea_sm = entry.GetDouble("DragArea_sm");
-	mfGmax = entry.GetDouble("Gmax");
-	mfMaxTurnRate_degps = entry.GetDouble("MaxTurnRate_degps");
-	mfCdpsub = entry.GetDouble("Cdpsub");
-	mfCdptran = entry.GetDouble("Cdptran");
-	mfCdpsup = entry.GetDouble("Cdpsup");
-	mfMcm = entry.GetDouble("Mcm");
-	mfMsupm = entry.GetDouble("Msupm");
-	mfBoostThrust_N = entry.GetDouble("BoostThrust_N");
-	mfBoostTime_s = entry.GetDouble("BoostTime_s");
-	mfSustThrust_N = entry.GetDouble("SustThrust_N");
-	mfSustTime_s = entry.GetDouble("SustTime_s");
-	mfShutdownSpeed_mps = entry.GetDouble("ShutdownSpeed_mps");
-	maSensorClass = entry.GetString("SensorClass").c_str();
-	needsFireControl = entry.GetInt("NeedsFireControl") != 0;
+    mfDragArea_sm = entry.GetDouble("DragArea_sm");
+    mfGmax = entry.GetDouble("Gmax");
+    mfMaxTurnRate_degps = entry.GetDouble("MaxTurnRate_degps");
+    mfCdpsub = entry.GetDouble("Cdpsub");
+    mfCdptran = entry.GetDouble("Cdptran");
+    mfCdpsup = entry.GetDouble("Cdpsup");
+    mfMcm = entry.GetDouble("Mcm");
+    mfMsupm = entry.GetDouble("Msupm");
+    mfBoostThrust_N = entry.GetDouble("BoostThrust_N");
+    mfBoostTime_s = entry.GetDouble("BoostTime_s");
+    mfSustThrust_N = entry.GetDouble("SustThrust_N");
+    mfSustTime_s = entry.GetDouble("SustTime_s");
+    mfShutdownSpeed_mps = entry.GetDouble("ShutdownSpeed_mps");
+    maSensorClass = entry.GetString("SensorClass").c_str();
+    needsFireControl = entry.GetInt("NeedsFireControl") != 0;
     acceptsWaypoints = entry.GetInt("AcceptsWaypoints") != 0;
 
     mfMcm = std::min(mfMcm, mfMsupm - 0.01f); // avoid divide by zero in missile kstate calc
 
 
-	mnNumSegments = 0;
-	for (unsigned i=0;i<MAX_MISSILE_FLIGHT_SEGMENTS;i++) 
-	{
-		float range, alt;
-		int altMode, guidanceMode;
+    mnNumSegments = 0;
+    for (unsigned i=0;i<MAX_MISSILE_FLIGHT_SEGMENTS;i++)
+    {
+        float range, alt;
+        int altMode, guidanceMode;
 
-		range = entry.GetDouble("Rng%d_km", i+1);
-		alt = entry.GetDouble("Alt%d_m", i+1);
-		altMode = entry.GetInt("AltMode%d", i+1);
-		guidanceMode = entry.GetInt("GuidMode%d", i+1);
+        range = entry.GetDouble("Rng%d_km", i+1);
+        alt = entry.GetDouble("Alt%d_m", i+1);
+        altMode = entry.GetInt("AltMode%d", i+1);
+        guidanceMode = entry.GetInt("GuidMode%d", i+1);
 
-		if ((range > 0)||(alt > 0))
-		{
-			maFlightProfile[mnNumSegments].mfRange_km = range;
-			maFlightProfile[mnNumSegments].mfAltitude_m = alt;
-			maFlightProfile[mnNumSegments].meAltitudeMode = (teAltitudeMode)altMode;
-			maFlightProfile[mnNumSegments++].meGuidanceMode = (teGuidanceMode)guidanceMode;
-		}
+        if ((range > 0)||(alt > 0))
+        {
+            maFlightProfile[mnNumSegments].mfRange_km = range;
+            maFlightProfile[mnNumSegments].mfAltitude_m = alt;
+            maFlightProfile[mnNumSegments].meAltitudeMode = (teAltitudeMode)altMode;
+            maFlightProfile[mnNumSegments++].meGuidanceMode = (teGuidanceMode)guidanceMode;
+        }
 
-	}
+    }
 
-	// set other params that do not come from database file
-	sensorKey = NULL_INDEX;
-	fireAndForget = -1;
+    // set other params that do not come from database file
+    sensorKey = NULL_INDEX;
+    fireAndForget = -1;
     isARM = -1;
 
     if (GetLaunchMode() == FC_TRACK) // force needsFireControl for this case, why need database input for needs FC?
@@ -378,45 +378,45 @@ void tcMissileDBObject::ReadSql(tcSqlReader& entry)
 
 void tcMissileDBObject::WriteSql(std::string& valueString) const
 {
-	tcWeaponDBObject::WriteSql(valueString);
+    tcWeaponDBObject::WriteSql(valueString);
     tcAirDetectionDBObject::WriteSql(valueString);
 
-	std::stringstream s;
+    std::stringstream s;
 
-	s << ",";
+    s << ",";
 
-	s << mfDragArea_sm << ",";
-	s << mfGmax << ",";
-	s << mfMaxTurnRate_degps << ",";
-	s << mfCdpsub << ",";
-	s << mfCdptran << ",";
-	s << mfCdpsup << ",";
-	s << mfMcm << ",";
-	s << mfMsupm << ",";
-	s << mfBoostThrust_N << ",";
-	s << mfBoostTime_s << ",";
-	s << mfSustThrust_N << ",";
-	s << mfSustTime_s << ",";
-	s << mfShutdownSpeed_mps << ",";
-	s << "'" << std::string(maSensorClass.c_str()) << "',";
-	s << needsFireControl << ",";
+    s << mfDragArea_sm << ",";
+    s << mfGmax << ",";
+    s << mfMaxTurnRate_degps << ",";
+    s << mfCdpsub << ",";
+    s << mfCdptran << ",";
+    s << mfCdpsup << ",";
+    s << mfMcm << ",";
+    s << mfMsupm << ",";
+    s << mfBoostThrust_N << ",";
+    s << mfBoostTime_s << ",";
+    s << mfSustThrust_N << ",";
+    s << mfSustTime_s << ",";
+    s << mfShutdownSpeed_mps << ",";
+    s << "'" << std::string(maSensorClass.c_str()) << "',";
+    s << needsFireControl << ",";
     s << acceptsWaypoints << ",";
 
-	for(unsigned i=0;i<MAX_MISSILE_FLIGHT_SEGMENTS;i++) 
-	{
-		if (i<mnNumSegments)
-		{
-			s << maFlightProfile[i].mfRange_km << ",";
-			s << maFlightProfile[i].mfAltitude_m << ",";
-			s << (long)maFlightProfile[i].meAltitudeMode << ",";
-			s << (long)maFlightProfile[i].meGuidanceMode;
-		}
-		else
-		{
-			s << "0,";
-			s << "0,";
-			s << "0,";
-			s << "0";
+    for(unsigned i=0;i<MAX_MISSILE_FLIGHT_SEGMENTS;i++)
+    {
+        if (i<mnNumSegments)
+        {
+            s << maFlightProfile[i].mfRange_km << ",";
+            s << maFlightProfile[i].mfAltitude_m << ",";
+            s << (long)maFlightProfile[i].meAltitudeMode << ",";
+            s << (long)maFlightProfile[i].meGuidanceMode;
+        }
+        else
+        {
+            s << "0,";
+            s << "0,";
+            s << "0,";
+            s << "0";
         }
 
         if (i < MAX_MISSILE_FLIGHT_SEGMENTS-1)
@@ -426,14 +426,61 @@ void tcMissileDBObject::WriteSql(std::string& valueString) const
 
     }
 
-	valueString += s.str();
+    valueString += s.str();
+
+}
+
+void tcMissileDBObject::WritePythonValue(std::string &valueString) const
+{
+    tcWeaponDBObject::WritePythonValue(valueString);
+    tcAirDetectionDBObject::WritePythonValue(mzClass.c_str(),valueString);
+    valueString+=std::string(mzClass.c_str())+".mfDragArea_sm="+strutil::to_python_value(mfDragArea_sm);
+    valueString+=std::string(mzClass.c_str())+".mfGmax="+strutil::to_python_value(mfGmax);
+    valueString+=std::string(mzClass.c_str())+".mfMaxTurnRate_degps="+strutil::to_python_value(mfMaxTurnRate_degps);
+    valueString+=std::string(mzClass.c_str())+".mfCdpsub="+strutil::to_python_value(mfCdpsub);
+    valueString+=std::string(mzClass.c_str())+".mfCdptran="+strutil::to_python_value(mfCdptran);
+    valueString+=std::string(mzClass.c_str())+".mfCdpsup="+strutil::to_python_value(mfCdpsup);
+    valueString+=std::string(mzClass.c_str())+".mfMcm="+strutil::to_python_value(mfMcm);
+    valueString+=std::string(mzClass.c_str())+".mfMsupm="+strutil::to_python_value(mfMsupm);
+    valueString+=std::string(mzClass.c_str())+".mfBoostThrust_N="+strutil::to_python_value(mfBoostThrust_N);
+    valueString+=std::string(mzClass.c_str())+".mfBoostTime_s="+strutil::to_python_value(mfBoostTime_s);
+    valueString+=std::string(mzClass.c_str())+".mfSustThrust_N="+strutil::to_python_value(mfSustThrust_N);
+    valueString+=std::string(mzClass.c_str())+".mfSustTime_s="+strutil::to_python_value(mfSustTime_s);
+    valueString+=std::string(mzClass.c_str())+".mfShutdownSpeed_mps="+strutil::to_python_value(mfShutdownSpeed_mps);
+    valueString+=std::string(mzClass.c_str())+".maSensorClass="+strutil::to_python_value(maSensorClass.c_str());
+    valueString+=std::string(mzClass.c_str())+".needsFireControl="+strutil::to_python_value(needsFireControl);
+    valueString+=std::string(mzClass.c_str())+".acceptsWaypoints="+strutil::to_python_value(acceptsWaypoints);
+    valueString+=std::string(mzClass.c_str())+".fireAndForget="+strutil::to_python_value(fireAndForget);
+    valueString+=std::string(mzClass.c_str())+".isARM="+strutil::to_python_value(isARM);
+    valueString+=std::string(mzClass.c_str())+".acceptsWaypoints="+strutil::to_python_value(acceptsWaypoints);
+    valueString+=std::string(mzClass.c_str())+".seekerFOV_rad="+strutil::to_python_value(seekerFOV_rad);
+    valueString+=std::string(mzClass.c_str())+".aczConstant_kts="+strutil::to_python_value(aczConstant_kts);
+    valueString+=std::string(mzClass.c_str())+".invMass_kg="+strutil::to_python_value(invMass_kg);
+    valueString+=std::string(mzClass.c_str())+".mnNumSegments="+strutil::to_python_value(mnNumSegments);
+    for (size_t i=0 ; i < maFlightProfile.size(); ++i) {
+        valueString+=std::string(mzClass.c_str())+".maFlightProfile.append(pygcb.tsMissileFlightSegment())\n";
+
+        valueString+=std::string(mzClass.c_str())+".maFlightProfile["+std::to_string(i)+"].meAltitudeMode="+strutil::to_python_value(maFlightProfile[i].meAltitudeMode)+"\n";
+        valueString+=std::string(mzClass.c_str())+".maFlightProfile["+std::to_string(i)+"].meGuidanceMode="+strutil::to_python_value(maFlightProfile[i].meGuidanceMode)+"\n";
+        valueString+=std::string(mzClass.c_str())+".maFlightProfile["+std::to_string(i)+"].mfAltitude_m="+strutil::to_python_value(maFlightProfile[i].mfAltitude_m)+"\n";
+        valueString+=std::string(mzClass.c_str())+".maFlightProfile["+std::to_string(i)+"].mfRange_km="+strutil::to_python_value(maFlightProfile[i].mfRange_km)+"\n";
+
+    }
+    valueString+=std::string(mzClass.c_str())+".CalculateParams()";
+
+}
+
+void tcMissileDBObject::WritePython(std::string &valueString) const
+{
+    valueString+=std::string(mzClass.c_str())+"=pygcb.tcMissileDBObject()";
+    WritePythonValue(valueString);
 
 }
 
 
 tcMissileDBObject::tcMissileDBObject(const tcMissileDBObject& obj) 
-: tcWeaponDBObject(obj),
-  tcAirDetectionDBObject(obj),
+    : tcWeaponDBObject(obj),
+    tcAirDetectionDBObject(obj),
     seekerFOV_rad(obj.seekerFOV_rad),
     fireAndForget(obj.fireAndForget),
     isARM(obj.isARM),
@@ -451,7 +498,7 @@ tcMissileDBObject::tcMissileDBObject(const tcMissileDBObject& obj)
     mfSustTime_s(obj.mfSustTime_s),
     mfShutdownSpeed_mps(obj.mfShutdownSpeed_mps),
     maSensorClass(obj.maSensorClass),
-	needsFireControl(obj.needsFireControl),
+    needsFireControl(obj.needsFireControl),
     acceptsWaypoints(obj.acceptsWaypoints),
     mnNumSegments(obj.mnNumSegments)
 {
@@ -468,35 +515,35 @@ tcMissileDBObject::tcMissileDBObject(const tcMissileDBObject& obj)
 }
 
 tcMissileDBObject::tcMissileDBObject() : tcWeaponDBObject(), tcAirDetectionDBObject(),
-   seekerFOV_rad(-1.0f),
-   fireAndForget(-1),
-   isARM(-1),
-   mfDragArea_sm(1.0f),
-   mfGmax(20.0f),
-   mfMaxTurnRate_degps(15.0f),
-   mfCdpsub(0.2f),
-   mfCdptran(0.4f),
-   mfCdpsup(0.3f),
-   mfMcm(0.9f),
-   mfMsupm(1.1f),
-   mfBoostThrust_N(4000.0f),
-   mfBoostTime_s(20.0f),
-   mfSustThrust_N(400.0f),
-   mfSustTime_s(60.0f),
-   needsFireControl(false),
-   acceptsWaypoints(false),
-   aczConstant_kts(4.0f)
+    seekerFOV_rad(-1.0f),
+    fireAndForget(-1),
+    isARM(-1),
+    mfDragArea_sm(1.0f),
+    mfGmax(20.0f),
+    mfMaxTurnRate_degps(15.0f),
+    mfCdpsub(0.2f),
+    mfCdptran(0.4f),
+    mfCdpsup(0.3f),
+    mfMcm(0.9f),
+    mfMsupm(1.1f),
+    mfBoostThrust_N(4000.0f),
+    mfBoostTime_s(20.0f),
+    mfSustThrust_N(400.0f),
+    mfSustTime_s(60.0f),
+    needsFireControl(false),
+    acceptsWaypoints(false),
+    aczConstant_kts(4.0f)
 {
-   mnModelType = MTYPE_MISSILE;
-   mnType = PTYPE_MISSILE;
+    mnModelType = MTYPE_MISSILE;
+    mnType = PTYPE_MISSILE;
 
-   // flight profile, array of flight segment info
-   mnNumSegments = 1;
-   maFlightProfile[0].mfRange_km = 0.0f;
-   maFlightProfile[0].mfAltitude_m = 10000.0f;
-   maFlightProfile[0].meAltitudeMode = AM_ASL;
-   maFlightProfile[0].meGuidanceMode = GM_COMMAND;
-   sensorKey = NULL_INDEX;
+    // flight profile, array of flight segment info
+    mnNumSegments = 1;
+    maFlightProfile[0].mfRange_km = 0.0f;
+    maFlightProfile[0].mfAltitude_m = 10000.0f;
+    maFlightProfile[0].meAltitudeMode = AM_ASL;
+    maFlightProfile[0].meGuidanceMode = GM_COMMAND;
+    sensorKey = NULL_INDEX;
 }
 
 tcMissileDBObject::~tcMissileDBObject() 

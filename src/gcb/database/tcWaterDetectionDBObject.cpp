@@ -82,6 +82,22 @@ void tcWaterDetectionDBObject::WriteSql(std::string& valueString) const
 	valueString += s.str();
 }
 
+void tcWaterDetectionDBObject::WritePythonValue(const string &mzClass, std::string &valueString) const
+{
+    valueString+=std::string(mzClass.c_str())+".TS="+strutil::to_python_value(TS);
+    valueString+=std::string(mzClass.c_str())+".TS_Model="+strutil::to_python_value(TS_Model);
+    valueString+=std::string(mzClass.c_str())+".acousticModel="+strutil::to_python_value(acousticModel);
+    valueString+=std::string(mzClass.c_str())+".SL_Model="+strutil::to_python_value(SL_Model);
+    valueString+=std::string(mzClass.c_str())+".BindSignatureModels()";
+
+}
+
+void tcWaterDetectionDBObject::WritePython(const std::string &mzClass, std::string &valueString) const
+{
+    valueString+=std::string(mzClass.c_str())+"=pygcb.tcWaterDetectionDBObject()";
+    WritePythonValue(mzClass,valueString);
+}
+
 void tcWaterDetectionDBObject::BindSignatureModels()
 {
     tcDatabase* database = tcDatabase::Get();

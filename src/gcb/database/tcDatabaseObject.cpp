@@ -419,28 +419,34 @@ void tcDatabaseObject::WriteSql(std::string& valueString) const
 
 }
 
-void tcDatabaseObject::WritePython(std::string &valueString) const
+void tcDatabaseObject::WritePythonValue(std::string &valueString) const
 {
-    valueString+= strutil::format("%s.mzClass='%s'\n", mzClass.c_str(),mzClass.c_str());
-    valueString+= strutil::format("%s.mzClass='%s'\n", mzClass.c_str(),natoClass.c_str());
-    valueString+= strutil::format("%s.mzClass=%d\n", mzClass.c_str(),mnModelType);
-    valueString+= strutil::format("%s.mzClass=%d\n", mzClass.c_str(),mnType);
-    valueString+= strutil::format("%s.mzClass=%f\n", mzClass.c_str(),cost);
-    valueString+= strutil::format("%s.mzClass=%f\n", mzClass.c_str(),weight_kg);
-    valueString+= strutil::format("%s.mzClass=%f\n", mzClass.c_str(),volume_m3);
-    valueString+= strutil::format("%s.mzClass=%f\n", mzClass.c_str(),initialYear);
-    valueString+= strutil::format("%s.mzClass='%s'\n", mzClass.c_str(),finalYear);
-    valueString+= strutil::format("%s.mzClass='%s'\n", mzClass.c_str(),country.c_str());
-    valueString+= strutil::format("%s.mzClass='%s'\n", mzClass.c_str(),designation.c_str());
-    valueString+= strutil::format("%s.mzClass='%s'\n", mzClass.c_str(),imageList.c_str());
-    valueString+= strutil::format("%s.mzClass='%s'\n", mzClass.c_str(),iconFileName.c_str());
-    valueString+= strutil::format("%s.mzClass='%s'\n", mzClass.c_str(), mz3DModelFileName.c_str());
-    valueString+= strutil::format("%s.mzClass='%s'\n", mzClass.c_str(),notes.c_str());
-    valueString+= strutil::format("%s.mzClass=%f\n", mzClass.c_str(),length_m);
-    valueString+= strutil::format("%s.mzClass=%f\n", mzClass.c_str(),width_m);
-    valueString+= strutil::format("%s.mzClass=%f\n", mzClass.c_str(),height_m);
-}
+    valueString+=std::string(mzClass.c_str())+".mzClass="+strutil::to_python_value(mzClass.c_str());
+    valueString+=std::string(mzClass.c_str())+".natoClass="+strutil::to_python_value(natoClass.c_str());
+    valueString+=std::string(mzClass.c_str())+".mnModelType="+strutil::to_python_value(mnModelType);
+    valueString+=std::string(mzClass.c_str())+".mnType="+strutil::to_python_value(mnType);
+    valueString+=std::string(mzClass.c_str())+".cost="+strutil::to_python_value(cost);
+    valueString+=std::string(mzClass.c_str())+".weight_kg="+strutil::to_python_value(weight_kg);
+    valueString+=std::string(mzClass.c_str())+".volume_m3="+strutil::to_python_value(volume_m3);
+    valueString+=std::string(mzClass.c_str())+".initialYear="+strutil::to_python_value(initialYear);
+    valueString+=std::string(mzClass.c_str())+".finalYear="+strutil::to_python_value(finalYear);
+    valueString+=std::string(mzClass.c_str())+".country="+strutil::to_python_value(country);
+    valueString+=std::string(mzClass.c_str())+".designation="+strutil::to_python_value(designation);
+    valueString+=std::string(mzClass.c_str())+".imageList="+strutil::to_python_value(imageList);
+    valueString+=std::string(mzClass.c_str())+".iconFileName="+strutil::to_python_value(iconFileName.c_str());
+    valueString+=std::string(mzClass.c_str())+".mz3DModelFileName="+strutil::to_python_value(mz3DModelFileName.c_str());
+    valueString+=std::string(mzClass.c_str())+".notes="+strutil::to_python_value(notes);
+    valueString+=std::string(mzClass.c_str())+".length_m="+strutil::to_python_value(length_m);
+    valueString+=std::string(mzClass.c_str())+".width_m="+strutil::to_python_value(width_m);
+    valueString+=std::string(mzClass.c_str())+".height_m="+strutil::to_python_value(height_m);
 
+    valueString+=std::string(mzClass.c_str())+".CalculateParams()";
+}
+ void tcDatabaseObject::WritePython(std::string& valueString)const
+{
+     valueString+=std::string(mzClass.c_str())+"=pygcb.tcDatabaseObject()";
+     WritePythonValue(valueString);
+}
 tcDatabaseObject::tcDatabaseObject(const std::string& databaseClass) :
     mzClass(databaseClass.c_str()),
     cost(0),
@@ -523,6 +529,11 @@ tcDatabaseObject::~tcDatabaseObject()
 tcGameObject *tcDatabaseObject::CreateGameObject()
 {
     return nullptr;
+}
+
+void tcDatabaseObject::CalculateParams()
+{
+
 }
 
 

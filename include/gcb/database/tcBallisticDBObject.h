@@ -93,6 +93,8 @@ namespace database
 		static void AddSqlColumns(std::string& columnString);
         void ReadSql(tcSqlReader& entry) override;
         void WriteSql(std::string& valueString) const override;
+        void WritePythonValue(std::string& valueString) const;
+        void WritePython(std::string& valueString) const;
 
         static float CalculateBallisticElevation(float range_m, float dz_m, float v_mps, float min_x2, float& tti_s);
         static float CalculateMissDistance(float range_m, float dz_m, float v_mps, float el_rad);
@@ -101,8 +103,9 @@ namespace database
 		tcBallisticDBObject();
 		virtual ~tcBallisticDBObject();
 virtual tcGameObject *CreateGameObject() override;
-    private:
         void CalculateParams();
+    private:
+
 
 	};
 

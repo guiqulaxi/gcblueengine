@@ -64,6 +64,10 @@ namespace database
         float cruiseSpeed_mps;              ///< [m/s] cruise speed ias 巡航速度指示空速
         float stallSpeed_mps;               ///< [m/s] stall speed at sea level 海平面失速速度
         
+        std::vector<float> thrustTable; ///< vector of thrust factor vs. altitude point 推力因子与高度点的向量
+        std::vector<float> fuelEfficiencyTable; ///< vector of fuel efficiency vs. altitude point  燃料效率与高度点的向量
+        static std::vector<float> tableAltitudes; ///< altitudes for thrust and fuel efficiency tables  推力和燃料效率表的高度
+
         static double rho_sealevel;         ///< [kg/m3] air density at sea level 海平面空气密度
         static double inv_rho_sealevel;     ///< inverse of air density at sea level 海平面空气密度倒数
 
@@ -83,23 +87,23 @@ namespace database
 		static void AddSqlColumns(std::string& columnString);
 		void ReadSql(tcSqlReader& entry);
         void WriteSql(std::string& valueString) const;
+        void WritePythonValue(std::string& valueString) const;
+        void WritePython(std::string& valueString) const;
 
         tcJetDBObject();
         tcJetDBObject(tcJetDBObject& obj); ///< copy constructor
         virtual ~tcJetDBObject();
         tcGameObject *CreateGameObject() override;
-
+        void CalculateParams();
 
     private:
         // calculated parameters
         float invMachRange; ///< 1 / (width of transonic)
         float Cdi; ///< induced drag param Fdi = Cdi / (rho*v^2)
 		
-        std::vector<float> thrustTable; ///< vector of thrust factor vs. altitude point 推力因子与高度点的向量
-        std::vector<float> fuelEfficiencyTable; ///< vector of fuel efficiency vs. altitude point  燃料效率与高度点的向量
-        static std::vector<float> tableAltitudes; ///< altitudes for thrust and fuel efficiency tables  推力和燃料效率表的高度
 
-        void CalculateParams();
+
+
 		static void InitializeTableAltitudes();
 
     };
