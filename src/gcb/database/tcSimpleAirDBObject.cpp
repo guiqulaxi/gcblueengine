@@ -74,10 +74,18 @@ tcSimpleAirDBObject::~tcSimpleAirDBObject()
     }
 }
 
+void tcSimpleAirDBObject::WritePythonValue(std::string &valueString) const
+{
+    tcAirDBObject::WritePythonValue(valueString);
+}
+
 void tcSimpleAirDBObject::WritePython(std::string &valueString) const
 {
-    valueString+=std::string(mzClass.c_str())+"=pygcb.tcSimpleAirDBObject()";
+    valueString+="import pygcb\n";
+    valueString+="def CreateDBObjec():\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+"=pygcb.tcSimpleAirDBObject()\n";
     WritePythonValue(valueString);
+    valueString+="    return "+std::string(mzClass.PyVarString())+"\n";
 }
 
 }

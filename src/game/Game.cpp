@@ -36,6 +36,7 @@
 #include "AError.h"
 
 #include <iomanip>
+#include <tcDatabaseIterator.h>
 #include <tcSensorTrackIterator.h>
 //#include "wx/datetime.h"
 //#include "wx/progdlg.h"
@@ -57,6 +58,7 @@
 //#include "tcXmlWindow.h"
 #include "tcMapData.h"
 #include "tinyxml2.h"
+#include <fstream>
 // #include "network/tcMultiplayerInterface.h"
 // #include "network/tcUpdateMessageHandler.h" // for attach
 //#include "tcChatBox.h"
@@ -595,7 +597,28 @@ bool tcGame::InitSim()
 
     Aero::LoadAtmosphereTable();
 
+
     return true;
+}
+
+void tcGame::SaveDatabaseToPython(const std::string& dirPath)
+{
+    tcDatabaseIterator iter(0);
+
+
+    unsigned long nIterated = 0;
+    for (iter.First(); !iter.IsDone(); iter.Next())
+    {
+        tcDatabaseObject* obj = iter.Get();
+        std::ofstream ofs;
+        std::string path= dirPath+"/"+obj->mzClass.c_str()+".py";
+        ofs.open(path);
+        std::string valueString;
+        obj->WritePython(valueString);
+        ofs<<valueString;
+        ofs.close();
+        nIterated++;
+    }
 }
 
 
@@ -655,6 +678,7 @@ void tcGame::LoadDatabase(const std::string &filePath)
     {
         pythonInterface->LoadDatabase(filePath.c_str());
     }
+
 }
 /**
 * Loads scenario with path+filename of 相对scenario文件夹
@@ -729,6 +753,7 @@ void tcGame::LoadScenario(const std::string& filePath, const std::string& captio
         fprintf(stderr, s.c_str());
 
     }
+        SaveDatabaseToPython("./database/py");
 }
 
 string tcGame::GetOutSimData()

@@ -143,20 +143,23 @@ namespace database
     void tcCounterMeasureDBObject::WritePythonValue(std::string &valueString) const
     {
         tcDatabaseObject::WritePythonValue(valueString);
-        tcAirDetectionDBObject::WritePythonValue(mzClass.c_str(),valueString);
-        tcWaterDetectionDBObject::WritePythonValue(mzClass.c_str(),valueString);
+        tcAirDetectionDBObject::WritePythonValue(mzClass,valueString);
+        tcWaterDetectionDBObject::WritePythonValue(mzClass,valueString);
 
-        valueString+=std::string(mzClass.c_str())+".subType="+strutil::to_python_value(subType);
-        valueString+=std::string(mzClass.c_str())+".lifeSpan_s="+strutil::to_python_value(lifeSpan_s);
-        valueString+=std::string(mzClass.c_str())+".effectiveness="+strutil::to_python_value(effectiveness);
-        valueString+=std::string(mzClass.c_str())+".maxSpeed_mps="+strutil::to_python_value(maxSpeed_mps);
-        valueString+=std::string(mzClass.c_str())+".CalculateParams()";
+        valueString+="    "+std::string(mzClass.PyVarString())+".subType="+strutil::to_python_value(subType)+"\n";
+        valueString+="    "+std::string(mzClass.PyVarString())+".lifeSpan_s="+strutil::to_python_value(lifeSpan_s)+"\n";
+        valueString+="    "+std::string(mzClass.PyVarString())+".effectiveness="+strutil::to_python_value(effectiveness)+"\n";
+        valueString+="    "+std::string(mzClass.PyVarString())+".maxSpeed_mps="+strutil::to_python_value(maxSpeed_mps)+"\n";
+        valueString+="    "+std::string(mzClass.PyVarString())+".CalculateParams()"+"\n";
     }
 
     void tcCounterMeasureDBObject::WritePython(std::string &valueString) const
     {
-        valueString+=std::string(mzClass.c_str())+"=pygcb.tcCounterMeasureDBObject()";
+        valueString+="import pygcb\n";
+        valueString+="def CreateDBObjec():\n";
+        valueString+="    "+std::string(mzClass.PyVarString())+"=pygcb.tcCounterMeasureDBObject()\n";
         WritePythonValue(valueString);
+        valueString+="    return "+std::string(mzClass.PyVarString())+"\n";
     }
 
 

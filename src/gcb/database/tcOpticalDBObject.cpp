@@ -175,23 +175,26 @@ void tcOpticalDBObject::WriteSql(std::string& valueString) const
 void tcOpticalDBObject::WritePythonValue(std::string &valueString) const
 {
     tcSensorDBObject::WritePythonValue(valueString);
-    valueString+=std::string(mzClass.c_str())+".maxFireControlTracks="+strutil::to_python_value(maxFireControlTracks);
-    valueString+=std::string(mzClass.c_str())+".isSemiactive="+strutil::to_python_value(isSemiactive);
-    valueString+=std::string(mzClass.c_str())+".isDesignator="+strutil::to_python_value(isDesignator);
-    valueString+=std::string(mzClass.c_str())+".mbDetectsSurface="+strutil::to_python_value(mbDetectsSurface);
-    valueString+=std::string(mzClass.c_str())+".mbDetectsAir="+strutil::to_python_value(mbDetectsAir);
-    valueString+=std::string(mzClass.c_str())+".mbDetectsMissile="+strutil::to_python_value(mbDetectsMissile);
-    valueString+=std::string(mzClass.c_str())+".mbDetectsGround="+strutil::to_python_value(mbDetectsGround);
-    valueString+=std::string(mzClass.c_str())+".isIR="+strutil::to_python_value(isIR);
-    valueString+=std::string(mzClass.c_str())+".nightFactor="+strutil::to_python_value(nightFactor);
-    valueString+=std::string(mzClass.c_str())+".CalculateParams()";
+    valueString+="    "+std::string(mzClass.PyVarString())+".maxFireControlTracks="+strutil::to_python_value(maxFireControlTracks)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".isSemiactive="+strutil::to_python_value(isSemiactive)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".isDesignator="+strutil::to_python_value(isDesignator)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".mbDetectsSurface="+strutil::to_python_value(mbDetectsSurface)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".mbDetectsAir="+strutil::to_python_value(mbDetectsAir)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".mbDetectsMissile="+strutil::to_python_value(mbDetectsMissile)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".mbDetectsGround="+strutil::to_python_value(mbDetectsGround)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".isIR="+strutil::to_python_value(isIR)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".nightFactor="+strutil::to_python_value(nightFactor)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".CalculateParams()"+"\n";
 
 }
 
 void tcOpticalDBObject::WritePython(std::string &valueString) const
 {
-    valueString+=std::string(mzClass.c_str())+"=pygcb.tcOpticalDBObject()";
+    valueString+="import pygcb\n";
+    valueString+="def CreateDBObjec():\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+"=pygcb.tcOpticalDBObject()\n";
     WritePythonValue(valueString);
+    valueString+="    return "+std::string(mzClass.PyVarString())+"\n";;
 }
 
 tcOpticalDBObject::tcOpticalDBObject() : tcSensorDBObject() 

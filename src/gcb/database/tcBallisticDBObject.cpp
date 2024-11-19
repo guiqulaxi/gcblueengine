@@ -468,24 +468,28 @@ namespace database
     void tcBallisticDBObject::WritePythonValue(std::string &valueString) const
     {
         tcWeaponDBObject::WritePythonValue(valueString);
-        valueString+=std::string(mzClass.c_str())+".ballisticType="+strutil::to_python_value(ballisticType);
-        valueString+=std::string(mzClass.c_str())+".angleError_rad="+strutil::to_python_value(angleError_rad);
-        valueString+=std::string(mzClass.c_str())+".burstCount="+strutil::to_python_value(burstCount);
-        valueString+=std::string(mzClass.c_str())+".burstDuration_s="+strutil::to_python_value(burstDuration_s);
-        valueString+=std::string(mzClass.c_str())+".clusterCount="+strutil::to_python_value(clusterCount);
-        valueString+=std::string(mzClass.c_str())+".clusterEffectRadius_m="+strutil::to_python_value(clusterEffectRadius_m);
-        valueString+=std::string(mzClass.c_str())+".sensorClass="+strutil::to_python_value(sensorClass);
-        valueString+=std::string(mzClass.c_str())+".smartError_m="+strutil::to_python_value(smartError_m);
-        valueString+=std::string(mzClass.c_str())+".lockOnAfterLaunch="+strutil::to_python_value(lockOnAfterLaunch);
-        valueString+=std::string(mzClass.c_str())+".CalculateParams()";
+        valueString+="    "+std::string(mzClass.PyVarString())+".ballisticType="+strutil::to_python_value(ballisticType)+"\n";
+        valueString+="    "+std::string(mzClass.PyVarString())+".angleError_rad="+strutil::to_python_value(angleError_rad)+"\n";
+        valueString+="    "+std::string(mzClass.PyVarString())+".burstCount="+strutil::to_python_value(burstCount)+"\n";
+        valueString+="    "+std::string(mzClass.PyVarString())+".burstDuration_s="+strutil::to_python_value(burstDuration_s)+"\n";
+        valueString+="    "+std::string(mzClass.PyVarString())+".clusterCount="+strutil::to_python_value(clusterCount)+"\n";
+        valueString+="    "+std::string(mzClass.PyVarString())+".clusterEffectRadius_m="+strutil::to_python_value(clusterEffectRadius_m)+"\n";
+        valueString+="    "+std::string(mzClass.PyVarString())+".sensorClass="+strutil::to_python_value(sensorClass)+"\n";
+        valueString+="    "+std::string(mzClass.PyVarString())+".smartError_m="+strutil::to_python_value(smartError_m)+"\n";
+        valueString+="    "+std::string(mzClass.PyVarString())+".lockOnAfterLaunch="+strutil::to_python_value(lockOnAfterLaunch)+"\n";
+        valueString+="    "+std::string(mzClass.PyVarString())+".CalculateParams()"+"\n";
 
 
     }
 
     void tcBallisticDBObject::WritePython(std::string &valueString) const
     {
-        valueString+=std::string(mzClass.c_str())+"=pygcb.tcBallisticDBObject()";
+        valueString+="import pygcb\n";
+        valueString+="def CreateDBObjec():\n";
+        valueString+="    "+std::string(mzClass.PyVarString())+"=pygcb.tcBallisticDBObject()\n";
         WritePythonValue(valueString);
+        valueString+="    return "+std::string(mzClass.PyVarString())+"\n";
+
     }
 
 

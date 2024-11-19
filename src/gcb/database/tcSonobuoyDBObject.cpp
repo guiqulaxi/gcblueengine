@@ -96,18 +96,21 @@ void tcSonobuoyDBObject::WriteSql(std::string& valueString) const
 void tcSonobuoyDBObject::WritePythonValue(std::string &valueString) const
 {
     tcDatabaseObject::WritePythonValue(valueString);
-    tcSensorPlatformDBObject::WritePythonValue(mzClass.c_str(),valueString);
-    tcWaterDetectionDBObject::WritePythonValue(mzClass.c_str(),valueString);
-    valueString+=std::string(mzClass.c_str())+".batteryLife_s="+strutil::to_python_value(batteryLife_s);
-    valueString+=std::string(mzClass.c_str())+".commRange_km="+strutil::to_python_value(commRange_km);
-    valueString+=std::string(mzClass.c_str())+".CalculateParams()";
+    tcSensorPlatformDBObject::WritePythonValue(mzClass,valueString);
+    tcWaterDetectionDBObject::WritePythonValue(mzClass,valueString);
+    valueString+="    "+std::string(mzClass.PyVarString())+".batteryLife_s="+strutil::to_python_value(batteryLife_s)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".commRange_km="+strutil::to_python_value(commRange_km)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".CalculateParams()"+"\n";
 
 }
 
 void tcSonobuoyDBObject::WritePython(std::string &valueString) const
 {
-    valueString+=std::string(mzClass.c_str())+"=pygcb.tcSonobuoyDBObject()";
+    valueString+="import pygcb\n";
+    valueString+="def CreateDBObjec():\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+"=pygcb.tcSonobuoyDBObject()\n";
     WritePythonValue(valueString);
+    valueString+="    return "+std::string(mzClass.PyVarString())+"\n";
 }
 
 

@@ -284,18 +284,21 @@ void tcLauncherDBObject::WriteSql(std::string& valueString) const
 void tcLauncherDBObject::WritePythonValue(std::string &valueString) const
 {
     tcDatabaseObject::WritePythonValue(valueString);
-    valueString+=std::string(mzClass.c_str())+".childClassList="+strutil::to_python_value(childClassList);
-    valueString+=std::string(mzClass.c_str())+".childCapacityList="+strutil::to_python_value(childCapacityList);
-    valueString+=std::string(mzClass.c_str())+".childLoadTime_s="+strutil::to_python_value(childLoadTime_s);
-    valueString+=std::string(mzClass.c_str())+".childCycleTime_s="+strutil::to_python_value(childCycleTime_s);
-    valueString+=std::string(mzClass.c_str())+".CalculateParams()";
+    valueString+="    "+std::string(mzClass.PyVarString())+".childClassList="+strutil::to_python_value(childClassList)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".childCapacityList="+strutil::to_python_value(childCapacityList)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".childLoadTime_s="+strutil::to_python_value(childLoadTime_s)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".childCycleTime_s="+strutil::to_python_value(childCycleTime_s)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".CalculateParams()"+"\n";
 
 }
 
 void tcLauncherDBObject::WritePython(std::string &valueString) const
 {
-    valueString+=std::string(mzClass.c_str())+"=pygcb.tcLauncherDBObject()";
+    valueString+="import pygcb\n";
+    valueString+="def CreateDBObjec():\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+"=pygcb.tcLauncherDBObject()\n";
     WritePythonValue(valueString);
+    valueString+="    return "+std::string(mzClass.PyVarString())+"\n";;
 }
 
 

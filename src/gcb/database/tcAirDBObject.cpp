@@ -185,26 +185,29 @@ void tcAirDBObject::WritePythonValue(std::string &valueString) const
 {
     tcPlatformDBObject::WritePythonValue(valueString);
 
-    tcAirDetectionDBObject::WritePythonValue(mzClass.c_str(),valueString);
-    tcWaterDetectionDBObject::WritePythonValue(mzClass.c_str(),valueString);
-    valueString+=std::string(mzClass.c_str())+".maxTakeoffWeight_kg="+strutil::to_python_value(maxTakeoffWeight_kg);
-    valueString+=std::string(mzClass.c_str())+".maxAltitude_m="+strutil::to_python_value(maxAltitude_m);
-    valueString+=std::string(mzClass.c_str())+".climbRate_mps="+strutil::to_python_value(climbRate_mps);
-    valueString+=std::string(mzClass.c_str())+".gmax="+strutil::to_python_value(gmax);
-    valueString+=std::string(mzClass.c_str())+".minimumRunway_m="+strutil::to_python_value(minimumRunway_m);
-    valueString+=std::string(mzClass.c_str())+".isCarrierCompatible="+strutil::to_python_value(isCarrierCompatible);
-    valueString+=std::string(mzClass.c_str())+".outFuelPods="+strutil::to_python_value(outFuelPods);
-    valueString+=std::string(mzClass.c_str())+".fuelOut_kgps="+strutil::to_python_value(fuelOut_kgps);
-    valueString+=std::string(mzClass.c_str())+".fuelIn_kgps="+strutil::to_python_value(fuelIn_kgps);
-    valueString+=std::string(mzClass.c_str())+".maintenanceMin_s="+strutil::to_python_value(maintenanceMin_s);
-    valueString+=std::string(mzClass.c_str())+".maintenanceMax_s="+strutil::to_python_value(maintenanceMax_s);
-    valueString+=string(mzClass.c_str())+".CalculateParams()";
+    tcAirDetectionDBObject::WritePythonValue(mzClass,valueString);
+    tcWaterDetectionDBObject::WritePythonValue(mzClass,valueString);
+    valueString+="    "+std::string(mzClass.PyVarString())+".maxTakeoffWeight_kg="+strutil::to_python_value(maxTakeoffWeight_kg)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".maxAltitude_m="+strutil::to_python_value(maxAltitude_m)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".climbRate_mps="+strutil::to_python_value(climbRate_mps)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".gmax="+strutil::to_python_value(gmax)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".minimumRunway_m="+strutil::to_python_value(minimumRunway_m)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".isCarrierCompatible="+strutil::to_python_value(isCarrierCompatible)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".outFuelPods="+strutil::to_python_value(outFuelPods)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".fuelOut_kgps="+strutil::to_python_value(fuelOut_kgps)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".fuelIn_kgps="+strutil::to_python_value(fuelIn_kgps)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".maintenanceMin_s="+strutil::to_python_value(maintenanceMin_s)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".maintenanceMax_s="+strutil::to_python_value(maintenanceMax_s)+"\n";
+    valueString+=string(mzClass.c_str())+".CalculateParams()"+"\n";
 }
 
 void tcAirDBObject::WritePython(std::string &valueString) const
 {
-    valueString+=std::string(mzClass.c_str())+"=pygcb.tcAirDBObject()";
+    valueString+="import pygcb\n";
+    valueString+="def CreateDBObjec():\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+"=pygcb.tcAirDBObject()\n";
     WritePythonValue(valueString);
+    valueString+="    return "+std::string(mzClass.PyVarString())+"\n";
 }
 
 

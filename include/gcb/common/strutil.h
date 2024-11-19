@@ -634,6 +634,7 @@ static std::string to_python_value(const std::vector<int>& data)
             valueString += ",";
         }
     }
+    valueString+= "]";
     return valueString;
 }
 static std::string to_python_value(const std::vector<unsigned short>& data)
@@ -646,6 +647,7 @@ static std::string to_python_value(const std::vector<unsigned short>& data)
             valueString += ",";
         }
     }
+    valueString+= "]";
     return valueString;
 }
 
@@ -659,6 +661,7 @@ static std::string to_python_value(const std::vector<unsigned int>& data)
             valueString += ",";
         }
     }
+    valueString+= "]";
     return valueString;
 }
 static std::string to_python_value(const std::vector<float>&  data)
@@ -671,6 +674,7 @@ static std::string to_python_value(const std::vector<float>&  data)
             valueString += ",";
         }
     }
+    valueString+= "]";
     return valueString;
 }
 static std::string to_python_value(const std::vector<std::string>& data)
@@ -685,6 +689,7 @@ static std::string to_python_value(const std::vector<std::string>& data)
             valueString += ",";
         }
     }
+    valueString+= "]";
     return valueString;
 }
 static std::string to_python_value(const std::vector<bool>& data)
@@ -697,13 +702,22 @@ static std::string to_python_value(const std::vector<bool>& data)
             valueString += ",";
         }
     }
-
+    valueString+= "]";
     return valueString;
 }
 static std::string to_python_value(const std::string& data)
 {
     std::string valueString;
+
     valueString += "'"+data+"'";
+
+    return valueString;
+}
+static std::string to_python_value(const char* data)
+{
+    std::string valueString;
+
+    valueString += "'"+std::string(data)+"'";
 
     return valueString;
 }

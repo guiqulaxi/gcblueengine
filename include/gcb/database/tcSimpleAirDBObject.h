@@ -49,7 +49,7 @@ namespace database
         tcSimpleAirDBObject(const tcSimpleAirDBObject& obj); ///< copy constructor
         virtual ~tcSimpleAirDBObject();
         virtual tcGameObject* CreateGameObject() override;///<创建平台
-
+        void WritePythonValue(std::string &valueString) const;
         void WritePython(std::string &valueString) const;
 
 	private:

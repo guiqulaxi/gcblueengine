@@ -186,29 +186,32 @@ void tcSensorDBObject::WriteSql(std::string& valueString) const
 void tcSensorDBObject::WritePythonValue(std::string &valueString) const
 {
     tcDatabaseObject::WritePythonValue(valueString);
-    valueString+=std::string(mzClass.c_str())+".mfMaxRange_km="+strutil::to_python_value(mfMaxRange_km);
-    valueString+=std::string(mzClass.c_str())+".mfRefRange_km="+strutil::to_python_value(mfRefRange_km);
-    valueString+=std::string(mzClass.c_str())+".mfFieldOfView_deg="+strutil::to_python_value(mfFieldOfView_deg);
-    valueString+=std::string(mzClass.c_str())+".minElevation_deg="+strutil::to_python_value(minElevation_deg);
-    valueString+=std::string(mzClass.c_str())+".maxElevation_deg="+strutil::to_python_value(maxElevation_deg);
-    valueString+=std::string(mzClass.c_str())+".mfScanPeriod_s="+strutil::to_python_value(mfScanPeriod_s);
-    valueString+=std::string(mzClass.c_str())+".damageEffect="+strutil::to_python_value(damageEffect);
-    valueString+=std::string(mzClass.c_str())+".rangeError="+strutil::to_python_value(rangeError);
-    valueString+=std::string(mzClass.c_str())+".angleError_deg="+strutil::to_python_value(angleError_deg);
-    valueString+=std::string(mzClass.c_str())+".elevationError_deg="+strutil::to_python_value(elevationError_deg);
-    valueString+=std::string(mzClass.c_str())+".minFrequency_Hz="+strutil::to_python_value(minFrequency_Hz);
-    valueString+=std::string(mzClass.c_str())+".maxFrequency_Hz="+strutil::to_python_value(maxFrequency_Hz);
-    valueString+=std::string(mzClass.c_str())+".idThreshold_dB="+strutil::to_python_value(idThreshold_dB);
-    valueString+=std::string(mzClass.c_str())+".counterMeasureFactor="+strutil::to_python_value(counterMeasureFactor);
-    valueString+=std::string(mzClass.c_str())+".isSurveillance="+strutil::to_python_value(isSurveillance);
-    valueString+=std::string(mzClass.c_str())+".CalculateParams()";
+    valueString+="    "+std::string(mzClass.PyVarString())+".mfMaxRange_km="+strutil::to_python_value(mfMaxRange_km)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".mfRefRange_km="+strutil::to_python_value(mfRefRange_km)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".mfFieldOfView_deg="+strutil::to_python_value(mfFieldOfView_deg)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".minElevation_deg="+strutil::to_python_value(minElevation_deg)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".maxElevation_deg="+strutil::to_python_value(maxElevation_deg)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".mfScanPeriod_s="+strutil::to_python_value(mfScanPeriod_s)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".damageEffect="+strutil::to_python_value(damageEffect)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".rangeError="+strutil::to_python_value(rangeError)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".angleError_deg="+strutil::to_python_value(angleError_deg)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".elevationError_deg="+strutil::to_python_value(elevationError_deg)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".minFrequency_Hz="+strutil::to_python_value(minFrequency_Hz)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".maxFrequency_Hz="+strutil::to_python_value(maxFrequency_Hz)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".idThreshold_dB="+strutil::to_python_value(idThreshold_dB)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".counterMeasureFactor="+strutil::to_python_value(counterMeasureFactor)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".isSurveillance="+strutil::to_python_value(isSurveillance)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".CalculateParams()"+"\n";
 
 }
 
 void tcSensorDBObject::WritePython(std::string &valueString) const
 {
-    valueString+=std::string(mzClass.c_str())+"=pygcb.tcSensorDBObject()";
+    valueString+="import pygcb\n";
+    valueString+="def CreateDBObjec():\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+"=pygcb.tcSensorDBObject()\n";
     WritePythonValue(valueString);
+    valueString+="    return "+std::string(mzClass.PyVarString())+"\n";;
 }
 
 

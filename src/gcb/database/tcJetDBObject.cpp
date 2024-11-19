@@ -468,28 +468,31 @@ void tcJetDBObject::WriteSql(std::string& valueString) const
 void tcJetDBObject::WritePythonValue(std::string &valueString) const
 {
     tcAirDBObject::WritePythonValue(valueString);
-    valueString+=std::string(mzClass.c_str())+".militaryThrust_N="+strutil::to_python_value(militaryThrust_N);
-    valueString+=std::string(mzClass.c_str())+".militaryThrustSpeedSlope="+strutil::to_python_value(militaryThrustSpeedSlope);
-    valueString+=std::string(mzClass.c_str())+".mfAfterburnThrust_N="+strutil::to_python_value(mfAfterburnThrust_N);
-    valueString+=std::string(mzClass.c_str())+".abThrustSpeedSlope="+strutil::to_python_value(abThrustSpeedSlope);
-    valueString+=std::string(mzClass.c_str())+".mfAfterburnFuelRate_kgps="+strutil::to_python_value(mfAfterburnFuelRate_kgps);
-    valueString+=std::string(mzClass.c_str())+".mfCdpsub="+strutil::to_python_value(mfCdpsub);
-    valueString+=std::string(mzClass.c_str())+".mfCdptran="+strutil::to_python_value(mfCdptran);
-    valueString+=std::string(mzClass.c_str())+".mfCdpsup="+strutil::to_python_value(mfCdpsup);
-    valueString+=std::string(mzClass.c_str())+".mfMcm="+strutil::to_python_value(mfMcm);
-    valueString+=std::string(mzClass.c_str())+".mfMsupm="+strutil::to_python_value(mfMsupm);
-    valueString+=std::string(mzClass.c_str())+".cruiseSpeed_mps="+strutil::to_python_value(cruiseSpeed_mps);
-    valueString+=std::string(mzClass.c_str())+".stallSpeed_mps="+strutil::to_python_value(stallSpeed_mps);
-    valueString+=std::string(mzClass.c_str())+".thrustTable="+strutil::to_python_value(thrustTable);
-    valueString+=std::string(mzClass.c_str())+".fuelEfficiencyTable="+strutil::to_python_value(fuelEfficiencyTable);
-    valueString+=std::string(mzClass.c_str())+".CalculateParams()";
+    valueString+="    "+std::string(mzClass.PyVarString())+".militaryThrust_N="+strutil::to_python_value(militaryThrust_N)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".militaryThrustSpeedSlope="+strutil::to_python_value(militaryThrustSpeedSlope)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".mfAfterburnThrust_N="+strutil::to_python_value(mfAfterburnThrust_N)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".abThrustSpeedSlope="+strutil::to_python_value(abThrustSpeedSlope)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".mfAfterburnFuelRate_kgps="+strutil::to_python_value(mfAfterburnFuelRate_kgps)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".mfCdpsub="+strutil::to_python_value(mfCdpsub)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".mfCdptran="+strutil::to_python_value(mfCdptran)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".mfCdpsup="+strutil::to_python_value(mfCdpsup)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".mfMcm="+strutil::to_python_value(mfMcm)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".mfMsupm="+strutil::to_python_value(mfMsupm)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".cruiseSpeed_mps="+strutil::to_python_value(cruiseSpeed_mps)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".stallSpeed_mps="+strutil::to_python_value(stallSpeed_mps)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".thrustTable="+strutil::to_python_value(thrustTable)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".fuelEfficiencyTable="+strutil::to_python_value(fuelEfficiencyTable)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".CalculateParams()"+"\n";
 
 }
 
 void tcJetDBObject::WritePython(std::string &valueString) const
 {
-    valueString+=std::string(mzClass.c_str())+"=pygcb.tcJetDBObject()";
+    valueString+="import pygcb\n";
+    valueString+="def CreateDBObjec():\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+"=pygcb.tcJetDBObject()\n";
     WritePythonValue(valueString);
+    valueString+="    return "+std::string(mzClass.PyVarString())+"\n";;
 }
 
 

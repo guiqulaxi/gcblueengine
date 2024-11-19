@@ -167,23 +167,27 @@ void tcAirDetectionDBObject::WriteSql(std::string& valueString) const
 	valueString += s.str();
 }
 
-void tcAirDetectionDBObject::WritePythonValue(const string &mzClass, std::string &valueString) const
+void tcAirDetectionDBObject::WritePythonValue(const tcDBString &mzClass, std::string &valueString) const
 {
-    valueString+=std::string(mzClass.c_str())+".RCS_dBsm="+strutil::to_python_value(mzClass.c_str());
-    valueString+=std::string(mzClass.c_str())+".RCS_Model="+strutil::to_python_value(RCS_Model);
-    valueString+=std::string(mzClass.c_str())+".opticalCrossSection_dBsm="+strutil::to_python_value(opticalCrossSection_dBsm);
-    valueString+=std::string(mzClass.c_str())+".irSignature_dB="+strutil::to_python_value(irSignature_dB);
-    valueString+=std::string(mzClass.c_str())+".IR_ModelA="+strutil::to_python_value(IR_ModelA);
-    valueString+=std::string(mzClass.c_str())+".IR_ModelB="+strutil::to_python_value(IR_ModelB);
-    valueString+=std::string(mzClass.c_str())+".IR_ModelC="+strutil::to_python_value(IR_ModelC);
-    valueString+=std::string(mzClass.c_str())+".effectiveHeight_m="+strutil::to_python_value(effectiveHeight_m);
-     valueString+=std::string(mzClass.c_str())+".BindSignatureModels()";
+    valueString+="    "+std::string(mzClass.PyVarString())+".RCS_dBsm="+strutil::to_python_value(mzClass.c_str())+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".RCS_Model="+strutil::to_python_value(RCS_Model)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".opticalCrossSection_dBsm="+strutil::to_python_value(opticalCrossSection_dBsm)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".irSignature_dB="+strutil::to_python_value(irSignature_dB)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".IR_ModelA="+strutil::to_python_value(IR_ModelA)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".IR_ModelB="+strutil::to_python_value(IR_ModelB)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".IR_ModelC="+strutil::to_python_value(IR_ModelC)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".effectiveHeight_m="+strutil::to_python_value(effectiveHeight_m)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".BindSignatureModels()"+"\n";
 }
 
-void tcAirDetectionDBObject::WritePython(const std::string &mzClass, std::string &valueString) const
+void tcAirDetectionDBObject::WritePython(const tcDBString &mzClass, std::string &valueString) const
 {
-    valueString+=std::string(mzClass.c_str())+"=pygcb.tcAirDetectionDBObject()";
+    valueString+="import pygcb\n";
+    valueString+="def CreateDBObjec():\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+"=pygcb.tcAirDetectionDBObject()\n";
     WritePythonValue(mzClass,valueString);
+    valueString+="    return "+std::string(mzClass.PyVarString())+"\n";
+
 }
 
 

@@ -53,6 +53,7 @@ namespace database
         void AssignRandomStringB();
         void AssignRandomSuffix(); // adds random suffix to existing string
 		const char* c_str() const;
+         std::string PyVarString() const;//转成符合python变量的字符
         size_t size() const;
 
         tcDBString& operator= (const tcDBString& c);

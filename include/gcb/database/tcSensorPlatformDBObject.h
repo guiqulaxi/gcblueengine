@@ -26,6 +26,7 @@
 #ifndef _SENSORPLATFORMDBOBJECT_H_
 #define _SENSORPLATFORMDBOBJECT_H_
 
+#include "tcDBString.h"
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
@@ -67,8 +68,8 @@ namespace database
       
 		void ReadSql(tcSqlReader& entry);
         void WriteSql(std::string& valueString) const;
-        void WritePythonValue(const std::string&mzClass, std::string& valueString) const;
-        void WritePython(const std::string&mzClass, std::string& valueString) const;
+        void WritePythonValue(const tcDBString &mzClass, std::string& valueString) const;
+        void WritePython(const tcDBString&mzClass, std::string& valueString) const;
 
         static void AddSqlColumns(std::string& columnString);
 

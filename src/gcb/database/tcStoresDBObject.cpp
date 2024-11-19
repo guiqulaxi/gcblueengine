@@ -168,20 +168,23 @@ namespace database
     void tcStoresDBObject::WritePythonValue(std::string &valueString) const
     {
         tcDatabaseObject::WritePythonValue(valueString);
-        valueString+=std::string(mzClass.c_str())+".displayName="+strutil::to_python_value(displayName.c_str());
-        valueString+=std::string(mzClass.c_str())+".capacity="+strutil::to_python_value(capacity);
-        valueString+=std::string(mzClass.c_str())+".maxVolume_m3="+strutil::to_python_value(maxVolume_m3);
-        valueString+=std::string(mzClass.c_str())+".maxWeight_kg="+strutil::to_python_value(maxWeight_kg);
-        valueString+=std::string(mzClass.c_str())+".moveTime="+strutil::to_python_value(moveTime);
-        valueString+=std::string(mzClass.c_str())+".compatibleItems="+strutil::to_python_value(compatibleItems);
-        valueString+=std::string(mzClass.c_str())+".CalculateParams()";
+        valueString+="    "+std::string(mzClass.PyVarString())+".displayName="+strutil::to_python_value(displayName.c_str())+"\n";
+        valueString+="    "+std::string(mzClass.PyVarString())+".capacity="+strutil::to_python_value(capacity)+"\n";
+        valueString+="    "+std::string(mzClass.PyVarString())+".maxVolume_m3="+strutil::to_python_value(maxVolume_m3)+"\n";
+        valueString+="    "+std::string(mzClass.PyVarString())+".maxWeight_kg="+strutil::to_python_value(maxWeight_kg)+"\n";
+        valueString+="    "+std::string(mzClass.PyVarString())+".moveTime="+strutil::to_python_value(moveTime)+"\n";
+        valueString+="    "+std::string(mzClass.PyVarString())+".compatibleItems="+strutil::to_python_value(compatibleItems)+"\n";
+        valueString+="    "+std::string(mzClass.PyVarString())+".CalculateParams()"+"\n";
 
     }
 
     void tcStoresDBObject::WritePython(std::string &valueString) const
     {
-        valueString+=std::string(mzClass.c_str())+"=pygcb.tcStoresDBObjecttcStoresDBObject()";
+        valueString+="import pygcb\n";
+        valueString+="def CreateDBObjec():\n";
+        valueString+="    "+std::string(mzClass.PyVarString())+"=pygcb.tcStoresDBObject()\n";
         WritePythonValue(valueString);
+        valueString+="    return "+std::string(mzClass.PyVarString())+"\n";
     }
 
 

@@ -155,21 +155,24 @@ void tcSubDBObject::WriteSql(std::string& valueString) const
 void tcSubDBObject::WritePythonValue(std::string &valueString) const
 {
     tcPlatformDBObject::WritePythonValue(valueString);
-    tcAirDetectionDBObject::WritePythonValue(mzClass.c_str(),valueString);
-    tcWaterDetectionDBObject::WritePythonValue(mzClass.c_str(),valueString);
-    valueString+=std::string(mzClass.c_str())+".draft_m="+strutil::to_python_value(draft_m);
-    valueString+=std::string(mzClass.c_str())+".surfaceSpeed_kts="+strutil::to_python_value(surfaceSpeed_kts);
-    valueString+=std::string(mzClass.c_str())+".mfMaxDepth_m="+strutil::to_python_value(mfMaxDepth_m);
-    valueString+=std::string(mzClass.c_str())+".isDieselElectric="+strutil::to_python_value(isDieselElectric);
-    valueString+=std::string(mzClass.c_str())+".batteryRate_kW="+strutil::to_python_value(batteryRate_kW);
-    valueString+=std::string(mzClass.c_str())+".batteryCharge_kW="+strutil::to_python_value(batteryCharge_kW);
+    tcAirDetectionDBObject::WritePythonValue(mzClass,valueString);
+    tcWaterDetectionDBObject::WritePythonValue(mzClass,valueString);
+    valueString+="    "+std::string(mzClass.PyVarString())+".draft_m="+strutil::to_python_value(draft_m);
+    valueString+="    "+std::string(mzClass.PyVarString())+".surfaceSpeed_kts="+strutil::to_python_value(surfaceSpeed_kts);
+    valueString+="    "+std::string(mzClass.PyVarString())+".mfMaxDepth_m="+strutil::to_python_value(mfMaxDepth_m);
+    valueString+="    "+std::string(mzClass.PyVarString())+".isDieselElectric="+strutil::to_python_value(isDieselElectric);
+    valueString+="    "+std::string(mzClass.PyVarString())+".batteryRate_kW="+strutil::to_python_value(batteryRate_kW);
+    valueString+="    "+std::string(mzClass.PyVarString())+".batteryCharge_kW="+strutil::to_python_value(batteryCharge_kW);
 
 }
 
 void tcSubDBObject::WritePython(std::string &valueString) const
 {
-    valueString+=std::string(mzClass.c_str())+"=pygcb.tcSubDBObject()";
+    valueString+="import pygcb\n";
+    valueString+="def CreateDBObjec():\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+"=pygcb.tcSubDBObject()\n";
     WritePythonValue(valueString);
+    valueString+="    return "+std::string(mzClass.PyVarString())+"\n";
 }
 
 

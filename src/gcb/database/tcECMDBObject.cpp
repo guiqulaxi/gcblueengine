@@ -120,19 +120,22 @@ void tcECMDBObject::WriteSql(std::string& valueString) const
 void tcECMDBObject::WritePythonValue(std::string &valueString) const
 {
     tcSensorDBObject::WritePythonValue(valueString);
-    valueString+=std::string(mzClass.c_str())+".ecmType="+strutil::to_python_value(ecmType);
-    valueString+=std::string(mzClass.c_str())+".ERP_dBW="+strutil::to_python_value(ERP_dBW);
-    valueString+=std::string(mzClass.c_str())+".effectivenessRating="+strutil::to_python_value(effectivenessRating);
-    valueString+=std::string(mzClass.c_str())+".isEffectiveVsSurveillance="+strutil::to_python_value(isEffectiveVsSurveillance);
-    valueString+=std::string(mzClass.c_str())+".isEffectiveVsSeeker="+strutil::to_python_value(isEffectiveVsSeeker);
-    valueString+=std::string(mzClass.c_str())+".CalculateParams()";
+    valueString+="    "+std::string(mzClass.PyVarString())+".ecmType="+strutil::to_python_value(ecmType)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".ERP_dBW="+strutil::to_python_value(ERP_dBW)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".effectivenessRating="+strutil::to_python_value(effectivenessRating)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".isEffectiveVsSurveillance="+strutil::to_python_value(isEffectiveVsSurveillance)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".isEffectiveVsSeeker="+strutil::to_python_value(isEffectiveVsSeeker)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".CalculateParams()"+"\n";
 
 }
 
 void tcECMDBObject::WritePython(std::string &valueString) const
 {
-    valueString+=std::string(mzClass.c_str())+"=pygcb.tcECMDBObject()";
+    valueString+="import pygcb\n";
+    valueString+="def CreateDBObjec():\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+"=pygcb.tcECMDBObject()\n";
     WritePythonValue(valueString);
+    valueString+="    return "+std::string(mzClass.PyVarString())+"\n";
 }
 
 

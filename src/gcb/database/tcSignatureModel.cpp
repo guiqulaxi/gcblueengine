@@ -136,17 +136,20 @@ void tcSignatureModel::WriteSql(std::string& valueString) const
 void tcSignatureModel::WritePythonValue(std::string &valueString) const
 {
 
-    valueString+=std::string(mzClass.c_str())+".mzClass="+strutil::to_python_value(mzClass.c_str());
-    valueString+=std::string(mzClass.c_str())+".aspectModifier_dB="+strutil::to_python_value(std::vector<float>(aspectModifier_dB.begin(),aspectModifier_dB.end()));
-    valueString+=std::string(mzClass.c_str())+".topModifier_dB="+strutil::to_python_value(topModifier_dB);
-    valueString+=std::string(mzClass.c_str())+".bottomModifier_dB="+strutil::to_python_value(bottomModifier_dB);
+    valueString+="    "+std::string(mzClass.PyVarString())+".mzClass="+strutil::to_python_value(mzClass.c_str())+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".aspectModifier_dB="+strutil::to_python_value(std::vector<float>(aspectModifier_dB.begin(),aspectModifier_dB.end()))+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".topModifier_dB="+strutil::to_python_value(topModifier_dB)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".bottomModifier_dB="+strutil::to_python_value(bottomModifier_dB)+"\n";
 
 }
 
 void tcSignatureModel::WritePython(std::string &valueString) const
 {
-    valueString+=std::string(mzClass.c_str())+"=pygcb.tcSignatureModel()";
+    valueString+="import pygcb\n";
+    valueString+="def CreateDBObjec():\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+"=pygcb.tcSignatureModel()\n";
     WritePythonValue(valueString);
+    valueString+="    return "+std::string(mzClass.PyVarString())+"\n";
 }
 
 

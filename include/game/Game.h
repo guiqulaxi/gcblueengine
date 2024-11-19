@@ -166,6 +166,7 @@ public:
     bool Finish();
     void Init(); ///< basic initialization and start screen init
     bool InitSim();
+    void SaveDatabaseToPython(const std::string& dirPath);
     
     void CheckGoals(); ///< checks if any win/loss goals satisfied
     void CheckMultiplayerEndGame(); ///< checks for MP end game or surrender

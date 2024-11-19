@@ -433,47 +433,50 @@ void tcMissileDBObject::WriteSql(std::string& valueString) const
 void tcMissileDBObject::WritePythonValue(std::string &valueString) const
 {
     tcWeaponDBObject::WritePythonValue(valueString);
-    tcAirDetectionDBObject::WritePythonValue(mzClass.c_str(),valueString);
-    valueString+=std::string(mzClass.c_str())+".mfDragArea_sm="+strutil::to_python_value(mfDragArea_sm);
-    valueString+=std::string(mzClass.c_str())+".mfGmax="+strutil::to_python_value(mfGmax);
-    valueString+=std::string(mzClass.c_str())+".mfMaxTurnRate_degps="+strutil::to_python_value(mfMaxTurnRate_degps);
-    valueString+=std::string(mzClass.c_str())+".mfCdpsub="+strutil::to_python_value(mfCdpsub);
-    valueString+=std::string(mzClass.c_str())+".mfCdptran="+strutil::to_python_value(mfCdptran);
-    valueString+=std::string(mzClass.c_str())+".mfCdpsup="+strutil::to_python_value(mfCdpsup);
-    valueString+=std::string(mzClass.c_str())+".mfMcm="+strutil::to_python_value(mfMcm);
-    valueString+=std::string(mzClass.c_str())+".mfMsupm="+strutil::to_python_value(mfMsupm);
-    valueString+=std::string(mzClass.c_str())+".mfBoostThrust_N="+strutil::to_python_value(mfBoostThrust_N);
-    valueString+=std::string(mzClass.c_str())+".mfBoostTime_s="+strutil::to_python_value(mfBoostTime_s);
-    valueString+=std::string(mzClass.c_str())+".mfSustThrust_N="+strutil::to_python_value(mfSustThrust_N);
-    valueString+=std::string(mzClass.c_str())+".mfSustTime_s="+strutil::to_python_value(mfSustTime_s);
-    valueString+=std::string(mzClass.c_str())+".mfShutdownSpeed_mps="+strutil::to_python_value(mfShutdownSpeed_mps);
-    valueString+=std::string(mzClass.c_str())+".maSensorClass="+strutil::to_python_value(maSensorClass.c_str());
-    valueString+=std::string(mzClass.c_str())+".needsFireControl="+strutil::to_python_value(needsFireControl);
-    valueString+=std::string(mzClass.c_str())+".acceptsWaypoints="+strutil::to_python_value(acceptsWaypoints);
-    valueString+=std::string(mzClass.c_str())+".fireAndForget="+strutil::to_python_value(fireAndForget);
-    valueString+=std::string(mzClass.c_str())+".isARM="+strutil::to_python_value(isARM);
-    valueString+=std::string(mzClass.c_str())+".acceptsWaypoints="+strutil::to_python_value(acceptsWaypoints);
-    valueString+=std::string(mzClass.c_str())+".seekerFOV_rad="+strutil::to_python_value(seekerFOV_rad);
-    valueString+=std::string(mzClass.c_str())+".aczConstant_kts="+strutil::to_python_value(aczConstant_kts);
-    valueString+=std::string(mzClass.c_str())+".invMass_kg="+strutil::to_python_value(invMass_kg);
-    valueString+=std::string(mzClass.c_str())+".mnNumSegments="+strutil::to_python_value(mnNumSegments);
+    tcAirDetectionDBObject::WritePythonValue(mzClass,valueString);
+    valueString+="    "+std::string(mzClass.PyVarString())+".mfDragArea_sm="+strutil::to_python_value(mfDragArea_sm)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".mfGmax="+strutil::to_python_value(mfGmax)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".mfMaxTurnRate_degps="+strutil::to_python_value(mfMaxTurnRate_degps)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".mfCdpsub="+strutil::to_python_value(mfCdpsub)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".mfCdptran="+strutil::to_python_value(mfCdptran)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".mfCdpsup="+strutil::to_python_value(mfCdpsup)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".mfMcm="+strutil::to_python_value(mfMcm)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".mfMsupm="+strutil::to_python_value(mfMsupm)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".mfBoostThrust_N="+strutil::to_python_value(mfBoostThrust_N)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".mfBoostTime_s="+strutil::to_python_value(mfBoostTime_s)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".mfSustThrust_N="+strutil::to_python_value(mfSustThrust_N)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".mfSustTime_s="+strutil::to_python_value(mfSustTime_s)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".mfShutdownSpeed_mps="+strutil::to_python_value(mfShutdownSpeed_mps)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".maSensorClass="+strutil::to_python_value(maSensorClass.c_str())+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".needsFireControl="+strutil::to_python_value(needsFireControl)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".acceptsWaypoints="+strutil::to_python_value(acceptsWaypoints)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".fireAndForget="+strutil::to_python_value(fireAndForget)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".isARM="+strutil::to_python_value(isARM)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".acceptsWaypoints="+strutil::to_python_value(acceptsWaypoints)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".seekerFOV_rad="+strutil::to_python_value(seekerFOV_rad)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".aczConstant_kts="+strutil::to_python_value(aczConstant_kts)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".invMass_kg="+strutil::to_python_value(invMass_kg)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".mnNumSegments="+strutil::to_python_value(mnNumSegments)+"\n";
     for (size_t i=0 ; i < maFlightProfile.size(); ++i) {
-        valueString+=std::string(mzClass.c_str())+".maFlightProfile.append(pygcb.tsMissileFlightSegment())\n";
+        valueString+="    "+std::string(mzClass.PyVarString())+".maFlightProfile.append(pygcb.tsMissileFlightSegment())\n";
 
-        valueString+=std::string(mzClass.c_str())+".maFlightProfile["+std::to_string(i)+"].meAltitudeMode="+strutil::to_python_value(maFlightProfile[i].meAltitudeMode)+"\n";
-        valueString+=std::string(mzClass.c_str())+".maFlightProfile["+std::to_string(i)+"].meGuidanceMode="+strutil::to_python_value(maFlightProfile[i].meGuidanceMode)+"\n";
-        valueString+=std::string(mzClass.c_str())+".maFlightProfile["+std::to_string(i)+"].mfAltitude_m="+strutil::to_python_value(maFlightProfile[i].mfAltitude_m)+"\n";
-        valueString+=std::string(mzClass.c_str())+".maFlightProfile["+std::to_string(i)+"].mfRange_km="+strutil::to_python_value(maFlightProfile[i].mfRange_km)+"\n";
+        valueString+="    "+std::string(mzClass.PyVarString())+".maFlightProfile["+std::to_string(i)+"].meAltitudeMode="+strutil::to_python_value(maFlightProfile[i].meAltitudeMode)+"\n";
+        valueString+="    "+std::string(mzClass.PyVarString())+".maFlightProfile["+std::to_string(i)+"].meGuidanceMode="+strutil::to_python_value(maFlightProfile[i].meGuidanceMode)+"\n";
+        valueString+="    "+std::string(mzClass.PyVarString())+".maFlightProfile["+std::to_string(i)+"].mfAltitude_m="+strutil::to_python_value(maFlightProfile[i].mfAltitude_m)+"\n";
+        valueString+="    "+std::string(mzClass.PyVarString())+".maFlightProfile["+std::to_string(i)+"].mfRange_km="+strutil::to_python_value(maFlightProfile[i].mfRange_km)+"\n";
 
     }
-    valueString+=std::string(mzClass.c_str())+".CalculateParams()";
+    valueString+="    "+std::string(mzClass.PyVarString())+".CalculateParams()"+"\n";
 
 }
 
 void tcMissileDBObject::WritePython(std::string &valueString) const
 {
-    valueString+=std::string(mzClass.c_str())+"=pygcb.tcMissileDBObject()";
+    valueString+="import pygcb\n";
+    valueString+="def CreateDBObjec():\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+"=pygcb.tcMissileDBObject()\n";
     WritePythonValue(valueString);
+    valueString+="    return "+std::string(mzClass.PyVarString())+"\n";;
 
 }
 

@@ -248,29 +248,32 @@ void tcRadarDBObject::WriteSql(std::string& valueString) const
 void tcRadarDBObject::WritePythonValue(std::string &valueString) const
 {
     tcSensorDBObject::WritePythonValue(valueString);
-    valueString+=std::string(mzClass.c_str())+".ERPpeak_dBW="+strutil::to_python_value(ERPpeak_dBW);
-    valueString+=std::string(mzClass.c_str())+".ERPaverage_dBW="+strutil::to_python_value(ERPaverage_dBW);
-    valueString+=std::string(mzClass.c_str())+".maxFireControlTracks="+strutil::to_python_value(maxFireControlTracks);
-    valueString+=std::string(mzClass.c_str())+".isSemiactive="+strutil::to_python_value(isSemiactive);
-    valueString+=std::string(mzClass.c_str())+".blindSpeed_mps="+strutil::to_python_value(blindSpeed_mps);
-    valueString+=std::string(mzClass.c_str())+".lookdownWater_dB="+strutil::to_python_value(lookdownWater_dB);
-    valueString+=std::string(mzClass.c_str())+".lookdownLand_dB="+strutil::to_python_value(lookdownLand_dB);
-    valueString+=std::string(mzClass.c_str())+".bandwidth_Hz="+strutil::to_python_value(bandwidth_Hz);
-    valueString+=std::string(mzClass.c_str())+".azimuthBeamwidth_deg="+strutil::to_python_value(azimuthBeamwidth_deg);
-    valueString+=std::string(mzClass.c_str())+".elevationBeamwidth_deg="+strutil::to_python_value(elevationBeamwidth_deg);
-    valueString+=std::string(mzClass.c_str())+".effectiveSidelobes_dB="+strutil::to_python_value(effectiveSidelobes_dB);
-    valueString+=std::string(mzClass.c_str())+".mbDetectsSurface="+strutil::to_python_value(mbDetectsSurface);
-    valueString+=std::string(mzClass.c_str())+".mbDetectsAir="+strutil::to_python_value(mbDetectsAir);
-    valueString+=std::string(mzClass.c_str())+".mbDetectsMissile="+strutil::to_python_value(mbDetectsMissile);
-    valueString+=std::string(mzClass.c_str())+".mbDetectsGround="+strutil::to_python_value(mbDetectsGround);
-    valueString+=std::string(mzClass.c_str())+".CalculateParams()";
+    valueString+="    "+std::string(mzClass.PyVarString())+".ERPpeak_dBW="+strutil::to_python_value(ERPpeak_dBW)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".ERPaverage_dBW="+strutil::to_python_value(ERPaverage_dBW)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".maxFireControlTracks="+strutil::to_python_value(maxFireControlTracks)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".isSemiactive="+strutil::to_python_value(isSemiactive)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".blindSpeed_mps="+strutil::to_python_value(blindSpeed_mps)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".lookdownWater_dB="+strutil::to_python_value(lookdownWater_dB)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".lookdownLand_dB="+strutil::to_python_value(lookdownLand_dB)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".bandwidth_Hz="+strutil::to_python_value(bandwidth_Hz)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".azimuthBeamwidth_deg="+strutil::to_python_value(azimuthBeamwidth_deg)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".elevationBeamwidth_deg="+strutil::to_python_value(elevationBeamwidth_deg)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".effectiveSidelobes_dB="+strutil::to_python_value(effectiveSidelobes_dB)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".mbDetectsSurface="+strutil::to_python_value(mbDetectsSurface)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".mbDetectsAir="+strutil::to_python_value(mbDetectsAir)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".mbDetectsMissile="+strutil::to_python_value(mbDetectsMissile)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".mbDetectsGround="+strutil::to_python_value(mbDetectsGround)+"\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+".CalculateParams()"+"\n";
 
 }
 
 void tcRadarDBObject::WritePython(std::string &valueString) const
 {
-    valueString+=std::string(mzClass.c_str())+"=pygcb.tcRadarDBObject()";
+    valueString+="import pygcb\n";
+    valueString+="def CreateDBObjec():\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+"=pygcb.tcRadarDBObject()\n";
     WritePythonValue(valueString);
+    valueString+="    return "+std::string(mzClass.PyVarString())+"\n";;
 }
 
 tcRadarDBObject::tcRadarDBObject() : tcSensorDBObject(),

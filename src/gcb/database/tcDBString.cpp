@@ -126,6 +126,13 @@ namespace database
         return str.c_str();
 	}
 
+    std::string tcDBString::PyVarString() const
+    {
+        std::string pyvar=str;
+        strutil::replace_all(pyvar," ","_");
+        return pyvar;
+    }
+
     size_t tcDBString::size() const
     {
         return str.size();

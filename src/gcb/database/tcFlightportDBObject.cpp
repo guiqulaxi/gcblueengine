@@ -156,28 +156,31 @@ namespace database
     void tcFlightportDBObject::WritePythonValue(std::string &valueString) const
     {
         tcDatabaseObject::WritePythonValue(valueString);
-        valueString+=std::string(mzClass.c_str())+".heloOnly="+strutil::to_python_value(mzClass.c_str());
-        valueString+=std::string(mzClass.c_str())+".hangarCapacity="+strutil::to_python_value(hangarCapacity);
+        valueString+="    "+std::string(mzClass.PyVarString())+".heloOnly="+strutil::to_python_value(mzClass.c_str());
+        valueString+="    "+std::string(mzClass.PyVarString())+".hangarCapacity="+strutil::to_python_value(hangarCapacity);
         for(size_t i=0;i<spotInfo.size();i++)
         {
-            valueString+=std::string(mzClass.c_str())+".spotInfo.append(pygcb.SpotDBInfo())\n";
-            valueString+=std::string(mzClass.c_str())+".spotInfo["+std::to_string(i)+"].isLaunch="+strutil::to_python_value(spotInfo[i].isLaunch)+"\n";
-            valueString+=std::string(mzClass.c_str())+".spotInfo["+std::to_string(i)+"].x="+strutil::to_python_value(spotInfo[i].x)+"\n";
-            valueString+=std::string(mzClass.c_str())+".spotInfo["+std::to_string(i)+"].y="+strutil::to_python_value(spotInfo[i].y)+"\n";
-            valueString+=std::string(mzClass.c_str())+".spotInfo["+std::to_string(i)+"].z="+strutil::to_python_value(spotInfo[i].z)+"\n";
-            valueString+=std::string(mzClass.c_str())+".spotInfo["+std::to_string(i)+"].orientation_deg="+strutil::to_python_value(spotInfo[i].orientation_deg)+"\n";
-            valueString+=std::string(mzClass.c_str())+".spotInfo["+std::to_string(i)+"].length="+strutil::to_python_value(spotInfo[i].length)+"\n";
+            valueString+="    "+std::string(mzClass.PyVarString())+".spotInfo.append(pygcb.SpotDBInfo())\n";
+            valueString+="    "+std::string(mzClass.PyVarString())+".spotInfo["+std::to_string(i)+"].isLaunch="+strutil::to_python_value(spotInfo[i].isLaunch)+"\n";
+            valueString+="    "+std::string(mzClass.PyVarString())+".spotInfo["+std::to_string(i)+"].x="+strutil::to_python_value(spotInfo[i].x)+"\n";
+            valueString+="    "+std::string(mzClass.PyVarString())+".spotInfo["+std::to_string(i)+"].y="+strutil::to_python_value(spotInfo[i].y)+"\n";
+            valueString+="    "+std::string(mzClass.PyVarString())+".spotInfo["+std::to_string(i)+"].z="+strutil::to_python_value(spotInfo[i].z)+"\n";
+            valueString+="    "+std::string(mzClass.PyVarString())+".spotInfo["+std::to_string(i)+"].orientation_deg="+strutil::to_python_value(spotInfo[i].orientation_deg)+"\n";
+            valueString+="    "+std::string(mzClass.PyVarString())+".spotInfo["+std::to_string(i)+"].length="+strutil::to_python_value(spotInfo[i].length)+"\n";
 
         }
-        valueString+=std::string(mzClass.c_str())+".CalculateParams()";
+        valueString+="    "+std::string(mzClass.PyVarString())+".CalculateParams()"+"\n";
 
 
     }
 
     void tcFlightportDBObject::WritePython(std::string &valueString) const
     {
-        valueString+=std::string(mzClass.c_str())+"=pygcb.tcFlightportDBObject()";
+        valueString+="import pygcb\n";
+        valueString+="def CreateDBObjec():\n";
+        valueString+="    "+std::string(mzClass.PyVarString())+"=pygcb.tcFlightportDBObject()\n";
         WritePythonValue(valueString);
+        valueString+="    return "+std::string(mzClass.PyVarString())+"\n";
     }
 
 

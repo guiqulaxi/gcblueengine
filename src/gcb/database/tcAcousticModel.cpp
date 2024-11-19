@@ -253,19 +253,29 @@ void tcAcousticModel::WriteSql(std::string& valueString) const
 void tcAcousticModel::WritePythonValue(std::string &valueString) const
 {
 
-    valueString+=std::string(databaseClass.c_str())+".databaseClass="+strutil::to_python_value(databaseClass.c_str());
-    valueString+=std::string(databaseClass.c_str())+".xSpeed_kts="+strutil::to_python_value(xSpeed_kts);
-    valueString+=std::string(databaseClass.c_str())+".ySL_dB="+strutil::to_python_value(ySL_dB);
-    valueString+=std::string(databaseClass.c_str())+".speedMinNL_kts="+strutil::to_python_value(speedMinNL_kts);
-    valueString+=std::string(databaseClass.c_str())+".NL_min="+strutil::to_python_value(NL_min);
-    valueString+=std::string(databaseClass.c_str())+".speedMaxNL_kts="+strutil::to_python_value(speedMaxNL_kts);
-    valueString+=std::string(databaseClass.c_str())+".NL_max="+strutil::to_python_value(NL_max);
-    valueString+=std::string(databaseClass.c_str())+".cavitationOffset_kts="+strutil::to_python_value(cavitationOffset_kts);
-    valueString+=std::string(databaseClass.c_str())+".cavitationSlope_ktsperft="+strutil::to_python_value(cavitationSlope_ktsperft);
-    valueString+=std::string(databaseClass.c_str())+".cavitationSL_dB="+strutil::to_python_value(cavitationSL_dB);
-    valueString+=std::string(databaseClass.c_str())+".snorkelingSL_dB="+strutil::to_python_value(snorkelingSL_dB);
-    valueString+=std::string(databaseClass.c_str())+". BuildSLTable()";
+    valueString+="    "+std::string(databaseClass.c_str())+".databaseClass="+strutil::to_python_value(databaseClass.c_str())+"\n";
+    valueString+="    "+std::string(databaseClass.c_str())+".xSpeed_kts="+strutil::to_python_value(xSpeed_kts)+"\n";
+    valueString+="    "+std::string(databaseClass.c_str())+".ySL_dB="+strutil::to_python_value(ySL_dB)+"\n";
+    valueString+="    "+std::string(databaseClass.c_str())+".speedMinNL_kts="+strutil::to_python_value(speedMinNL_kts)+"\n";
+    valueString+="    "+std::string(databaseClass.c_str())+".NL_min="+strutil::to_python_value(NL_min)+"\n";
+    valueString+="    "+std::string(databaseClass.c_str())+".speedMaxNL_kts="+strutil::to_python_value(speedMaxNL_kts)+"\n";
+    valueString+="    "+std::string(databaseClass.c_str())+".NL_max="+strutil::to_python_value(NL_max)+"\n";
+    valueString+="    "+std::string(databaseClass.c_str())+".cavitationOffset_kts="+strutil::to_python_value(cavitationOffset_kts)+"\n";
+    valueString+="    "+std::string(databaseClass.c_str())+".cavitationSlope_ktsperft="+strutil::to_python_value(cavitationSlope_ktsperft)+"\n";
+    valueString+="    "+std::string(databaseClass.c_str())+".cavitationSL_dB="+strutil::to_python_value(cavitationSL_dB)+"\n";
+    valueString+="    "+std::string(databaseClass.c_str())+".snorkelingSL_dB="+strutil::to_python_value(snorkelingSL_dB)+"\n";
+    valueString+="    "+std::string(databaseClass.c_str())+". BuildSLTable()"+"\n";
 
+
+}
+
+void tcAcousticModel::WritePython(std::string &valueString) const
+{
+    valueString+="import pygcb\n";
+    valueString+="def CreateDBObjec():\n";
+    valueString+="    "+std::string(databaseClass.c_str())+"=pygcb.tcAcousticModel()\n";
+    WritePythonValue(valueString);
+    valueString+="    return "+std::string(databaseClass.c_str());
 }
 
 

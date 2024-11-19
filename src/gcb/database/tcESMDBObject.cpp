@@ -69,15 +69,18 @@ const char* tcESMDBObject::GetTypeDescription() const
 void tcESMDBObject::WritePythonValue(std::string &valueString) const
 {
     tcSensorDBObject::WritePythonValue(valueString);
-    valueString+=std::string(mzClass.c_str())+".mfMaxRange_km="+strutil::to_python_value(isRWR);
-    valueString+=std::string(mzClass.c_str())+".CalculateParams()";
+    valueString+="    "+std::string(mzClass.PyVarString())+".mfMaxRange_km="+strutil::to_python_value(isRWR);
+    valueString+="    "+std::string(mzClass.PyVarString())+".CalculateParams()";
 
 }
 
 void tcESMDBObject::WritePython(std::string &valueString) const
 {
-    valueString+=std::string(mzClass.c_str())+"=pygcb.tcShipDBObject()";
+    valueString+="import pygcb\n";
+    valueString+="def CreateDBObjec():\n";
+    valueString+="    "+std::string(mzClass.PyVarString())+"=pygcb.tcESMDBObject()\n";
     WritePythonValue(valueString);
+    valueString+="    return "+std::string(mzClass.PyVarString())+"\n";
 }
 
 
