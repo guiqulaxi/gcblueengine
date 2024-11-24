@@ -503,36 +503,36 @@ void tcPlatformDBObject::WritePythonValue(std::string &valueString) const
 {
     tcDatabaseObject::WritePythonValue(valueString);
     tcSensorPlatformDBObject::WritePythonValue(mzClass,valueString);
-    valueString+="    "+std::string(mzClass.PyVarString())+".mfMaxSpeed_kts="+strutil::to_python_value(mfMaxSpeed_kts)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".mfAccel_ktsps="+strutil::to_python_value(mfAccel_ktsps)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".mfTurnRate_degps="+strutil::to_python_value(mfTurnRate_degps)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".mfFuelCapacity_kg="+strutil::to_python_value(mfFuelCapacity_kg)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".mfFuelRate_kgps="+strutil::to_python_value(mfFuelRate_kgps)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".mfToughness="+strutil::to_python_value(mfToughness)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".damageEffect="+strutil::to_python_value(damageEffect)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".mnNumLaunchers="+strutil::to_python_value(mnNumLaunchers)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".maLauncherClass="+strutil::to_python_value(maLauncherClass)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".maMagazineClass="+strutil::to_python_value(maMagazineClass)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".magazineId="+strutil::to_python_value(magazineId)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".launcherId="+strutil::to_python_value(launcherId)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".launcherName="+strutil::to_python_value(launcherName)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".launcherFOV_deg="+strutil::to_python_value(launcherFOV_deg)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".launcherAz_deg="+strutil::to_python_value(launcherAz_deg)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".launcherEl_deg="+strutil::to_python_value(launcherEl_deg)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".launcherFireControl="+strutil::to_python_value(launcherFireControl)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".launcherFireControl2="+strutil::to_python_value(launcherFireControl2)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".launcherIsReloadable="+strutil::to_python_value(launcherIsReloadable)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".CalculateParams()"+"\n";
+    valueString+="    dbObj.mfMaxSpeed_kts="+strutil::to_python_value(mfMaxSpeed_kts)+"\n";
+    valueString+="    dbObj.mfAccel_ktsps="+strutil::to_python_value(mfAccel_ktsps)+"\n";
+    valueString+="    dbObj.mfTurnRate_degps="+strutil::to_python_value(mfTurnRate_degps)+"\n";
+    valueString+="    dbObj.mfFuelCapacity_kg="+strutil::to_python_value(mfFuelCapacity_kg)+"\n";
+    valueString+="    dbObj.mfFuelRate_kgps="+strutil::to_python_value(mfFuelRate_kgps)+"\n";
+    valueString+="    dbObj.mfToughness="+strutil::to_python_value(mfToughness)+"\n";
+    valueString+="    dbObj.damageEffect="+strutil::to_python_value(damageEffect)+"\n";
+    valueString+="    dbObj.mnNumLaunchers="+strutil::to_python_value(mnNumLaunchers)+"\n";
+    valueString+="    dbObj.maLauncherClass="+strutil::to_python_value(maLauncherClass)+"\n";
+    valueString+="    dbObj.maMagazineClass="+strutil::to_python_value(maMagazineClass)+"\n";
+    valueString+="    dbObj.magazineId="+strutil::to_python_value(magazineId)+"\n";
+    valueString+="    dbObj.launcherId="+strutil::to_python_value(launcherId)+"\n";
+    valueString+="    dbObj.launcherName="+strutil::to_python_value(launcherName)+"\n";
+    valueString+="    dbObj.launcherFOV_deg="+strutil::to_python_value(launcherFOV_deg)+"\n";
+    valueString+="    dbObj.launcherAz_deg="+strutil::to_python_value(launcherAz_deg)+"\n";
+    valueString+="    dbObj.launcherEl_deg="+strutil::to_python_value(launcherEl_deg)+"\n";
+    valueString+="    dbObj.launcherFireControl="+strutil::to_python_value(launcherFireControl)+"\n";
+    valueString+="    dbObj.launcherFireControl2="+strutil::to_python_value(launcherFireControl2)+"\n";
+    valueString+="    dbObj.launcherIsReloadable="+strutil::to_python_value(launcherIsReloadable)+"\n";
+    valueString+="    dbObj.CalculateParams()\n";
 
 }
 
 void tcPlatformDBObject::WritePython(std::string &valueString) const
 {
     valueString+="import pygcb\n";
-    valueString+="def CreateDBObjec():\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+"=pygcb.tcPlatformDBObject()\n";
+    valueString+="def CreateDBObject():\n";
+    valueString+="    dbObj=pygcb.tcPlatformDBObject()\n";
     WritePythonValue(valueString);
-    valueString+="    return "+std::string(mzClass.PyVarString())+"\n";;
+    valueString+="    return dbObj\n";;
 }
 
 

@@ -157,22 +157,22 @@ void tcSubDBObject::WritePythonValue(std::string &valueString) const
     tcPlatformDBObject::WritePythonValue(valueString);
     tcAirDetectionDBObject::WritePythonValue(mzClass,valueString);
     tcWaterDetectionDBObject::WritePythonValue(mzClass,valueString);
-    valueString+="    "+std::string(mzClass.PyVarString())+".draft_m="+strutil::to_python_value(draft_m);
-    valueString+="    "+std::string(mzClass.PyVarString())+".surfaceSpeed_kts="+strutil::to_python_value(surfaceSpeed_kts);
-    valueString+="    "+std::string(mzClass.PyVarString())+".mfMaxDepth_m="+strutil::to_python_value(mfMaxDepth_m);
-    valueString+="    "+std::string(mzClass.PyVarString())+".isDieselElectric="+strutil::to_python_value(isDieselElectric);
-    valueString+="    "+std::string(mzClass.PyVarString())+".batteryRate_kW="+strutil::to_python_value(batteryRate_kW);
-    valueString+="    "+std::string(mzClass.PyVarString())+".batteryCharge_kW="+strutil::to_python_value(batteryCharge_kW);
+    valueString+="    dbObj.draft_m="+strutil::to_python_value(draft_m)+"\n";
+    valueString+="    dbObj.surfaceSpeed_kts="+strutil::to_python_value(surfaceSpeed_kts)+"\n";
+    valueString+="    dbObj.mfMaxDepth_m="+strutil::to_python_value(mfMaxDepth_m)+"\n";
+    valueString+="    dbObj.isDieselElectric="+strutil::to_python_value(isDieselElectric)+"\n";
+    valueString+="    dbObj.batteryRate_kW="+strutil::to_python_value(batteryRate_kW)+"\n";
+    valueString+="    dbObj.batteryCharge_kW="+strutil::to_python_value(batteryCharge_kW)+"\n";
 
 }
 
 void tcSubDBObject::WritePython(std::string &valueString) const
 {
     valueString+="import pygcb\n";
-    valueString+="def CreateDBObjec():\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+"=pygcb.tcSubDBObject()\n";
+    valueString+="def CreateDBObject():\n";
+    valueString+="    dbObj=pygcb.tcSubDBObject()\n";
     WritePythonValue(valueString);
-    valueString+="    return "+std::string(mzClass.PyVarString())+"\n";
+    valueString+="    return dbObj\n";
 }
 
 

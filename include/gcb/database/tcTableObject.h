@@ -50,6 +50,8 @@ namespace database
         
 
         const std::string& GetDatabaseClass() const;
+        void WritePythonValue( std::string &valueString) const;
+        void WritePython( std::string &valueString) const;
 
 		tcTableObject();
 		tcTableObject(const tcTableObject& obj);

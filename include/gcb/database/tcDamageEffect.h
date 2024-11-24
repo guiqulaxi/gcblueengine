@@ -67,6 +67,9 @@ namespace database
 		tcDamageEffect(const tcDamageEffect& obj);
         tcDamageEffect(const std::string& s);
         tcDamageEffect(sqlite3x::sqlite3_reader& reader);
+        void WritePythonValue( std::string &valueString) const;
+        void WritePython( std::string &valueString) const;
+
 		virtual ~tcDamageEffect();
 
     private:

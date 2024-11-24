@@ -84,21 +84,21 @@ void tcWaterDetectionDBObject::WriteSql(std::string& valueString) const
 
 void tcWaterDetectionDBObject::WritePythonValue(const tcDBString &mzClass, std::string &valueString) const
 {
-    valueString+="    "+std::string(mzClass.PyVarString())+".TS="+strutil::to_python_value(TS)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".TS_Model="+strutil::to_python_value(TS_Model)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".acousticModel="+strutil::to_python_value(acousticModel)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".SL_Model="+strutil::to_python_value(SL_Model)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".BindSignatureModels()"+"\n";
+    valueString+="    dbObj.TS="+strutil::to_python_value(TS)+"\n";
+    valueString+="    dbObj.TS_Model="+strutil::to_python_value(TS_Model)+"\n";
+    valueString+="    dbObj.acousticModel="+strutil::to_python_value(acousticModel)+"\n";
+    valueString+="    dbObj.SL_Model="+strutil::to_python_value(SL_Model)+"\n";
+    valueString+="    dbObj.BindSignatureModels()\n";
 
 }
 
 void tcWaterDetectionDBObject::WritePython(const tcDBString &mzClass, std::string &valueString) const
 {
     valueString+="import pygcb\n";
-    valueString+="def CreateDBObjec():\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+"=pygcb.tcWaterDetectionDBObject()\n";
+    valueString+="def CreateDBObject():\n";
+    valueString+="    dbObj=pygcb.tcWaterDetectionDBObject()\n";
     WritePythonValue(mzClass,valueString);
-    valueString+="    return "+std::string(mzClass.PyVarString())+"\n";
+    valueString+="    return dbObj\n";
 }
 
 void tcWaterDetectionDBObject::BindSignatureModels()

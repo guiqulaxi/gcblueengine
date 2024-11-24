@@ -178,29 +178,29 @@ namespace database
 
         tcAirDetectionDBObject::WritePythonValue(mzClass,valueString);
 
-        valueString+="    "+std::string(mzClass.PyVarString())+".gmax="+strutil::to_python_value(gmax)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".timeStage1_s="+strutil::to_python_value(timeStage1_s)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".accelStage1_mps2="+strutil::to_python_value(accelStage1_mps2)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".bcStage1="+strutil::to_python_value(bcStage1)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".timeStage2_s="+strutil::to_python_value(timeStage2_s)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".accelStage2_mps2="+strutil::to_python_value(accelStage2_mps2)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".bcStage2="+strutil::to_python_value(bcStage2)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".timeStage3_s="+strutil::to_python_value(timeStage3_s)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".accelStage3_mps2="+strutil::to_python_value(accelStage3_mps2)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".bcStage3="+strutil::to_python_value(bcStage3)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".timeStage4_s="+strutil::to_python_value(timeStage4_s)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".accelStage4_mps2="+strutil::to_python_value(accelStage4_mps2)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".bcStage4="+strutil::to_python_value(bcStage4)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".CalculateParams()"+"\n";
+        valueString+="    dbObj.gmax="+strutil::to_python_value(gmax)+"\n";
+        valueString+="    dbObj.timeStage1_s="+strutil::to_python_value(timeStage1_s)+"\n";
+        valueString+="    dbObj.accelStage1_mps2="+strutil::to_python_value(accelStage1_mps2)+"\n";
+        valueString+="    dbObj.bcStage1="+strutil::to_python_value(bcStage1)+"\n";
+        valueString+="    dbObj.timeStage2_s="+strutil::to_python_value(timeStage2_s)+"\n";
+        valueString+="    dbObj.accelStage2_mps2="+strutil::to_python_value(accelStage2_mps2)+"\n";
+        valueString+="    dbObj.bcStage2="+strutil::to_python_value(bcStage2)+"\n";
+        valueString+="    dbObj.timeStage3_s="+strutil::to_python_value(timeStage3_s)+"\n";
+        valueString+="    dbObj.accelStage3_mps2="+strutil::to_python_value(accelStage3_mps2)+"\n";
+        valueString+="    dbObj.bcStage3="+strutil::to_python_value(bcStage3)+"\n";
+        valueString+="    dbObj.timeStage4_s="+strutil::to_python_value(timeStage4_s)+"\n";
+        valueString+="    dbObj.accelStage4_mps2="+strutil::to_python_value(accelStage4_mps2)+"\n";
+        valueString+="    dbObj.bcStage4="+strutil::to_python_value(bcStage4)+"\n";
+        valueString+="    dbObj.CalculateParams()\n";
     }
 
     void tcBallisticMissileDBObject::WritePython(std::string &valueString) const
     {
         valueString+="import pygcb\n";
-        valueString+="def CreateDBObjec():\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+"=pygcb.tcBallisticMissileDBObject()\n";
+        valueString+="def CreateDBObject():\n";
+        valueString+="    dbObj=pygcb.tcBallisticMissileDBObject()\n";
         WritePythonValue(valueString);
-        valueString+="    return "+std::string(mzClass.PyVarString())+"\n";
+        valueString+="    return dbObj\n";
     }
 
 

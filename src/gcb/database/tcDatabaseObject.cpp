@@ -421,34 +421,34 @@ void tcDatabaseObject::WriteSql(std::string& valueString) const
 
 void tcDatabaseObject::WritePythonValue(std::string &valueString) const
 {
-    valueString+="    "+std::string(mzClass.PyVarString())+".mzClass="+strutil::to_python_value(mzClass.c_str())+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".natoClass="+strutil::to_python_value(natoClass.c_str())+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".mnModelType="+strutil::to_python_value(mnModelType)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".mnType="+strutil::to_python_value(mnType)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".cost="+strutil::to_python_value(cost)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".weight_kg="+strutil::to_python_value(weight_kg)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".volume_m3="+strutil::to_python_value(volume_m3)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".initialYear="+strutil::to_python_value(initialYear)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".finalYear="+strutil::to_python_value(finalYear)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".country="+strutil::to_python_value(country)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".designation="+strutil::to_python_value(designation)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".imageList="+strutil::to_python_value(imageList)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".iconFileName="+strutil::to_python_value(iconFileName.c_str())+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".mz3DModelFileName="+strutil::to_python_value(mz3DModelFileName.c_str())+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".notes="+strutil::to_python_value(notes)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".length_m="+strutil::to_python_value(length_m)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".width_m="+strutil::to_python_value(width_m)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".height_m="+strutil::to_python_value(height_m)+"\n";
+    valueString+="    dbObj.mzClass="+strutil::to_python_value(mzClass.c_str())+"\n";
+    valueString+="    dbObj.natoClass="+strutil::to_python_value(natoClass.c_str())+"\n";
+    valueString+="    dbObj.mnModelType="+strutil::to_python_value(mnModelType)+"\n";
+    valueString+="    dbObj.mnType="+strutil::to_python_value(mnType)+"\n";
+    valueString+="    dbObj.cost="+strutil::to_python_value(cost)+"\n";
+    valueString+="    dbObj.weight_kg="+strutil::to_python_value(weight_kg)+"\n";
+    valueString+="    dbObj.volume_m3="+strutil::to_python_value(volume_m3)+"\n";
+    valueString+="    dbObj.initialYear="+strutil::to_python_value(initialYear)+"\n";
+    valueString+="    dbObj.finalYear="+strutil::to_python_value(finalYear)+"\n";
+    valueString+="    dbObj.country="+strutil::to_python_value(country)+"\n";
+    valueString+="    dbObj.designation="+strutil::to_python_value(designation)+"\n";
+    valueString+="    dbObj.imageList="+strutil::to_python_value(imageList)+"\n";
+    valueString+="    dbObj.iconFileName="+strutil::to_python_value(iconFileName.c_str())+"\n";
+    valueString+="    dbObj.mz3DModelFileName="+strutil::to_python_value(mz3DModelFileName.c_str())+"\n";
+    valueString+="    dbObj.notes="+strutil::to_python_value(notes)+"\n";
+    valueString+="    dbObj.length_m="+strutil::to_python_value(length_m)+"\n";
+    valueString+="    dbObj.width_m="+strutil::to_python_value(width_m)+"\n";
+    valueString+="    dbObj.height_m="+strutil::to_python_value(height_m)+"\n";
 
-    valueString+="    "+std::string(mzClass.PyVarString())+".CalculateParams()"+"\n";
+    valueString+="    dbObj.CalculateParams()\n";
 }
  void tcDatabaseObject::WritePython(std::string& valueString)const
 {
      valueString+="import pygcb\n";
-     valueString+="def CreateDBObjec():\n";
-     valueString+="    "+std::string(mzClass.PyVarString())+"=pygcb.tcDatabaseObject()\n";
+     valueString+="def CreateDBObject():\n";
+     valueString+="    dbObj=pygcb.tcDatabaseObject()\n";
      WritePythonValue(valueString);
-     valueString+="    return "+std::string(mzClass.PyVarString())+"\n";
+     valueString+="    return dbObj\n";
 }
 tcDatabaseObject::tcDatabaseObject(const std::string& databaseClass) :
     mzClass(databaseClass.c_str()),

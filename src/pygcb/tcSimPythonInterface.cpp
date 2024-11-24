@@ -602,7 +602,7 @@ void tcSimPythonInterface::LoadDatabase(const std::string &filePath)
         // remove .py extension from fileName
         int findIdx = fileNameWx.find(".py");
         fileNameWx = fileNameWx.substr(0, findIdx);
-        printf( "tcSimPythonInterface -- Loading scenario %s\n", fileNameWx.c_str());
+        printf( "tcSimPythonInterface -- Loading Database %s\n", fileNameWx.c_str());
     }
     std::string pythonMoudlePath=fileNameWx;
     strutil::replace_all(pythonMoudlePath,"/",".");
@@ -610,7 +610,8 @@ void tcSimPythonInterface::LoadDatabase(const std::string &filePath)
 
     //    try {
     py::exec(strutil::format("from %s import *",pythonMoudlePath.c_str()));
-    py::exec("LoadDatabase(DatabaseManager)\n");
+    py::exec("dbObj=CreateDBObject()\n");
+    py::exec("DatabaseManager.AddOrUpdateObject(dbObj)\n");
 
 }
 

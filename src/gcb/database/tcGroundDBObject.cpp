@@ -108,18 +108,18 @@ void tcGroundDBObject::WritePythonValue(std::string &valueString) const
 {
     tcPlatformDBObject::WritePythonValue(valueString);
     tcAirDetectionDBObject::WritePythonValue(mzClass,valueString);
-    valueString+=std::string(flightportClass.c_str())+".flightportClass="+strutil::to_python_value(flightportClass.c_str())+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".CalculateParams()"+"\n";
+    valueString+="dbObj.flightportClass="+strutil::to_python_value(flightportClass.c_str())+"\n";
+    valueString+="    dbObj.CalculateParams()\n";
 
 }
 
 void tcGroundDBObject::WritePython(std::string &valueString) const
 {
     valueString+="import pygcb\n";
-    valueString+="def CreateDBObjec():\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+"=pygcb.tcGroundDBObject()\n";
+    valueString+="def CreateDBObject():\n";
+    valueString+="    dbObj=pygcb.tcGroundDBObject()\n";
     WritePythonValue(valueString);
-    valueString+="    return "+std::string(mzClass.PyVarString())+"\n";;
+    valueString+="    return dbObj\n";;
 
 }
 tcGroundDBObject::tcGroundDBObject() : 

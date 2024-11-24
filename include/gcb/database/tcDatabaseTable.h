@@ -55,7 +55,7 @@ namespace database
 
         tcDatabaseTable() {}
         ~tcDatabaseTable() {}
-
+        const std::map<std::string, T>& GetData() const{return tableData; }
     private:
         std::map<std::string, T> tableData;
 

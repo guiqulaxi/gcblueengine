@@ -169,24 +169,24 @@ void tcAirDetectionDBObject::WriteSql(std::string& valueString) const
 
 void tcAirDetectionDBObject::WritePythonValue(const tcDBString &mzClass, std::string &valueString) const
 {
-    valueString+="    "+std::string(mzClass.PyVarString())+".RCS_dBsm="+strutil::to_python_value(mzClass.c_str())+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".RCS_Model="+strutil::to_python_value(RCS_Model)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".opticalCrossSection_dBsm="+strutil::to_python_value(opticalCrossSection_dBsm)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".irSignature_dB="+strutil::to_python_value(irSignature_dB)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".IR_ModelA="+strutil::to_python_value(IR_ModelA)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".IR_ModelB="+strutil::to_python_value(IR_ModelB)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".IR_ModelC="+strutil::to_python_value(IR_ModelC)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".effectiveHeight_m="+strutil::to_python_value(effectiveHeight_m)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".BindSignatureModels()"+"\n";
+    valueString+="    dbObj.RCS_dBsm="+strutil::to_python_value(mzClass.c_str())+"\n";
+    valueString+="    dbObj.RCS_Model="+strutil::to_python_value(RCS_Model)+"\n";
+    valueString+="    dbObj.opticalCrossSection_dBsm="+strutil::to_python_value(opticalCrossSection_dBsm)+"\n";
+    valueString+="    dbObj.irSignature_dB="+strutil::to_python_value(irSignature_dB)+"\n";
+    valueString+="    dbObj.IR_ModelA="+strutil::to_python_value(IR_ModelA)+"\n";
+    valueString+="    dbObj.IR_ModelB="+strutil::to_python_value(IR_ModelB)+"\n";
+    valueString+="    dbObj.IR_ModelC="+strutil::to_python_value(IR_ModelC)+"\n";
+    valueString+="    dbObj.effectiveHeight_m="+strutil::to_python_value(effectiveHeight_m)+"\n";
+    valueString+="    dbObj.BindSignatureModels()\n";
 }
 
 void tcAirDetectionDBObject::WritePython(const tcDBString &mzClass, std::string &valueString) const
 {
     valueString+="import pygcb\n";
-    valueString+="def CreateDBObjec():\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+"=pygcb.tcAirDetectionDBObject()\n";
+    valueString+="def CreateDBObject():\n";
+    valueString+="    dbObj=pygcb.tcAirDetectionDBObject()\n";
     WritePythonValue(mzClass,valueString);
-    valueString+="    return "+std::string(mzClass.PyVarString())+"\n";
+    valueString+="    return dbObj\n";
 
 }
 

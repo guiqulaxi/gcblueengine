@@ -146,20 +146,20 @@ namespace database
         tcAirDetectionDBObject::WritePythonValue(mzClass,valueString);
         tcWaterDetectionDBObject::WritePythonValue(mzClass,valueString);
 
-        valueString+="    "+std::string(mzClass.PyVarString())+".subType="+strutil::to_python_value(subType)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".lifeSpan_s="+strutil::to_python_value(lifeSpan_s)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".effectiveness="+strutil::to_python_value(effectiveness)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".maxSpeed_mps="+strutil::to_python_value(maxSpeed_mps)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".CalculateParams()"+"\n";
+        valueString+="    dbObj.subType="+strutil::to_python_value(subType)+"\n";
+        valueString+="    dbObj.lifeSpan_s="+strutil::to_python_value(lifeSpan_s)+"\n";
+        valueString+="    dbObj.effectiveness="+strutil::to_python_value(effectiveness)+"\n";
+        valueString+="    dbObj.maxSpeed_mps="+strutil::to_python_value(maxSpeed_mps)+"\n";
+        valueString+="    dbObj.CalculateParams()\n";
     }
 
     void tcCounterMeasureDBObject::WritePython(std::string &valueString) const
     {
         valueString+="import pygcb\n";
-        valueString+="def CreateDBObjec():\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+"=pygcb.tcCounterMeasureDBObject()\n";
+        valueString+="def CreateDBObject():\n";
+        valueString+="    dbObj=pygcb.tcCounterMeasureDBObject()\n";
         WritePythonValue(valueString);
-        valueString+="    return "+std::string(mzClass.PyVarString())+"\n";
+        valueString+="    return dbObj\n";
     }
 
 

@@ -180,26 +180,26 @@ void tcShipDBObject::WritePythonValue(std::string &valueString) const
  tcPlatformDBObject::WritePythonValue(valueString);
     tcAirDetectionDBObject::WritePythonValue(mzClass,valueString);
  tcWaterDetectionDBObject::WritePythonValue(mzClass,valueString);
-    valueString+="    "+std::string(mzClass.PyVarString())+".draft_m="+strutil::to_python_value(mfMaxSpeed_kts)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".beam_m="+strutil::to_python_value(mfAccel_ktsps)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".PowerPlantType="+strutil::to_python_value(mfTurnRate_degps)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".TotalShaft_HP="+strutil::to_python_value(mfFuelCapacity_kg)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".ExhaustStacks="+strutil::to_python_value(mfFuelRate_kgps)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".PropulsionShafts="+strutil::to_python_value(mfToughness)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".PropulsiveEfficiency="+strutil::to_python_value(damageEffect)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".CivilianPaintScheme="+strutil::to_python_value(damageEffect)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".FlashyPaintScheme="+strutil::to_python_value(damageEffect)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".flightportClass="+strutil::to_python_value(damageEffect)+"\n";
-    valueString+=string(mzClass.c_str())+".CalculateParams()"+"\n";
+    valueString+="    dbObj.draft_m="+strutil::to_python_value(mfMaxSpeed_kts)+"\n";
+    valueString+="    dbObj.beam_m="+strutil::to_python_value(mfAccel_ktsps)+"\n";
+    valueString+="    dbObj.PowerPlantType="+strutil::to_python_value(mfTurnRate_degps)+"\n";
+    valueString+="    dbObj.TotalShaft_HP="+strutil::to_python_value(mfFuelCapacity_kg)+"\n";
+    valueString+="    dbObj.ExhaustStacks="+strutil::to_python_value(mfFuelRate_kgps)+"\n";
+    valueString+="    dbObj.PropulsionShafts="+strutil::to_python_value(mfToughness)+"\n";
+    valueString+="    dbObj.PropulsiveEfficiency="+strutil::to_python_value(damageEffect)+"\n";
+    valueString+="    dbObj.CivilianPaintScheme="+strutil::to_python_value(damageEffect)+"\n";
+    valueString+="    dbObj.FlashyPaintScheme="+strutil::to_python_value(damageEffect)+"\n";
+    valueString+="    dbObj.flightportClass="+strutil::to_python_value(damageEffect)+"\n";
+    valueString+="    dbObj.CalculateParams()\n";
 }
 
 void tcShipDBObject::WritePython(std::string &valueString) const
 {
     valueString+="import pygcb\n";
-    valueString+="def CreateDBObjec():\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+"=pygcb.tcShipDBObject()\n";
+    valueString+="def CreateDBObject():\n";
+    valueString+="    dbObj=pygcb.tcShipDBObject()\n";
     WritePythonValue(valueString);
-    valueString+="    return "+std::string(mzClass.PyVarString())+"\n";
+    valueString+="    return dbObj\n";
 
 }
 

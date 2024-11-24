@@ -25,6 +25,7 @@
 
 //#include "stdwx.h"
 
+#include "strutil.h"
 #if _MSC_VER > 1000
 #pragma warning(disable:4786) // suppress warning for STL bug in VC6, see Q167355 in the MSDN Library.
 #endif // _MSC_VER > 1000
@@ -72,6 +73,17 @@ tcTableObject::tcTableObject(sqlite3x::sqlite3_reader& reader)
 tcTableObject::~tcTableObject() 
 {
 }
+void tcTableObject::WritePythonValue( std::string &valueString) const
+{
+    valueString+="    dbObj.databaseClass="+strutil::to_python_value(databaseClass.c_str())+"\n";
+}
 
-
+void tcTableObject::WritePython( std::string &valueString) const
+{
+    valueString+="import pygcb\n";
+    valueString+="def CreateDBObject():\n";
+    valueString+="    dbObj=pygcb.tcTableObject()\n";
+    WritePythonValue(valueString);
+    valueString+="    return dbObj\n";
+}
 }

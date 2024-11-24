@@ -54,7 +54,8 @@ namespace database
         float fragMetal_kg;///< 用于制造碎片的金属的重量
         float fragFragment_kg; ///< mass of individual fragment 表示单个碎片的重量
         float fragSpread; ///< 0: every fragment hits target, 1: isotropic spread 意味着这个值用于描述碎片的散布方式：0表示每个碎片都会击中目标；1表示碎片是以各向同性方式散布的
-
+        void WritePythonValue( std::string &valueString) const;
+        void WritePython( std::string &valueString) const;
 
 		tcWeaponDamage();
 		tcWeaponDamage(const tcWeaponDamage& obj);

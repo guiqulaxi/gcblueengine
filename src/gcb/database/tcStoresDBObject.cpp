@@ -168,23 +168,23 @@ namespace database
     void tcStoresDBObject::WritePythonValue(std::string &valueString) const
     {
         tcDatabaseObject::WritePythonValue(valueString);
-        valueString+="    "+std::string(mzClass.PyVarString())+".displayName="+strutil::to_python_value(displayName.c_str())+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".capacity="+strutil::to_python_value(capacity)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".maxVolume_m3="+strutil::to_python_value(maxVolume_m3)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".maxWeight_kg="+strutil::to_python_value(maxWeight_kg)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".moveTime="+strutil::to_python_value(moveTime)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".compatibleItems="+strutil::to_python_value(compatibleItems)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".CalculateParams()"+"\n";
+        valueString+="    dbObj.displayName="+strutil::to_python_value(displayName.c_str())+"\n";
+        valueString+="    dbObj.capacity="+strutil::to_python_value(capacity)+"\n";
+        valueString+="    dbObj.maxVolume_m3="+strutil::to_python_value(maxVolume_m3)+"\n";
+        valueString+="    dbObj.maxWeight_kg="+strutil::to_python_value(maxWeight_kg)+"\n";
+        valueString+="    dbObj.moveTime="+strutil::to_python_value(moveTime)+"\n";
+        valueString+="    dbObj.compatibleItems="+strutil::to_python_value(compatibleItems)+"\n";
+        valueString+="    dbObj.CalculateParams()\n";
 
     }
 
     void tcStoresDBObject::WritePython(std::string &valueString) const
     {
         valueString+="import pygcb\n";
-        valueString+="def CreateDBObjec():\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+"=pygcb.tcStoresDBObject()\n";
+        valueString+="def CreateDBObject():\n";
+        valueString+="    dbObj=pygcb.tcStoresDBObject()\n";
         WritePythonValue(valueString);
-        valueString+="    return "+std::string(mzClass.PyVarString())+"\n";
+        valueString+="    return dbObj\n";
     }
 
 

@@ -3336,3 +3336,27 @@ tcDatabase::~tcDatabase()
 }
 
 }
+const std::map<std::string, std::string>& tcDatabase::GetNameToTable()
+{
+    return nameToTable;
+}
+
+const std::map<string, tcSignatureModel>& tcDatabase::GetSignatureModelData()
+{
+    return signatureModelData;
+}
+
+const std::map<string, tcAcousticModel>& tcDatabase::GetAcousticModelData()
+{
+    return acousticModelData;
+}
+
+const database::tcDatabaseTable<database::tcWeaponDamage> &tcDatabase::GetWeaponDamageData()
+{
+    return weaponDamageData;
+}
+
+const tcDatabaseTable<tcDamageEffect>& tcDatabase::GetDamageEffectData()
+{
+    return damageEffectData;
+}

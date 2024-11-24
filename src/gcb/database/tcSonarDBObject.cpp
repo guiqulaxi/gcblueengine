@@ -172,25 +172,25 @@ namespace database
     void tcSonarDBObject::WritePythonValue(std::string &valueString) const
     {
         tcSensorDBObject::WritePythonValue(valueString);
-        valueString+="    "+std::string(mzClass.PyVarString())+".SL="+strutil::to_python_value(SL)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".DI="+strutil::to_python_value(DI)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".maxFrequency_Hz="+strutil::to_python_value(maxFrequency_Hz)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".isPassive="+strutil::to_python_value(isPassive)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".isActive="+strutil::to_python_value(isActive)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".isTowed="+strutil::to_python_value(isTowed)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".maxScope_m="+strutil::to_python_value(maxScope_m)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".isWakeHoming="+strutil::to_python_value(isWakeHoming)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".CalculateParams()"+"\n";
+        valueString+="    dbObj.SL="+strutil::to_python_value(SL)+"\n";
+        valueString+="    dbObj.DI="+strutil::to_python_value(DI)+"\n";
+        valueString+="    dbObj.maxFrequency_Hz="+strutil::to_python_value(maxFrequency_Hz)+"\n";
+        valueString+="    dbObj.isPassive="+strutil::to_python_value(isPassive)+"\n";
+        valueString+="    dbObj.isActive="+strutil::to_python_value(isActive)+"\n";
+        valueString+="    dbObj.isTowed="+strutil::to_python_value(isTowed)+"\n";
+        valueString+="    dbObj.maxScope_m="+strutil::to_python_value(maxScope_m)+"\n";
+        valueString+="    dbObj.isWakeHoming="+strutil::to_python_value(isWakeHoming)+"\n";
+        valueString+="    dbObj.CalculateParams()\n";
 
     }
 
     void tcSonarDBObject::WritePython(std::string &valueString) const
     {
         valueString+="import pygcb\n";
-        valueString+="def CreateDBObjec():\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+"=pygcb.tcSonarDBObject()\n";
+        valueString+="def CreateDBObject():\n";
+        valueString+="    dbObj=pygcb.tcSonarDBObject()\n";
         WritePythonValue(valueString);
-        valueString+="    return "+std::string(mzClass.PyVarString())+"\n";
+        valueString+="    return dbObj\n";
 
     }
 

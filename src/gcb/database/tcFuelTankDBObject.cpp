@@ -86,19 +86,19 @@ namespace database
     void tcFuelTankDBObject::WritePythonValue(std::string &valueString) const
     {
         tcDatabaseObject::WritePythonValue(valueString);
-        valueString+="    "+std::string(mzClass.PyVarString())+".fuelCapacity_kg="+strutil::to_python_value(fuelCapacity_kg)+"\n";
+        valueString+="    dbObj.fuelCapacity_kg="+strutil::to_python_value(fuelCapacity_kg)+"\n";
 
-        valueString+="    "+std::string(mzClass.PyVarString())+".CalculateParams()"+"\n";
+        valueString+="    dbObj.CalculateParams()\n";
 
     }
 
     void tcFuelTankDBObject::WritePython(std::string &valueString) const
     {
         valueString+="import pygcb\n";
-        valueString+="def CreateDBObjec():\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+"=pygcb.tcFuelTankDBObject()\n";
+        valueString+="def CreateDBObject():\n";
+        valueString+="    dbObj=pygcb.tcFuelTankDBObject()\n";
         WritePythonValue(valueString);
-        valueString+="    return "+std::string(mzClass.PyVarString())+"\n";
+        valueString+="    return dbObj\n";
     }
 
 

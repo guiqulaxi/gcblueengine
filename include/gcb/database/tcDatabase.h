@@ -180,7 +180,12 @@ public:
 
     tcGameStream& operator>>(tcGameStream& stream);
     tcGameStream& operator<<(tcGameStream& stream);
+    const std::map<std::string, std::string>& GetNameToTable();
 
+    const std::map<std::string, tcSignatureModel>& GetSignatureModelData();
+    const std::map<std::string,tcAcousticModel>& GetAcousticModelData();
+    const tcDatabaseTable<tcWeaponDamage>& GetWeaponDamageData();
+    const tcDatabaseTable<tcDamageEffect>& GetDamageEffectData();
 private:
     sqlite3x::sqlite3_connection* sqlConnection; ///< pointer to allow external connection to be used
     sqlite3x::sqlite3_connection sqlConnectionLocal; ///< used for normal game mode

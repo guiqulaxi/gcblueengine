@@ -25,6 +25,7 @@
 
 //#include "stdwx.h" // precompiled header file
 
+#include "tcAcousticModel.h"
 #ifndef WX_PRECOMP
 //#include "wx/wx.h"
 #endif
@@ -604,21 +605,85 @@ bool tcGame::InitSim()
 void tcGame::SaveDatabaseToPython(const std::string& dirPath)
 {
     tcDatabaseIterator iter(0);
-
-
-    unsigned long nIterated = 0;
-    for (iter.First(); !iter.IsDone(); iter.Next())
+    auto& nameToTable=database->GetNameToTable();
+    for(auto kv:nameToTable)
     {
-        tcDatabaseObject* obj = iter.Get();
+        tcDatabaseObject* obj= simState->mpDatabase->GetObject(kv.first);
+        if(obj)
+        {
+            std::ofstream ofs;
+            std::string path= dirPath+"/"+kv.second+"/"+obj->mzClass.PyVarString()+".py";
+            ofs.open(path);
+            std::string valueString;
+            obj->WritePython(valueString);
+            ofs<<valueString;
+            ofs.close();
+        }
+    }
+    for(auto kv:database->GetAcousticModelData())
+    {
         std::ofstream ofs;
-        std::string path= dirPath+"/"+obj->mzClass.c_str()+".py";
+        std::string path= dirPath+"/acoustic_noise/"+kv.second.databaseClass+".py";
         ofs.open(path);
         std::string valueString;
-        obj->WritePython(valueString);
+        kv.second.WritePython(valueString);
         ofs<<valueString;
         ofs.close();
-        nIterated++;
     }
+    for(auto kv:database->GetSignatureModelData())
+    {
+        std::ofstream ofs;
+        std::string path= dirPath+"/signature/"+kv.second.mzClass.PyVarString()+".py";
+        ofs.open(path);
+        std::string valueString;
+        kv.second.WritePython(valueString);
+        ofs<<valueString;
+        ofs.close();
+    }
+
+    for(auto kv:database->GetWeaponDamageData().GetData())
+    {
+        std::ofstream ofs;
+        std::string path= dirPath+"/weapon_damage/"+kv.second.databaseClass+".py";
+        ofs.open(path);
+        std::string valueString;
+        kv.second.WritePython(valueString);
+        ofs<<valueString;
+        ofs.close();
+    }
+    for(auto kv:database->GetDamageEffectData().GetData())
+    {
+        std::ofstream ofs;
+        std::string path= dirPath+"/damage_effect/"+kv.second.databaseClass+".py";
+        ofs.open(path);
+        std::string valueString;
+        kv.second.WritePython(valueString);
+        ofs<<valueString;
+        ofs.close();
+    }
+
+    // special tables for advanced damage model
+    tcDatabaseTable<tcWeaponDamage> weaponDamageData;
+    tcDatabaseTable<tcDamageEffect> damageEffectData;
+
+    tcWeaponDamage weaponDamageDefault;
+    tcDamageEffect damageEffectDefault;
+
+
+
+    // unsigned long nIterated = 0;
+    // for (iter.First(); !iter.IsDone(); iter.Next())
+    // {
+    //     tcDatabaseObject* obj = iter.Get();
+    //     std::ofstream ofs;
+    //     std::string path= dirPath+"/"+obj->mzClass.c_str()+".py";
+    //     ofs.open(path);
+    //     std::string valueString;
+    //     obj->WritePython(valueString);
+    //     ofs<<valueString;
+    //     ofs.close();
+    //     nIterated++;
+    // }
 }
 
 

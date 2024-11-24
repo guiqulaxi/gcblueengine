@@ -141,32 +141,32 @@ namespace database
     void tcWeaponDBObject::WritePythonValue(std::string &valueString) const
     {
         tcDatabaseObject::WritePythonValue(valueString);
-        valueString+="    "+std::string(mzClass.PyVarString())+".mfDamage="+strutil::to_python_value(mfDamage)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".damageModel="+strutil::to_python_value(damageModel)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".damageEffect="+strutil::to_python_value(damageEffect)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".launchSpeed_mps="+strutil::to_python_value(launchSpeed_mps)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".targetFlags="+strutil::to_python_value(targetFlags)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".minLaunchAlt_m="+strutil::to_python_value(minLaunchAlt_m)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".maxLaunchAlt_m="+strutil::to_python_value(maxLaunchAlt_m)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".minRange_km="+strutil::to_python_value(minRange_km)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".maxRange_km="+strutil::to_python_value(maxRange_km)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".probNoFaults="+strutil::to_python_value(probNoFaults)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".payloadClass="+strutil::to_python_value(payloadClass)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".payloadQuantity="+strutil::to_python_value(payloadQuantity)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".datalinkRange_km="+strutil::to_python_value(datalinkRange_km)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".acceptsUserCommands="+strutil::to_python_value(acceptsUserCommands)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".detonationRange_m="+strutil::to_python_value(detonationRange_m)+"\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+".CalculateParams()"+"\n";
+        valueString+="    dbObj.mfDamage="+strutil::to_python_value(mfDamage)+"\n";
+        valueString+="    dbObj.damageModel="+strutil::to_python_value(damageModel)+"\n";
+        valueString+="    dbObj.damageEffect="+strutil::to_python_value(damageEffect)+"\n";
+        valueString+="    dbObj.launchSpeed_mps="+strutil::to_python_value(launchSpeed_mps)+"\n";
+        valueString+="    dbObj.targetFlags="+strutil::to_python_value(targetFlags)+"\n";
+        valueString+="    dbObj.minLaunchAlt_m="+strutil::to_python_value(minLaunchAlt_m)+"\n";
+        valueString+="    dbObj.maxLaunchAlt_m="+strutil::to_python_value(maxLaunchAlt_m)+"\n";
+        valueString+="    dbObj.minRange_km="+strutil::to_python_value(minRange_km)+"\n";
+        valueString+="    dbObj.maxRange_km="+strutil::to_python_value(maxRange_km)+"\n";
+        valueString+="    dbObj.probNoFaults="+strutil::to_python_value(probNoFaults)+"\n";
+        valueString+="    dbObj.payloadClass="+strutil::to_python_value(payloadClass)+"\n";
+        valueString+="    dbObj.payloadQuantity="+strutil::to_python_value(payloadQuantity)+"\n";
+        valueString+="    dbObj.datalinkRange_km="+strutil::to_python_value(datalinkRange_km)+"\n";
+        valueString+="    dbObj.acceptsUserCommands="+strutil::to_python_value(acceptsUserCommands)+"\n";
+        valueString+="    dbObj.detonationRange_m="+strutil::to_python_value(detonationRange_m)+"\n";
+        valueString+="    dbObj.CalculateParams()\n";
 
     }
 
     void tcWeaponDBObject::WritePython(std::string &valueString) const
     {
         valueString+="import pygcb\n";
-        valueString+="def CreateDBObjec():\n";
-        valueString+="    "+std::string(mzClass.PyVarString())+"=pygcb.tcWeaponDBObject()\n";
+        valueString+="def CreateDBObject():\n";
+        valueString+="    dbObj=pygcb.tcWeaponDBObject()\n";
         WritePythonValue(valueString);
-        valueString+="    return "+std::string(mzClass.PyVarString())+"\n";
+        valueString+="    return dbObj\n";
     }
 
     bool tcWeaponDBObject::IsNuclear() const

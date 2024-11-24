@@ -202,7 +202,6 @@ tcPythonInterface::tcPythonInterface()
    sys_path.append(py::str("./scripts"));
    sys_path.append(py::str("./scenarios"));
 
-
    // 更新Python的sys.path列表
 
    sys.attr("path") = sys_path;

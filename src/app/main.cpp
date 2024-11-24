@@ -53,7 +53,6 @@ int main(int argc, char *argv[])
     a.add<std::string>("runmode", 'r', "runmode", false, "normal", cmdline::oneof<std::string>("edit", "normal","extreme"));
     a.add<std::string>("ip", 'h', "http ip", false, "127.0.0.1");
     a.add<int>("port", 'p', "http port", false, 80, cmdline::range(1, 65535));
-    a.add<std::string>("database", 'd', "database path ", false, "");
     a.parse_check(argc, argv);
 
 
@@ -61,10 +60,7 @@ int main(int argc, char *argv[])
     game->Init();
     game->InitSim();
 
-    if(a.exist("database"))
-    {
-        game->LoadDatabase(a.get<std::string>("database"));
-    }
+    game->LoadDatabase("database/py/sub/Gotland.py");
     std::string runmode=a.get<std::string>("runmode");
     if(runmode=="normal")
     {

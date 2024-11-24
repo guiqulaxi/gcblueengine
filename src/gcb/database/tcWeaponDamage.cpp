@@ -25,6 +25,7 @@
 
 //#include "stdwx.h"
 
+#include "strutil.h"
 #if _MSC_VER > 1000
 #pragma warning(disable:4786) // suppress warning for STL bug in VC6, see Q167355 in the MSDN Library.
 #endif // _MSC_VER > 1000
@@ -43,6 +44,29 @@ namespace database
 {
 
 
+
+void tcWeaponDamage::WritePythonValue(std::string &valueString) const
+{
+    tcTableObject::WritePythonValue(valueString);
+    valueString+="    dbObj.maxRange_m="+strutil::to_python_value(maxRange_m)+"\n";
+    valueString+="    dbObj.probDetonate="+strutil::to_python_value(probDetonate)+"\n";
+    valueString+="    dbObj.blastCharge_kg="+strutil::to_python_value(blastCharge_kg)+"\n";
+    valueString+="    dbObj.fragCharge_kg="+strutil::to_python_value(fragCharge_kg)+"\n";
+    valueString+="    dbObj.radCharge_kg="+strutil::to_python_value(radCharge_kg)+"\n";
+    valueString+="    dbObj.fragMetal_kg="+strutil::to_python_value(fragMetal_kg)+"\n";
+    valueString+="    dbObj.fragFragment_kg="+strutil::to_python_value(fragFragment_kg)+"\n";
+    valueString+="    dbObj.fragSpread="+strutil::to_python_value(fragSpread)+"\n";
+
+}
+
+void tcWeaponDamage::WritePython(std::string &valueString) const
+{
+    valueString+="import pygcb\n";
+    valueString+="def CreateDBObject():\n";
+    valueString+="    dbObj=pygcb.tcWeaponDamage()\n";
+    WritePythonValue(valueString);
+    valueString+="    return dbObj\n";;
+}
 
 tcWeaponDamage::tcWeaponDamage()
 : maxRange_m(0),

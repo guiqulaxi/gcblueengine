@@ -186,32 +186,32 @@ void tcSensorDBObject::WriteSql(std::string& valueString) const
 void tcSensorDBObject::WritePythonValue(std::string &valueString) const
 {
     tcDatabaseObject::WritePythonValue(valueString);
-    valueString+="    "+std::string(mzClass.PyVarString())+".mfMaxRange_km="+strutil::to_python_value(mfMaxRange_km)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".mfRefRange_km="+strutil::to_python_value(mfRefRange_km)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".mfFieldOfView_deg="+strutil::to_python_value(mfFieldOfView_deg)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".minElevation_deg="+strutil::to_python_value(minElevation_deg)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".maxElevation_deg="+strutil::to_python_value(maxElevation_deg)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".mfScanPeriod_s="+strutil::to_python_value(mfScanPeriod_s)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".damageEffect="+strutil::to_python_value(damageEffect)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".rangeError="+strutil::to_python_value(rangeError)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".angleError_deg="+strutil::to_python_value(angleError_deg)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".elevationError_deg="+strutil::to_python_value(elevationError_deg)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".minFrequency_Hz="+strutil::to_python_value(minFrequency_Hz)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".maxFrequency_Hz="+strutil::to_python_value(maxFrequency_Hz)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".idThreshold_dB="+strutil::to_python_value(idThreshold_dB)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".counterMeasureFactor="+strutil::to_python_value(counterMeasureFactor)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".isSurveillance="+strutil::to_python_value(isSurveillance)+"\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+".CalculateParams()"+"\n";
+    valueString+="    dbObj.mfMaxRange_km="+strutil::to_python_value(mfMaxRange_km)+"\n";
+    valueString+="    dbObj.mfRefRange_km="+strutil::to_python_value(mfRefRange_km)+"\n";
+    valueString+="    dbObj.mfFieldOfView_deg="+strutil::to_python_value(mfFieldOfView_deg)+"\n";
+    valueString+="    dbObj.minElevation_deg="+strutil::to_python_value(minElevation_deg)+"\n";
+    valueString+="    dbObj.maxElevation_deg="+strutil::to_python_value(maxElevation_deg)+"\n";
+    valueString+="    dbObj.mfScanPeriod_s="+strutil::to_python_value(mfScanPeriod_s)+"\n";
+    valueString+="    dbObj.damageEffect="+strutil::to_python_value(damageEffect)+"\n";
+    valueString+="    dbObj.rangeError="+strutil::to_python_value(rangeError)+"\n";
+    valueString+="    dbObj.angleError_deg="+strutil::to_python_value(angleError_deg)+"\n";
+    valueString+="    dbObj.elevationError_deg="+strutil::to_python_value(elevationError_deg)+"\n";
+    valueString+="    dbObj.minFrequency_Hz="+strutil::to_python_value(minFrequency_Hz)+"\n";
+    valueString+="    dbObj.maxFrequency_Hz="+strutil::to_python_value(maxFrequency_Hz)+"\n";
+    valueString+="    dbObj.idThreshold_dB="+strutil::to_python_value(idThreshold_dB)+"\n";
+    valueString+="    dbObj.counterMeasureFactor="+strutil::to_python_value(counterMeasureFactor)+"\n";
+    valueString+="    dbObj.isSurveillance="+strutil::to_python_value(isSurveillance)+"\n";
+    valueString+="    dbObj.CalculateParams()\n";
 
 }
 
 void tcSensorDBObject::WritePython(std::string &valueString) const
 {
     valueString+="import pygcb\n";
-    valueString+="def CreateDBObjec():\n";
-    valueString+="    "+std::string(mzClass.PyVarString())+"=pygcb.tcSensorDBObject()\n";
+    valueString+="def CreateDBObject():\n";
+    valueString+="    dbObj=pygcb.tcSensorDBObject()\n";
     WritePythonValue(valueString);
-    valueString+="    return "+std::string(mzClass.PyVarString())+"\n";;
+    valueString+="    return dbObj\n";;
 }
 
 
