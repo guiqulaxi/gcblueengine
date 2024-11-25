@@ -68,6 +68,7 @@ void tcAirDBObject::CalculateParams()
             tcDatabaseObject::GetName(), climbRate_mps);
         climbRate_mps = 15.0f;
     }
+
 }
 
 
@@ -198,7 +199,6 @@ void tcAirDBObject::WritePythonValue(std::string &valueString) const
     valueString+="    dbObj.fuelIn_kgps="+strutil::to_python_value(fuelIn_kgps)+"\n";
     valueString+="    dbObj.maintenanceMin_s="+strutil::to_python_value(maintenanceMin_s)+"\n";
     valueString+="    dbObj.maintenanceMax_s="+strutil::to_python_value(maintenanceMax_s)+"\n";
-    valueString+="    dbObj.CalculateParams()\n";
 }
 
 void tcAirDBObject::WritePython(std::string &valueString) const
@@ -207,6 +207,7 @@ void tcAirDBObject::WritePython(std::string &valueString) const
     valueString+="def CreateDBObject():\n";
     valueString+="    dbObj=pygcb.tcAirDBObject()\n";
     WritePythonValue(valueString);
+    valueString+="    dbObj.CalculateParams()\n";
     valueString+="    return dbObj\n";
 }
 

@@ -493,7 +493,7 @@ void tcAeroAirObject::RandInitNear(float afLon_deg, float afLat_deg)
 
     // overwrite tcAirObject random suffix
     mzUnit = "AIRX_";
-    mzUnit.AssignRandomSuffix();
+    mzUnit=strutil::AssignRandomSuffix(mzUnit);
 
     throttleFraction = 0.7f;
     angleOfAttack = 0;

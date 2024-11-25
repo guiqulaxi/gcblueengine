@@ -440,7 +440,6 @@ void tcDatabaseObject::WritePythonValue(std::string &valueString) const
     valueString+="    dbObj.width_m="+strutil::to_python_value(width_m)+"\n";
     valueString+="    dbObj.height_m="+strutil::to_python_value(height_m)+"\n";
 
-    valueString+="    dbObj.CalculateParams()\n";
 }
  void tcDatabaseObject::WritePython(std::string& valueString)const
 {
@@ -448,6 +447,7 @@ void tcDatabaseObject::WritePythonValue(std::string &valueString) const
      valueString+="def CreateDBObject():\n";
      valueString+="    dbObj=pygcb.tcDatabaseObject()\n";
      WritePythonValue(valueString);
+     valueString+="    dbObj.CalculateParams()\n";
      valueString+="    return dbObj\n";
 }
 tcDatabaseObject::tcDatabaseObject(const std::string& databaseClass) :

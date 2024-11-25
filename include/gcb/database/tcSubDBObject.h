@@ -30,9 +30,9 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-////#include "wx/wx.h" 
+////#include "wx/wx.h"
 
-#include "tcDBString.h"
+//#include "tcDBString.h"
 #include "tcPlatformDBObject.h"
 #include "tcAirDetectionDBObject.h"
 #include "tcWaterDetectionDBObject.h"
@@ -81,13 +81,14 @@ namespace database
         tcSubDBObject(const tcSubDBObject& obj); ///< copy constructor
         virtual ~tcSubDBObject();
         virtual tcGameObject * CreateGameObject() override;
+        void CalculateParams();
     private:
         // calculated parameters               
         float invMaxSpeed_mps;
         float invDraft_m; ///< 1/draft_m
         float batteryDrainConstant; ///< [kW/mps]
 
-        void CalculateParams();
+
 
     };
 }

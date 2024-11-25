@@ -56,8 +56,8 @@ namespace database
 		static void AddSqlColumns(std::string& columnString);
 		void ReadSql(tcSqlReader& entry);
         void WriteSql(std::string& valueString) const;
-        void WritePythonValue(const tcDBString &mzClass, std::string& valueString) const;
-        void WritePython(const tcDBString& mzClass,std::string& valueString) const;
+        void WritePythonValue(const std::string &mzClass, std::string& valueString) const;
+        void WritePython(const std::string& mzClass,std::string& valueString) const;
 
         float GetSourceLevel(float speed_mps, float depth_m, float az_deg) const;
         float GetTargetStrength(float az_deg) const;

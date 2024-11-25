@@ -3077,7 +3077,7 @@ tcMissileDBObject* tcDatabase::GetSafeMissileDBObject(long anKey) {
 */
 
 // lookup class string associated with key
-int tcDatabase::GetObjectClass(long anKey, tcDBString& rzClass) {
+int tcDatabase::GetObjectClass(long anKey, std::string& rzClass) {
     tcDatabaseObject *pdbobj;
     int bFound = mcObjectData.Lookup(anKey,pdbobj);
     if (bFound) {

@@ -167,9 +167,9 @@ void tcAirDetectionDBObject::WriteSql(std::string& valueString) const
 	valueString += s.str();
 }
 
-void tcAirDetectionDBObject::WritePythonValue(const tcDBString &mzClass, std::string &valueString) const
+void tcAirDetectionDBObject::WritePythonValue(const std::string &mzClass, std::string &valueString) const
 {
-    valueString+="    dbObj.RCS_dBsm="+strutil::to_python_value(mzClass.c_str())+"\n";
+    valueString+="    dbObj.RCS_dBsm="+strutil::to_python_value(RCS_dBsm)+"\n";
     valueString+="    dbObj.RCS_Model="+strutil::to_python_value(RCS_Model)+"\n";
     valueString+="    dbObj.opticalCrossSection_dBsm="+strutil::to_python_value(opticalCrossSection_dBsm)+"\n";
     valueString+="    dbObj.irSignature_dB="+strutil::to_python_value(irSignature_dB)+"\n";
@@ -180,7 +180,7 @@ void tcAirDetectionDBObject::WritePythonValue(const tcDBString &mzClass, std::st
     valueString+="    dbObj.BindSignatureModels()\n";
 }
 
-void tcAirDetectionDBObject::WritePython(const tcDBString &mzClass, std::string &valueString) const
+void tcAirDetectionDBObject::WritePython(const std::string &mzClass, std::string &valueString) const
 {
     valueString+="import pygcb\n";
     valueString+="def CreateDBObject():\n";

@@ -156,7 +156,6 @@ namespace database
         valueString+="    dbObj.datalinkRange_km="+strutil::to_python_value(datalinkRange_km)+"\n";
         valueString+="    dbObj.acceptsUserCommands="+strutil::to_python_value(acceptsUserCommands)+"\n";
         valueString+="    dbObj.detonationRange_m="+strutil::to_python_value(detonationRange_m)+"\n";
-        valueString+="    dbObj.CalculateParams()\n";
 
     }
 
@@ -166,6 +165,7 @@ namespace database
         valueString+="def CreateDBObject():\n";
         valueString+="    dbObj=pygcb.tcWeaponDBObject()\n";
         WritePythonValue(valueString);
+        valueString+="    dbObj.CalculateParams()\n";
         valueString+="    return dbObj\n";
     }
 

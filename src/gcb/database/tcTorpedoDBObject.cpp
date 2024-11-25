@@ -162,7 +162,6 @@ namespace database
         valueString+="    dbObj.wireGuidance="+strutil::to_python_value(wireGuidance)+"\n";
         valueString+="    dbObj.preEnableSpeed_kts="+strutil::to_python_value(preEnableSpeed_kts)+"\n";
         valueString+="    dbObj.weaponType="+strutil::to_python_value(weaponType)+"\n";
-        valueString+="    dbObj.CalculateParams()\n";
 
     }
 
@@ -172,6 +171,7 @@ namespace database
         valueString+="def CreateDBObject():\n";
         valueString+="    dbObj=pygcb.tcTorpedoDBObject()\n";
         WritePythonValue(valueString);
+        valueString+="    dbObj.CalculateParams()\n";
         valueString+="    return dbObj\n";
     }
 

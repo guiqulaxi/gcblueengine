@@ -26,17 +26,21 @@ void BindSensorDBObject(module &m)
         .def_readwrite("maxFrequency_Hz", &tcSensorDBObject::maxFrequency_Hz)
         .def_readwrite("idThreshold_dB", &tcSensorDBObject::idThreshold_dB)
         .def_readwrite("counterMeasureFactor", &tcSensorDBObject::counterMeasureFactor)
-        .def_readwrite("isSurveillance", &tcSensorDBObject::isSurveillance);
+        .def_readwrite("isSurveillance", &tcSensorDBObject::isSurveillance)
+        .def("CalculateParams",&tcSensorDBObject::CalculateParams);
+
     py::class_<tcECMDBObject,tcSensorDBObject>(m, "tcECMDBObject")
         .def(py::init<>())
         .def_readwrite("ecmType", &tcECMDBObject::ecmType)
         .def_readwrite("ERP_dBW", &tcECMDBObject::ERP_dBW)
         .def_readwrite("effectivenessRating", &tcECMDBObject::effectivenessRating)
         .def_readwrite("isEffectiveVsSurveillance", &tcECMDBObject::isEffectiveVsSurveillance)
-        .def_readwrite("isEffectiveVsSeeker", &tcECMDBObject::isEffectiveVsSeeker);
+        .def_readwrite("isEffectiveVsSeeker", &tcECMDBObject::isEffectiveVsSeeker)
+        .def("CalculateParams",&tcECMDBObject::CalculateParams);
     py::class_< tcESMDBObject,tcSensorDBObject>(m, "tcESMDBObject")
         .def(py::init<>())
-        .def_readwrite("ecmType", &tcESMDBObject::isRWR);
+        .def_readwrite("ecmType", &tcESMDBObject::isRWR)
+        .def("CalculateParams",&tcESMDBObject::CalculateParams);
     py::class_<tcOpticalDBObject,tcSensorDBObject>(m, "tcOpticalDBObject")
         .def(py::init<>()) // 默认构造函数
         .def_readwrite("maxFireControlTracks", &tcOpticalDBObject::maxFireControlTracks)
@@ -47,7 +51,9 @@ void BindSensorDBObject(module &m)
         .def_readwrite("mbDetectsMissile", &tcOpticalDBObject::mbDetectsMissile)
         .def_readwrite("mbDetectsGround", &tcOpticalDBObject::mbDetectsGround)
         .def_readwrite("isIR", &tcOpticalDBObject::isIR)
-        .def_readwrite("nightFactor", &tcOpticalDBObject::nightFactor);
+        .def_readwrite("nightFactor", &tcOpticalDBObject::nightFactor)
+        .def("CalculateParams",&tcOpticalDBObject::CalculateParams);
+
     py::class_<tcRadarDBObject, tcSensorDBObject>(m, "tcRadarDBObject")
         .def(py::init<>())
         .def_readwrite("ERPpeak_dBW", &tcRadarDBObject::ERPpeak_dBW)
@@ -71,7 +77,9 @@ void BindSensorDBObject(module &m)
         .def_readwrite("invAzBeamwidth_deg", &tcRadarDBObject::invAzBeamwidth_deg)
         .def_readwrite("invElBeamwidth_deg", &tcRadarDBObject::invElBeamwidth_deg)
         .def_readwrite("cpi_s", &tcRadarDBObject::cpi_s)
-        .def_readwrite("jamConstant_dB", &tcRadarDBObject::jamConstant_dB);
+        .def_readwrite("jamConstant_dB", &tcRadarDBObject::jamConstant_dB)
+        .def("CalculateParams",&tcRadarDBObject::CalculateParams);
+
 
     py::class_<tcSonarDBObject,tcSensorDBObject>(m, "tcSonarDBObject")
         .def(py::init<>())
@@ -85,5 +93,7 @@ void BindSensorDBObject(module &m)
         .def_readwrite("maxScope_m", &tcSonarDBObject::maxScope_m)
         .def_readwrite("isWakeHoming", &tcSonarDBObject::isWakeHoming)
         .def_readwrite("alpha", &tcSonarDBObject::alpha)
-        .def_readwrite("averageFreq_Hz", &tcSonarDBObject::averageFreq_Hz);
+        .def_readwrite("averageFreq_Hz", &tcSonarDBObject::averageFreq_Hz)
+        .def("tcSonarDBObject",&tcSonarDBObject::CalculateParams);
+
 }

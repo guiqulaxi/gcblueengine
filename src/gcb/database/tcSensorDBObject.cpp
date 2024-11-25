@@ -201,7 +201,6 @@ void tcSensorDBObject::WritePythonValue(std::string &valueString) const
     valueString+="    dbObj.idThreshold_dB="+strutil::to_python_value(idThreshold_dB)+"\n";
     valueString+="    dbObj.counterMeasureFactor="+strutil::to_python_value(counterMeasureFactor)+"\n";
     valueString+="    dbObj.isSurveillance="+strutil::to_python_value(isSurveillance)+"\n";
-    valueString+="    dbObj.CalculateParams()\n";
 
 }
 
@@ -211,6 +210,7 @@ void tcSensorDBObject::WritePython(std::string &valueString) const
     valueString+="def CreateDBObject():\n";
     valueString+="    dbObj=pygcb.tcSensorDBObject()\n";
     WritePythonValue(valueString);
+    valueString+="    dbObj.CalculateParams()\n";
     valueString+="    return dbObj\n";;
 }
 

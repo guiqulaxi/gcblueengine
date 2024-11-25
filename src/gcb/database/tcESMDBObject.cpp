@@ -70,7 +70,6 @@ void tcESMDBObject::WritePythonValue(std::string &valueString) const
 {
     tcSensorDBObject::WritePythonValue(valueString);
     valueString+="    dbObj.mfMaxRange_km="+strutil::to_python_value(isRWR)+"\n";
-    valueString+="    dbObj.CalculateParams()";
 
 }
 
@@ -80,6 +79,8 @@ void tcESMDBObject::WritePython(std::string &valueString) const
     valueString+="def CreateDBObject():\n";
     valueString+="    dbObj=pygcb.tcESMDBObject()\n";
     WritePythonValue(valueString);
+    valueString+="    dbObj.CalculateParams()";
+
     valueString+="    return dbObj\n";
 }
 

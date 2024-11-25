@@ -118,7 +118,7 @@ namespace database
       //float mfRange_km;                   ///< [km] nominal range (replaced with maxRange_km in tcWeaponDBObject
     
       // sensor info
-      tcDBString maSensorClass;           ///< seeker database class name
+      std::string maSensorClass;           ///< seeker database class name
       long sensorKey;                     ///< key for fast access of primary seeker
 	  bool needsFireControl;              ///< true if seeker depends on a fire control sensor for guidance
       bool acceptsWaypoints;              ///< true if missile can accept preplan (or datalink) waypoints

@@ -31,7 +31,7 @@
 #endif // _MSC_VER > 1000
 
 #include <string>
-#include "tcDBString.h"
+//#include "tcDBString.h"
 #include <array>
 namespace database
 {
@@ -44,7 +44,7 @@ namespace database
     {
     public:
         /// fields from tcDatabaseObject, didn't want to fully derive (create more general base class?)
-        tcDBString mzClass; ///< name of platform class, e.g. "Spruance"
+        std::string mzClass; ///< name of platform class, e.g. "Spruance"
         //float aspectModifier_dB[37]; // every 10 deg starting with 0 plus wraparound value
         std::array<float, 37> aspectModifier_dB;
         float topModifier_dB; ///< looking down at target

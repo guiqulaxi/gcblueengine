@@ -25,6 +25,7 @@
 
 //#include "stdwx.h"
 
+#include "strutil.h"
 #ifndef WX_PRECOMP
 ////#include "wx/wx.h" 
 #endif
@@ -111,7 +112,7 @@ void tcHeloObject::RandInitNear(float afLon_deg, float afLat_deg)
 
     // replace unit prefix, otherwise use tcAirObject RandInitNear
     mzUnit = "HELO_";
-    mzUnit.AssignRandomSuffix();
+    mzUnit=strutil::AssignRandomSuffix( mzUnit);
 }
 
 

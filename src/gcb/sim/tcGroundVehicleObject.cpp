@@ -25,6 +25,7 @@
 
 //#include "stdwx.h"
 
+#include "strutil.h"
 #ifndef WX_PRECOMP
 ////#include "wx/wx.h" 
 #endif
@@ -264,7 +265,7 @@ void tcGroundVehicleObject::RandInitNear(float afLon_deg, float afLat_deg)
     if (mpDBObject == 0) return;
     mzClass = mpDBObject->mzClass;
     mzUnit = "VEH_";
-    mzUnit.AssignRandomSuffix();
+    mzUnit=strutil::AssignRandomSuffix( mzUnit);
 
     mfStatusTime = 0;       
     GeoPoint randomPoint = mapData->GetRandomPointNear(afLon_deg, afLat_deg, 1.1f, -16000.0f, -20.0f);

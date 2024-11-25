@@ -21,7 +21,7 @@ class tcSpaceDBObject :  public tcPlatformDBObject
 {
 public:
 
-    tcDBString flightportClass; ///< database class name of flightport (or empty if none) 飞行港（或如果没有则为空）的数据库类名
+    std::string flightportClass; ///< database class name of flightport (or empty if none) 飞行港（或如果没有则为空）的数据库类名
     tcDatabaseObject* AsDatabaseObject();
     virtual const char* GetClassName() const {return "Ship";} ///< returns class name of database object
     tcFlightportDBObject* GetFlightport();

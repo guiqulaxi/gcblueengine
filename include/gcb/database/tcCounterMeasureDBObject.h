@@ -68,12 +68,13 @@ namespace database
 		tcCounterMeasureDBObject(const tcCounterMeasureDBObject& obj);
 		virtual ~tcCounterMeasureDBObject();
         virtual tcGameObject *CreateGameObject() override;
+         void CalculateParams();
     private:
         // calculated parameters
         float airDragFactor; ///< accel [m/s^2] = dragFactor * v_mps^2
 		bool isFlare;
 
-        void CalculateParams();
+
 	};
 
 } // namespace database

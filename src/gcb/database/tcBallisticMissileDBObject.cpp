@@ -191,7 +191,6 @@ namespace database
         valueString+="    dbObj.timeStage4_s="+strutil::to_python_value(timeStage4_s)+"\n";
         valueString+="    dbObj.accelStage4_mps2="+strutil::to_python_value(accelStage4_mps2)+"\n";
         valueString+="    dbObj.bcStage4="+strutil::to_python_value(bcStage4)+"\n";
-        valueString+="    dbObj.CalculateParams()\n";
     }
 
     void tcBallisticMissileDBObject::WritePython(std::string &valueString) const
@@ -200,6 +199,7 @@ namespace database
         valueString+="def CreateDBObject():\n";
         valueString+="    dbObj=pygcb.tcBallisticMissileDBObject()\n";
         WritePythonValue(valueString);
+        valueString+="    dbObj.CalculateParams()\n";
         valueString+="    return dbObj\n";
     }
 

@@ -33,7 +33,7 @@
 #include "tcPool.h"
 #include "tcString.h" // CString replacement
 #include "tcFile.h"  // tcFile replacement
-#include "tcDBString.h"
+//#include "tcDBString.h"
 #include "tcDatabaseObject.h"
 #include "sqlite/sqlite3x.hpp"
 #include <map>
@@ -134,7 +134,7 @@ public:
     const std::string& GetObjectClassName(long key);
     std::vector<std::string> WildcardSearch(const std::string& expression, const std::string& filter);
     std::vector<std::string> WildcardSearchLoaded(const std::string& expression, const std::string& filter);
-    int GetObjectClass(long anKey, tcDBString& rzClass);
+    int GetObjectClass(long anKey, std::string& rzClass);
     long GetNextObjectOfSameClass(long anKey);
     long GetPrevObjectOfSameClass(long anKey);
     long GetKey(const char* s);

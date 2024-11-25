@@ -57,8 +57,13 @@ namespace database
         size_t size() const;
 
         tcDBString& operator= (const tcDBString& c);
+        // 修改赋值运算符以接受 std::string
+        tcDBString& operator=(const std::string& s);
         tcDBString& operator= (const char* s);
         tcDBString& operator+=(const char* s);
+        operator std::string() const {
+            return str;
+        }
         bool operator== ( const tcDBString&) const;
         bool operator== (const char* s) const;
 
@@ -69,6 +74,7 @@ namespace database
         tcDBString();
         tcDBString(const char *buff);
 		tcDBString(const tcDBString& src);
+        tcDBString(const std::string& s) : str(s) {}
         ~tcDBString();
     private:
         std::string str;

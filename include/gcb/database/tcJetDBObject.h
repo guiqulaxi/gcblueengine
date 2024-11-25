@@ -30,9 +30,9 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-////#include "wx/wx.h" 
+////#include "wx/wx.h"
 
-#include "tcDBString.h"
+//#include "tcDBString.h"
 #include "tcAirDBObject.h"
 #include "tcFile.h"
 #include "database/tcSqlReader.h"

@@ -52,7 +52,6 @@ tcDatabaseObject* tcShipDBObject::AsDatabaseObject()
 
 void tcShipDBObject::CalculateParams()
 {
-
 }
 
 tcFlightportDBObject* tcShipDBObject::GetFlightport()
@@ -190,7 +189,6 @@ void tcShipDBObject::WritePythonValue(std::string &valueString) const
     valueString+="    dbObj.CivilianPaintScheme="+strutil::to_python_value(damageEffect)+"\n";
     valueString+="    dbObj.FlashyPaintScheme="+strutil::to_python_value(damageEffect)+"\n";
     valueString+="    dbObj.flightportClass="+strutil::to_python_value(damageEffect)+"\n";
-    valueString+="    dbObj.CalculateParams()\n";
 }
 
 void tcShipDBObject::WritePython(std::string &valueString) const
@@ -199,6 +197,7 @@ void tcShipDBObject::WritePython(std::string &valueString) const
     valueString+="def CreateDBObject():\n";
     valueString+="    dbObj=pygcb.tcShipDBObject()\n";
     WritePythonValue(valueString);
+    valueString+="    dbObj.CalculateParams()\n";
     valueString+="    return dbObj\n";
 
 }

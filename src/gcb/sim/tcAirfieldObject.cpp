@@ -214,7 +214,8 @@ void tcAirfieldObject::RandInitNear(float afLon_deg, float afLat_deg)
    if (mpDBObject == NULL) {return;}
    mzClass = mpDBObject->mzClass;
    mzUnit = "AF_";
-   mzUnit.AssignRandomSuffix();
+   mzUnit=strutil::AssignRandomSuffix(mzUnit);
+
 
    mfStatusTime = 0;        
    mcKin.mfLon_rad = C_PIOVER180*(afLon_deg + randfc(1.1f));      

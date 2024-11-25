@@ -437,9 +437,10 @@ void tcPlatformDBObject::ReadSql(tcSqlReader& entry)
 	}
     */
 
-    CalculateParams();
+
 
     tcSensorPlatformDBObject::ReadSql(entry);
+     CalculateParams();
 
 }
 
@@ -522,7 +523,7 @@ void tcPlatformDBObject::WritePythonValue(std::string &valueString) const
     valueString+="    dbObj.launcherFireControl="+strutil::to_python_value(launcherFireControl)+"\n";
     valueString+="    dbObj.launcherFireControl2="+strutil::to_python_value(launcherFireControl2)+"\n";
     valueString+="    dbObj.launcherIsReloadable="+strutil::to_python_value(launcherIsReloadable)+"\n";
-    valueString+="    dbObj.CalculateParams()\n";
+
 
 }
 
@@ -532,6 +533,7 @@ void tcPlatformDBObject::WritePython(std::string &valueString) const
     valueString+="def CreateDBObject():\n";
     valueString+="    dbObj=pygcb.tcPlatformDBObject()\n";
     WritePythonValue(valueString);
+    valueString+="    dbObj.CalculateParams()\n";
     valueString+="    return dbObj\n";;
 }
 

@@ -73,7 +73,6 @@ namespace database
     void tcItemDBObject::WritePythonValue(std::string &valueString) const
     {
         tcDatabaseObject::WritePythonValue(valueString);
-        valueString+="    dbObj.CalculateParams()\n";
     }
 
     void tcItemDBObject::WritePython(std::string &valueString) const
@@ -82,6 +81,7 @@ namespace database
         valueString+="def CreateDBObject():\n";
         valueString+="    dbObj=pygcb.tcItemDBObject()\n";
         WritePythonValue(valueString);
+        valueString+="    dbObj.CalculateParams()\n";
         valueString+="    return dbObj\n";;
     }
 

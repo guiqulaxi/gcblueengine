@@ -102,9 +102,10 @@ namespace database
         tcAirDBObject();
         tcAirDBObject(const tcAirDBObject& obj); ///< copy constructor
         virtual ~tcAirDBObject();
+        void CalculateParams();
 	private:
 
-		void CalculateParams();
+
 
     };
 

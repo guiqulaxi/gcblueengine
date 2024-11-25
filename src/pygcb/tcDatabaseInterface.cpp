@@ -168,7 +168,7 @@ long tcDatabaseInterface::GetPrevObjectOfSameClass(long anKey)
 
 
 // lookup class string associated with key
-int tcDatabaseInterface::GetObjectClass(long anKey, tcDBString& rzClass) {
+int tcDatabaseInterface::GetObjectClass(long anKey, std::string& rzClass) {
 return tcDatabase::Get()->GetObjectClass(anKey,rzClass);
 }
 

@@ -1420,7 +1420,7 @@ void tcGameObject::RandInitNear(float afLon_deg, float afLat_deg)
     assert(mapData);
     mzClass = mpDBObject->mzClass;
     mzUnit = "OBJ_";
-    mzUnit.AssignRandomSuffix();
+    mzUnit=strutil::AssignRandomSuffix( mzUnit);
 
     mfStatusTime = 0;        
     mcKin.mfLon_rad = C_PIOVER180*(afLon_deg + randfc(1.1f));      
@@ -1453,9 +1453,11 @@ void tcGameObject::PrintToFile(tcFile& file)
 void tcGameObject::SaveToFile(tcFile& file)
 {
     file.Write(&mnID,sizeof(mnID));
-    mzClass.Serialize(file,false);
+    file.WriteString(mzClass.c_str());
+    // mzClass.Serialize(file,false);
     file.Write(&mnDBKey,sizeof(mnDBKey));
-    mzUnit.Serialize(file,false);
+     file.WriteString(mzUnit.c_str());
+    // mzUnit.Serialize(file,false);
 //    file.Write(&mnAlliance,sizeof(mnAlliance));                        
     file.Write(&mfStatusTime,sizeof(mfStatusTime));        
     mcKin.Serialize(file,false);      
@@ -1597,12 +1599,13 @@ tcCreateStream& tcGameObject::operator<<(tcCreateStream& stream)
 {
     stream >> mnModelType;
     stream >> mnID; // redundant, can remove later
-
-    mzClass << stream;
+    stream >> mzClass;
+    stream >> mzUnit;
+    // mzClass << stream;
 
     //stream >> mnDBKey; // redundant, can remove later, 20SEP2009 removed
 
-    mzUnit << stream;
+    // mzUnit << stream;
 
     stream >> customCost;
 
@@ -1619,12 +1622,13 @@ tcCreateStream& tcGameObject::operator>>(tcCreateStream& stream)
 {
     stream << mnModelType;
     stream << mnID; // redundant, can remove later
+    stream << mzClass;
+    stream << mzUnit;
+    // mzClass >> stream;
 
-    mzClass >> stream;
+    // // stream << mnDBKey; // redundant, can remove later, 20SEP2009 removed
 
-    // stream << mnDBKey; // redundant, can remove later, 20SEP2009 removed
-
-    mzUnit >> stream;
+    // mzUnit >> stream;
 
     stream << customCost;
 
@@ -1694,8 +1698,8 @@ tcGameStream& tcGameObject::operator>>(tcGameStream& stream)
 {
     rel_pos >> stream;
     stream << mnModelType;
-    mzClass >> stream;
-    mzUnit >> stream;
+    stream << mzClass;
+    stream << mzUnit;
     stream << mfStatusTime;
     mcKin >> stream;
     mcTerrain >> stream;
@@ -1754,8 +1758,8 @@ tcGameStream& tcGameObject::operator<<(tcGameStream& stream)
 {
     rel_pos << stream;
     stream >> mnModelType;
-    mzClass << stream;
-    mzUnit << stream;
+    stream >> mzClass;
+    stream >> mzUnit;
     stream >> mfStatusTime;
     mcKin << stream;
     mcTerrain << stream;
@@ -1888,9 +1892,9 @@ void tcGameObject::SetRecreate(bool state)
 void tcGameObject::LoadFromFile(tcFile& file)
 {
     file.Read(&mnID,sizeof(mnID));
-    mzClass.Serialize(file,true);
+    //mzClass.Serialize(file,true);
     file.Read(&mnDBKey,sizeof(mnDBKey));
-    mzUnit.Serialize(file,true);
+    //mzUnit.Serialize(file,true);
     //file.Read(&mnAlliance,sizeof(mnAlliance));                        
     file.Read(&mfStatusTime,sizeof(mfStatusTime));        
     mcKin.Serialize(file,true);

@@ -82,7 +82,7 @@ void tcWaterDetectionDBObject::WriteSql(std::string& valueString) const
 	valueString += s.str();
 }
 
-void tcWaterDetectionDBObject::WritePythonValue(const tcDBString &mzClass, std::string &valueString) const
+void tcWaterDetectionDBObject::WritePythonValue(const std::string &mzClass, std::string &valueString) const
 {
     valueString+="    dbObj.TS="+strutil::to_python_value(TS)+"\n";
     valueString+="    dbObj.TS_Model="+strutil::to_python_value(TS_Model)+"\n";
@@ -92,7 +92,7 @@ void tcWaterDetectionDBObject::WritePythonValue(const tcDBString &mzClass, std::
 
 }
 
-void tcWaterDetectionDBObject::WritePython(const tcDBString &mzClass, std::string &valueString) const
+void tcWaterDetectionDBObject::WritePython(const std::string &mzClass, std::string &valueString) const
 {
     valueString+="import pygcb\n";
     valueString+="def CreateDBObject():\n";

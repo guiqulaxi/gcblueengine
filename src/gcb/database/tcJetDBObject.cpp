@@ -482,7 +482,6 @@ void tcJetDBObject::WritePythonValue(std::string &valueString) const
     valueString+="    dbObj.stallSpeed_mps="+strutil::to_python_value(stallSpeed_mps)+"\n";
     valueString+="    dbObj.thrustTable="+strutil::to_python_value(thrustTable)+"\n";
     valueString+="    dbObj.fuelEfficiencyTable="+strutil::to_python_value(fuelEfficiencyTable)+"\n";
-    valueString+="    dbObj.CalculateParams()\n";
 
 }
 
@@ -492,6 +491,7 @@ void tcJetDBObject::WritePython(std::string &valueString) const
     valueString+="def CreateDBObject():\n";
     valueString+="    dbObj=pygcb.tcJetDBObject()\n";
     WritePythonValue(valueString);
+    valueString+="    dbObj.CalculateParams()\n";
     valueString+="    return dbObj\n";;
 }
 

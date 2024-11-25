@@ -770,4 +770,81 @@ static std::string to_python_value(unsigned int data)
 
     return valueString;
 }
+static std::string& AssignRandomSuffix(std::string&str )
+{
+
+    int i;
+    switch(i = rand() % 7)
+    {
+    case 0: str += "Alpha"; break;
+    case 1: str += "Beta"; break;
+    case 2: str += "Charlie"; break;
+    case 3: str += "Delta"; break;
+    case 4: str += "Echo"; break;
+    case 5: str += "Foxtrot"; break;
+    case 6: str += "Golf"; break;
+    case 7: str += "Hotel"; break;
+    case 8: str += "Indigo"; break;
+    case 9: str += "Juliet"; break;
+    }
+
+    i = rand() % 100;
+    std::string s2=strutil::format("_%d",i);
+    //        s2.Format("_%d",i);
+    str += s2;
+    return str;
+}
+static std::string& AssignRandomStringB(std::string&str)
+{
+    str = "GC_";
+    int i;
+    switch(i = rand() % 7)
+    {
+    case 0: str += "Alpha"; break;
+    case 1: str += "Beta"; break;
+    case 2: str += "Charlie"; break;
+    case 3: str += "Delta"; break;
+    case 4: str += "Echo"; break;
+    case 5: str += "Foxtrot"; break;
+    case 6: str += "Golf"; break;
+    case 7: str += "Hotel"; break;
+    case 8: str += "Indigo"; break;
+    case 9: str += "Juliet"; break;
+    }
+
+    i = rand() % 100;
+    std::string s2=strutil::format("_%d",i);
+    //        s2.Format("_%d",i);
+    str += s2;
+    return str;
+
+}
+
+static  std::string&  AssignRandomString(std::string&str)
+{
+    str = "";
+
+    int i;
+    switch(i = rand() % 7)
+    {
+    case 0: str += "Alpha"; break;
+    case 1: str += "Beta"; break;
+    case 2: str += "Delta"; break;
+    case 3: str += "Echo"; break;
+    case 4: str += "Golf"; break;
+    case 5: str += "Hotel"; break;
+    case 6: str += "Lima"; break;
+    }
+    return str;
+}
+static  std::string&  toPythonVar(std::string&str)
+{
+    strutil::replace_all(str," ","_");
+    strutil::replace_all(str,"(","_");
+    strutil::replace_all(str,")","_");
+    strutil::replace_all(str,"-","_");
+
+    return str;
+}
+
 }

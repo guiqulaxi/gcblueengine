@@ -12,6 +12,8 @@ void BindSubDBObject(module &m)
         .def_readwrite("isDieselElectric", &tcSubDBObject::isDieselElectric)
         .def_readwrite("batteryCapacity_kJ", &tcSubDBObject::batteryCapacity_kJ)
         .def_readwrite("batteryRate_kW", &tcSubDBObject::batteryRate_kW)
-        .def_readwrite("batteryCharge_kW", &tcSubDBObject::batteryCharge_kW);
+        .def_readwrite("batteryCharge_kW", &tcSubDBObject::batteryCharge_kW)
+        .def("CalculateParams", &tcSubDBObject::CalculateParams);
+
 }
 

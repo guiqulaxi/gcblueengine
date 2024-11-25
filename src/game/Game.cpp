@@ -612,7 +612,7 @@ void tcGame::SaveDatabaseToPython(const std::string& dirPath)
         if(obj)
         {
             std::ofstream ofs;
-            std::string path= dirPath+"/"+kv.second+"/"+obj->mzClass.PyVarString()+".py";
+            std::string path= dirPath+"/"+kv.second+"/"+strutil::toPythonVar(obj->mzClass)+".py";
             ofs.open(path);
             std::string valueString;
             obj->WritePython(valueString);
@@ -623,7 +623,7 @@ void tcGame::SaveDatabaseToPython(const std::string& dirPath)
     for(auto kv:database->GetAcousticModelData())
     {
         std::ofstream ofs;
-        std::string path= dirPath+"/acoustic_noise/"+kv.second.databaseClass+".py";
+        std::string path= dirPath+"/acoustic_noise/"+strutil::toPythonVar(kv.second.databaseClass)+".py";
         ofs.open(path);
         std::string valueString;
         kv.second.WritePython(valueString);
@@ -633,7 +633,7 @@ void tcGame::SaveDatabaseToPython(const std::string& dirPath)
     for(auto kv:database->GetSignatureModelData())
     {
         std::ofstream ofs;
-        std::string path= dirPath+"/signature/"+kv.second.mzClass.PyVarString()+".py";
+        std::string path= dirPath+"/signature/"+strutil::toPythonVar(kv.second.mzClass)+".py";
         ofs.open(path);
         std::string valueString;
         kv.second.WritePython(valueString);
@@ -644,7 +644,7 @@ void tcGame::SaveDatabaseToPython(const std::string& dirPath)
     for(auto kv:database->GetWeaponDamageData().GetData())
     {
         std::ofstream ofs;
-        std::string path= dirPath+"/weapon_damage/"+kv.second.databaseClass+".py";
+        std::string path= dirPath+"/weapon_damage/"+strutil::toPythonVar(kv.second.databaseClass)+".py";
         ofs.open(path);
         std::string valueString;
         kv.second.WritePython(valueString);
@@ -654,7 +654,7 @@ void tcGame::SaveDatabaseToPython(const std::string& dirPath)
     for(auto kv:database->GetDamageEffectData().GetData())
     {
         std::ofstream ofs;
-        std::string path= dirPath+"/damage_effect/"+kv.second.databaseClass+".py";
+        std::string path= dirPath+"/damage_effect/"+strutil::toPythonVar(kv.second.databaseClass)+".py";
         ofs.open(path);
         std::string valueString;
         kv.second.WritePython(valueString);

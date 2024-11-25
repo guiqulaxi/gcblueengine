@@ -19,5 +19,6 @@ void BindShipDBObject(module &m)
         .def_readwrite("PropulsiveEfficiency", &tcShipDBObject::PropulsiveEfficiency)
         .def_readwrite("CivilianPaintScheme", &tcShipDBObject::CivilianPaintScheme)
         .def_readwrite("FlashyPaintScheme", &tcShipDBObject::FlashyPaintScheme)
-        .def_readwrite("flightportClass", &tcShipDBObject::flightportClass);
+        .def_readwrite("flightportClass", &tcShipDBObject::flightportClass)
+        .def("CalculateParams",&tcShipDBObject::CalculateParams);
 }

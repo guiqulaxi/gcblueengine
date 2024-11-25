@@ -64,8 +64,8 @@ namespace database
 		static void AddSqlColumns(std::string& columnString);
 		void ReadSql(tcSqlReader& entry);
         void WriteSql(std::string& valueString) const;
-        void WritePythonValue(const tcDBString& mzClass,std::string& valueString) const;
-         void WritePython(const tcDBString& mzClass,std::string& valueString) const;
+        void WritePythonValue(const std::string& mzClass,std::string& valueString) const;
+         void WritePython(const std::string& mzClass,std::string& valueString) const;
         float GetRCS_dBsm(float az_deg) const;
         float GetIRSig_dB(float az_deg, int irModel) const;
 

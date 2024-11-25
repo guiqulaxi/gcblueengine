@@ -184,7 +184,6 @@ void tcOpticalDBObject::WritePythonValue(std::string &valueString) const
     valueString+="    dbObj.mbDetectsGround="+strutil::to_python_value(mbDetectsGround)+"\n";
     valueString+="    dbObj.isIR="+strutil::to_python_value(isIR)+"\n";
     valueString+="    dbObj.nightFactor="+strutil::to_python_value(nightFactor)+"\n";
-    valueString+="    dbObj.CalculateParams()\n";
 
 }
 
@@ -194,6 +193,8 @@ void tcOpticalDBObject::WritePython(std::string &valueString) const
     valueString+="def CreateDBObject():\n";
     valueString+="    dbObj=pygcb.tcOpticalDBObject()\n";
     WritePythonValue(valueString);
+    valueString+="    dbObj.CalculateParams()\n";
+
     valueString+="    return dbObj\n";;
 }
 

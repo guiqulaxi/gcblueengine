@@ -34,7 +34,7 @@
 
 
 #include "tcFile.h"
-#include "tcDBString.h"
+//#include "tcDBString.h"
 #include "gctypes.h"
 #include <memory>
 #include <vector>
@@ -127,7 +127,7 @@ void ClassificationToString(UINT16 anType, char *azString);
     {
     public:
         enum {DESCRIPTION_STRING_LENGTH = 2048}; // max length for file descriptions
-        tcDBString mzClass;                 ///< name of platform class, e.g. "Spruance"
+        std::string mzClass;                 ///< name of platform class, e.g. "Spruance"
         std::string natoClass;              ///< NATO/ASCC name for display purposes
         long mnKey;                         ///< key of this object in map
         UINT mnType;                        ///< functional classification type: helo, air, surf, sub, land
@@ -144,8 +144,8 @@ void ClassificationToString(UINT16 anType, char *azString);
         std::string designation;            ///< designation code, e.g. DDG, SSN
 
         std::string imageList;              ///< semicolon delimited list of image files for DB info window
-        tcDBString iconFileName;            ///< used for icon file name
-        tcDBString mz3DModelFileName;
+        std::string iconFileName;            ///< used for icon file name
+        std::string mz3DModelFileName;
 		std::string mzDescription;
         std::string notes;
         

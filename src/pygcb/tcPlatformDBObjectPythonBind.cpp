@@ -26,7 +26,8 @@ void BindPlatformDBObject(module &m)
         .def_readwrite("launcherEl_deg", &tcPlatformDBObject::launcherEl_deg)
         .def_readwrite("launcherFireControl", &tcPlatformDBObject::launcherFireControl)
         .def_readwrite("launcherFireControl2", &tcPlatformDBObject::launcherFireControl2)
-        .def_readwrite("launcherIsReloadable", &tcPlatformDBObject::launcherIsReloadable);/*
+        .def_readwrite("launcherIsReloadable", &tcPlatformDBObject::launcherIsReloadable)
+        .def("CalculateParams",&tcPlatformDBObject::CalculateParams);/*
         .def_static("MAXLAUNCHERS", tcPlatformDBObject::MAXLAUNCHERS, "Maximum number of launchers")
         .def_static("MAXANIMATIONS", tcPlatformDBObject::MAXANIMATIONS, "Maximum number of animations")
         .def_static("MAXMAGAZINES", tcPlatformDBObject::MAXMAGAZINES, "Maximum number of magazines");*/

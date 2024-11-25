@@ -59,7 +59,7 @@ namespace database
         float PropulsiveEfficiency; ///< vessel power efficiency  船舶推进效率
         float CivilianPaintScheme; ///< vessel has civilian paint job  船舶是否具有民用涂装（这里使用float可能不恰当，应为布尔型或整型表示有/无
         float FlashyPaintScheme; ///< vessel has flashy paintjob 船舶是否具有醒目的涂装（同样，float可能不是最佳选择）
-        tcDBString flightportClass; ///< database class name of flightport (or empty if none) 飞行港（或如果没有则为空）的数据库类名
+        std::string flightportClass; ///< database class name of flightport (or empty if none) 飞行港（或如果没有则为空）的数据库类名
 
 		tcDatabaseObject* AsDatabaseObject();
         virtual const char* GetClassName() const {return "Ship";} ///< returns class name of database object
@@ -78,8 +78,9 @@ namespace database
         tcShipDBObject(const tcShipDBObject& obj); ///< copy constructor
         virtual ~tcShipDBObject();
         virtual tcGameObject * CreateGameObject() override;
+         void CalculateParams();
 	private:
-        void CalculateParams();
+
 
     };
 

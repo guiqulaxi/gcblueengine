@@ -169,7 +169,6 @@ namespace database
             valueString+="    dbObj.spotInfo["+std::to_string(i)+"].length="+strutil::to_python_value(spotInfo[i].length)+"\n";
 
         }
-        valueString+="    dbObj.CalculateParams()\n";
 
 
     }
@@ -180,6 +179,7 @@ namespace database
         valueString+="def CreateDBObject():\n";
         valueString+="    dbObj=pygcb.tcFlightportDBObject()\n";
         WritePythonValue(valueString);
+        valueString+="    dbObj.CalculateParams()\n";
         valueString+="    return dbObj\n";
     }
 

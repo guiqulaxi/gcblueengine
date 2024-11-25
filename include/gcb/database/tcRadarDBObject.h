@@ -83,9 +83,9 @@ namespace database
         tcRadarDBObject();
         tcRadarDBObject(const tcRadarDBObject& obj); ///< copy constructor
         virtual ~tcRadarDBObject();
-
+  void CalculateParams();
     private:
-        void CalculateParams();
+
     };
 
 } // namespace database

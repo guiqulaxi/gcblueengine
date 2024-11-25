@@ -263,7 +263,6 @@ void tcRadarDBObject::WritePythonValue(std::string &valueString) const
     valueString+="    dbObj.mbDetectsAir="+strutil::to_python_value(mbDetectsAir)+"\n";
     valueString+="    dbObj.mbDetectsMissile="+strutil::to_python_value(mbDetectsMissile)+"\n";
     valueString+="    dbObj.mbDetectsGround="+strutil::to_python_value(mbDetectsGround)+"\n";
-    valueString+="    dbObj.CalculateParams()\n";
 
 }
 
@@ -273,6 +272,8 @@ void tcRadarDBObject::WritePython(std::string &valueString) const
     valueString+="def CreateDBObject():\n";
     valueString+="    dbObj=pygcb.tcRadarDBObject()\n";
     WritePythonValue(valueString);
+    valueString+="    dbObj.CalculateParams()\n";
+
     valueString+="    return dbObj\n";;
 }
 

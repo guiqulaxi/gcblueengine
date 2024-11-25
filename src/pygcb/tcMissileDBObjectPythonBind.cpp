@@ -30,6 +30,8 @@ void BindMissileDBObject(module &m)
         .def_readwrite("aczConstant_kts", &tcMissileDBObject::aczConstant_kts)
         .def_readwrite("invMass_kg", &tcMissileDBObject::invMass_kg)
         .def_readwrite("mnNumSegments", &tcMissileDBObject::mnNumSegments)
-        .def_readwrite("maFlightProfile", &tcMissileDBObject::maFlightProfile);
+        .def_readwrite("maFlightProfile", &tcMissileDBObject::maFlightProfile)
+        .def("CalculateParams",&tcMissileDBObject::CalculateParams);
+
 
 }

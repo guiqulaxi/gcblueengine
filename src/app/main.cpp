@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
     game->Init();
     game->InitSim();
 
-    game->LoadDatabase("database/py/sub/Gotland.py");
+    //game->LoadDatabase("database/py/sub/Gotland.py");
     std::string runmode=a.get<std::string>("runmode");
     if(runmode=="normal")
     {

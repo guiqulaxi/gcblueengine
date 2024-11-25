@@ -88,7 +88,6 @@ namespace database
         tcDatabaseObject::WritePythonValue(valueString);
         valueString+="    dbObj.fuelCapacity_kg="+strutil::to_python_value(fuelCapacity_kg)+"\n";
 
-        valueString+="    dbObj.CalculateParams()\n";
 
     }
 
@@ -98,6 +97,8 @@ namespace database
         valueString+="def CreateDBObject():\n";
         valueString+="    dbObj=pygcb.tcFuelTankDBObject()\n";
         WritePythonValue(valueString);
+        valueString+="    dbObj.CalculateParams()\n";
+
         valueString+="    return dbObj\n";
     }
 

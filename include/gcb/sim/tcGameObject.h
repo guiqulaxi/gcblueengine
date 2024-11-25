@@ -104,9 +104,9 @@ public:
     //tc3DModel* model;           ///< 3D model
     UINT mnModelType;          ///< class MTYPE_ identifier
     long mnID;
-    tcDBString mzClass;        ///< name of database class
+    std::string mzClass;        ///< name of database class
     long mnDBKey;       ///< key of database entry
-    tcDBString mzUnit;         ///< specific name of class instance
+    std::string mzUnit;         ///< specific name of class instance
 
     std::vector<long> targeters; ///< vector of ids of platforms that are targeting this one
 

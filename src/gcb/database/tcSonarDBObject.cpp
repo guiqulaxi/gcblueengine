@@ -180,8 +180,6 @@ namespace database
         valueString+="    dbObj.isTowed="+strutil::to_python_value(isTowed)+"\n";
         valueString+="    dbObj.maxScope_m="+strutil::to_python_value(maxScope_m)+"\n";
         valueString+="    dbObj.isWakeHoming="+strutil::to_python_value(isWakeHoming)+"\n";
-        valueString+="    dbObj.CalculateParams()\n";
-
     }
 
     void tcSonarDBObject::WritePython(std::string &valueString) const
@@ -190,6 +188,7 @@ namespace database
         valueString+="def CreateDBObject():\n";
         valueString+="    dbObj=pygcb.tcSonarDBObject()\n";
         WritePythonValue(valueString);
+        valueString+="    dbObj.CalculateParams()\n";
         valueString+="    return dbObj\n";
 
     }

@@ -466,7 +466,6 @@ void tcMissileDBObject::WritePythonValue(std::string &valueString) const
         valueString+="    dbObj.maFlightProfile["+std::to_string(i)+"].mfRange_km="+strutil::to_python_value(maFlightProfile[i].mfRange_km)+"\n";
 
     }
-    valueString+="    dbObj.CalculateParams()\n";
 
 }
 
@@ -476,6 +475,8 @@ void tcMissileDBObject::WritePython(std::string &valueString) const
     valueString+="def CreateDBObject():\n";
     valueString+="    dbObj=pygcb.tcMissileDBObject()\n";
     WritePythonValue(valueString);
+    valueString+="    dbObj.CalculateParams()\n";
+
     valueString+="    return dbObj\n";;
 
 }

@@ -626,7 +626,8 @@ void tcFlightOpsObject::RandInitNear(float afLon_deg, float afLat_deg)
        if (child != NULL) 
        {
 		   child->mzUnit = (heloOnly) ? "HELO_" : "AIRX_";
-           child->mzUnit.AssignRandomSuffix();
+           child->mzUnit=strutil::AssignRandomSuffix( child->mzUnit);
+;
            float z = -20.0f + (float)i * 18.0f;
            child->SetRelativePosition(7.5,12.0,z);
            child->SetRelativeOrientation(0,0,0);

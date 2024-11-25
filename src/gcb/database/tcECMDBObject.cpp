@@ -125,7 +125,6 @@ void tcECMDBObject::WritePythonValue(std::string &valueString) const
     valueString+="    dbObj.effectivenessRating="+strutil::to_python_value(effectivenessRating)+"\n";
     valueString+="    dbObj.isEffectiveVsSurveillance="+strutil::to_python_value(isEffectiveVsSurveillance)+"\n";
     valueString+="    dbObj.isEffectiveVsSeeker="+strutil::to_python_value(isEffectiveVsSeeker)+"\n";
-    valueString+="    dbObj.CalculateParams()\n";
 
 }
 
@@ -135,6 +134,7 @@ void tcECMDBObject::WritePython(std::string &valueString) const
     valueString+="def CreateDBObject():\n";
     valueString+="    dbObj=pygcb.tcECMDBObject()\n";
     WritePythonValue(valueString);
+    valueString+="    dbObj.CalculateParams()\n";
     valueString+="    return dbObj\n";
 }
 

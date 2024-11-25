@@ -94,6 +94,7 @@ namespace database
         }
 
 		isFlare = ((subType == "Flare") || (subType == "WaterFlare"));
+
     }
 
     float tcCounterMeasureDBObject::GetAirDragFactor() const
@@ -150,7 +151,6 @@ namespace database
         valueString+="    dbObj.lifeSpan_s="+strutil::to_python_value(lifeSpan_s)+"\n";
         valueString+="    dbObj.effectiveness="+strutil::to_python_value(effectiveness)+"\n";
         valueString+="    dbObj.maxSpeed_mps="+strutil::to_python_value(maxSpeed_mps)+"\n";
-        valueString+="    dbObj.CalculateParams()\n";
     }
 
     void tcCounterMeasureDBObject::WritePython(std::string &valueString) const
@@ -159,6 +159,7 @@ namespace database
         valueString+="def CreateDBObject():\n";
         valueString+="    dbObj=pygcb.tcCounterMeasureDBObject()\n";
         WritePythonValue(valueString);
+        valueString+="    dbObj.CalculateParams()\n";
         valueString+="    return dbObj\n";
     }
 

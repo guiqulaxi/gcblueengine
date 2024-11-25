@@ -35,23 +35,23 @@
 
 namespace database
 {
-    
-    void tcDBString::AssignRandomString() 
-    {
-        str = "";
 
-        int i;
-        switch(i = rand() % 7) 
-        {
-        case 0: str += "Alpha"; break;
-        case 1: str += "Beta"; break;
-        case 2: str += "Delta"; break;
-        case 3: str += "Echo"; break;
-        case 4: str += "Golf"; break;
-        case 5: str += "Hotel"; break;
-        case 6: str += "Lima"; break;
-        }
-        /*
+void tcDBString::AssignRandomString()
+{
+    str = "";
+
+    int i;
+    switch(i = rand() % 7)
+    {
+    case 0: str += "Alpha"; break;
+    case 1: str += "Beta"; break;
+    case 2: str += "Delta"; break;
+    case 3: str += "Echo"; break;
+    case 4: str += "Golf"; break;
+    case 5: str += "Hotel"; break;
+    case 6: str += "Lima"; break;
+    }
+    /*
         switch(i = rand() % 7) {
         case 0:s += "Blue";break;
         case 1:s += "Red";break;
@@ -71,161 +71,165 @@ namespace database
         case 6:s += "Wheel";break;
         }
         */
-    }
-    
-    void tcDBString::AssignRandomStringB() 
+}
+
+void tcDBString::AssignRandomStringB()
+{
+    str = "GC_";
+    int i;
+    switch(i = rand() % 7)
     {
-        str = "GC_";
-        int i;
-        switch(i = rand() % 7) 
-        {
-        case 0: str += "Alpha"; break;
-        case 1: str += "Beta"; break;
-        case 2: str += "Charlie"; break;
-        case 3: str += "Delta"; break;
-        case 4: str += "Echo"; break;
-        case 5: str += "Foxtrot"; break;
-        case 6: str += "Golf"; break;
-        case 7: str += "Hotel"; break;
-        case 8: str += "Indigo"; break;
-        case 9: str += "Juliet"; break;
-        }
-
-        i = rand() % 100;
-        std::string s2=strutil::format("_%d",i);
-//        s2.Format("_%d",i);
-        str += s2;
+    case 0: str += "Alpha"; break;
+    case 1: str += "Beta"; break;
+    case 2: str += "Charlie"; break;
+    case 3: str += "Delta"; break;
+    case 4: str += "Echo"; break;
+    case 5: str += "Foxtrot"; break;
+    case 6: str += "Golf"; break;
+    case 7: str += "Hotel"; break;
+    case 8: str += "Indigo"; break;
+    case 9: str += "Juliet"; break;
     }
 
-    void tcDBString::AssignRandomSuffix()
+    i = rand() % 100;
+    std::string s2=strutil::format("_%d",i);
+    //        s2.Format("_%d",i);
+    str += s2;
+}
+
+void tcDBString::AssignRandomSuffix()
+{
+
+    int i;
+    switch(i = rand() % 7)
     {
-
-        int i;
-        switch(i = rand() % 7) 
-        {
-        case 0: str += "Alpha"; break;
-        case 1: str += "Beta"; break;
-        case 2: str += "Charlie"; break;
-        case 3: str += "Delta"; break;
-        case 4: str += "Echo"; break;
-        case 5: str += "Foxtrot"; break;
-        case 6: str += "Golf"; break;
-        case 7: str += "Hotel"; break;
-        case 8: str += "Indigo"; break;
-        case 9: str += "Juliet"; break;
-        }
-
-        i = rand() % 100;
-         std::string s2=strutil::format("_%d",i);
-//        s2.Format("_%d",i);
-        str += s2;
+    case 0: str += "Alpha"; break;
+    case 1: str += "Beta"; break;
+    case 2: str += "Charlie"; break;
+    case 3: str += "Delta"; break;
+    case 4: str += "Echo"; break;
+    case 5: str += "Foxtrot"; break;
+    case 6: str += "Golf"; break;
+    case 7: str += "Hotel"; break;
+    case 8: str += "Indigo"; break;
+    case 9: str += "Juliet"; break;
     }
-    
-	const char* tcDBString::c_str() const
-	{
-        return str.c_str();
-	}
 
-    std::string tcDBString::PyVarString() const
+    i = rand() % 100;
+    std::string s2=strutil::format("_%d",i);
+    //        s2.Format("_%d",i);
+    str += s2;
+}
+
+const char* tcDBString::c_str() const
+{
+    return str.c_str();
+}
+
+std::string tcDBString::PyVarString() const
+{
+    std::string pyvar=str;
+    strutil::replace_all(pyvar," ","_");
+    return pyvar;
+}
+
+size_t tcDBString::size() const
+{
+    return str.size();
+}
+
+tcDBString& tcDBString::operator= (const tcDBString& c)
+{
+    str = c.str;
+    return (*this);
+}
+
+tcDBString& tcDBString::operator= (const char* s)
+{
+    str = s;
+    return (*this);
+}
+tcDBString& tcDBString::operator=(const std::string& s)
+{
+    str = s;
+    return *this;
+}
+tcDBString& tcDBString::operator+= (const char* s)
+{
+    str += s;
+    return (*this);
+}
+
+bool tcDBString::operator== (const tcDBString &s) const
+{
+    return (str==s.str);
+}
+
+bool tcDBString::operator== (const char* s) const
+{
+    return (str==s);
+}
+
+tcStream& tcDBString::operator<<(tcStream& stream)
+{
+    static  char buffer[ERROR_SIZE+1];
+    size_t len;
+
+    stream.read((char*)&len, sizeof(len));
+    if (len >= ERROR_SIZE)
     {
-        std::string pyvar=str;
-        strutil::replace_all(pyvar," ","_");
-        return pyvar;
+        std::cerr << "tcStream::operator>>(std::string& val) - length overflow\n";
     }
-
-    size_t tcDBString::size() const
+    else
     {
-        return str.size();
+        stream.read((char*)buffer, (std::streamsize)len);
+        buffer[len] = 0; // add terminating null char
+        str = buffer;
     }
 
-    tcDBString& tcDBString::operator= (const tcDBString& c) 
-    {
-        str = c.str;
-        return (*this);
-    }
-    
-    tcDBString& tcDBString::operator= (const char* s) 
-    {
-        str = s;
-        return (*this);
-    }
+    return stream;
+}
 
-    tcDBString& tcDBString::operator+= (const char* s) 
-    {
-        str += s;
-        return (*this);
+tcStream& tcDBString::operator>>(tcStream& stream)
+{
+    size_t len = (size_t)str.size();
+    stream.write((char*)&len, sizeof(len));
+    stream.write(str.c_str(), (std::streamsize)len);
+
+    return stream;
+}
+
+int tcDBString::Serialize(tcFile& file, bool mbLoad)
+{
+    assert(false); // out of date
+    if (mbLoad) {
+        //file.Read(mz, DB_STRING_SIZE);
     }
-    
-    bool tcDBString::operator== (const tcDBString &s) const
-    {
-        return (str==s.str);
+    else {
+        //file.Write(mz, DB_STRING_SIZE);
     }
+    return true;
+}
 
-    bool tcDBString::operator== (const char* s) const
-    {
-        return (str==s);
-    }
-    
-    tcStream& tcDBString::operator<<(tcStream& stream)
-    {
-        static  char buffer[ERROR_SIZE+1];
-        size_t len;
+tcDBString::tcDBString()
+    : str("DEFAULT")
+{
+}
 
-        stream.read((char*)&len, sizeof(len));
-        if (len >= ERROR_SIZE)
-        {
-            std::cerr << "tcStream::operator>>(std::string& val) - length overflow\n";
-        }
-        else
-        {
-            stream.read((char*)buffer, (std::streamsize)len);
-            buffer[len] = 0; // add terminating null char
-            str = buffer;
-        }
+tcDBString::tcDBString(const char* buff)
+    : str(buff)
+{
+}
 
-        return stream;
-    }
+tcDBString::tcDBString(const tcDBString& src)
+    : str(src.str)
+{
+}
 
-    tcStream& tcDBString::operator>>(tcStream& stream)
-    {
-        size_t len = (size_t)str.size();
-        stream.write((char*)&len, sizeof(len));
-        stream.write(str.c_str(), (std::streamsize)len);
 
-        return stream;
-    }
+tcDBString::~tcDBString()
+{
+}
 
-    int tcDBString::Serialize(tcFile& file, bool mbLoad) 
-    {
-        assert(false); // out of date
-        if (mbLoad) {
-            //file.Read(mz, DB_STRING_SIZE);       
-        }
-        else {
-            //file.Write(mz, DB_STRING_SIZE); 
-        }
-        return true;
-    }
-
-    tcDBString::tcDBString() 
-        : str("DEFAULT")
-    {
-    }
-
-    tcDBString::tcDBString(const char* buff) 
-        : str(buff)
-    {
-    }
-
-	tcDBString::tcDBString(const tcDBString& src)
-        : str(src.str)
-	{
-	}
-    
-
-    tcDBString::~tcDBString() 
-    {
-    }
-    
 }
 

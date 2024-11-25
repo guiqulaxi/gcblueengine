@@ -20,6 +20,7 @@ void BindTorpedoDBObject(module &m)
         .def_readwrite("preEnableSpeed_kts", &tcTorpedoDBObject::preEnableSpeed_kts)
         .def_readwrite("weaponType", &tcTorpedoDBObject::weaponType)
         .def_readwrite("maxTurnRate_radps", &tcTorpedoDBObject::maxTurnRate_radps)
-        .def_readwrite("batteryRate_kWpkt", &tcTorpedoDBObject::batteryRate_kWpkt);
+        .def_readwrite("batteryRate_kWpkt", &tcTorpedoDBObject::batteryRate_kWpkt)
+        .def("CalculateParams",&tcTorpedoDBObject::CalculateParams);
 
 }

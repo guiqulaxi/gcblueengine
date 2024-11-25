@@ -288,7 +288,6 @@ void tcLauncherDBObject::WritePythonValue(std::string &valueString) const
     valueString+="    dbObj.childCapacityList="+strutil::to_python_value(childCapacityList)+"\n";
     valueString+="    dbObj.childLoadTime_s="+strutil::to_python_value(childLoadTime_s)+"\n";
     valueString+="    dbObj.childCycleTime_s="+strutil::to_python_value(childCycleTime_s)+"\n";
-    valueString+="    dbObj.CalculateParams()\n";
 
 }
 
@@ -298,6 +297,7 @@ void tcLauncherDBObject::WritePython(std::string &valueString) const
     valueString+="def CreateDBObject():\n";
     valueString+="    dbObj=pygcb.tcLauncherDBObject()\n";
     WritePythonValue(valueString);
+    valueString+="    dbObj.CalculateParams()\n";
     valueString+="    return dbObj\n";;
 }
 

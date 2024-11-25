@@ -174,7 +174,6 @@ namespace database
         valueString+="    dbObj.maxWeight_kg="+strutil::to_python_value(maxWeight_kg)+"\n";
         valueString+="    dbObj.moveTime="+strutil::to_python_value(moveTime)+"\n";
         valueString+="    dbObj.compatibleItems="+strutil::to_python_value(compatibleItems)+"\n";
-        valueString+="    dbObj.CalculateParams()\n";
 
     }
 
@@ -184,6 +183,7 @@ namespace database
         valueString+="def CreateDBObject():\n";
         valueString+="    dbObj=pygcb.tcStoresDBObject()\n";
         WritePythonValue(valueString);
+        valueString+="    dbObj.CalculateParams()\n";
         valueString+="    return dbObj\n";
     }
 

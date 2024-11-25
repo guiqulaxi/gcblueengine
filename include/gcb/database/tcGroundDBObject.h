@@ -45,7 +45,7 @@ namespace database
     class tcGroundDBObject :  public tcPlatformDBObject, public tcAirDetectionDBObject
     {
     public:
-        tcDBString flightportClass; ///< database class name of flightport (or empty if none)
+        std::string flightportClass; ///< database class name of flightport (or empty if none)
 
 		tcDatabaseObject* AsDatabaseObject();
         virtual const char* GetClassName() const {return "Ground";} ///< returns class name of database object
@@ -56,7 +56,7 @@ namespace database
         void WriteSql(std::string& valueString) const;
         void WritePythonValue(std::string& valueString) const;
         void WritePython(std::string &valueString) const;
-
+        void CalculateParams() override;
         tcGroundDBObject();
         tcGroundDBObject(const tcGroundDBObject& obj); ///< copy constructor
         virtual ~tcGroundDBObject();

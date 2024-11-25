@@ -29,32 +29,33 @@ using namespace database;
 
 void BindDBObject(module &m)
 {
-    py::class_<tcDBString>(m, "tcDBString")
-    .def(py::init<>(), "默认构造函数")
-        .def(py::init<const char*>(), "接受C风格字符串的构造函数", py::arg("buff"))
-        .def(py::init<const tcDBString&>(), "复制构造函数", py::arg("src"))
-        .def("AssignRandomString", &tcDBString::AssignRandomString, "分配一个随机字符串")
-        .def("AssignRandomStringB", &tcDBString::AssignRandomStringB, "分配另一个随机字符串（可能是不同的实现）")
-        .def("AssignRandomSuffix", &tcDBString::AssignRandomSuffix, "向现有字符串添加随机后缀")
-        .def("c_str", &tcDBString::c_str, py::return_value_policy::copy, "返回C风格字符串的副本")
-        .def("size", &tcDBString::size, "返回字符串的大小")
-        // 绑定赋值操作符
-        .def("__setitem__", [](tcDBString& self, const std::string& index, const std::string& value) {
-            if (index.empty()) { // 假设我们不支持索引赋值，只支持整体赋值
-                self = tcDBString(value.c_str());
-            } else {
-                throw std::runtime_error("tcDBString不支持索引赋值");
-            }
-        }, "不支持索引赋值，只支持整体赋值")
-        .def("__eq__", [](const tcDBString& self, const std::string& other) {
-            return self == other.c_str();
-        }, py::is_operator(), "与C风格字符串的比较操作符")
-        .def("__eq__", [](const tcDBString& self, const tcDBString& other) {
-            return self == other;
-        }, py::is_operator(), "与另一个tcDBString的比较操作符")
-        .def("__str__", [](const tcDBString& self) {
-            return std::string(self.c_str()); // 返回Python字符串
-        }, "返回字符串的Python表示");
+    // py::class_<tcDBString>(m, "tcDBString")
+    // .def(py::init<>(), "默认构造函数")
+    //     .def(py::init<const char*>(), "接受C风格字符串的构造函数", py::arg("buff"))
+    //     .def(py::init<const std::string&>())
+    //     .def(py::init<const tcDBString&>(), "复制构造函数", py::arg("src"))
+    //     .def("AssignRandomString", &tcDBString::AssignRandomString, "分配一个随机字符串")
+    //     .def("AssignRandomStringB", &tcDBString::AssignRandomStringB, "分配另一个随机字符串（可能是不同的实现）")
+    //     .def("AssignRandomSuffix", &tcDBString::AssignRandomSuffix, "向现有字符串添加随机后缀")
+    //     .def("c_str", &tcDBString::c_str, py::return_value_policy::copy, "返回C风格字符串的副本")
+    //     .def("size", &tcDBString::size, "返回字符串的大小")
+    //     // 绑定赋值操作符
+    //     .def("__setitem__", [](tcDBString& self, const std::string& index, const std::string& value) {
+    //         if (index.empty()) { // 假设我们不支持索引赋值，只支持整体赋值
+    //             self = tcDBString(value.c_str());
+    //         } else {
+    //             throw std::runtime_error("tcDBString不支持索引赋值");
+    //         }
+    //     }, "不支持索引赋值，只支持整体赋值")
+    //     .def("__eq__", [](const tcDBString& self, const std::string& other) {
+    //         return self == other.c_str();
+    //     }, py::is_operator(), "与C风格字符串的比较操作符")
+    //     .def("__eq__", [](const tcDBString& self, const tcDBString& other) {
+    //         return self == other;
+    //     }, py::is_operator(), "与另一个tcDBString的比较操作符")
+    //     .def("__str__", [](const tcDBString& self) {
+    //         return std::string(self.c_str()); // 返回Python字符串
+    //     }, "返回字符串的Python表示");
 
     py::class_<tcDatabaseObject>(m, "tcDatabaseObject")
         .def(pybind11::init<>()) // 绑定默认构造函数
@@ -77,7 +78,8 @@ void BindDBObject(module &m)
         .def_readwrite("iconFileName", &tcDatabaseObject::iconFileName) // 如果tcDBString是std::string的别名
         .def_readwrite("mz3DModelFileName", &tcDatabaseObject::mz3DModelFileName) // 同上
         .def_readwrite("mzDescription", &tcDatabaseObject::mzDescription)
-        .def_readwrite("notes", &tcDatabaseObject::notes);
+        .def_readwrite("notes", &tcDatabaseObject::notes)
+        .def("CalculateParams", &tcDatabaseObject::CalculateParams);
 
     pybind11::class_<tcAcousticModel>(m, "tcAcousticModel")
         .def(pybind11::init<>()) // 绑定默认构造函数
@@ -120,7 +122,8 @@ void BindDBObject(module &m)
         .def_readwrite("radarSignature", &tcAirDetectionDBObject::radarSignature)
         .def_readwrite("irSignatureA", &tcAirDetectionDBObject::irSignatureA)
         .def_readwrite("irSignatureB", &tcAirDetectionDBObject::irSignatureB)
-        .def_readwrite("irSignatureC", &tcAirDetectionDBObject::irSignatureC);
+        .def_readwrite("irSignatureC", &tcAirDetectionDBObject::irSignatureC)
+        .def("BindSignatureModels",&tcAirDetectionDBObject::BindSignatureModels);
 
     py::class_<tcWeaponDBObject, tcDatabaseObject>(m, "tcWeaponDBObject")
         .def(py::init<>())
@@ -138,8 +141,8 @@ void BindDBObject(module &m)
         .def_readwrite("payloadQuantity", &tcWeaponDBObject::payloadQuantity)
         .def_readwrite("datalinkRange_km", &tcWeaponDBObject::datalinkRange_km)
         .def_readwrite("acceptsUserCommands", &tcWeaponDBObject::acceptsUserCommands)
-        .def_readwrite("detonationRange_m", &tcWeaponDBObject::detonationRange_m);
-
+        .def_readwrite("detonationRange_m", &tcWeaponDBObject::detonationRange_m)
+        .def("CalculateParams",&tcWeaponDBObject::CalculateParams);
 
     py::class_<tcBallisticDBObject, tcWeaponDBObject>(m, "tcBallisticDBObject")
         .def(py::init<>()) // 假设tcBallisticDBObject有一个默认构造函数
@@ -164,7 +167,8 @@ void BindDBObject(module &m)
         .def_readwrite("TS", &tcWaterDetectionDBObject::TS)
         .def_readwrite("TS_Model", &tcWaterDetectionDBObject::TS_Model)
         .def_readwrite("acousticModel", &tcWaterDetectionDBObject::acousticModel)
-        .def_readwrite("SL_Model", &tcWaterDetectionDBObject::SL_Model);
+        .def_readwrite("SL_Model", &tcWaterDetectionDBObject::SL_Model)
+        .def("BindSignatureModels",&tcWaterDetectionDBObject::BindSignatureModels);
     py::class_<tcCounterMeasureDBObject,
                tcDatabaseObject, tcAirDetectionDBObject,
                tcWaterDetectionDBObject>(m, "tcCounterMeasureDBObject")
@@ -172,7 +176,9 @@ void BindDBObject(module &m)
         .def_readwrite("subType", &tcCounterMeasureDBObject::subType)
         .def_readwrite("lifeSpan_s", &tcCounterMeasureDBObject::lifeSpan_s)
         .def_readwrite("effectiveness", &tcCounterMeasureDBObject::effectiveness)
-        .def_readwrite("maxSpeed_mps", &tcCounterMeasureDBObject::maxSpeed_mps);
+        .def_readwrite("maxSpeed_mps", &tcCounterMeasureDBObject::maxSpeed_mps)
+        .def("CalculateParams",&tcCounterMeasureDBObject::CalculateParams);
+
     py::class_<tcCountryData>(m, "tcCountryData")
         .def(py::init<>())
         .def_readwrite("countryName", &tcCountryData::countryName)
@@ -182,7 +188,8 @@ void BindDBObject(module &m)
         .def(py::init<>())
         .def_readwrite("heloOnly", &tcFlightportDBObject::heloOnly)
         .def_readwrite("hangarCapacity", &tcFlightportDBObject::hangarCapacity)
-        .def_readwrite("spotInfo", &tcFlightportDBObject::spotInfo);
+        .def_readwrite("spotInfo", &tcFlightportDBObject::spotInfo)
+        .def("CalculateParams",&tcFlightportDBObject::CalculateParams);
 
     py::class_<tcFlightportDBObject::spotDBInfo>(m, "spotDBInfo")
         .def(py::init<>())
@@ -195,11 +202,13 @@ void BindDBObject(module &m)
 
     py::class_<tcFuelTankDBObject,tcDatabaseObject>(m, "tcFuelTankDBObject")
         .def(py::init<>())
-        .def_readwrite("fuelCapacity_kg", &tcFuelTankDBObject::fuelCapacity_kg);
+        .def_readwrite("fuelCapacity_kg", &tcFuelTankDBObject::fuelCapacity_kg)
+        .def("CalculateParams",&tcFuelTankDBObject::CalculateParams);
 
     py::class_<tcGroundDBObject,tcPlatformDBObject,tcAirDetectionDBObject>(m, "tcGroundDBObject")
         .def(py::init<>())
-        .def_readwrite("flightportClass", &tcGroundDBObject::flightportClass);
+        .def_readwrite("flightportClass", &tcGroundDBObject::flightportClass)
+        .def("CalculateParams",&tcFuelTankDBObject::CalculateParams);
     py::class_<tcAirDBObject,tcPlatformDBObject, tcAirDetectionDBObject, tcWaterDetectionDBObject>(m, "tcAirDBObject")
         .def(py::init<>())
         .def_readwrite("maxTakeoffWeight_kg", &tcAirDBObject::maxTakeoffWeight_kg)
@@ -212,7 +221,8 @@ void BindDBObject(module &m)
         .def_readwrite("fuelOut_kgps", &tcAirDBObject::fuelOut_kgps)
         .def_readwrite("fuelIn_kgps", &tcAirDBObject::fuelIn_kgps)
         .def_readwrite("maintenanceMin_s", &tcAirDBObject::maintenanceMin_s)
-        .def_readwrite("maintenanceMax_s", &tcAirDBObject::maintenanceMax_s);
+        .def_readwrite("maintenanceMax_s", &tcAirDBObject::maintenanceMax_s)
+        .def("CalculateParams",&tcAirDBObject::CalculateParams);
     py::class_<tcJetDBObject,tcAirDBObject>(m, "tcJetDBObject")
         .def(py::init<>())
         .def_readwrite("militaryThrust_N", &tcJetDBObject::militaryThrust_N)
@@ -226,7 +236,8 @@ void BindDBObject(module &m)
         .def_readwrite("mfMcm", &tcJetDBObject::mfMcm)
         .def_readwrite("mfMsupm", &tcJetDBObject::mfMsupm)
         .def_readwrite("cruiseSpeed_mps", &tcJetDBObject::cruiseSpeed_mps)
-        .def_readwrite("stallSpeed_mps", &tcJetDBObject::stallSpeed_mps);
+        .def_readwrite("stallSpeed_mps", &tcJetDBObject::stallSpeed_mps)
+        .def("CalculateParams",&tcJetDBObject::CalculateParams);
 
     py::class_<tcLauncherDBObject,tcDatabaseObject>(m, "tcLauncherDBObject")
         .def(py::init<>()) // Default constructor
@@ -234,7 +245,8 @@ void BindDBObject(module &m)
         .def_readwrite("childClassList", &tcLauncherDBObject::childClassList)
         .def_readwrite("childCapacityList", &tcLauncherDBObject::childCapacityList)
         .def_readwrite("childLoadTime_s", &tcLauncherDBObject::childLoadTime_s)
-        .def_readwrite("childCycleTime_s", &tcLauncherDBObject::childCycleTime_s);
+        .def_readwrite("childCycleTime_s", &tcLauncherDBObject::childCycleTime_s)
+        .def("CalculateParams",&tcLauncherDBObject::CalculateParams);
 
     py::class_<tsMissileFlightSegment>(m, "tsMissileFlightSegment")
         .def(py::init<>())
@@ -242,7 +254,6 @@ void BindDBObject(module &m)
         .def_readwrite("mfAltitude_m", &tsMissileFlightSegment::mfAltitude_m)
         .def_readwrite("meAltitudeMode", &tsMissileFlightSegment::meAltitudeMode)
         .def_readwrite("meGuidanceMode", &tsMissileFlightSegment::meGuidanceMode);
-
     py::enum_<teAltitudeMode>(m, "teAltitudeMode")
         .value("AM_ASL", teAltitudeMode::AM_ASL)
         .value("AM_AGL", teAltitudeMode::AM_AGL)

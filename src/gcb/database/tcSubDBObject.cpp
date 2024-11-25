@@ -46,6 +46,8 @@ void tcSubDBObject::CalculateParams()
     invMaxSpeed_mps = 1.0f / (C_KTSTOMPS*mfMaxSpeed_kts);
     batteryDrainConstant = batteryRate_kW * invMaxSpeed_mps;
     invDraft_m = 1.0f / std::max(draft_m, 0.1f);
+    // tcAirDetectionDBObject::BindSignatureModels();
+    // tcWaterDetectionDBObject::BindSignatureModels();
 }
 
 /**
@@ -172,6 +174,7 @@ void tcSubDBObject::WritePython(std::string &valueString) const
     valueString+="def CreateDBObject():\n";
     valueString+="    dbObj=pygcb.tcSubDBObject()\n";
     WritePythonValue(valueString);
+    valueString+="    dbObj.CalculateParams()\n";
     valueString+="    return dbObj\n";
 }
 

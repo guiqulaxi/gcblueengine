@@ -85,6 +85,7 @@ void tcSimpleAirDBObject::WritePython(std::string &valueString) const
     valueString+="def CreateDBObject():\n";
     valueString+="    dbObj=pygcb.tcSimpleAirDBObject()\n";
     WritePythonValue(valueString);
+    valueString+="    dbObj.CalculateParams()";
     valueString+="    return dbObj\n";
 }
 

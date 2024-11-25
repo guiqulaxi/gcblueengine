@@ -1852,7 +1852,7 @@ void tcMissileObject::RandInitNear(float afLon, float afLat)
 {
 
 	//strcpy(mzClass.mz,mpDBObject->mzClass.mz);
-	mzUnit.AssignRandomStringB();
+    mzUnit=strutil::AssignRandomStringB(mzUnit);
 	mfStatusTime = 0;        
 	mcKin.mfLon_rad = afLon + randfc(1.1f);      
 	mcKin.mfLat_rad = afLat + randfc(1.1f);

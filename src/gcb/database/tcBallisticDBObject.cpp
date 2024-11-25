@@ -477,7 +477,6 @@ namespace database
         valueString+="    dbObj.sensorClass="+strutil::to_python_value(sensorClass)+"\n";
         valueString+="    dbObj.smartError_m="+strutil::to_python_value(smartError_m)+"\n";
         valueString+="    dbObj.lockOnAfterLaunch="+strutil::to_python_value(lockOnAfterLaunch)+"\n";
-        valueString+="    dbObj.CalculateParams()\n";
 
 
     }
@@ -488,6 +487,7 @@ namespace database
         valueString+="def CreateDBObject():\n";
         valueString+="    dbObj=pygcb.tcBallisticDBObject()\n";
         WritePythonValue(valueString);
+        valueString+="    dbObj.CalculateParams()\n";
         valueString+="    return dbObj\n";
 
     }

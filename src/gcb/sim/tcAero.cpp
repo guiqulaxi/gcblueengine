@@ -36,6 +36,7 @@
 #include "common/tcStream.h"
 #include "common/tcGameStream.h"
 #include "strutil.h"
+#include<iostream>
 #include<cassert>
 //#include "wx/textfile.h"
 
