@@ -129,6 +129,13 @@ public:
     long GetSize() {return mcObjectData.GetCount();}
     bool GetObject(long anKey, tcDatabaseObject*& rpobj);
     long AddOrUpdateObject( tcDatabaseObject* rpobj);
+
+
+    void AddOrUpdateSignatureModelData(const tcSignatureModel&data);
+    void AddOrUpdateAcousticModelData(const tcAcousticModel& data);
+    void AddOrUpdateWeaponDamageData(const tcWeaponDamage& data);
+    void AddOrUpdateDamageEffectData(const tcDamageEffect&data);
+
     tcDatabaseObject* GetObject(long anKey);
     tcDatabaseObject* GetObject(const std::string& className); ///< gets object by class name
     const std::string& GetObjectClassName(long key);

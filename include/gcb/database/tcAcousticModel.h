@@ -76,6 +76,7 @@ namespace database
         tcAcousticModel();
         tcAcousticModel(const tcAcousticModel& obj); ///< copy constructor
         virtual ~tcAcousticModel();
+        void BuildSLTable();
 	private:
         enum {SL_TABLE_SIZE=512};
         float dv_kts; ///< resolution of lookup table
@@ -87,7 +88,7 @@ namespace database
         float invSpeedRange_kts; ///< 1 / (speedMaxNL_kts-speedMinNL_kts)
         float NL_slope;
 
-        void BuildSLTable();
+
         float GetVelocitySL(float speed_kts) const;
         
 

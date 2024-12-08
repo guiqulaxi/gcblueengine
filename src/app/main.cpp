@@ -3,6 +3,7 @@
 #include "Game.h"
 #include <thread>
 #include <string>
+
 // #include <chrono>
 // #include "tinyxml2.h"
 // #include <windows.h>
@@ -43,6 +44,9 @@ void serverFunc( const std::string &ip, int port ,tcGame  *game) {
         std::cerr << "Failed to start server." <<ip <<":"<<port<< std::endl;
     }
 }
+
+
+
 int main(int argc, char *argv[])
 {
 

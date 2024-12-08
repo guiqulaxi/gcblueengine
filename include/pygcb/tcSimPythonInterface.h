@@ -101,7 +101,13 @@ namespace scriptinterface
         tcScenarioInterface* GetScenarioInterface() const;
 
         void ClearScenario();
-        void LoadDatabase(const std::string&filePath); ///< loads data from Python script file
+
+        void LoadDamageEffect(const std::string&filePath);
+        void LoadWeaponDamage(const std::string&filePath);
+        void LoadSignatureModel(const std::string&filePath);
+        void LoadAcousticModel(const std::string&filePath);
+
+        void LoadDBObject(const std::string&filePath); ///< loads DBObject from Python script file
         void LoadScenario(const std::string&filePath); ///< loads scenario from Python script file
 
 

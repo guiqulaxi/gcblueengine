@@ -843,6 +843,15 @@ static  std::string&  toPythonVar(std::string&str)
     strutil::replace_all(str,"(","_");
     strutil::replace_all(str,")","_");
     strutil::replace_all(str,"-","_");
+    strutil::replace_all(str,".","_");
+    strutil::replace_all(str,":","_");
+    if(str.size()>0)
+    {
+        if(std::isdigit(str[0]))
+        {
+            str="G"+str;
+        }
+    }
 
     return str;
 }

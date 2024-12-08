@@ -39,11 +39,7 @@
 #include <iomanip>
 #include <tcDatabaseIterator.h>
 #include <tcSensorTrackIterator.h>
-//#include "wx/datetime.h"
-//#include "wx/progdlg.h"
-//#include <wx/filedlg.h>
-//#include <wx/filename.h>
-//#include <wx/xml/xml.h>
+#include <filesystem>
 
 #include "commandlist.h" // for custom command queue handler
 #include "tcCommandQueue.h"
@@ -92,6 +88,8 @@
 
 
 using namespace std;
+namespace fs = std::filesystem;
+
 // using network::tcMultiplayerInterface;
 
 
@@ -456,6 +454,8 @@ void tcGame::Init()
             database->SerializeSql("_copy", false);
         }
 
+
+
         tcGameObject::SetGameObjectDatabase(database); // added to allow objects to init themselves
 
         simState->AttachDB(database);
@@ -597,6 +597,40 @@ bool tcGame::InitSim()
     tcFlightPort::InitTransitionTimes();
 
     Aero::LoadAtmosphereTable();
+    //加载水声数据
+    for (const auto& entry : fs::directory_iterator("database/py/acoustic_noise")) {
+        if (fs::is_regular_file(entry.status())) {
+            auto pathString=entry.path().string();
+            std::replace(pathString.begin(), pathString.end(), '\\', '/');
+            LoadAcousticModel(pathString);
+        }
+    }
+    //加载特性数据
+    for (const auto& entry : fs::directory_iterator("database/py/signature")) {
+        if (fs::is_regular_file(entry.status())) {
+            auto pathString=entry.path().string();
+            std::replace(pathString.begin(), pathString.end(), '\\', '/');
+            LoadSignatureModel(pathString);
+        }
+    }
+    //加载毁伤数据
+    for (const auto& entry : fs::directory_iterator("database/py/weapon_damage")) {
+        if (fs::is_regular_file(entry.status())) {
+            auto pathString=entry.path().string();
+            std::replace(pathString.begin(), pathString.end(), '\\', '/');
+            LoadWeaponDamage(pathString);
+        }
+    }
+    //加载毁伤效果
+    for (const auto& entry : fs::directory_iterator("database/py/damage_effect")) {
+        if (fs::is_regular_file(entry.status())) {
+            auto pathString=entry.path().string();
+            std::replace(pathString.begin(), pathString.end(), '\\', '/');
+            LoadDamageEffect(pathString);
+        }
+    }
+
+
 
 
     return true;
@@ -623,7 +657,8 @@ void tcGame::SaveDatabaseToPython(const std::string& dirPath)
     for(auto kv:database->GetAcousticModelData())
     {
         std::ofstream ofs;
-        std::string path= dirPath+"/acoustic_noise/"+strutil::toPythonVar(kv.second.databaseClass)+".py";
+        std::string name=kv.first;
+        std::string path= dirPath+"/acoustic_noise/"+strutil::toPythonVar(name)+".py";
         ofs.open(path);
         std::string valueString;
         kv.second.WritePython(valueString);
@@ -633,7 +668,8 @@ void tcGame::SaveDatabaseToPython(const std::string& dirPath)
     for(auto kv:database->GetSignatureModelData())
     {
         std::ofstream ofs;
-        std::string path= dirPath+"/signature/"+strutil::toPythonVar(kv.second.mzClass)+".py";
+        std::string name=kv.first;
+        std::string path= dirPath+"/signature/"+strutil::toPythonVar(name)+".py";
         ofs.open(path);
         std::string valueString;
         kv.second.WritePython(valueString);
@@ -644,8 +680,10 @@ void tcGame::SaveDatabaseToPython(const std::string& dirPath)
     for(auto kv:database->GetWeaponDamageData().GetData())
     {
         std::ofstream ofs;
-        std::string path= dirPath+"/weapon_damage/"+strutil::toPythonVar(kv.second.databaseClass)+".py";
+        std::string name=kv.first;
+        std::string path= dirPath+"/weapon_damage/"+strutil::toPythonVar(name)+".py";
         ofs.open(path);
+
         std::string valueString;
         kv.second.WritePython(valueString);
         ofs<<valueString;
@@ -654,7 +692,8 @@ void tcGame::SaveDatabaseToPython(const std::string& dirPath)
     for(auto kv:database->GetDamageEffectData().GetData())
     {
         std::ofstream ofs;
-        std::string path= dirPath+"/damage_effect/"+strutil::toPythonVar(kv.second.databaseClass)+".py";
+        std::string name=kv.first;
+        std::string path= dirPath+"/damage_effect/"+strutil::toPythonVar(name)+".py";
         ofs.open(path);
         std::string valueString;
         kv.second.WritePython(valueString);
@@ -662,12 +701,7 @@ void tcGame::SaveDatabaseToPython(const std::string& dirPath)
         ofs.close();
     }
 
-    // special tables for advanced damage model
-    tcDatabaseTable<tcWeaponDamage> weaponDamageData;
-    tcDatabaseTable<tcDamageEffect> damageEffectData;
 
-    tcWeaponDamage weaponDamageDefault;
-    tcDamageEffect damageEffectDefault;
 
 
 
@@ -728,6 +762,66 @@ std::string GetFileExtension(const std::string& fileName) {
     return fileName.substr(dotPos + 1);
 
 }
+void tcGame::LoadDamageEffect(const std::string&filePath)
+{
+    tcSimPythonInterface* pythonInterface =	tcSimPythonInterface::Get();
+    // clear briefing in case scenario fails to set it
+    pythonInterface->GetScenarioInterface()->ClearSimpleBriefing();
+
+    string extension = GetFileExtension(filePath);
+
+    tcScenarioRandomizer::Get()->Clear();
+    if (extension == "py")
+    {
+        pythonInterface->LoadDamageEffect(filePath.c_str());
+    }
+}
+void tcGame::LoadWeaponDamage(const std::string&filePath)
+{
+    tcSimPythonInterface* pythonInterface =	tcSimPythonInterface::Get();
+    // clear briefing in case scenario fails to set it
+    pythonInterface->GetScenarioInterface()->ClearSimpleBriefing();
+
+    string extension = GetFileExtension(filePath);
+
+    tcScenarioRandomizer::Get()->Clear();
+    if (extension == "py")
+    {
+        pythonInterface->LoadWeaponDamage(filePath.c_str());
+    }
+}
+void tcGame::LoadSignatureModel(const std::string&filePath)
+{
+    tcSimPythonInterface* pythonInterface =	tcSimPythonInterface::Get();
+    // clear briefing in case scenario fails to set it
+    pythonInterface->GetScenarioInterface()->ClearSimpleBriefing();
+
+    string extension = GetFileExtension(filePath);
+
+    tcScenarioRandomizer::Get()->Clear();
+    if (extension == "py")
+    {
+        pythonInterface->LoadSignatureModel(filePath.c_str());
+    }
+}
+void tcGame::LoadAcousticModel(const std::string&filePath)
+{
+    tcSimPythonInterface* pythonInterface =	tcSimPythonInterface::Get();
+
+
+    // clear briefing in case scenario fails to set it
+    pythonInterface->GetScenarioInterface()->ClearSimpleBriefing();
+
+    string extension = GetFileExtension(filePath);
+
+    tcScenarioRandomizer::Get()->Clear();
+    if (extension == "py")
+    {
+        pythonInterface->LoadAcousticModel(filePath.c_str());
+    }
+
+}
+
 void tcGame::LoadDatabase(const std::string &filePath)
 {
     tcSimPythonInterface* pythonInterface =	tcSimPythonInterface::Get();
@@ -741,7 +835,7 @@ void tcGame::LoadDatabase(const std::string &filePath)
     tcScenarioRandomizer::Get()->Clear();
     if (extension == "py")
     {
-        pythonInterface->LoadDatabase(filePath.c_str());
+        pythonInterface->LoadDBObject(filePath.c_str());
     }
 
 }

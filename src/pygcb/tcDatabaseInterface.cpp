@@ -104,7 +104,28 @@ long tcDatabaseInterface::AddOrUpdateObject(tcDatabaseObject *rpobj)
 {
     return tcDatabase::Get()->AddOrUpdateObject(rpobj);
 }
+void tcDatabaseInterface::AddOrUpdateSignatureModelData(const tcSignatureModel *data)
+{
+    return tcDatabase::Get()->AddOrUpdateSignatureModelData(*data);
 
+}
+void tcDatabaseInterface::AddOrUpdateAcousticModelData(const tcAcousticModel* data)
+{
+    return tcDatabase::Get()->AddOrUpdateAcousticModelData(*data);
+
+}
+
+
+void tcDatabaseInterface::AddOrUpdateWeaponDamageData(const tcWeaponDamage* data)
+{
+    return tcDatabase::Get()->AddOrUpdateWeaponDamageData(*data);
+
+}
+void tcDatabaseInterface::AddOrUpdateDamageEffectData(const tcDamageEffect*data)
+{
+    return tcDatabase::Get()->AddOrUpdateDamageEffectData(*data);
+
+}
 /**
 * @return NULL if not found
 */

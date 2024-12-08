@@ -206,6 +206,10 @@ public:
     void SetInGame(bool state); ///< test command for multiplayer
 
 
+    void LoadDamageEffect(const std::string&filePath);
+    void LoadWeaponDamage(const std::string&filePath);
+    void LoadSignatureModel(const std::string&filePath);
+    void LoadAcousticModel(const std::string&filePath);
 
     void LoadDatabase(const std::string& filePath);
 

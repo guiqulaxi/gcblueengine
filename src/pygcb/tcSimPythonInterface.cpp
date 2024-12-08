@@ -584,7 +584,38 @@ void tcSimPythonInterface::ClearScenario()
     //    overlay->ClearMapObjects();
 }
 
-void tcSimPythonInterface::LoadDatabase(const std::string &filePath)
+void tcSimPythonInterface::LoadDBObject(const std::string &filePath)
+{
+    assert(mpSimState);
+
+    // start with clear state for new scenario
+    ClearScenario();
+
+    std::string cmdText;
+    std::string errText;
+
+    if (filePath.length() < 2) return; // work-around to support clear only
+
+    std::string fileNameWx(filePath);
+    if (strutil::contains(fileNameWx,".py"))
+    {
+        // remove .py extension from fileName
+        int findIdx = fileNameWx.find(".py");
+        fileNameWx = fileNameWx.substr(0, findIdx);
+        printf( "tcSimPythonInterface -- Loading DBObject %s\n", fileNameWx.c_str());
+    }
+    std::string pythonMoudlePath=fileNameWx;
+    strutil::replace_all(pythonMoudlePath,"/",".");
+    strutil::replace_all(pythonMoudlePath,"\\",".");
+
+    //    try {
+    py::exec(strutil::format("from %s import *",pythonMoudlePath.c_str()));
+    py::exec("dbObj=CreateDBObject()\n");
+    py::exec("DatabaseManager.AddOrUpdateObject(dbObj)\n");
+
+}
+
+void tcSimPythonInterface::LoadDamageEffect(const std::string&filePath)
 {
     assert(mpSimState);
 
@@ -611,7 +642,98 @@ void tcSimPythonInterface::LoadDatabase(const std::string &filePath)
     //    try {
     py::exec(strutil::format("from %s import *",pythonMoudlePath.c_str()));
     py::exec("dbObj=CreateDBObject()\n");
-    py::exec("DatabaseManager.AddOrUpdateObject(dbObj)\n");
+    py::exec("DatabaseManager.AddOrUpdateDamageEffectData(dbObj)\n");
+
+}
+void tcSimPythonInterface::LoadWeaponDamage(const std::string&filePath)
+{
+    assert(mpSimState);
+
+    // start with clear state for new scenario
+    ClearScenario();
+
+    std::string cmdText;
+    std::string errText;
+
+    if (filePath.length() < 2) return; // work-around to support clear only
+
+    std::string fileNameWx(filePath);
+    if (strutil::contains(fileNameWx,".py"))
+    {
+        // remove .py extension from fileName
+        int findIdx = fileNameWx.find(".py");
+        fileNameWx = fileNameWx.substr(0, findIdx);
+        printf( "tcSimPythonInterface -- Loading Database %s\n", fileNameWx.c_str());
+    }
+    std::string pythonMoudlePath=fileNameWx;
+    strutil::replace_all(pythonMoudlePath,"/",".");
+    strutil::replace_all(pythonMoudlePath,"\\",".");
+    //    try {
+    py::exec(strutil::format("from %s import *",pythonMoudlePath.c_str()));
+    py::exec("dbObj=CreateDBObject()\n");
+    py::exec("DatabaseManager.AddOrUpdateWeaponDamageData(dbObj)\n");
+
+}
+void tcSimPythonInterface::LoadSignatureModel(const std::string&filePath)
+{
+    assert(mpSimState);
+
+    // start with clear state for new scenario
+    ClearScenario();
+
+    std::string cmdText;
+    std::string errText;
+
+    if (filePath.length() < 2) return; // work-around to support clear only
+
+    std::string fileNameWx(filePath);
+    if (strutil::contains(fileNameWx,".py"))
+    {
+        // remove .py extension from fileName
+        int findIdx = fileNameWx.find(".py");
+        fileNameWx = fileNameWx.substr(0, findIdx);
+        printf( "tcSimPythonInterface -- Loading Database %s\n", fileNameWx.c_str());
+    }
+    std::string pythonMoudlePath=fileNameWx;
+    strutil::replace_all(pythonMoudlePath,"/",".");
+    strutil::replace_all(pythonMoudlePath,"\\",".");
+
+    //    try {
+    py::exec(strutil::format("from %s import *",pythonMoudlePath.c_str()));
+    py::exec("dbObj=CreateDBObject()\n");
+    py::exec("DatabaseManager.AddOrUpdateSignatureModelData(dbObj)\n");
+
+}
+void tcSimPythonInterface::LoadAcousticModel(const std::string&filePath)
+{
+    assert(mpSimState);
+
+    // start with clear state for new scenario
+    ClearScenario();
+
+    std::string cmdText;
+    std::string errText;
+
+    if (filePath.length() < 2) return; // work-around to support clear only
+
+    std::string fileNameWx(filePath);
+    if (strutil::contains(fileNameWx,".py"))
+    {
+        // remove .py extension from fileName
+        int findIdx = fileNameWx.find(".py");
+        fileNameWx = fileNameWx.substr(0, findIdx);
+        printf( "tcSimPythonInterface -- Loading Database %s\n", fileNameWx.c_str());
+    }
+    std::string pythonMoudlePath=fileNameWx;
+    strutil::replace_all(pythonMoudlePath,"/",".");
+    strutil::replace_all(pythonMoudlePath,"\\",".");
+
+    //    try {
+    py::exec(strutil::format("from %s import *",pythonMoudlePath.c_str()));
+    py::exec("dbObj=CreateDBObject()\n");
+    py::exec("print(dbObj)\n");
+    py::exec("DatabaseManager.AddOrUpdateAcousticModelData(dbObj)\n");
+
 
 }
 

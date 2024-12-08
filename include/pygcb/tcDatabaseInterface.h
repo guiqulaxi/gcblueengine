@@ -37,6 +37,11 @@ public:
                               std::ofstream &log, unsigned int& errorCount);
     long GetSize();
     long AddOrUpdateObject( tcDatabaseObject* rpobj);
+    void AddOrUpdateSignatureModelData(const tcSignatureModel*data);
+    void AddOrUpdateAcousticModelData(const tcAcousticModel* data);
+    void AddOrUpdateWeaponDamageData(const tcWeaponDamage* data);
+    void AddOrUpdateDamageEffectData(const tcDamageEffect* data);
+
     tcDatabaseObject* GetObjectByKey(long anKey);
     tcDatabaseObject* GetObjectByClassName(const std::string& className); ///< gets object by class name
     const std::string& GetObjectClassName(long key);

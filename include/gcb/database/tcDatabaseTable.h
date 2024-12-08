@@ -52,7 +52,7 @@ namespace database
 
         void ReadSql(sqlite3x::sqlite3_connection& sqlConnection, const std::string& tableName);
         const T* GetData(const std::string& databaseClass) const;
-
+        void AddOrUpdate(const T& data);
         tcDatabaseTable() {}
         ~tcDatabaseTable() {}
         const std::map<std::string, T>& GetData() const{return tableData; }
@@ -96,6 +96,11 @@ namespace database
         {
             return nullptr;
         }
+    }
+    template <class T>
+    void tcDatabaseTable<T>::AddOrUpdate(const T& data)
+    {
+            tableData[data.databaseClass] =data;
     }
 
 

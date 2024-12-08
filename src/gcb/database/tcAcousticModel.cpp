@@ -275,7 +275,7 @@ void tcAcousticModel::WritePython(std::string &valueString) const
     valueString+="def CreateDBObject():\n";
     valueString+="    dbObj=pygcb.tcAcousticModel()\n";
     WritePythonValue(valueString);
-    valueString+="    return "+std::string(databaseClass.c_str());
+    valueString+="    return dbObj";
 }
 
 

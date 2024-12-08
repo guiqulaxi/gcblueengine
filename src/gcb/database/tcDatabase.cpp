@@ -2806,6 +2806,25 @@ long tcDatabase::AddOrUpdateObject(tcDatabaseObject *rpobj)
     return key;
 }
 
+
+void tcDatabase::AddOrUpdateSignatureModelData(const tcSignatureModel&data)
+{
+    signatureModelData[data.mzClass]=data;
+}
+void tcDatabase::AddOrUpdateAcousticModelData(const tcAcousticModel& data)
+{
+    acousticModelData[data.databaseClass]=data;
+}
+void tcDatabase::AddOrUpdateWeaponDamageData(const tcWeaponDamage& data)
+{
+    weaponDamageData.AddOrUpdate(data);
+}
+void tcDatabase::AddOrUpdateDamageEffectData(const tcDamageEffect&data)
+{
+    damageEffectData.AddOrUpdate(data);
+}
+
+
 /**
 * @return NULL if not found
 */

@@ -93,7 +93,8 @@ void BindDBObject(module &m)
         .def_readwrite("cavitationOffset_kts", &tcAcousticModel::cavitationOffset_kts)
         .def_readwrite("cavitationSlope_ktsperft", &tcAcousticModel::cavitationSlope_ktsperft)
         .def_readwrite("cavitationSL_dB", &tcAcousticModel::cavitationSL_dB)
-        .def_readwrite("snorkelingSL_dB", &tcAcousticModel::snorkelingSL_dB);
+        .def_readwrite("snorkelingSL_dB", &tcAcousticModel::snorkelingSL_dB)
+        .def("BuildSLTable", &tcAcousticModel::BuildSLTable);
     py::class_<tcSignatureModel>(m, "tcSignatureModel")
         .def(pybind11::init<>())
         .def_readwrite("mzClass", &tcSignatureModel::mzClass)
