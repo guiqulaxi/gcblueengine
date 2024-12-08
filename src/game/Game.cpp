@@ -578,7 +578,6 @@ void tcGame::UninitGame()
 }
 
 
-
 bool tcGame::InitSim()
 {
     simState->AttachMapData(mapData);
@@ -597,6 +596,7 @@ bool tcGame::InitSim()
     tcFlightPort::InitTransitionTimes();
 
     Aero::LoadAtmosphereTable();
+
     //加载水声数据
     for (const auto& entry : fs::directory_iterator("database/py/acoustic_noise")) {
         if (fs::is_regular_file(entry.status())) {
@@ -629,10 +629,39 @@ bool tcGame::InitSim()
             LoadDamageEffect(pathString);
         }
     }
-
-
-
-
+    //加载所有数据
+    std::vector<std::string> dataDir= {
+                                        //"ballistic",
+                                        "ballistic_missile"/*,
+                                        "cm",
+                                        "ecm",
+                                        "esm",
+                                        "flightport",
+                                        "fueltank",
+                                        "ground",
+                                        "item",
+                                        "missile",
+                                        "optical",
+                                        "radar",
+                                        "ship",
+                                        "simpleair",
+                                        "sonar",
+                                        "sonobuoy",
+                                        "space",
+                                        "stores",
+                                        "sub",
+                                        "torpedo"*/
+    };
+    for (auto & dir:dataDir)
+    {
+        for (const auto& entry : fs::directory_iterator("database/py/"+dir)) {
+            if (fs::is_regular_file(entry.status())) {
+                auto pathString=entry.path().string();
+                std::replace(pathString.begin(), pathString.end(), '\\', '/');
+                LoadDatabaseObject(pathString);
+            }
+        }
+    }
     return true;
 }
 
@@ -822,7 +851,7 @@ void tcGame::LoadAcousticModel(const std::string&filePath)
 
 }
 
-void tcGame::LoadDatabase(const std::string &filePath)
+void tcGame::LoadDatabaseObject(const std::string &filePath)
 {
     tcSimPythonInterface* pythonInterface =	tcSimPythonInterface::Get();
 

@@ -708,9 +708,9 @@ static std::string to_python_value(const std::vector<bool>& data)
 static std::string to_python_value(const std::string& data)
 {
     std::string valueString;
-
-    valueString += "'"+data+"'";
-
+    std::string _data=data;
+    strutil::replace_all(_data,"'",R"(\')");
+    valueString += "'"+_data+"'";
     return valueString;
 }
 static std::string to_python_value(const char* data)
@@ -845,6 +845,9 @@ static  std::string&  toPythonVar(std::string&str)
     strutil::replace_all(str,"-","_");
     strutil::replace_all(str,".","_");
     strutil::replace_all(str,":","_");
+    strutil::replace_all(str,"+","_");
+    strutil::replace_all(str,"&","_");
+
     if(str.size()>0)
     {
         if(std::isdigit(str[0]))

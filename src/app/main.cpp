@@ -62,8 +62,6 @@ int main(int argc, char *argv[])
 
     tcGame  *game = new tcGame();
     game->Init();
-    game->InitSim();
-
     //game->LoadDatabase("database/py/sub/Gotland.py");
     std::string runmode=a.get<std::string>("runmode");
     if(runmode=="normal")

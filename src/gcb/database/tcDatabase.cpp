@@ -3336,8 +3336,8 @@ void tcDatabase::ReportProgress(const std::string& msg, float fractionalProgess)
 tcDatabase::tcDatabase()  :
     mstrCurrentFile("NULL"),
     mnVersion(VERSION_CURRENT),
-    useDynamicLoad(true),
-    sqlConnection(0)
+    sqlConnection(0),
+    useDynamicLoad(true)
 // progressDialog(0)
 {
     tcDatabaseObject::AttachDatabase(this);

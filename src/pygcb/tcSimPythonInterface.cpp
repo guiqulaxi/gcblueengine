@@ -589,7 +589,7 @@ void tcSimPythonInterface::LoadDBObject(const std::string &filePath)
     assert(mpSimState);
 
     // start with clear state for new scenario
-    ClearScenario();
+    //ClearScenario();
 
     std::string cmdText;
     std::string errText;
@@ -620,7 +620,7 @@ void tcSimPythonInterface::LoadDamageEffect(const std::string&filePath)
     assert(mpSimState);
 
     // start with clear state for new scenario
-    ClearScenario();
+    //ClearScenario();
 
     std::string cmdText;
     std::string errText;
@@ -633,7 +633,7 @@ void tcSimPythonInterface::LoadDamageEffect(const std::string&filePath)
         // remove .py extension from fileName
         int findIdx = fileNameWx.find(".py");
         fileNameWx = fileNameWx.substr(0, findIdx);
-        printf( "tcSimPythonInterface -- Loading Database %s\n", fileNameWx.c_str());
+        //printf( "tcSimPythonInterface -- Loading Database %s\n", fileNameWx.c_str());
     }
     std::string pythonMoudlePath=fileNameWx;
     strutil::replace_all(pythonMoudlePath,"/",".");
@@ -650,7 +650,7 @@ void tcSimPythonInterface::LoadWeaponDamage(const std::string&filePath)
     assert(mpSimState);
 
     // start with clear state for new scenario
-    ClearScenario();
+    //ClearScenario();
 
     std::string cmdText;
     std::string errText;
@@ -663,7 +663,7 @@ void tcSimPythonInterface::LoadWeaponDamage(const std::string&filePath)
         // remove .py extension from fileName
         int findIdx = fileNameWx.find(".py");
         fileNameWx = fileNameWx.substr(0, findIdx);
-        printf( "tcSimPythonInterface -- Loading Database %s\n", fileNameWx.c_str());
+        //printf( "tcSimPythonInterface -- Loading Database %s\n", fileNameWx.c_str());
     }
     std::string pythonMoudlePath=fileNameWx;
     strutil::replace_all(pythonMoudlePath,"/",".");
@@ -679,7 +679,7 @@ void tcSimPythonInterface::LoadSignatureModel(const std::string&filePath)
     assert(mpSimState);
 
     // start with clear state for new scenario
-    ClearScenario();
+    //ClearScenario();
 
     std::string cmdText;
     std::string errText;
@@ -692,7 +692,7 @@ void tcSimPythonInterface::LoadSignatureModel(const std::string&filePath)
         // remove .py extension from fileName
         int findIdx = fileNameWx.find(".py");
         fileNameWx = fileNameWx.substr(0, findIdx);
-        printf( "tcSimPythonInterface -- Loading Database %s\n", fileNameWx.c_str());
+        //printf( "tcSimPythonInterface -- Loading Database %s\n", fileNameWx.c_str());
     }
     std::string pythonMoudlePath=fileNameWx;
     strutil::replace_all(pythonMoudlePath,"/",".");
@@ -709,7 +709,7 @@ void tcSimPythonInterface::LoadAcousticModel(const std::string&filePath)
     assert(mpSimState);
 
     // start with clear state for new scenario
-    ClearScenario();
+    //ClearScenario();
 
     std::string cmdText;
     std::string errText;
@@ -722,7 +722,7 @@ void tcSimPythonInterface::LoadAcousticModel(const std::string&filePath)
         // remove .py extension from fileName
         int findIdx = fileNameWx.find(".py");
         fileNameWx = fileNameWx.substr(0, findIdx);
-        printf( "tcSimPythonInterface -- Loading Database %s\n", fileNameWx.c_str());
+       // printf( "tcSimPythonInterface -- Loading Database %s\n", fileNameWx.c_str());
     }
     std::string pythonMoudlePath=fileNameWx;
     strutil::replace_all(pythonMoudlePath,"/",".");

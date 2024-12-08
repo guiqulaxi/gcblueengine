@@ -225,8 +225,8 @@ void tcDamageEffect::WritePythonValue( std::string &valueString) const
     }
     valueString+="    dbObj.waterBlastEffect=[pygcb.DamagePoint()]*"+std::to_string(waterBlastEffect.size())+"\n";
     for (size_t i=0 ; i < waterBlastEffect.size(); ++i) {
-        valueString+="    dbObj.waterBlastEffect["+std::to_string(i)+"].waterBlastEffect="+strutil::to_python_value(waterBlastEffect[i].effectLevel)+"\n";
-        valueString+="    dbObj.waterBlastEffect["+std::to_string(i)+"].waterBlastEffect="+strutil::to_python_value(waterBlastEffect[i].damageFactor)+"\n";
+        valueString+="    dbObj.waterBlastEffect["+std::to_string(i)+"].effectLevel="+strutil::to_python_value(waterBlastEffect[i].effectLevel)+"\n";
+        valueString+="    dbObj.waterBlastEffect["+std::to_string(i)+"].damageFactor="+strutil::to_python_value(waterBlastEffect[i].damageFactor)+"\n";
     }
     valueString+="    dbObj.fragEffect=[pygcb.DamagePoint()]*"+std::to_string(fragEffect.size())+"\n";
     for (size_t i=0 ; i < fragEffect.size(); ++i) {

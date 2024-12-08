@@ -211,7 +211,7 @@ public:
     void LoadSignatureModel(const std::string&filePath);
     void LoadAcousticModel(const std::string&filePath);
 
-    void LoadDatabase(const std::string& filePath);
+    void LoadDatabaseObject(const std::string& filePath);
 
     /**
     * Loads scenario with path+filename of SCENARIO_PATH\<filePath> 相对scenario文件夹
