@@ -731,7 +731,6 @@ void tcSimPythonInterface::LoadAcousticModel(const std::string&filePath)
     //    try {
     py::exec(strutil::format("from %s import *",pythonMoudlePath.c_str()));
     py::exec("dbObj=CreateDBObject()\n");
-    py::exec("print(dbObj)\n");
     py::exec("DatabaseManager.AddOrUpdateAcousticModelData(dbObj)\n");
 
 

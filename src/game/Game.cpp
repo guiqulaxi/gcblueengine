@@ -640,7 +640,7 @@ void tcGame::SaveDatabaseToPython(const std::string& dirPath)
 {
     tcDatabaseIterator iter(0);
     auto& nameToTable=database->GetNameToTable();
-    for(auto kv:nameToTable)
+    for(auto& kv:nameToTable)
     {
         tcDatabaseObject* obj= simState->mpDatabase->GetObject(kv.first);
         if(obj)
@@ -654,7 +654,7 @@ void tcGame::SaveDatabaseToPython(const std::string& dirPath)
             ofs.close();
         }
     }
-    for(auto kv:database->GetAcousticModelData())
+    for(auto &kv:database->GetAcousticModelData())
     {
         std::ofstream ofs;
         std::string name=kv.first;
@@ -665,7 +665,7 @@ void tcGame::SaveDatabaseToPython(const std::string& dirPath)
         ofs<<valueString;
         ofs.close();
     }
-    for(auto kv:database->GetSignatureModelData())
+    for(auto& kv:database->GetSignatureModelData())
     {
         std::ofstream ofs;
         std::string name=kv.first;
@@ -677,7 +677,7 @@ void tcGame::SaveDatabaseToPython(const std::string& dirPath)
         ofs.close();
     }
 
-    for(auto kv:database->GetWeaponDamageData().GetData())
+    for(auto& kv:database->GetWeaponDamageData().GetData())
     {
         std::ofstream ofs;
         std::string name=kv.first;
@@ -689,7 +689,7 @@ void tcGame::SaveDatabaseToPython(const std::string& dirPath)
         ofs<<valueString;
         ofs.close();
     }
-    for(auto kv:database->GetDamageEffectData().GetData())
+    for(auto& kv:database->GetDamageEffectData().GetData())
     {
         std::ofstream ofs;
         std::string name=kv.first;

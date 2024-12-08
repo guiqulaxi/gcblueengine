@@ -218,29 +218,28 @@ tcDamageEffect::tcDamageEffect(sqlite3x::sqlite3_reader& reader)
 void tcDamageEffect::WritePythonValue( std::string &valueString) const
 {
     tcTableObject::WritePythonValue(valueString);
-
+    valueString+="    dbObj.blastEffect=[pygcb.DamagePoint()]*"+std::to_string(blastEffect.size())+"\n";
     for (size_t i=0 ; i < blastEffect.size(); ++i) {
-        valueString+="    dbObj.blastEffect.append(pygcb.DamagePoint())\n";
         valueString+="    dbObj.blastEffect["+std::to_string(i)+"].effectLevel="+strutil::to_python_value(blastEffect[i].effectLevel)+"\n";
         valueString+="    dbObj.blastEffect["+std::to_string(i)+"].damageFactor="+strutil::to_python_value(blastEffect[i].damageFactor)+"\n";
     }
+    valueString+="    dbObj.waterBlastEffect=[pygcb.DamagePoint()]*"+std::to_string(waterBlastEffect.size())+"\n";
     for (size_t i=0 ; i < waterBlastEffect.size(); ++i) {
-        valueString+="    dbObj.waterBlastEffect.append(pygcb.DamagePoint())\n";
         valueString+="    dbObj.waterBlastEffect["+std::to_string(i)+"].waterBlastEffect="+strutil::to_python_value(waterBlastEffect[i].effectLevel)+"\n";
         valueString+="    dbObj.waterBlastEffect["+std::to_string(i)+"].waterBlastEffect="+strutil::to_python_value(waterBlastEffect[i].damageFactor)+"\n";
     }
+    valueString+="    dbObj.fragEffect=[pygcb.DamagePoint()]*"+std::to_string(fragEffect.size())+"\n";
     for (size_t i=0 ; i < fragEffect.size(); ++i) {
-        valueString+="    dbObj.fragEffect.append(pygcb.DamagePoint())\n";
         valueString+="    dbObj.fragEffect["+std::to_string(i)+"].effectLevel="+strutil::to_python_value(fragEffect[i].effectLevel)+"\n";
         valueString+="    dbObj.fragEffect["+std::to_string(i)+"].damageFactor="+strutil::to_python_value(fragEffect[i].damageFactor)+"\n";
     }
+    valueString+="    dbObj.radEffect=[pygcb.DamagePoint()]*"+std::to_string(radEffect.size())+"\n";
     for (size_t i=0 ; i < radEffect.size(); ++i) {
-        valueString+="    dbObj.radEffect.append(pygcb.DamagePoint())\n";
         valueString+="    dbObj.radEffect["+std::to_string(i)+"].effectLevel="+strutil::to_python_value(radEffect[i].effectLevel)+"\n";
         valueString+="    dbObj.radEffect["+std::to_string(i)+"].damageFactor="+strutil::to_python_value(radEffect[i].damageFactor)+"\n";
     }
+    valueString+="    dbObj.internalEffect=[pygcb.DamagePoint()]*"+std::to_string(internalEffect.size())+"\n";
     for (size_t i=0 ; i < internalEffect.size(); ++i) {
-        valueString+="    dbObj.internalEffect.append(pygcb.DamagePoint())\n";
         valueString+="    dbObj.internalEffect["+std::to_string(i)+"].effectLevel="+strutil::to_python_value(internalEffect[i].effectLevel)+"\n";
         valueString+="    dbObj.internalEffect["+std::to_string(i)+"].damageFactor="+strutil::to_python_value(internalEffect[i].damageFactor)+"\n";
     }
