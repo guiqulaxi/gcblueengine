@@ -291,6 +291,7 @@ void BindDBObject(module &m)
     BindSonobuoyDBObject(m);
     BindSubDBObject(m);
     BindTorpedoDBObject(m);
+    BindBallisticMissileDBObject(m);
 
     py::class_<tcItemDBObject , tcDatabaseObject>(m, "tcItemDBObject")
         .def(py::init<>());
