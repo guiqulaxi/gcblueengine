@@ -2032,7 +2032,7 @@ void tcDatabase::ClearForNewScenario()
         useDynamicLoad = true; // only dynamic load is supported for loading from save games
     }
 
-    mcObjectData.RemoveAll();
+    //mcObjectData.RemoveAll();
     ClearDictionaries();
 
     fprintf(stdout, "Clearing database for new scenario\n");
