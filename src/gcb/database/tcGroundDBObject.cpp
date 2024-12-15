@@ -108,7 +108,7 @@ void tcGroundDBObject::WritePythonValue(std::string &valueString) const
 {
     tcPlatformDBObject::WritePythonValue(valueString);
     tcAirDetectionDBObject::WritePythonValue(mzClass,valueString);
-    valueString+="dbObj.flightportClass="+strutil::to_python_value(flightportClass.c_str())+"\n";
+    valueString+="    dbObj.flightportClass="+strutil::to_python_value(flightportClass.c_str())+"\n";
 
 }
 

@@ -3337,7 +3337,7 @@ tcDatabase::tcDatabase()  :
     mstrCurrentFile("NULL"),
     mnVersion(VERSION_CURRENT),
     sqlConnection(0),
-    useDynamicLoad(true)
+    useDynamicLoad(false)
 // progressDialog(0)
 {
     tcDatabaseObject::AttachDatabase(this);

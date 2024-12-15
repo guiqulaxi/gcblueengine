@@ -87,7 +87,8 @@ namespace database
    {
       float mfRange_km;    ///< min range for this segment
       float mfAltitude_m;  ///< altitude for segment
-      teAltitudeMode meAltitudeMode;   ///< altitude mode 
+      teAltitudeMode meAltitudeMode;   ///< altitude mode
+
       teGuidanceMode meGuidanceMode;   ///< guidance mode 
    };
 
@@ -132,7 +133,8 @@ namespace database
 
       /// flight profile, array of flight segment info
       unsigned mnNumSegments;
-      std::array<tsMissileFlightSegment,MAX_MISSILE_FLIGHT_SEGMENTS>  maFlightProfile;
+      // std::array<tsMissileFlightSegment,MAX_MISSILE_FLIGHT_SEGMENTS>  maFlightProfile;
+      std::vector<tsMissileFlightSegment> maFlightProfile;
 
       virtual const char* GetClassName() const {return "Missile";} ///< returns class name of database object
       teWeaponLaunchMode GetLaunchMode() const;

@@ -156,18 +156,16 @@ namespace database
     void tcFlightportDBObject::WritePythonValue(std::string &valueString) const
     {
         tcDatabaseObject::WritePythonValue(valueString);
-        valueString+="    dbObj.heloOnly="+strutil::to_python_value(mzClass.c_str())+"\n";
+        valueString+="    dbObj.heloOnly="+strutil::to_python_value(heloOnly)+"\n";
         valueString+="    dbObj.hangarCapacity="+strutil::to_python_value(hangarCapacity)+"\n";
-        for(size_t i=0;i<spotInfo.size();i++)
-        {
-            valueString+="    dbObj.spotInfo.append(pygcb.SpotDBInfo())\n";
+        valueString+="    dbObj.spotInfo=[pygcb.spotDBInfo()]*"+std::to_string(spotInfo.size())+"\n";
+        for(size_t i=0;i<spotInfo.size();i++) {
             valueString+="    dbObj.spotInfo["+std::to_string(i)+"].isLaunch="+strutil::to_python_value(spotInfo[i].isLaunch)+"\n";
             valueString+="    dbObj.spotInfo["+std::to_string(i)+"].x="+strutil::to_python_value(spotInfo[i].x)+"\n";
             valueString+="    dbObj.spotInfo["+std::to_string(i)+"].y="+strutil::to_python_value(spotInfo[i].y)+"\n";
             valueString+="    dbObj.spotInfo["+std::to_string(i)+"].z="+strutil::to_python_value(spotInfo[i].z)+"\n";
             valueString+="    dbObj.spotInfo["+std::to_string(i)+"].orientation_deg="+strutil::to_python_value(spotInfo[i].orientation_deg)+"\n";
             valueString+="    dbObj.spotInfo["+std::to_string(i)+"].length="+strutil::to_python_value(spotInfo[i].length)+"\n";
-
         }
 
 

@@ -608,11 +608,14 @@ void tcSimPythonInterface::LoadDBObject(const std::string &filePath)
     strutil::replace_all(pythonMoudlePath,"/",".");
     strutil::replace_all(pythonMoudlePath,"\\",".");
 
-    //    try {
+        try {
     py::exec(strutil::format("from %s import *",pythonMoudlePath.c_str()));
     py::exec("dbObj=CreateDBObject()\n");
     py::exec("DatabaseManager.AddOrUpdateObject(dbObj)\n");
-
+       }catch (const pybind11::error_already_set& e) {
+            printf("%s\n",e.what());
+           return;
+       }
 }
 
 void tcSimPythonInterface::LoadDamageEffect(const std::string&filePath)

@@ -591,7 +591,7 @@ bool tcGame::InitSim()
 
     tcSensorMapTrack::AttachDatabase(database);
 
-     simState->AttachWeaponTester(); // dev mode feature
+
 
     tcFlightPort::InitTransitionTimes();
 
@@ -631,15 +631,15 @@ bool tcGame::InitSim()
     }
     //加载所有数据
     std::vector<std::string> dataDir= {
-                                        //"ballistic",
-                                        "ballistic_missile"/*,
-                                        "cm",
-                                        "ecm",
-                                        "esm",
-                                        "flightport",
-                                        "fueltank",
-                                        "ground",
-                                        "item",
+                                        // "ballistic",
+                                        // "ballistic_missile",
+                                        // "cm",
+                                        // "ecm",
+                                        // "esm",
+                                        //"flightport",
+                                        // "fueltank",
+                                        // "ground",
+                                        // "item",
                                         "missile",
                                         "optical",
                                         "radar",
@@ -650,7 +650,10 @@ bool tcGame::InitSim()
                                         "space",
                                         "stores",
                                         "sub",
-                                        "torpedo"*/
+                                        "torpedo",
+                                        "launcher"
+
+
     };
     for (auto & dir:dataDir)
     {
@@ -662,6 +665,8 @@ bool tcGame::InitSim()
             }
         }
     }
+
+     simState->AttachWeaponTester(); // dev mode feature
     return true;
 }
 

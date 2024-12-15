@@ -837,26 +837,27 @@ static  std::string&  AssignRandomString(std::string&str)
     }
     return str;
 }
-static  std::string&  toPythonVar(std::string&str)
+static  std::string  toPythonVar(const std::string&str)
 {
-    strutil::replace_all(str," ","_");
-    strutil::replace_all(str,"(","_");
-    strutil::replace_all(str,")","_");
-    strutil::replace_all(str,"-","_");
-    strutil::replace_all(str,".","_");
-    strutil::replace_all(str,":","_");
-    strutil::replace_all(str,"+","_");
-    strutil::replace_all(str,"&","_");
-
-    if(str.size()>0)
+    std::string _str=str;
+    strutil::replace_all(_str," ","_");
+    strutil::replace_all(_str,"(","_");
+    strutil::replace_all(_str,")","_");
+    strutil::replace_all(_str,"-","_");
+    strutil::replace_all(_str,".","_");
+    strutil::replace_all(_str,":","_");
+    strutil::replace_all(_str,"+","_");
+    strutil::replace_all(_str,"&","_");
+    strutil::replace_all(_str,",","_");
+    if(_str.size()>0)
     {
-        if(std::isdigit(str[0]))
+        if(std::isdigit(_str[0]))
         {
-            str="G"+str;
+            _str="G"+_str;
         }
     }
 
-    return str;
+    return _str;
 }
 
 }

@@ -342,6 +342,7 @@ void tcMissileDBObject::ReadSql(tcSqlReader& entry)
 
 
     mnNumSegments = 0;
+    maFlightProfile.clear();
     for (unsigned i=0;i<MAX_MISSILE_FLIGHT_SEGMENTS;i++)
     {
         float range, alt;
@@ -354,10 +355,17 @@ void tcMissileDBObject::ReadSql(tcSqlReader& entry)
 
         if ((range > 0)||(alt > 0))
         {
-            maFlightProfile[mnNumSegments].mfRange_km = range;
-            maFlightProfile[mnNumSegments].mfAltitude_m = alt;
-            maFlightProfile[mnNumSegments].meAltitudeMode = (teAltitudeMode)altMode;
-            maFlightProfile[mnNumSegments++].meGuidanceMode = (teGuidanceMode)guidanceMode;
+            tsMissileFlightSegment missileFlightSegment;
+            missileFlightSegment.mfRange_km=range;
+            missileFlightSegment.mfAltitude_m=alt;
+            missileFlightSegment.meAltitudeMode=(teAltitudeMode)altMode;
+            missileFlightSegment.meGuidanceMode=(teGuidanceMode)guidanceMode;
+            maFlightProfile.push_back(missileFlightSegment);
+            mnNumSegments++;
+            // maFlightProfile[mnNumSegments].mfRange_km = range;
+            // maFlightProfile[mnNumSegments].mfAltitude_m = alt;
+            // maFlightProfile[mnNumSegments].meAltitudeMode = (teAltitudeMode)altMode;
+            // maFlightProfile[mnNumSegments++].meGuidanceMode = (teGuidanceMode)guidanceMode;
         }
 
     }
@@ -402,7 +410,7 @@ void tcMissileDBObject::WriteSql(std::string& valueString) const
     s << needsFireControl << ",";
     s << acceptsWaypoints << ",";
 
-    for(unsigned i=0;i<MAX_MISSILE_FLIGHT_SEGMENTS;i++)
+    for(unsigned i=0;i<maFlightProfile.size();i++)
     {
         if (i<mnNumSegments)
         {
@@ -419,7 +427,7 @@ void tcMissileDBObject::WriteSql(std::string& valueString) const
             s << "0";
         }
 
-        if (i < MAX_MISSILE_FLIGHT_SEGMENTS-1)
+        if (i < maFlightProfile.size()-1)
         {
             s << ",";
         }
@@ -452,15 +460,13 @@ void tcMissileDBObject::WritePythonValue(std::string &valueString) const
     valueString+="    dbObj.acceptsWaypoints="+strutil::to_python_value(acceptsWaypoints)+"\n";
     valueString+="    dbObj.fireAndForget="+strutil::to_python_value(fireAndForget)+"\n";
     valueString+="    dbObj.isARM="+strutil::to_python_value(isARM)+"\n";
-    valueString+="    dbObj.acceptsWaypoints="+strutil::to_python_value(acceptsWaypoints)+"\n";
     valueString+="    dbObj.seekerFOV_rad="+strutil::to_python_value(seekerFOV_rad)+"\n";
     valueString+="    dbObj.aczConstant_kts="+strutil::to_python_value(aczConstant_kts)+"\n";
     valueString+="    dbObj.invMass_kg="+strutil::to_python_value(invMass_kg)+"\n";
     valueString+="    dbObj.mnNumSegments="+strutil::to_python_value(mnNumSegments)+"\n";
-    for (size_t i=0 ; i < maFlightProfile.size(); ++i) {
-        valueString+="    dbObj.maFlightProfile.append(pygcb.tsMissileFlightSegment())\n";
-
-        valueString+="    dbObj.maFlightProfile["+std::to_string(i)+"].meAltitudeMode="+strutil::to_python_value(maFlightProfile[i].meAltitudeMode)+"\n";
+    valueString+="    dbObj.maFlightProfile=[pygcb.tsMissileFlightSegment()]*"+std::to_string(maFlightProfile.size())+"\n";
+    for (size_t i=0 ; i < mnNumSegments; ++i) {
+        valueString+="    dbObj.maFlightProfile["+std::to_string(i)+"].meAltitudeMode=pygcb.teAltitudeMode."+strutil::to_python_value(maFlightProfile[i].meAltitudeMode)+"\n";
         valueString+="    dbObj.maFlightProfile["+std::to_string(i)+"].meGuidanceMode="+strutil::to_python_value(maFlightProfile[i].meGuidanceMode)+"\n";
         valueString+="    dbObj.maFlightProfile["+std::to_string(i)+"].mfAltitude_m="+strutil::to_python_value(maFlightProfile[i].mfAltitude_m)+"\n";
         valueString+="    dbObj.maFlightProfile["+std::to_string(i)+"].mfRange_km="+strutil::to_python_value(maFlightProfile[i].mfRange_km)+"\n";
@@ -508,10 +514,11 @@ tcMissileDBObject::tcMissileDBObject(const tcMissileDBObject& obj)
 {
     mnModelType = MTYPE_MISSILE;
 
-    
-    for(int i=0;i<MAX_MISSILE_FLIGHT_SEGMENTS;i++)
+    maFlightProfile.clear();
+    for(int i=0;i<obj.maFlightProfile.size();i++)
     {
-        maFlightProfile[i] = obj.maFlightProfile[i];  
+        //maFlightProfile[i] = obj.maFlightProfile[i];
+        maFlightProfile.push_back(obj.maFlightProfile[i]);
     }
     sensorKey = NULL_INDEX;
 
@@ -543,10 +550,16 @@ tcMissileDBObject::tcMissileDBObject() : tcWeaponDBObject(), tcAirDetectionDBObj
 
     // flight profile, array of flight segment info
     mnNumSegments = 1;
-    maFlightProfile[0].mfRange_km = 0.0f;
-    maFlightProfile[0].mfAltitude_m = 10000.0f;
-    maFlightProfile[0].meAltitudeMode = AM_ASL;
-    maFlightProfile[0].meGuidanceMode = GM_COMMAND;
+    tsMissileFlightSegment missileFlightSegment;
+    missileFlightSegment.mfRange_km=0.0f;
+    missileFlightSegment.mfAltitude_m= 10000.0f;
+    missileFlightSegment.meAltitudeMode=AM_ASL;
+    missileFlightSegment.meGuidanceMode=GM_COMMAND;
+    maFlightProfile.push_back(missileFlightSegment);
+    // maFlightProfile[0].mfRange_km = 0.0f;
+    // maFlightProfile[0].mfAltitude_m = 10000.0f;
+    // maFlightProfile[0].meAltitudeMode = AM_ASL;
+    // maFlightProfile[0].meGuidanceMode = GM_COMMAND;
     sensorKey = NULL_INDEX;
 }
 
