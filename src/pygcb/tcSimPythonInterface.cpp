@@ -602,7 +602,7 @@ void tcSimPythonInterface::LoadDBObject(const std::string &filePath)
         // remove .py extension from fileName
         int findIdx = fileNameWx.find(".py");
         fileNameWx = fileNameWx.substr(0, findIdx);
-        printf( "tcSimPythonInterface -- Loading DBObject %s\n", fileNameWx.c_str());
+        //printf( "tcSimPythonInterface -- Loading DBObject %s\n", fileNameWx.c_str());
     }
     std::string pythonMoudlePath=fileNameWx;
     strutil::replace_all(pythonMoudlePath,"/",".");

@@ -179,16 +179,16 @@ void tcShipDBObject::WritePythonValue(std::string &valueString) const
  tcPlatformDBObject::WritePythonValue(valueString);
     tcAirDetectionDBObject::WritePythonValue(mzClass,valueString);
  tcWaterDetectionDBObject::WritePythonValue(mzClass,valueString);
-    valueString+="    dbObj.draft_m="+strutil::to_python_value(mfMaxSpeed_kts)+"\n";
-    valueString+="    dbObj.beam_m="+strutil::to_python_value(mfAccel_ktsps)+"\n";
-    valueString+="    dbObj.PowerPlantType="+strutil::to_python_value(mfTurnRate_degps)+"\n";
-    valueString+="    dbObj.TotalShaft_HP="+strutil::to_python_value(mfFuelCapacity_kg)+"\n";
-    valueString+="    dbObj.ExhaustStacks="+strutil::to_python_value(mfFuelRate_kgps)+"\n";
-    valueString+="    dbObj.PropulsionShafts="+strutil::to_python_value(mfToughness)+"\n";
-    valueString+="    dbObj.PropulsiveEfficiency="+strutil::to_python_value(damageEffect)+"\n";
-    valueString+="    dbObj.CivilianPaintScheme="+strutil::to_python_value(damageEffect)+"\n";
-    valueString+="    dbObj.FlashyPaintScheme="+strutil::to_python_value(damageEffect)+"\n";
-    valueString+="    dbObj.flightportClass="+strutil::to_python_value(damageEffect)+"\n";
+    valueString+="    dbObj.draft_m="+strutil::to_python_value(draft_m)+"\n";
+    valueString+="    dbObj.beam_m="+strutil::to_python_value(beam_m)+"\n";
+    valueString+="    dbObj.PowerPlantType="+strutil::to_python_value(PowerPlantType)+"\n";
+    valueString+="    dbObj.TotalShaft_HP="+strutil::to_python_value(TotalShaft_HP)+"\n";
+    valueString+="    dbObj.ExhaustStacks="+strutil::to_python_value(ExhaustStacks)+"\n";
+    valueString+="    dbObj.PropulsionShafts="+strutil::to_python_value(PropulsionShafts)+"\n";
+    valueString+="    dbObj.PropulsiveEfficiency="+strutil::to_python_value(PropulsiveEfficiency)+"\n";
+    valueString+="    dbObj.CivilianPaintScheme="+strutil::to_python_value(CivilianPaintScheme)+"\n";
+    valueString+="    dbObj.FlashyPaintScheme="+strutil::to_python_value(FlashyPaintScheme)+"\n";
+    valueString+="    dbObj.flightportClass="+strutil::to_python_value(flightportClass)+"\n";
 }
 
 void tcShipDBObject::WritePython(std::string &valueString) const

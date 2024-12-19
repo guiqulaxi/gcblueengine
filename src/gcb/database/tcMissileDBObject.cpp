@@ -466,8 +466,8 @@ void tcMissileDBObject::WritePythonValue(std::string &valueString) const
     valueString+="    dbObj.mnNumSegments="+strutil::to_python_value(mnNumSegments)+"\n";
     valueString+="    dbObj.maFlightProfile=[pygcb.tsMissileFlightSegment()]*"+std::to_string(maFlightProfile.size())+"\n";
     for (size_t i=0 ; i < mnNumSegments; ++i) {
-        valueString+="    dbObj.maFlightProfile["+std::to_string(i)+"].meAltitudeMode=pygcb.teAltitudeMode."+strutil::to_python_value(maFlightProfile[i].meAltitudeMode)+"\n";
-        valueString+="    dbObj.maFlightProfile["+std::to_string(i)+"].meGuidanceMode="+strutil::to_python_value(maFlightProfile[i].meGuidanceMode)+"\n";
+        valueString+="    dbObj.maFlightProfile["+std::to_string(i)+"].meAltitudeMode=pygcb.teAltitudeMode."+teAltitudeModeToString(maFlightProfile[i].meAltitudeMode)+"\n";
+        valueString+="    dbObj.maFlightProfile["+std::to_string(i)+"].meGuidanceMode=pygcb.teGuidanceMode."+teGuidanceModeToString(maFlightProfile[i].meGuidanceMode)+"\n";
         valueString+="    dbObj.maFlightProfile["+std::to_string(i)+"].mfAltitude_m="+strutil::to_python_value(maFlightProfile[i].mfAltitude_m)+"\n";
         valueString+="    dbObj.maFlightProfile["+std::to_string(i)+"].mfRange_km="+strutil::to_python_value(maFlightProfile[i].mfRange_km)+"\n";
 
@@ -571,6 +571,52 @@ tcGameObject *tcMissileDBObject::CreateGameObject()
 {
     return new tcMissileObject(this);
 }
+
+std::string tcMissileDBObject::teAltitudeModeToString(teAltitudeMode data)const
+{
+    switch (data) {
+    case AM_ASL:
+        return "AM_ASL";
+        break;
+    case AM_AGL:
+        return "AM_AGL";
+        break;
+    case AM_INTERCEPT:
+        return "AM_INTERCEPT";
+        break;
+    case AM_DATUM:
+        return "AM_DATUM";
+        break;
+    case AM_INTERCEPT_HIGH:
+        return "AM_INTERCEPT_HIGH";
+        break;
+    case AM_ASL_LOFT:
+        return "AM_ASL_LOFT";
+        break;
+    default:
+        break;
+    }
+    return "";
+}
+std::string tcMissileDBObject::teGuidanceModeToString(teGuidanceMode data) const
+{
+    switch (data) {
+    case GM_COMMAND:
+        return "GM_COMMAND";
+        break;
+    case GM_NAV:
+        return "GM_NAV";
+        break;
+    case GM_SENSOR1:
+        return "GM_SENSOR1";
+        break;
+    case GM_DEPLOY:
+        return "GM_DEPLOY";
+        break;
+    }
+    return "";
+}
+
 
 } // namespace database
 

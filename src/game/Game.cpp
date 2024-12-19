@@ -631,15 +631,16 @@ bool tcGame::InitSim()
     }
     //加载所有数据
     std::vector<std::string> dataDir= {
-                                        // "ballistic",
-                                        // "ballistic_missile",
-                                        // "cm",
-                                        // "ecm",
-                                        // "esm",
-                                        //"flightport",
-                                        // "fueltank",
-                                        // "ground",
-                                        // "item",
+                                        "stores",
+                                        "ballistic",
+                                        "ballistic_missile",
+                                        "cm",
+                                        "ecm",
+                                        "esm",
+                                        "flightport",
+                                        "fueltank",
+                                        "ground",
+                                        "item",
                                         "missile",
                                         "optical",
                                         "radar",
@@ -648,7 +649,6 @@ bool tcGame::InitSim()
                                         "sonar",
                                         "sonobuoy",
                                         "space",
-                                        "stores",
                                         "sub",
                                         "torpedo",
                                         "launcher"

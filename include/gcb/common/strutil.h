@@ -849,6 +849,9 @@ static  std::string  toPythonVar(const std::string&str)
     strutil::replace_all(_str,"+","_");
     strutil::replace_all(_str,"&","_");
     strutil::replace_all(_str,",","_");
+    strutil::replace_all(_str,"(","_");
+    strutil::replace_all(_str,")","_");
+    strutil::replace_all(_str,"/","_");
     if(_str.size()>0)
     {
         if(std::isdigit(_str[0]))

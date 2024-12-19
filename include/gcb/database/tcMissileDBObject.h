@@ -33,7 +33,7 @@
 #include "tcWeaponDBObject.h"
 #include "tcAirDetectionDBObject.h"
 #include <vector>
-
+#include <string>
 
 
 namespace database
@@ -160,6 +160,10 @@ namespace database
       tcMissileDBObject(const tcMissileDBObject& obj); ///< copy constructor
       virtual ~tcMissileDBObject();
       virtual  tcGameObject *CreateGameObject() override;
+  private:
+      std::string teAltitudeModeToString(teAltitudeMode data) const;
+      std::string teGuidanceModeToString(teGuidanceMode data) const;
+
 
    };
 

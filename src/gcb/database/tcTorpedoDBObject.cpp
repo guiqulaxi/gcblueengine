@@ -56,8 +56,12 @@ namespace database
 
 		if ((weaponType == TORPEDO) || (weaponType == BOTTOM_MINE_CAPTOR))
 		{
-			// calculate range for simple model (overwrite param loaded from db)
-			maxRange_km = (battery_kJ / batteryRate_kW) * maxSpeed_kts * 0.001f * C_KTSTOMPS;
+            if(batteryRate_kW>0)
+            {
+                // calculate range for simple model (overwrite param loaded from db)
+                maxRange_km = (battery_kJ / batteryRate_kW) * maxSpeed_kts * 0.001f * C_KTSTOMPS;
+            }
+
 		}
 
     }

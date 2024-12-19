@@ -25,6 +25,8 @@
 
 
 #include "tcItemDBObject.h"
+
+#include <tcSimpleAirDBObject.h>
 using namespace database;
 
 void BindDBObject(module &m)
@@ -224,6 +226,8 @@ void BindDBObject(module &m)
         .def_readwrite("maintenanceMin_s", &tcAirDBObject::maintenanceMin_s)
         .def_readwrite("maintenanceMax_s", &tcAirDBObject::maintenanceMax_s)
         .def("CalculateParams",&tcAirDBObject::CalculateParams);
+    py::class_<tcSimpleAirDBObject,tcAirDBObject>(m, "tcSimpleAirDBObject")
+        .def(py::init<>());
     py::class_<tcJetDBObject,tcAirDBObject>(m, "tcJetDBObject")
         .def(py::init<>())
         .def_readwrite("militaryThrust_N", &tcJetDBObject::militaryThrust_N)
@@ -280,7 +284,7 @@ void BindDBObject(module &m)
 
 
 
-    py::class_<tcStoresDBObject>(m, "tcStoresDBObject")
+    py::class_<tcStoresDBObject,tcDatabaseObject>(m, "tcStoresDBObject")
         .def(py::init<>())
         .def_readwrite("displayName", &tcStoresDBObject::displayName)
         .def_readwrite("capacity", &tcStoresDBObject::capacity)

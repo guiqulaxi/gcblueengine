@@ -91,7 +91,6 @@ namespace database
     void tcWeaponDBObject::ReadSql(tcSqlReader& entry)
     {
         tcDatabaseObject::ReadSql(entry);
-
         mfDamage = entry.GetDouble("Damage");
         damageModel = entry.GetString("DamageModel");
         damageEffect = entry.GetString("DamageEffect");

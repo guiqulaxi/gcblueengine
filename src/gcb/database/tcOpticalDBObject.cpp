@@ -174,6 +174,7 @@ void tcOpticalDBObject::WriteSql(std::string& valueString) const
 
 void tcOpticalDBObject::WritePythonValue(std::string &valueString) const
 {
+
     tcSensorDBObject::WritePythonValue(valueString);
     valueString+="    dbObj.maxFireControlTracks="+strutil::to_python_value(maxFireControlTracks)+"\n";
     valueString+="    dbObj.isSemiactive="+strutil::to_python_value(isSemiactive)+"\n";

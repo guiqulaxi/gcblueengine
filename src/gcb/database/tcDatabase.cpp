@@ -2793,6 +2793,7 @@ bool tcDatabase::GetObject(long anKey, tcDatabaseObject*& rpobj) {
 
 long tcDatabase::AddOrUpdateObject(tcDatabaseObject *rpobj)
 {
+
     if (ObjectExists(rpobj->GetName()))
     {
         fprintf(stdout, "Updating database class: %s\n", rpobj->GetName());
@@ -2803,6 +2804,8 @@ long tcDatabase::AddOrUpdateObject(tcDatabaseObject *rpobj)
     long  key;
     mcObjectData.AddElement(rpobj, key); // add to database, key gets new key val
     rpobj->mnKey = key; // set key val of object (may not be necessary anymore)
+    nameToKey[rpobj->GetName() ] = key;
+
     return key;
 }
 
@@ -3337,7 +3340,7 @@ tcDatabase::tcDatabase()  :
     mstrCurrentFile("NULL"),
     mnVersion(VERSION_CURRENT),
     sqlConnection(0),
-    useDynamicLoad(false)
+    useDynamicLoad(true)
 // progressDialog(0)
 {
     tcDatabaseObject::AttachDatabase(this);

@@ -375,7 +375,6 @@ void tcDatabaseObject::ReadSql(tcSqlReader& entry)
     width_m=entry.GetDouble("Width_m");
     height_m=entry.GetDouble("Height_m");
     LoadFileDescription();
-
     notes = entry.GetString("Notes").c_str();
 
     if (natoClass.size() == 0)
