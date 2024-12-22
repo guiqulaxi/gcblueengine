@@ -60,11 +60,11 @@ public:
 
     tcGroundObject();
     tcGroundObject(tcGroundObject&);
-    tcGroundObject(tcGroundDBObject* obj);
+    tcGroundObject(std::shared_ptr<tcGroundDBObject> obj);
     virtual ~tcGroundObject();
 
 private:
-	tcGroundDBObject* mpDBObject;
+	std::shared_ptr<tcGroundDBObject> mpDBObject;
 };
 
 #endif

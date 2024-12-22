@@ -96,7 +96,7 @@ void tcSensorPlatformDBObject::UpdateSensorList()
 
 	for(size_t n=0; n<sensorClass.size(); n++)
 	{
-		tcDatabaseObject* obj = database->GetObject(sensorClass[n]);
+        std::shared_ptr<tcDatabaseObject> obj = database->GetObject(sensorClass[n]);
 		if (obj)
 		{
 			sensorId.push_back(obj->mnKey);

@@ -93,14 +93,14 @@ struct tsRelativePosition
 /**
 * Base class for all game objects.
 */
-class tcGameObject : public tcControllableObject
+class tcGameObject : public tcControllableObject, public std::enable_shared_from_this<tcGameObject>
 {
 	friend class tcGameSerializer;
 public:
-    tcGameObject *parent;
+    std::shared_ptr<tcGameObject>parent;
     tsRelativePosition rel_pos;  ///< if parent is not NULL, this contains relative position
-    std::vector<tcGameObject*> children;
-    std::vector<tcGameObject*> toLaunch; ///< list of ex-children to launch
+    std::vector<std::shared_ptr<tcGameObject>> children;
+    std::vector<std::shared_ptr<tcGameObject>> toLaunch; ///< list of ex-children to launch
     //tc3DModel* model;           ///< 3D model
     UINT mnModelType;          ///< class MTYPE_ identifier
     long mnID;
@@ -112,18 +112,18 @@ public:
 
     /** derived objects can have different DB obj type in their scope
     /* mpDBObject should always point to relevant data for current model class */
-    tcDatabaseObject *mpDBObject;                          
+    std::shared_ptr<tcDatabaseObject>mpDBObject;                          
     double mfStatusTime;        ///< timestamp for parameters 记录推进时间戳
     tcKinematics mcKin;         ///< position, motion, etc parameters
     tcTerrainInfo mcTerrain;    ///< ground height ASL, water depth
     bool isInvulnerable;        ///< test mode, true to make immune from damage
 
-    virtual void ApplyGeneralDamage(float damage, tcGameObject* damager); ///< called when new damage occurs
-    virtual float ApplyAdvancedDamage(const Damage& damage, tcGameObject* damager); ///< called when new damage occurs
+    virtual void ApplyGeneralDamage(float damage, std::shared_ptr<tcGameObject> damager); ///< called when new damage occurs
+    virtual float ApplyAdvancedDamage(const Damage& damage, std::shared_ptr<tcGameObject> damager); ///< called when new damage occurs
 
     virtual void ApplyRepairs(float repair); ///< called when repairs occur (damage removed)
     void SelfDestruct();
-    void UpdateScoreForDamage(tcGameObject* damager, float priorDamage);
+    void UpdateScoreForDamage(std::shared_ptr<tcGameObject> damager, float priorDamage);
     float GetDamageLevel() const;
 
     void AddTargeter(long id);
@@ -133,41 +133,41 @@ public:
     float RangeTo(const tcGameObject& p) const;
     float BearingTo(const tcGameObject& p) const;
     float BearingToRad(const tcGameObject& p) const;
-	bool CalculateCollisionPoint(tcGameObject* collider, Vector3d& pos, float& dt, float& distance_m);
-    bool CalculateCollisionPointDir(tcGameObject* collider, const Vector3d& dir, Vector3d& pos, float& distance_m);
+	bool CalculateCollisionPoint(std::shared_ptr<tcGameObject> collider, Vector3d& pos, float& dt, float& distance_m);
+    bool CalculateCollisionPointDir(std::shared_ptr<tcGameObject> collider, const Vector3d& dir, Vector3d& pos, float& distance_m);
     //bool CalculateCollisionPointArb(const Vector3d& start_eun, const Vector3d& dir_eun, Vector3d& pos, float& distance);
-    bool CalculateCollisionPointOrigin(tcGameObject* collider, Vector3d& pos, float& distance_m);
+    bool CalculateCollisionPointOrigin(std::shared_ptr<tcGameObject> collider, Vector3d& pos, float& distance_m);
     //float CalculateCrossSectionDir(const Vector3d& dir_eun);
     unsigned int CalculateRandomHits(const Vector3d& pos, const Vector3d& dir_eun, float rangeOffset_m, float error_rad, unsigned int nRays);
 	Vector3d ConvertModelCoordinatesToWorld(const Vector3d& x) const;
-    Vector3d GetRandomExteriorPoint();
+    Vector3d GetRandomExteriorPoint()const;
     tcAABBBoundingBox  GetAABBBoundingBox() const ;
     tcOBBBoundingBox  GetOBBBoundingBox() const ;
 
-    void AddChild(tcGameObject* child);
-    void AddChildWithId(tcGameObject* child, long id_);
-    tcGameObject* GetChild(size_t idx);
-    tcGameObject* GetChildById(long id) const;
-    tcGameObject* GetChildByName(const std::string& name) const;
+    void AddChild(std::shared_ptr<tcGameObject> child);
+    void AddChildWithId(std::shared_ptr<tcGameObject> child, long id_);
+    std::shared_ptr<tcGameObject> GetChild(size_t idx);
+    std::shared_ptr<tcGameObject> GetChildById(long id) const;
+    std::shared_ptr<tcGameObject> GetChildByName(const std::string& name) const;
     size_t GetNumberOfChildren() const;
     const char* GetName() const; ///< returns instance name of this obj (mzUnit)
 
     const char* GetDisplayClassName() const;
 
 //    tc3DModel* GetModel();
-    bool IsChild(const tcGameObject* child) const;
-    void RemoveChild(tcGameObject *child);
+    bool IsChild(std::shared_ptr<const tcGameObject> child) const;
+    void RemoveChild(std::shared_ptr<tcGameObject>child);
     virtual void Clear();
     virtual void ClearChildren();
-    void GetRelPosOf(tcGameObject *obj, tsRelativePosition& rel_pos);
-	void GetRelativeStateLocal(tcGameObject *obj, Vector3d& position, Vector3d& velocity);
-	void GetRelativeStateWorld(tcGameObject *obj, Vector3d& position, Vector3d& velocity);
+    void GetRelPosOf(std::shared_ptr<tcGameObject>obj, tsRelativePosition& rel_pos);
+    void GetRelativeStateLocal(std::shared_ptr<tcGameObject>obj, Vector3d& position, Vector3d& velocity);
+    void GetRelativeStateWorld(std::shared_ptr<tcGameObject>obj, Vector3d& position, Vector3d& velocity);
 	Vector3d GetWorldVelocity() const;
     virtual void RandInitNear(float afLon_deg, float afLat_deg);
 	GeoPoint RelPosToLatLonAlt(const tsRelativePosition& rel_pos) const;
 	GeoPoint RelPosToLatLonAlt(const float& dx, const float& dy, const float& dz) const;
 
-	virtual void LaunchFrom(tcGameObject* obj, unsigned nLauncher);
+	virtual void LaunchFrom(std::shared_ptr<tcGameObject> obj, unsigned nLauncher);
     virtual void PrintToFile(tcFile&);
     virtual void SaveToFile(tcFile& file);
 
@@ -208,7 +208,7 @@ public:
     virtual void DesignateTarget(long anID) {}
     virtual void GetDatum(GeoPoint& p) {}
     virtual void GetLauncherState(tcLauncherState*& pLauncherState) {pLauncherState = NULL;}
-	virtual tcLauncher* GetLauncher(unsigned idx) {return 0;}
+    virtual std::shared_ptr<tcLauncher> GetLauncher(unsigned idx) {return 0;}
 	
     virtual float GetSonarSourceLevel(float az_deg) const;
     virtual float GetOpticalCrossSection() const;
@@ -244,10 +244,10 @@ public:
     static const std::string& GetLastDamageDescription();
 	static void SetAddTasksOnCreate(bool state);
 
-    const tcGameObject* operator= (const tcGameObject *p) {return p;}
+    std::shared_ptr<const tcGameObject> operator= (std::shared_ptr<const tcGameObject>p) {return p;}
     tcGameObject();
     tcGameObject(tcGameObject&);
-    tcGameObject(tcDatabaseObject *obj); ///< construct using database object
+    tcGameObject(std::shared_ptr<tcDatabaseObject>obj); ///< construct using database object
     virtual ~tcGameObject();
 protected:
     float mfDamageLevel;       ///< 0 is no damage, 1 is fully damaged
@@ -265,7 +265,7 @@ protected:
     static unsigned short launchedCounter; /// for assigning unique unit name to launched items
 	static bool addTasksOnCreate; ///< true (default) to automatically add some default AI tasks when obj is created
 
-    tcGameObject* CreateObject(const std::string& databaseClass);
+    std::shared_ptr<tcGameObject> CreateObject(const std::string& databaseClass);
 //    void Update3D();
     //CTVMesh* GetDatabaseMesh();
 };

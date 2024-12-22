@@ -45,9 +45,9 @@ using namespace std;
 namespace database
 {
 
-tcSensorState* tcECMDBObject::CreateSensor(tcGameObject* parent)
+std::shared_ptr<tcSensorState> tcECMDBObject::CreateSensor(std::shared_ptr<tcGameObject> parent)
 {
-    tcECM* ecm = new tcECM(this);
+    std::shared_ptr<tcECM> ecm = std::make_shared<tcECM>(dynamic_pointer_cast<tcECMDBObject>(tcDatabaseObject::shared_from_this()));
 	ecm->SetParent(parent);
 	
 	return ecm;

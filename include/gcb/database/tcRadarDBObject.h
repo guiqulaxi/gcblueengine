@@ -66,7 +66,7 @@ namespace database
         float cpi_s;                ///< CPI or dwell time calculated based on coverage angle and revisit period 据覆盖角度和回访周期计算出的CPI或驻留时间
         float jamConstant_dB;       ///< convert dB-W/m2 jam power density to J/N, assuming matched bandwidth and mainlobe
 
-        virtual tcSensorState* CreateSensor(tcGameObject* parent); ///< factory method
+        virtual std::shared_ptr<tcSensorState> CreateSensor(std::shared_ptr<tcGameObject> parent); ///< factory method
         virtual const char* GetClassName() const {return "Radar";} ///< returns class name of database object
         virtual void PrintToFile(tcFile& file);
         

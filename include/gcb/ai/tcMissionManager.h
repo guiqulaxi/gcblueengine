@@ -23,6 +23,7 @@
 **  IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <memory>
 #if _MSC_VER > 1000
 #pragma once
 #endif
@@ -87,13 +88,13 @@ public:
     void Clear();
 
 	std::vector<MissionAircraftInfo>& GetAvailableAircraft(int targetMask);
-	tcAirObject* GetAircraft(long id);
-    tcAirObject* GetAircraft(const std::string& unitName);
+    std::shared_ptr<tcAirObject> GetAircraft(long id);
+    std::shared_ptr<tcAirObject> GetAircraft(const std::string& unitName);
 
     unsigned int GetAircraftMissionId(long aircraftId);
     unsigned int GetAircraftMissionId(const std::string& unitName);
 	long GetFlightportParentId() const;
-	tcGameObject* GetFlightportParent();
+	std::shared_ptr<tcGameObject> GetFlightportParent();
 	bool IsAircraftReserved(long id) const;
 	void LaunchAircraft(long id);
 	void Update(double t);

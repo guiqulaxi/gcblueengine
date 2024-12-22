@@ -93,7 +93,7 @@ namespace database
         tcJetDBObject();
         tcJetDBObject(tcJetDBObject& obj); ///< copy constructor
         virtual ~tcJetDBObject();
-        tcGameObject *CreateGameObject() override;
+        std::shared_ptr<tcGameObject>CreateGameObject() override;
         void CalculateParams();
 
     private:

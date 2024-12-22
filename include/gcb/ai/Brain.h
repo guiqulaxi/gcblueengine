@@ -26,6 +26,7 @@
 #ifndef _BRAIN_H_
 #define _BRAIN_H_
 
+#include <memory>
 #if _MSC_VER > 1000
 #pragma once
 #endif
@@ -119,7 +120,7 @@ public:
     virtual void SaveToPython(scriptinterface::tcScenarioLogger& logger);
     static void InitTaskNameLookup(); // call once at startup
 
-	Brain(tcPlatformObject* platform_);
+	Brain(std::shared_ptr<tcPlatformObject> platform_);
 	~Brain();
 private:
 	struct TaskCommand
@@ -130,7 +131,7 @@ private:
 		int attributes;
 	};
 
-    tcPlatformObject* const platform;
+    std::shared_ptr<tcPlatformObject> const platform;
     const float updateInterval;
     long nextId; ///< id assigned to next task
     double lastUpdateTime; ///< last time tasks were updated

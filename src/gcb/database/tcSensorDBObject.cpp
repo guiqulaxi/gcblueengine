@@ -81,9 +81,9 @@ void tcSensorDBObject::CalculateParams()
     }
 }
 
-tcSensorState* tcSensorDBObject::CreateSensor(tcGameObject* parent)
+std::shared_ptr<tcSensorState> tcSensorDBObject::CreateSensor(std::shared_ptr<tcGameObject> parent)
 {
-	return 0;
+    return nullptr;
 }
 
 /**

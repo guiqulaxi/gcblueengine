@@ -33,7 +33,7 @@
 #endif // _MSC_VER > 1000
 
 #include <string>
-
+#include <memory>
 
 namespace database
 {
@@ -44,7 +44,7 @@ namespace database
     /**
     * Describes detectability of object through water with sonar
     */
-    class tcWaterDetectionDBObject
+    class tcWaterDetectionDBObject: public std::enable_shared_from_this<tcWaterDetectionDBObject>
     {
     public:
         float TS;                           ///< Target strength for active sonar detection // 主动声纳探测的目标强度

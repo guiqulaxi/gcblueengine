@@ -639,7 +639,7 @@ void tcMultiplayerInterface::LogOutPlayer(const std::string& username)
 //    unsigned updateCount = 0;
     for (objIter.First(); objIter.NotDone(); objIter.Next())
     {
-        tcGameObject* obj = objIter.Get();
+        std::shared_ptr<tcGameObject> obj = objIter.Get();
 		if (obj->GetController() == username)
 		{
 			obj->SetController("");
@@ -1383,7 +1383,7 @@ void tcMultiplayerInterface::ProcessGameMasterCommand(tcPlayerStatus& player, co
     	    if (params.ToLong(&id))
     	    {
                 syntaxError = false;
-                if (tcGameObject* obj = simState->GetObject(id))
+                if (std::shared_ptr<tcGameObject> obj = simState->GetObject(id))
                 {
                     obj->ApplyRepairs(2.0f);
                     msg = wxString::Format("*** Entity %d repaired", id);
@@ -1550,7 +1550,7 @@ void tcMultiplayerInterface::ProcessGMCreate(const wxString& args, wxString& msg
     
     if (scenarioInterface->AddUnitToAlliance(unit, alliance))
     {
-        tcGameObject* obj = scenarioInterface->GetLastObjectAdded();
+        std::shared_ptr<tcGameObject> obj = scenarioInterface->GetLastObjectAdded();
         wxASSERT(obj);
         long id = obj->mnID;
         
@@ -1639,7 +1639,7 @@ void tcMultiplayerInterface::ProcessGMMove(const wxString& args, wxString& msg)
     
     tcSimState* simState = tcSimState::Get();
     
-    if (tcGameObject* obj = simState->GetObject(id))
+    if (std::shared_ptr<tcGameObject> obj = simState->GetObject(id))
     {
         if (changeLatLon)
         {
@@ -1680,7 +1680,7 @@ void tcMultiplayerInterface::ProcessGMSetController(const wxString& args, wxStri
     }
 
     tcSimState* simState = tcSimState::Get();
-    tcGameObject* obj = simState->GetObject(id);
+    std::shared_ptr<tcGameObject> obj = simState->GetObject(id);
     if (obj == 0)
     {
         msg = wxString::Format("*** entity not found (%d)", id);
@@ -2397,7 +2397,7 @@ void tcMultiplayerInterface::SendDatabaseInfo(int destination)
 
     for (iter.First(); !iter.IsDone(); iter.Next())
     {
-        tcDatabaseObject* obj = iter.Get();
+        std::shared_ptr<tcDatabaseObject> obj = iter.Get();
 
         wxASSERT(obj != 0);
         wxASSERT(obj->mnKey != -1);
@@ -2726,7 +2726,7 @@ void tcMultiplayerInterface::UpdateEntityCommands(tcPlayerStatus& pstatus, bool 
     unsigned updateCount = 0;
     for (iter.First();iter.NotDone();iter.Next())
 	{
-		tcGameObject* obj = iter.Get();
+		std::shared_ptr<tcGameObject> obj = iter.Get();
 		if (obj->HasNewCommand())
 		{
 			if ((pstatus.alliance == obj->GetAlliance()) || !IsServer())
@@ -2840,14 +2840,14 @@ void tcMultiplayerInterface::UpdateScriptCommands(int connectionId)
 
 }
 
-void tcMultiplayerInterface::GetUpdatePeriod(const tcGameObject* obj, const std::string& playerName,
+void tcMultiplayerInterface::GetUpdatePeriod(std::shared_ptr<const tcGameObject> obj, const std::string& playerName,
                                                      unsigned int& updatePeriod, unsigned int& detailedUpdatePeriod) const
 {
     bool playerControlled = obj->IsControlledBy(playerName);
 
     detailedUpdatePeriod = playerControlled ? 300 : 900;
 
-    const tcFlightOpsObject* flightOps = dynamic_cast<const tcFlightOpsObject*>(obj);
+    std::shared_ptr<const tcFlightOpsObject> flightOps =  std::dynamic_pointer_cast<const tcFlightOpsObject>(obj);
     bool largeFlightOps = (flightOps == 0) ? false : (flightOps->CurrentAirComplementSize() > 8);
     
     if (!playerControlled)
@@ -2903,7 +2903,7 @@ void tcMultiplayerInterface::UpdateNewAndExistingEntities(tcPlayerStatus& pstatu
 
     for (iter.First(); iter.NotDone(); iter.Next())
     {
-        tcGameObject* obj = iter.Get();
+        std::shared_ptr<tcGameObject> obj = iter.Get();
         if (isObserver || (pstatus.alliance == obj->GetAlliance()))
         {
             unsigned int lastUpdate, lastDetailedUpdate;
@@ -3112,8 +3112,8 @@ void tcMultiplayerInterface::UpdateMissions()
 
         for (iter.First(); iter.NotDone(); iter.Next())
         {
-            tcGameObject* obj = iter.Get();
-            tcFlightOpsObject* flightOps = dynamic_cast<tcFlightOpsObject*>(obj);
+            std::shared_ptr<tcGameObject> obj = iter.Get();
+            std::shared_ptr<tcFlightOpsObject> flightOps =  std::dynamic_pointer_cast<tcFlightOpsObject>(obj);
             if ((flightOps != 0) && (obj->IsControlledBy(player.GetName())))
             {
                 ai::tcMissionManager* missionManager = flightOps->GetFlightPort()->GetMissionManager();

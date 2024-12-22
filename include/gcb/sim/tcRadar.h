@@ -70,11 +70,11 @@ class tcRadar : public tcSensorState
     friend class tcPlatformDebugPopup;
     friend class tcECMEvaluationDialog;
 public:
-    tcRadarDBObject* mpDBObj;
+    std::shared_ptr<tcRadarDBObject> mpDBObj;
 
     // semi-active and command mode vars
 
-    virtual bool CanDetectTarget(const tcGameObject* target, float& range_km, bool useRandom=true); 
+    virtual bool CanDetectTarget(std::shared_ptr<const tcGameObject> target, float& range_km, bool useRandom=true);
     virtual bool InitFromDatabase(long key); ///< initializes sensor using database data at key
 
     // fire control methods
@@ -105,9 +105,9 @@ public:
     virtual tcGameStream& operator<<(tcGameStream& stream);
     virtual tcGameStream& operator>>(tcGameStream& stream);
 
-    tcRadar* Clone();
+    std::shared_ptr<tcRadar> Clone();
     tcRadar();
-    tcRadar(tcRadarDBObject* dbObj);
+    tcRadar(std::shared_ptr<tcRadarDBObject> dbObj);
     virtual ~tcRadar();
 
 protected:
@@ -134,22 +134,22 @@ protected:
 
     float CalculateJammingDegradation();
     float CalculateJammingDegradation2(float az_rad, float el_rad);
-    float CalculateTargetRCS_dBsm(const tcGameObject* target, float& targetAz_rad, float& targetHeight_m) const;
-    bool TargetInElevationCoverage(const tcGameObject* target, float targetRange_km, float& targetEl_rad) const;
-    bool TargetInElevationCoverageWeapon(const tcGameObject* target, float targetRange_km, float& targetEl_rad) const;
-    float CalculateClutterAdjustment_dB(const tcGameObject* target, float targetEl_rad) const;
+    float CalculateTargetRCS_dBsm(std::shared_ptr<const tcGameObject> target, float& targetAz_rad, float& targetHeight_m) const;
+    bool TargetInElevationCoverage( std::shared_ptr<const tcGameObject> target, float targetRange_km, float& targetEl_rad) const;
+    bool TargetInElevationCoverageWeapon( std::shared_ptr<const tcGameObject> target, float targetRange_km, float& targetEl_rad) const;
+    float CalculateClutterAdjustment_dB( std::shared_ptr<const tcGameObject> target, float targetEl_rad) const;
 
     void RemoveAllJammers();
     void UpdateJammingDegradation();
 
     void CounterMeasureTest(double t);
-    void AdjustTrackForFineTargeting(const tcGameObject* target);
+    void AdjustTrackForFineTargeting(std::shared_ptr<const tcGameObject> target);
     void UpdateSeeker(double t);
-    void UpdateSensorMap(double t, const tcGameObject* target, float range_km);
+    void UpdateSensorMap(double t,  std::shared_ptr<const tcGameObject> target, float range_km);
     void UpdateSurveillance(double t);
     void UpdateTrackData(double t);
-    void UpdateTrack(const tcGameObject* target, double t);
-    void UpdateSensorMapTrackMode(const tcGameObject* target, tcSensorMapTrack* track, double t, float range_km);
+    void UpdateTrack(std::shared_ptr<const tcGameObject> target, double t);
+    void UpdateSensorMapTrackMode(std::shared_ptr<const tcGameObject> target, std::shared_ptr<tcSensorMapTrack> track, double t, float range_km);
 };
 
 

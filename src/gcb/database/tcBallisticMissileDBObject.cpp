@@ -249,9 +249,9 @@ namespace database
     {
     }
 
-    tcGameObject *tcBallisticMissileDBObject::CreateGameObject()
+    std::shared_ptr<tcGameObject>tcBallisticMissileDBObject::CreateGameObject()
     {
-        return new tcBallisticMissile(this);
+        return std::make_shared< tcBallisticMissile>(dynamic_pointer_cast<tcBallisticMissileDBObject>(tcDatabaseObject::shared_from_this()));
     }
 
 } // namespace database

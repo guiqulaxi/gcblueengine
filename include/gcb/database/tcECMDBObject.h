@@ -49,7 +49,7 @@ namespace database
         bool isEffectiveVsSurveillance; ///< 是否对监视雷达有效
         bool isEffectiveVsSeeker; ///< 是否对制导雷达（导引头）有效
 
-		virtual tcSensorState* CreateSensor(tcGameObject* parent); ///< factory method
+		virtual std::shared_ptr<tcSensorState> CreateSensor(std::shared_ptr<tcGameObject> parent); ///< factory method
 		virtual const char* GetClassName() const {return "ECM";} ///< returns class name of database object
 		virtual void PrintToFile(tcFile& file);
 

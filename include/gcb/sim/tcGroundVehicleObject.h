@@ -49,7 +49,7 @@ class tcGameStream;
 class tcGroundVehicleObject : public tcPlatformObject
 {
 public:
-	tcGroundDBObject* mpDBObject;
+	std::shared_ptr<tcGroundDBObject> mpDBObject;
 
 	virtual void Clear();
 
@@ -76,7 +76,7 @@ public:
 
 	tcGroundVehicleObject();
 	tcGroundVehicleObject(tcGroundVehicleObject&);
-	tcGroundVehicleObject(tcGroundDBObject* obj);
+	tcGroundVehicleObject(std::shared_ptr<tcGroundDBObject> obj);
 	~tcGroundVehicleObject();
 
 protected:

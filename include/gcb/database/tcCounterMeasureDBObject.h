@@ -67,7 +67,7 @@ namespace database
 		tcCounterMeasureDBObject();
 		tcCounterMeasureDBObject(const tcCounterMeasureDBObject& obj);
 		virtual ~tcCounterMeasureDBObject();
-        virtual tcGameObject *CreateGameObject() override;
+        virtual std::shared_ptr<tcGameObject>CreateGameObject() override;
          void CalculateParams();
     private:
         // calculated parameters

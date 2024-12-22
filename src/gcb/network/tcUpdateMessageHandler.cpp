@@ -73,7 +73,7 @@ void tcUpdateMessageHandler::AttachMPGameView(tcMPGameView* p)
 /**
 * Only call on objects with active missions
 */
-void tcUpdateMessageHandler::AddAirMissionUpdate(tcFlightOpsObject* obj, tcUpdateStream& stream)
+void tcUpdateMessageHandler::AddAirMissionUpdate(std::shared_ptr<tcFlightOpsObject> obj, tcUpdateStream& stream)
 {
     wxASSERT(obj != 0);
 
@@ -105,7 +105,7 @@ void tcUpdateMessageHandler::AddBriefingText(long alliance, tcStream& stream)
 /**
 * stream must have SetAck(true) called first
 */
-void tcUpdateMessageHandler::AddCommandAck(tcGameObject* obj, tcCommandStream& stream)
+void tcUpdateMessageHandler::AddCommandAck(std::shared_ptr<tcGameObject> obj, tcCommandStream& stream)
 {
 	wxASSERT(false);
 
@@ -114,7 +114,7 @@ void tcUpdateMessageHandler::AddCommandAck(tcGameObject* obj, tcCommandStream& s
 /**
 *
 */
-void tcUpdateMessageHandler::AddCommandUpdate(tcGameObject* obj, tcCommandStream& stream)
+void tcUpdateMessageHandler::AddCommandUpdate(std::shared_ptr<tcGameObject> obj, tcCommandStream& stream)
 {
     stream << obj->mnID; // write id
 
@@ -158,7 +158,7 @@ void tcUpdateMessageHandler::AddControlRequest(long id, tcStream& stream)
 *
 * @return true if create was added, false if a size limit was hit and needs to be added again
 */
-bool tcUpdateMessageHandler::AddCreate(tcGameObject* obj, tcCreateStream& stream)
+bool tcUpdateMessageHandler::AddCreate(std::shared_ptr<tcGameObject> obj, tcCreateStream& stream)
 {
     long freeSpace = (long)stream.GetMaxSize() - (long)stream.size();
     if (freeSpace < 1) return false;
@@ -324,7 +324,7 @@ void tcUpdateMessageHandler::AddTeamStatus(tcStream& stream)
 *
 * @see tcUpdateMessageHandler::AddCreate
 */
-bool tcUpdateMessageHandler::AddUpdate(tcGameObject* obj, tcUpdateStream& stream)
+bool tcUpdateMessageHandler::AddUpdate(std::shared_ptr<tcGameObject> obj, tcUpdateStream& stream)
 {
     long freeSpace = (long)stream.GetMaxSize() - (long)stream.size() - sizeof(long) - sizeof(unsigned int);
     if (freeSpace < 1) return false;
@@ -604,7 +604,7 @@ void tcUpdateMessageHandler::HandleAirMissionUpdate(tcUpdateStream& stream)
 
     while (((stream >> platformId).eof() == false) && (nUpdates++ < 32))
     {
-        tcGameObject* gameObj = simState->GetObject(platformId);
+        std::shared_ptr<tcGameObject> gameObj = simState->GetObject(platformId);
         if (gameObj == 0)
         {
             wxASSERT(false);
@@ -615,7 +615,7 @@ void tcUpdateMessageHandler::HandleAirMissionUpdate(tcUpdateStream& stream)
 
         updatedPlatforms[platformId] = true;
 
-        if (tcFlightOpsObject* obj = dynamic_cast<tcFlightOpsObject*>(gameObj))
+        if (std::shared_ptr<tcFlightOpsObject> obj =  std::dynamic_pointer_cast<tcFlightOpsObject>(gameObj))
         {
             tcFlightPort* flightPort = obj->GetFlightPort();
             wxASSERT(flightPort != 0);
@@ -640,11 +640,11 @@ void tcUpdateMessageHandler::HandleAirMissionUpdate(tcUpdateStream& stream)
 
     for (iter.First();iter.NotDone();iter.Next())
 	{
-		tcGameObject* gameObj = iter.Get();
+		std::shared_ptr<tcGameObject> gameObj = iter.Get();
         wxASSERT(gameObj != 0);
 
 
-        if (tcFlightOpsObject* obj = dynamic_cast<tcFlightOpsObject*>(gameObj))
+        if (std::shared_ptr<tcFlightOpsObject> obj =  std::dynamic_pointer_cast<tcFlightOpsObject>(gameObj))
         {
             tcFlightPort* flightPort = obj->GetFlightPort();
             wxASSERT(flightPort != 0);
@@ -699,7 +699,7 @@ void tcUpdateMessageHandler::HandleCommandAck(tcCommandStream& stream)
     while ((stream >> id).eof() == false)
     {
         // lookup obj
-        tcGameObject* obj = simState->GetObject(id);
+        std::shared_ptr<tcGameObject> obj = simState->GetObject(id);
 
         // update obj if it exists, otherwise create object
         if (obj)
@@ -742,7 +742,7 @@ void tcUpdateMessageHandler::HandleCommandUpdate(tcCommandStream& stream, int co
         stream >> updateSize;
 
         // lookup obj
-        tcGameObject* obj = simState->GetObject(id);
+        std::shared_ptr<tcGameObject> obj = simState->GetObject(id);
 
         // update obj if it exists, otherwise skip
         if (obj)
@@ -808,7 +808,7 @@ void tcUpdateMessageHandler::HandleControlRequest(tcStream& stream, int connecti
 		stream >> id;
 
         // lookup obj
-        if (tcGameObject* obj = simState->GetObject(id))
+        if (std::shared_ptr<tcGameObject> obj = simState->GetObject(id))
 		{
 			if (releaseControl)
 			{
@@ -864,7 +864,7 @@ void tcUpdateMessageHandler::HandleCreate(tcCreateStream& stream)
         stream >> databaseClass;
 
         // lookup obj
-        tcGameObject* obj = simState->GetObject(id);
+        std::shared_ptr<tcGameObject> obj = simState->GetObject(id);
 
         // update obj (re-create) if it exists, otherwise create object
         if (obj)
@@ -886,7 +886,7 @@ void tcUpdateMessageHandler::HandleCreate(tcCreateStream& stream)
         }
 		else
 		{
-			tcDatabaseObject* dbObj = database->GetObject(databaseClass);
+			std::shared_ptr<tcDatabaseObject> dbObj = database->GetObject(databaseClass);
 			if (dbObj)
 			{
 				obj = simState->CreateGameObject(dbObj);
@@ -990,7 +990,7 @@ void tcUpdateMessageHandler::HandleDestroy(tcStream& stream)
     while ((stream >> id).eof() == false)
     {
         // lookup obj
-        tcGameObject* obj = simState->GetObject(id);
+        std::shared_ptr<tcGameObject> obj = simState->GetObject(id);
 
         // update obj if it exists, otherwise create object
         if (obj)
@@ -1215,7 +1215,7 @@ void tcUpdateMessageHandler::HandleUpdate(tcUpdateStream& stream, int connection
         stream >> updateSize;
 
         // lookup obj
-        tcGameObject* obj = simState->GetObject(id);
+        std::shared_ptr<tcGameObject> obj = simState->GetObject(id);
 
         // update obj if it exists, otherwise create object
         if (obj)

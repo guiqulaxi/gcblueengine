@@ -81,7 +81,7 @@ namespace database
             // 注释：此变量表示飞机着陆后所需的最小随机维护时间，单位为秒。
         float maintenanceMax_s;             ///< 着陆后所需的最大随机维护时间（秒）
         // 注释：此变量表示飞机着陆后所需的最大随机维护时间，单位为秒。
-		tcDatabaseObject* AsDatabaseObject();
+        // std::shared_ptr<tcDatabaseObject> AsDatabaseObject();
         virtual const char* GetClassName() const {return "Air";} ///< returns class name of database object
 
 		virtual float GetFuelConsumptionConstant(float speed_kts = 0) const;

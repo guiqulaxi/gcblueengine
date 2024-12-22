@@ -60,7 +60,7 @@ class tcSensorMap
 public:
 	int GetTrackCount(UINT8 anAlliance);
 	long GetStartTrackPosition(UINT8 anAlliance);
-	void GetNextTrack(long& pos, tcSensorMapTrack*& pTrack, UINT8 anAlliance);
+	void GetNextTrack(long& pos, std::shared_ptr<tcSensorMapTrack>& pTrack, UINT8 anAlliance);
 
 	tcAllianceSensorMap* GetMap(UINT8 anAlliance);
 	tcAllianceSensorMap* GetOrCreateMap(UINT8 alliance);
@@ -78,12 +78,12 @@ public:
      * @param alliance
      * @return
      */
-    tcSensorReport* GetOrCreateReport(long platformID, long sensorID, long trackID, tcSensorMapTrack*& pSMTrack, unsigned int alliance);
+    tcSensorReport* GetOrCreateReport(long platformID, long sensorID, long trackID, std::shared_ptr<tcSensorMapTrack>& pSMTrack, unsigned int alliance);
 
     void AddAlwaysVisibleTrack(const std::string& unitName);
     void DropAlwaysVisibleTrack(const std::string& unitName);
-    bool GetAlwaysVisibleState(tcGameObject* obj) const;
-	void MarkObjectDestroyed(const tcGameObject* obj);
+    bool GetAlwaysVisibleState(std::shared_ptr<tcGameObject> obj) const;
+	void MarkObjectDestroyed(std::shared_ptr<const tcGameObject> obj);
 
 	void Clear();
 
@@ -94,7 +94,7 @@ public:
      * @param anAlliance
      * @return
      */
-	tcSensorMapTrack* GetSensorMapTrack(long anTrackID, UINT8 anAlliance);
+	std::shared_ptr<tcSensorMapTrack> GetSensorMapTrack(long anTrackID, UINT8 anAlliance);
 	bool GetTrack(unsigned long anTrackID, tcTrack& track, UINT8 anAlliance);
 	int Serialize(tcFile& file, bool mbLoad);
 	bool Test();

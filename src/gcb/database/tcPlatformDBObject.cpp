@@ -49,10 +49,10 @@ using namespace std;
 namespace database
 {
 
-tcDatabaseObject* tcPlatformDBObject::AsDatabaseObject()
-{
-    return this;
-}
+// std::shared_ptr<tcDatabaseObject> tcPlatformDBObject::AsDatabaseObject()
+// {
+//     return this;
+// }
 
 /**
 * Update calculated parameters based on database values
@@ -79,8 +79,8 @@ size_t tcPlatformDBObject::GetItemCapacityForLauncher(size_t launcherIdx, const 
     {
         tcDatabase* database = tcDatabase::Get();
 
-        tcLauncherDBObject* launcherData = 
-            dynamic_cast<tcLauncherDBObject*>(database->GetObject(maLauncherClass[launcherIdx]));
+        std::shared_ptr<tcLauncherDBObject> launcherData =
+            std::dynamic_pointer_cast<tcLauncherDBObject>(database->GetObject(maLauncherClass[launcherIdx]));
 
         if (launcherData != 0)
         {
@@ -257,8 +257,8 @@ void tcPlatformDBObject::ReorderMagazines()
     unsigned long maxCapacity = 0;
     for (size_t n=0; n<maMagazineClass.size(); n++)
     {
-        tcDatabaseObject* databaseObject = database->GetObject(maMagazineClass[n].c_str());       
-        if (tcStoresDBObject* storesDBObj = dynamic_cast<tcStoresDBObject*>(databaseObject))
+        std::shared_ptr<tcDatabaseObject> databaseObject = database->GetObject(maMagazineClass[n].c_str());       
+        if (std::shared_ptr<tcStoresDBObject> storesDBObj = std::dynamic_pointer_cast<tcStoresDBObject>(databaseObject))
         {
             if (storesDBObj->capacity > maxCapacity)
             {

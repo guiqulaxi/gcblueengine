@@ -51,15 +51,15 @@ namespace scriptinterface
     class tcWeaponInterface
     {
     public:        
-        tcWeaponObject* weapon;
-        static tcWeaponObject* static_weapon;
+        std::shared_ptr<tcWeaponObject> weapon;
+        static std::shared_ptr<tcWeaponObject> static_weapon;
         
         // Interface class management functions
         static py::object GetInterface();
-        static void SetObj(tcWeaponObject* obj) {static_weapon = obj;}
+        static void SetObj(std::shared_ptr<tcWeaponObject> obj) {static_weapon = obj;}
 
         void GetLocalObj() {weapon = static_weapon;}
-        void SetWeapon(tcWeaponObject* obj) {weapon = obj;} ///< method to directly set local tcWeaponObject
+        void SetWeapon(std::shared_ptr<tcWeaponObject> obj) {weapon = obj;} ///< method to directly set local tcWeaponObject
         
         // Interface functions to be called through Python
         bool IsValid();
@@ -95,7 +95,7 @@ namespace scriptinterface
         static void AttachScenarioInterface(tcScenarioInterface* si) {scenarioInterface = si;}
 
         tcWeaponInterface();
-        tcWeaponInterface(tcWeaponObject* weaponObject);
+        tcWeaponInterface(std::shared_ptr<tcWeaponObject> weaponObject);
         virtual ~tcWeaponInterface();
 
     private:

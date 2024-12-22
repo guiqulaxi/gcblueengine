@@ -85,7 +85,7 @@ public:
     bool inTransit;                  ///< 是否在移动中，表示单位是否正在从一个位置移动到另一个位置
     teOperation op;                  ///< 当前操作，表示单位当前正在执行的任务类型（如装载、维修等）
     double ready_time;               ///< 准备完成时间，表示单位完成当前操作并准备就绪的时间（可能是一个未来的时间点）
-    tcAirObject* obj;                ///< 关联对象，指向与当前状态相关联的空中单位对象（可能包含了更多关于该单位的信息）
+    std::shared_ptr<tcAirObject> obj;                ///< 关联对象，指向与当前状态相关联的空中单位对象（可能包含了更多关于该单位的信息）
 
     unsigned int lastMultiplayerUpdate; // for multiplayer client  ///< 上次多人游戏更新时间，用于多人游戏客户端，以跟踪状态信息的最后更新时间
 	tcUpdateStream& operator<<(tcUpdateStream& stream);
@@ -135,30 +135,30 @@ struct tsSpotInfo
 class tcFlightPort
 {
 public:
-    std::vector<tcAirObject*> toLand;
+    std::vector<std::shared_ptr<tcAirObject>> toLand;
     ///< objects that have landed but haven't been added to units yet
     // 注释：已降落但尚未添加到单位列表中的空中对象。
     std::vector<tcAirState*> units;
     ///< air units in tcFlightPort
     // 注释：在tcFlightPort中的空中单位。
-    std::vector<tcAirObject*> toLaunch;
+    std::vector<std::shared_ptr<tcAirObject>> toLaunch;
     ///< air units for game engine to launch (take ownership of)
     // 注释：游戏引擎需要发射（并接管）的空中单位。
-    tcGameObject* parent;
+    std::shared_ptr<tcGameObject> parent;
     ///< parent object of flightport
     // 注释：飞行港口的父对象。
     double last_update_time;
     // 注释（新增）：上次更新时间，用于跟踪飞行港口状态的最新更新时间。
     // （原有注释已保留，但此字段的用途通常与跟踪状态更新相关，因此我添加了一个通用的解释）
 
-    int AddObject(tcAirObject *obj, teLocation loc, unsigned int position);
+    int AddObject(std::shared_ptr<tcAirObject>obj, teLocation loc, unsigned int position);
     void AddSpot(teLocation loc, float x, float y, float z, float orientation = 0, float length = 0);
-    int CheckLanding(tcAirObject* obj);
+    int CheckLanding(std::shared_ptr<tcAirObject> obj);
     void Clear(); 
     int FindAirState(tcAirState* airstate);
-	int FindAirState(tcGameObject* obj);
-    tcAirState* FindAirStateObj(tcGameObject* obj);
-    const tcAirState* FindAirStateObj(const tcGameObject* obj) const;
+	int FindAirState(std::shared_ptr<tcGameObject> obj);
+    tcAirState* FindAirStateObj(std::shared_ptr<const tcGameObject> obj);
+    const tcAirState* FindAirStateObj(std::shared_ptr<const tcGameObject> obj) const;
     int FindEmptySpot(std::vector<tsSpotInfo> *loc_vector);
     int FindEmptySpot(teLocation loc, std::vector<tsSpotInfo>*& loc_vector);
     tcAirState* GetAirState(unsigned n);
@@ -166,18 +166,18 @@ public:
     int GetAirStateIdx(long id) const;
     size_t GetCount() const {return units.size();}
     tsSpotInfo* GetCurrentSpotInfo(tcAirState *airstate);
-    tcFlightportDBObject* GetDatabaseObject() const;
+    std::shared_ptr<tcFlightportDBObject> GetDatabaseObject() const;
     unsigned GetHangarCapacity() const {return hangarCapacity;}
-	tcTrack GetLandingData(const tcGameObject* obj);
-    tcGameObject* GetObject(unsigned n);
-	tcGameObject* GetObjectById(long id);
-    tcGameObject* GetObjectByName(const std::string& unitName);
+    tcTrack GetLandingData(std::shared_ptr<const tcGameObject> obj);
+    std::shared_ptr<tcGameObject> GetObject(unsigned n);
+	std::shared_ptr<tcGameObject> GetObjectById(long id);
+    std::shared_ptr<tcGameObject> GetObjectByName(const std::string& unitName);
 
     float GetTimeToDestination(const tcAirState* airstate) const;
     const std::string& GetTimeToDestinationString(const tcAirState* airstate) const;
 
     std::vector<tsSpotInfo>* GetLocVector(teLocation loc);
-    void InitFromDatabase(database::tcFlightportDBObject *dbObj);
+    void InitFromDatabase(std::shared_ptr<database::tcFlightportDBObject>dbObj);
     void InitRelPos(tcAirState *airstate);
 	bool IsHeloOnly() const;
     int LaunchRunway(int runway); // order unit on runway to take off
@@ -190,7 +190,7 @@ public:
     bool MoveToLaunchQueue(tcAirState *airstate);
     void SetObjectDestination(unsigned n, teLocation loc, unsigned int position = 0);
 	void SetObjectDestination(tcAirState* airstate, teLocation loc, unsigned int position = 0);
-    void SetParent(tcGameObject *newparent) {parent=newparent;}
+    void SetParent(std::shared_ptr<tcGameObject>newparent) {parent=newparent;}
     void SetHangarCapacity(unsigned cap) {hangarCapacity = cap;}
     void Update(double t);
     void UpdateLanded();
@@ -244,7 +244,7 @@ private:
     ///< static array to hold transition times between spots for normal movement
     // 注释：静态数组，用于存储各点之间正常移动所需的过渡时间。
 
-    tcFlightportDBObject* mpDBObject;
+    std::shared_ptr<tcFlightportDBObject> mpDBObject;
     ///< pointer to multiplayer database object associated with this flightport
     // 注释：指向与此飞行港口关联的多人游戏数据库对象的指针。
 

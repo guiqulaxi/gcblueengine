@@ -62,8 +62,8 @@ namespace database
 class tcCarrierObject : public tcSurfaceObject, public tcFlightOpsObject  
 {
 public:
-	virtual void ApplyGeneralDamage(float damage, tcGameObject* damager);
-    virtual float ApplyAdvancedDamage(const Damage& damage, tcGameObject* damager);
+	virtual void ApplyGeneralDamage(float damage, std::shared_ptr<tcGameObject> damager);
+    virtual float ApplyAdvancedDamage(const Damage& damage, std::shared_ptr<tcGameObject> damager);
 
     virtual void Clear();
     virtual void RandInitNear(float afLon_deg, float afLat_deg);
@@ -92,7 +92,7 @@ public:
 
     tcCarrierObject();
     tcCarrierObject(tcCarrierObject&);
-    tcCarrierObject(tcShipDBObject* obj);
+    tcCarrierObject(std::shared_ptr<tcShipDBObject> obj);
     virtual ~tcCarrierObject();
 };
 

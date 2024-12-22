@@ -93,7 +93,7 @@ namespace scriptinterface {
         bool isLoading; ///< true if launcher is loading or unloading
         bool acceptsWaypoints; ///< true if weapon accepts preplan waypoints
         float lifeTime_s; ///< effective time that item operates (normally for CM or sonobuoy)
-        tcWeaponDBObject* weaponData;
+        std::shared_ptr<tcWeaponDBObject> weaponData;
 
         bool IsValid() const {return mnLauncher != -1;}
 	};
@@ -121,7 +121,9 @@ namespace scriptinterface {
 		std::vector<float> range_km; ///< range relative to calling platform (this is sketchy 9NOV2010)
 
 		tcSensorMapTrack GetTrack(int n) {return track[n];}
-		tcSensorMapTrack* GetTrackPointer(int n) {return &track[n];}
+        //std::shared_ptr<tcSensorMapTrack> GetTrackPointer(int n) {return &track[n];}
+       tcSensorMapTrack& GetTrackRef(int n) {return track[n];}
+
 		int Size() {return (int)track.size();}
 
 		tcTrackList() {}
@@ -301,7 +303,7 @@ namespace scriptinterface {
 		float GetRangeToTarget();
 		/// get track info object for target
 		tcSensorMapTrack GetTargetTrackInfo();
-		tcGameObject* GetTargetObj();
+		std::shared_ptr<tcGameObject> GetTargetObj();
 		bool GetTargetTrack(tcSensorMapTrack& track);
 		/// estimates time for launched missile / gun to intercept track
 		float GetLauncherInterceptTime(int anLauncher, tcSensorMapTrack& track);
@@ -572,9 +574,9 @@ namespace scriptinterface {
 			float waterBlast_psi, float thermal_J_cm2,float fragHits,float fragEnergy_J);
 
 
-		static void SetObj(tcPlatformObject *apObj) {mpStaticPlatformObj = apObj;}
+		static void SetObj(std::shared_ptr<tcPlatformObject>apObj) {mpStaticPlatformObj = apObj;}
 		void GetLocalObj();
-		void SetPlatform(tcPlatformObject *obj);
+		void SetPlatform(std::shared_ptr<tcPlatformObject>obj);
 //		static void AttachCommandQueue(tcCommandQueue *cq) {mpCommandQueue = cq;}
         static void AttachSimState(tcSimState *apSS) {mpSimState = apSS;}
 //		static void AttachConsole(tcSoundConsole *apConsole) {mpConsole = apConsole;}
@@ -588,17 +590,17 @@ namespace scriptinterface {
 		void GetSensorMap();
 
 		tcPlatformInterface();
-		tcPlatformInterface(tcPlatformObject* obj);
+		tcPlatformInterface(std::shared_ptr<tcPlatformObject> obj);
 		~tcPlatformInterface();
 
 	private:
 		enum {ALL_AFFILIATIONS=4, VALID_ROE=100};
 
-		tcPlatformObject *mpPlatformObj;
+		std::shared_ptr<tcPlatformObject>mpPlatformObj;
 		bool isPlatformOwnAlliance; ///< true if platform is part of user's alliance
 
 		
-		static tcPlatformObject *mpStaticPlatformObj;
+		static std::shared_ptr<tcPlatformObject>mpStaticPlatformObj;
 		static tcSimState *mpSimState;
 		static tcAllianceSensorMap *mpSensorMap;
 //		static tcSoundConsole *mpConsole;

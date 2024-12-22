@@ -60,10 +60,10 @@ class tcGameStream;
 class tcAirfieldObject : public tcPlatformObject, public tcFlightOpsObject  
 {
 public:
-    tcGroundDBObject* mpDBObject;
+    std::shared_ptr<tcGroundDBObject> mpDBObject;
 
 
-	virtual void ApplyGeneralDamage(float damage, tcGameObject* damager);
+	virtual void ApplyGeneralDamage(float damage, std::shared_ptr<tcGameObject> damager);
 
     virtual void Clear();
     virtual void RandInitNear(float afLon_deg, float afLat_deg);
@@ -94,7 +94,7 @@ public:
     virtual void AutoConfigurePlatform(const std::string& setupName);
 
     tcAirfieldObject();
-    tcAirfieldObject(tcGroundDBObject* obj);
+    tcAirfieldObject(std::shared_ptr<tcGroundDBObject> obj);
     virtual ~tcAirfieldObject();
 };
 

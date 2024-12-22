@@ -81,16 +81,16 @@ public:
     bool isWireActive; // true if wire is available to receive remote commands 线导雷
     bool autoWireUpdates; ///< true to automatically update guidance based on intended target and sensor map 如果要根据预定目标和传感器地图自动更新引导则为真
 
-    tcSonar* seeker;
+    std::shared_ptr<tcSonar> seeker;
 
     float battery_kJ;  ///< current battery charge 当前电池电量（千焦耳）
     float searchHeading_rad; ///< center of "S" sector to search 搜索的中心航向（弧度），即“S”形搜索的中心线
     int searchMode; //搜索模式（使用上面定义的枚举类型）
 
-    tcTorpedoDBObject *mpDBObject; // pointer to valid database obj
+    std::shared_ptr<tcTorpedoDBObject>mpDBObject; // pointer to valid database obj
 
     void Clear();
-	virtual void LaunchFrom(tcGameObject* obj, unsigned nLauncher);
+	virtual void LaunchFrom(std::shared_ptr<tcGameObject> obj, unsigned nLauncher);
     void RandInitNear(float afLon_deg, float afLat_deg);
 
     virtual void Update(double afStatusTime);
@@ -100,7 +100,7 @@ public:
     void SetAltitude(float alt_m);
     virtual void SetHeading(float newHeading);
     virtual void SetSpeed(float newSpeed);
-    virtual tcSonar* GetSensorState();
+    virtual std::shared_ptr<tcSonar> GetSensorState();
 	virtual float GetSonarSourceLevel(float az_deg) const;
     virtual void DesignateTarget(long anID);
     virtual int GetGuidanceParameters(tsGuidanceParameters& gp);
@@ -117,7 +117,7 @@ public:
 
     tcTorpedoObject();
     tcTorpedoObject(tcTorpedoObject&);
-    tcTorpedoObject(tcTorpedoDBObject *obj);
+    tcTorpedoObject(std::shared_ptr<tcTorpedoDBObject>obj);
     ~tcTorpedoObject();
 protected:
     virtual void UpdateDrop(float dt_s);

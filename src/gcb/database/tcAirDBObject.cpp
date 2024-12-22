@@ -49,10 +49,10 @@ using namespace std;
 namespace database
 {
 
-tcDatabaseObject* tcAirDBObject::AsDatabaseObject()
-{
-	return this;
-}
+// std::shared_ptr<tcDatabaseObject> tcAirDBObject::AsDatabaseObject()
+// {
+// 	return this;
+// }
 
 
 

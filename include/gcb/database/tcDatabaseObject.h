@@ -123,7 +123,7 @@ void ClassificationToString(UINT16 anType, char *azString);
     };
     
     
-    class tcDatabaseObject 
+    class tcDatabaseObject : public std::enable_shared_from_this<tcDatabaseObject>
     {
     public:
         enum {DESCRIPTION_STRING_LENGTH = 2048}; // max length for file descriptions
@@ -179,7 +179,7 @@ void ClassificationToString(UINT16 anType, char *azString);
         tcDatabaseObject(const tcDatabaseObject& obj); ///< copy constructor
         tcDatabaseObject(const std::string& databaseClass);
         virtual ~tcDatabaseObject();
-        virtual tcGameObject* CreateGameObject();///<创建平台
+        virtual std::shared_ptr<tcGameObject> CreateGameObject();///<创建平台
         virtual void CalculateParams();
     protected:
         static tcDatabase *database; ///< allows db objects to query for other db objects

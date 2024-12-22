@@ -466,12 +466,12 @@ void Brain::SetTarget(long target_)
     {
         tcSimState* simState = tcSimState::Get();
 
-        if (tcGameObject* oldTargetObj = simState->GetObject(target))
+        if (std::shared_ptr<tcGameObject> oldTargetObj = simState->GetObject(target))
         {
             oldTargetObj->RemoveTargeter(platform->mnID);
         }
 
-        if (tcGameObject* newTargetObj = simState->GetObject(target_))
+        if (std::shared_ptr<tcGameObject> newTargetObj = simState->GetObject(target_))
         {
             newTargetObj->AddTargeter(platform->mnID);
         }
@@ -884,7 +884,7 @@ bool Brain::GetPatrolArea(std::vector<GeoPoint>& patrolArea) const
 void Brain::TransformPatrolAreaForAnchor(std::vector<GeoPoint>& patrolArea, const std::string &anchorUnit, int anchorMode, bool read)
 {
     tcSimState* simState = tcSimState::Get();
-    tcGameObject* obj = simState->GetObjectByName(anchorUnit);
+    std::shared_ptr<tcGameObject> obj = simState->GetObjectByName(anchorUnit);
     if (obj == 0) return;
 
     float lon_rad = obj->mcKin.mfLon_rad;
@@ -997,7 +997,7 @@ bool Brain::GetAnchorInfo(std::string& anchorUnit, int& anchorMode) const
 }
 
 
-Brain::Brain(tcPlatformObject* platform_)
+Brain::Brain(std::shared_ptr<tcPlatformObject> platform_)
 : platform(platform_),
   updateInterval(0.125f),
   nextId(1),

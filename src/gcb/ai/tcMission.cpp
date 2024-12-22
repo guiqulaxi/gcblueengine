@@ -123,7 +123,7 @@ void tcMission::AddMissionAircraft(const std::string& name, const std::string& r
 
     if (!found)
     {
-        if (tcAirObject* air = missionManager->GetAircraft(name))
+        if ( std::shared_ptr<tcAirObject> air = missionManager->GetAircraft(name))
         {
 
             MissionAircraftInfo info;
@@ -200,7 +200,7 @@ const std::vector<MissionAircraftInfo>& tcMission::GetAirborneMissionAircraft() 
 	{
 		MissionAircraftInfo aircraft_n(missionAircraft[n]);
 
-		tcAirObject* air = dynamic_cast<tcAirObject*>(simState->GetObjectByName(aircraft_n.name));
+		 std::shared_ptr<tcAirObject> air = std::dynamic_pointer_cast<tcAirObject>(simState->GetObjectByName(aircraft_n.name));
 		bool inAir = (air != 0) && (air->parent == 0);
 		if (inAir)
 		{

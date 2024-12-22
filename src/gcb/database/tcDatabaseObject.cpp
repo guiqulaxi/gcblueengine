@@ -83,7 +83,7 @@ void ClassificationToString(UINT16 anType, char *azString)
 }
 
 
-/***************************** tcDatabaseObject ***********************************/
+/***************************** std::shared_ptr<tcDatabaseObject>**********************************/
 
 
 
@@ -528,7 +528,7 @@ tcDatabaseObject::~tcDatabaseObject()
     //        }
 }
 
-tcGameObject *tcDatabaseObject::CreateGameObject()
+std::shared_ptr<tcGameObject>tcDatabaseObject::CreateGameObject()
 {
     return nullptr;
 }

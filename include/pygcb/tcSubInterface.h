@@ -37,7 +37,7 @@ class tcSimState;
 class tcSound;
 class tcSoundConsole;
 class tcCommandQueue;
-
+#include <memory>
 
 namespace scriptinterface {
 	/**
@@ -78,7 +78,7 @@ namespace scriptinterface {
         float GetCavitatingSpeed(float depth_m) const;
 
         tcSubInterface();
-		tcSubInterface(tcPlatformObject* obj);
+		tcSubInterface(std::shared_ptr<tcPlatformObject> obj);
 		~tcSubInterface();
 
 	private:
@@ -86,7 +86,7 @@ namespace scriptinterface {
         static tcSimState* simState;
 //        static tcMessageInterface* messageInterface;
 
-		tcSubObject* subObj;
+		std::shared_ptr<tcSubObject> subObj;
 	};
 }
 #endif

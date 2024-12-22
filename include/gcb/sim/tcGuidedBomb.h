@@ -50,7 +50,7 @@ class tcGameStream;
 class tcGuidedBomb : public tcBallisticWeapon, public tcSensorPlatform
 {
 public:
-	virtual void LaunchFrom(tcGameObject* obj, unsigned nLauncher);
+	virtual void LaunchFrom(std::shared_ptr<tcGameObject> obj, unsigned nLauncher);
     virtual void Update(double afStatusTime);
 
     void UpdateTargetPos(float lon_rad, float lat_rad);
@@ -60,15 +60,15 @@ public:
 
     tcGuidedBomb();
     tcGuidedBomb(const tcGuidedBomb& obj);
-    tcGuidedBomb(tcBallisticDBObject* obj);
+    tcGuidedBomb(std::shared_ptr<tcBallisticDBObject> obj);
 	virtual ~tcGuidedBomb();
 protected:
-	tcBallisticDBObject* mpDBObject;
+	std::shared_ptr<tcBallisticDBObject> mpDBObject;
 	
     float latError_rad;
     float lonError_rad;
 
-    void UpdateSensor(tcSensorState* sensor, double t);
+    void UpdateSensor(std::shared_ptr<tcSensorState> sensor, double t);
 };
 
 #endif

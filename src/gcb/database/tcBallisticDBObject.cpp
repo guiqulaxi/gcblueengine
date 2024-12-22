@@ -1,4 +1,4 @@
-/**  
+/**
 **  @file tcBallisticDBObject.cpp
 */
 /*
@@ -514,23 +514,24 @@ namespace database
 	{
 	}
 
-    tcGameObject *tcBallisticDBObject::CreateGameObject()
+    std::shared_ptr<tcGameObject>tcBallisticDBObject::CreateGameObject()
     {
         switch (this->mnModelType)
         {
         case MTYPE_LASERGUIDEDBOMB:
         {
-            return new tcGuidedBomb(this);
+
+            return std::make_shared<tcGuidedBomb>(dynamic_pointer_cast<tcBallisticDBObject>(tcDatabaseObject::shared_from_this()));
         }
         break;
         case MTYPE_ROCKET:
         {
-            return new tcRocket(this);
+            return std::make_shared<  tcRocket>(dynamic_pointer_cast<tcBallisticDBObject>(tcDatabaseObject::shared_from_this()));
         }
         break;
         default:
         {
-            return new tcBallisticWeapon(this);
+            return std::make_shared<tcBallisticWeapon>(dynamic_pointer_cast<tcBallisticDBObject>(tcDatabaseObject::shared_from_this()));
         }
         break;
         }

@@ -480,7 +480,7 @@ void Route::UpdateRelativeWaypointCoordinate(size_t idx)
     {
         tcSimState* simState = tcSimState::Get();
 
-        tcGameObject* refObj = simState->GetObject(waypoints[idx].referencePlatform);
+        std::shared_ptr<tcGameObject> refObj = simState->GetObject(waypoints[idx].referencePlatform);
         if (refObj == 0) // ref platform doesn't exist
         {
             EditWaypointReference(idx, 0, -1);
@@ -502,7 +502,7 @@ void Route::UpdateRelativeWaypointOffset(size_t idx)
     {
         tcSimState* simState = tcSimState::Get();
 
-        tcGameObject* refObj = simState->GetObject(waypoints[idx].referencePlatform);
+        std::shared_ptr<tcGameObject> refObj = simState->GetObject(waypoints[idx].referencePlatform);
         if (refObj == 0) // ref platform doesn't exist
         {
             EditWaypointReference(idx, 0, -1);
@@ -557,7 +557,7 @@ bool Route::GetBestPath(const WaypointData& destination, std::vector<WaypointDat
     }
     else
     {
-        tcGameObject* obj = simState->GetObject(platformId);
+        std::shared_ptr<tcGameObject> obj = simState->GetObject(platformId);
         if (obj != 0)
         {
             p.mfLon_rad = obj->mcKin.mfLon_rad;

@@ -64,15 +64,15 @@ class tcSensorMapTrack;
 /**
  * Represents the state of a sensor.
  */
-class tcSensorState
+class tcSensorState: public std::enable_shared_from_this<tcSensorState>
 {
 	friend class tcGameSerializer;
 public:
     short int mbActive;
-    tcGameObject* parent;
-	tcSensorPlatform* sensorPlatform; ///< parent should always be a sensor plat, this is a down-cast for convenience
-    long mnDBKey; 
-    tcSensorDBObject* mpDBObj;
+    std::shared_ptr<tcGameObject> parent;
+	std::shared_ptr<tcSensorPlatform> sensorPlatform; ///< parent should always be a sensor plat, this is a down-cast for convenience
+    long mnDBKey;
+    std::shared_ptr<tcSensorDBObject> mpDBObj;
     double mfLastScan; ///记录上一次扫描的时间。
     float mfCurrentScanPeriod_s;
     short int mnMode;
@@ -85,11 +85,11 @@ public:
     static void AttachDatabase(tcDatabase* db) {database = db;}
     static void AttachSimState(tcSimState* ss) {simState = ss;}
     static void AttachLOS();//附加视线
-	virtual bool CanDetectTarget(const tcGameObject* target, float& range_km, bool useRandom=true);
+	virtual bool CanDetectTarget(std::shared_ptr<const tcGameObject> target, float& range_km, bool useRandom=true);
 
-    tcRadar* GetFireControlRadar(); //获取火控雷达
-    tcOpticalSensor* GetLaserDesignator(); //获取激光指示器
-    tcSensorState* GetFireControlSensor(); //获取火控传感器
+    std::shared_ptr<tcRadar> GetFireControlRadar(); //获取火控雷达
+    std::shared_ptr<tcOpticalSensor> GetLaserDesignator(); //获取激光指示器
+    std::shared_ptr<tcSensorState> GetFireControlSensor(); //获取火控传感器
     void GetTestArea(tcRect& region);
 	bool GetTrack(tcTrack& track_);
     long GetFireControlPlatform() const;
@@ -125,18 +125,18 @@ public:
     void SetDamaged(bool state);
 	virtual void SetFireControlSensor(long id, unsigned char idx);
     void SetMountAz(float az);
-    void SetParent(tcGameObject* obj);
+    void SetParent(std::shared_ptr<tcGameObject> obj);
     virtual void Update(double t);
     int UpdateScan(double afTime);
-    tcSensorState& operator=(tcSensorState& ss);
+    tcSensorState& operator=(const tcSensorState& ss);
 
     static void InitErrorFactor();
 
     bool ApplyAdvancedDamage(const Damage& damage);
 
-    tcSensorState* Clone() const;
+    std::shared_ptr<tcSensorState> Clone() const;
     tcSensorState();
-    tcSensorState(tcSensorDBObject* dbObj);
+    tcSensorState(std::shared_ptr<tcSensorDBObject> dbObj);
     virtual ~tcSensorState();
 
 protected:
@@ -158,10 +158,10 @@ protected:
 
 	bool RandomDetect(float margin_dB);
     void UpdateActiveReport(tcSensorReport* report, double t, float az_rad, float range_km, float alt_m, 
-        const tcSensorMapTrack* track);
+        std::shared_ptr<const tcSensorMapTrack> track);
     void UpdatePassiveReport(tcSensorReport* report, double t, float az_rad, float range_km,
-		const tcSensorMapTrack* track);
-    bool HasLOS(const tcGameObject* target);
+		std::shared_ptr<const tcSensorMapTrack> track);
+    bool HasLOS(std::shared_ptr<const tcGameObject> target);
     void CalculateLonLatCovariance(float az_rad, float lat_rad, float sigmaCrossRange_m, float sigmaDownRange_m,
         float& C11, float& C22, float& C12);
     bool GetAltitudeEstimate(float& altitudeEstimate_m, float& altitudeVariance, float range_km, float az_rad, float alt_m);

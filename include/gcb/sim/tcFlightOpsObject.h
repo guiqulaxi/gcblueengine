@@ -68,11 +68,11 @@ class tcTrack;
 class tcFlightOpsObject 
 {
 public:
-    virtual tcGameObject* AddChildToFlightDeck(const std::string& className, std::string unitName, 
+    virtual std::shared_ptr<tcGameObject> AddChildToFlightDeck(const std::string& className, std::string unitName,
 		teLocation loc, unsigned int position);
-	virtual tcGameObject* AddChildToFlightDeck(tcDatabaseObject* databaseObject, std::string unitName, 
+    virtual std::shared_ptr<tcGameObject> AddChildToFlightDeck(std::shared_ptr<tcDatabaseObject> databaseObject, std::string unitName,
 		teLocation loc, unsigned int position);
-    virtual int CheckLanding(tcAirObject* obj);
+    virtual int CheckLanding(std::shared_ptr<tcAirObject> obj);
     virtual void Clear();
     tcFlightPort* GetFlightPort();
     size_t CurrentAirComplementSize() const;
@@ -80,8 +80,8 @@ public:
     void PrintToFile(tcFile& file);
 	void RandInitNear(float afLon_deg, float afLat_deg); 
 
-    void DestroyAllChildrenAndUpdateScore(tcGameObject* damager);
-    bool ApplyAdvancedDamage(const Damage& damage, tcGameObject* damager, float generalDamage);
+    void DestroyAllChildrenAndUpdateScore(std::shared_ptr<tcGameObject> damager);
+    bool ApplyAdvancedDamage(const Damage& damage, std::shared_ptr<tcGameObject> damager, float generalDamage);
 
     virtual void SetFlightportDefaults();
     virtual void Update(double afStatusTime);
@@ -107,12 +107,12 @@ public:
     virtual void ClearNewCommand();
     virtual bool HasNewCommand() const;
 
-    tcFlightOpsObject(tcFlightportDBObject* dbObject, tcGameObject* gameObject);
+    tcFlightOpsObject(std::shared_ptr<tcFlightportDBObject> dbObject, std::shared_ptr<tcGameObject> gameObject);
     virtual ~tcFlightOpsObject();
 private:
 	static database::tcDatabase* database;
     tcFlightPort flight_deck;
-	tcGameObject* gameObj; ///< to avoid (some) virtual inheritance inefficiency
+    std::shared_ptr<tcGameObject> gameObj; ///< to avoid (some) virtual inheritance inefficiency
 
     size_t nextUpdateIdx; ///< to track partial updates on multiplayer server
 

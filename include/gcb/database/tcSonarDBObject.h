@@ -56,7 +56,7 @@ namespace database
         float alpha;                ///< CALCULATED attenuation coefficent in dB/km 计算得到的衰减系数
         float averageFreq_Hz;   ///< CALCULATED  计算得到的平均频率
 
-        virtual tcSensorState* CreateSensor(tcGameObject* parent); ///< factory method
+        virtual std::shared_ptr<tcSensorState> CreateSensor(std::shared_ptr<tcGameObject> parent); ///< factory method
         virtual const char* GetClassName() const {return "Sonar";} ///< returns class name of database object
         virtual void PrintToFile(tcFile& file);
 

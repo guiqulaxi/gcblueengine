@@ -208,9 +208,9 @@ tcSubDBObject::~tcSubDBObject()
 {
 }
 
-tcGameObject *tcSubDBObject::CreateGameObject()
+std::shared_ptr<tcGameObject>tcSubDBObject::CreateGameObject()
 {
-    return new tcSubObject(this);
+    return std::make_shared< tcSubObject>(std::dynamic_pointer_cast<tcSubDBObject>(tcDatabaseObject::shared_from_this()));
 }
 
 

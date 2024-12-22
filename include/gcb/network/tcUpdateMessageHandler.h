@@ -82,11 +82,11 @@ public:
 	static tcMPGameView* mpGameView;
 
 	static void AddBriefingText(long alliance, tcStream& stream);
-    static void AddCommandAck(tcGameObject* obj, tcCommandStream& stream);
-    static void AddCommandUpdate(tcGameObject* obj, tcCommandStream& stream);
+    static void AddCommandAck(std::shared_ptr<tcGameObject> obj, tcCommandStream& stream);
+    static void AddCommandUpdate(std::shared_ptr<tcGameObject> obj, tcCommandStream& stream);
 	static void AddControlRelease(long id, tcStream& stream);
 	static void AddControlRequest(long id, tcStream& stream);
-    static bool AddCreate(tcGameObject* obj, tcCreateStream& stream);
+    static bool AddCreate(std::shared_ptr<tcGameObject> obj, tcCreateStream& stream);
     static void AddCreateRequest(long id, tcStream& stream);
     static void AddDestroy(long id, tcStream& stream);
 	static void AddGoalStatus(long alliance, tcUpdateStream& stream);
@@ -94,8 +94,8 @@ public:
     static void AddSensorUpdateHeader(long alliance, tcStream& stream);
 	static void AddSoundEffect(long id, const std::string& effect, tcStream& stream);
 	static void AddTeamStatus(tcStream& stream);
-    static bool AddUpdate(tcGameObject* obj, tcUpdateStream& stream);
-    static void AddAirMissionUpdate(tcFlightOpsObject* obj, tcUpdateStream& stream);
+    static bool AddUpdate(std::shared_ptr<tcGameObject> obj, tcUpdateStream& stream);
+    static void AddAirMissionUpdate(std::shared_ptr<tcFlightOpsObject> obj, tcUpdateStream& stream);
 
 	static void AttachMPGameView(tcMPGameView* p);
 

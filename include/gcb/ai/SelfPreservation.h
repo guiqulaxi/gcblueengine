@@ -56,7 +56,7 @@ public:
     virtual tcGameStream& operator<<(tcGameStream& stream);
 	virtual tcGameStream& operator>>(tcGameStream& stream);
 
-    SelfPreservation(tcPlatformObject* platform_, Blackboard* bb, 
+    SelfPreservation(std::shared_ptr<tcPlatformObject> platform_, Blackboard* bb, 
         long id_, double priority_, int attributes_, const std::string& taskName_);
     ~SelfPreservation();
     

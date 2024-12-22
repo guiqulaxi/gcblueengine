@@ -49,7 +49,7 @@ namespace database
 class tcSurfaceObject : public tcPlatformObject
 {
 public:
-	tcShipDBObject *mpDBObject;
+    std::shared_ptr<tcShipDBObject>mpDBObject;
 
 	virtual void Clear();
 
@@ -76,7 +76,7 @@ public:
 
 	tcSurfaceObject();
 	tcSurfaceObject(tcSurfaceObject&);
-	tcSurfaceObject(tcShipDBObject* obj);
+	tcSurfaceObject(std::shared_ptr<tcShipDBObject> obj);
 	~tcSurfaceObject();
 
 protected:

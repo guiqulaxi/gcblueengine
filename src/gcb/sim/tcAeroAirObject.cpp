@@ -131,7 +131,7 @@ bool tcAeroAirObject::HasNewCommand() const
 * @param rho set to air density for this altitude [kg/m3]
 * @return speed solution in m/s
 */
-float tcAeroAirObject::SolveForSpeed(float throttle, float altitude_m, float& rho, float damageLevel, const tcJetDBObject* airData)
+float tcAeroAirObject::SolveForSpeed(float throttle, float altitude_m, float& rho, float damageLevel, std::shared_ptr<const tcJetDBObject> airData)
 {
     // 计算空气密度
     rho = Aero::GetAirDensity(altitude_m);
@@ -219,7 +219,7 @@ float tcAeroAirObject::SolveForSpeed(float throttle, float altitude_m, float& rh
 * @return throttle fraction to achieve speed_mps at altitude_m
 * @ 返回在指定高度，要达到指定速度油门
 */
-float tcAeroAirObject::SolveForThrottle(float speed_mps, float altitude_m, float damageLevel, const tcJetDBObject* airData)
+float tcAeroAirObject::SolveForThrottle(float speed_mps, float altitude_m, float damageLevel, std::shared_ptr<const tcJetDBObject> airData)
 {
     // 计算空气密度
     float rho = Aero::GetAirDensity(altitude_m);
@@ -313,7 +313,7 @@ float tcAeroAirObject::CalculateFuelRate(float speed_mps, float alt_m) const
 * Method to calculate speed and fuel consumption vs. altitude and throttle setting
 */
 void tcAeroAirObject::CalculateSpeedParams(float altitude_m, float throttle,
-                                           float& maxSpeed_mps, float& fuelRate_kgps, float damageLevel, const tcJetDBObject* airData)
+                                           float& maxSpeed_mps, float& fuelRate_kgps, float damageLevel, std::shared_ptr<const tcJetDBObject> airData)
 {
     assert(airData != 0);
     float rho = 1.0f;
@@ -351,7 +351,7 @@ float tcAeroAirObject::GetCruiseRangeKm(float alt_m) const
     return GetAeroCruiseRangeKm(alt_m, fuel_kg, mfDamageLevel, mpDBObject, vcruise_mps);
 }
 
-float tcAeroAirObject::GetAeroCruiseRangeKm(float alt_m, float fuelLoad_kg, float damageLevel, const tcJetDBObject* airData, float& cruise_mps)
+float tcAeroAirObject::GetAeroCruiseRangeKm(float alt_m, float fuelLoad_kg, float damageLevel, std::shared_ptr<const tcJetDBObject> airData, float& cruise_mps)
 {
     // 确保传入的airData不为空指针
     assert(airData != 0);
@@ -681,7 +681,8 @@ void tcAeroAirObject::Update(double afStatusTime)
 	*/
     if (!IsClientMode())
     {
-        formation.Update((tcAeroAirObject*)this);
+
+        formation.Update(std::dynamic_pointer_cast<tcAirObject>(tcGameObject::shared_from_this()));
 
         UpdateInFlightRefuel(dt_s);
 
@@ -724,7 +725,7 @@ float tcAeroAirObject::GetParasiticDragCoefficient(float vmach) const
 * @return kg/s fuel consumption
 */
 float tcAeroAirObject::GetFuelRate(float throttle, float efficiencyFactor, float thrustFactor, float damageLevel, 
-                                   const tcJetDBObject* airData)
+                                   std::shared_ptr<const tcJetDBObject> airData)
 {
     // 计算损坏对燃料消耗的影响，损坏程度越高，燃料消耗越多
     float damagePenalty = 1.0f + 9.0f*damageLevel;
@@ -762,7 +763,7 @@ float tcAeroAirObject::GetFuelRate(float throttle, float efficiencyFactor, float
 * @param airData 飞行器的空气动力学数据对象指针
 * @return 返回推力值，单位为牛顿
 */
-float tcAeroAirObject::GetThrust(float throttle, float thrustFactor, float speed_mps, const tcJetDBObject* airData)
+float tcAeroAirObject::GetThrust(float throttle, float thrustFactor, float speed_mps,  std::shared_ptr<const tcJetDBObject> airData)
 {
     assert(airData != 0); // 确保传入的airData不为空
     assert(throttle <= 2.0f); // 确保油门值在有效范围内
@@ -930,7 +931,7 @@ tcAeroAirObject::tcAeroAirObject()
 /**
 * Constructor that initializes using info from database entry.
 */
-tcAeroAirObject::tcAeroAirObject(tcJetDBObject *obj)
+tcAeroAirObject::tcAeroAirObject(std::shared_ptr<tcJetDBObject>obj)
     : tcAirObject(obj),
     levelThrottleFraction(0),
     levelThrust_N(0),

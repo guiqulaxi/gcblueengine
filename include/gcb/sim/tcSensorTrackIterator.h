@@ -44,7 +44,7 @@ class tcSensorTrackIterator
 {
 public:
     void First();
-    tcSensorMapTrack* Get();
+    std::shared_ptr<tcSensorMapTrack> Get();
     void Next();
     bool NotDone();
     unsigned int Size() const;
@@ -60,7 +60,7 @@ private:
     tcAllianceSensorMap* map;
     long firstPos; ///< index of first game object, last advances to first
     long currentPos; ///< current position index for pool
-    tcSensorMapTrack* currentObj;
+    std::shared_ptr<tcSensorMapTrack> currentObj;
     bool useRegion;
     tcGeoRect region;
     unsigned int classMask;
@@ -69,7 +69,7 @@ private:
     unsigned nIterated; ///< count of elements iterated
     unsigned nSize; ///< size of list
 
-    bool PassesFilter(const tcSensorMapTrack* track) const;
+    bool PassesFilter(std::shared_ptr<const tcSensorMapTrack> track) const;
 };
 
 

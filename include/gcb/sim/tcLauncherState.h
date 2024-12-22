@@ -64,7 +64,7 @@ class tcLauncher;
 class tcLauncherState 
 {
 public:
-    tcPlatformObject* parent;
+    std::shared_ptr<tcPlatformObject> parent;
     int mnCount;
 
     static tcDatabase *mpDatabase;
@@ -74,8 +74,8 @@ public:
     void AddFullLauncher(long anKey, float azimuth_rad, float elevation_rad, float fov_deg,
 		const std::string& displayName, bool isReloadable);
 	float EstimateInterceptTimeForLauncher(unsigned nLauncher, tcTrack& track);
-	tcLauncher* GetLauncher(unsigned int nLauncher);
-    const tcLauncher* GetLauncher(unsigned nLauncher) const;
+    std::shared_ptr<tcLauncher> GetLauncher(unsigned int nLauncher);
+    std::shared_ptr<const tcLauncher> GetLauncher(unsigned nLauncher) const;
     std::string GetLauncherChildClass(unsigned nLauncher) const;
     unsigned int GetLauncherCount() const;
     int GetLauncherQuantity(unsigned anLauncher) const;
@@ -98,22 +98,22 @@ public:
     bool HasNewCommand() const;
 
     void Serialize(tcFile& file, bool abLoad);
-    void SetFireControlSensor(unsigned nLauncher, tcSensorState* sensor, unsigned sensorIdx);
+    void SetFireControlSensor(unsigned nLauncher, std::shared_ptr<tcSensorState> sensor, unsigned sensorIdx);
     int SetLaunch(int nLauncher, int quantity);
     bool SetLauncherDatum(unsigned nLauncher, 
 		double lon_rad, double lat_rad, float alt_m);
     bool SetLauncherTarget(unsigned nLauncher, long targetID);
-    void SetParent(tcPlatformObject *obj) {parent = obj;}
+    void SetParent(std::shared_ptr<tcPlatformObject>obj) {parent = obj;}
     static std::string TranslateLauncherStatus(int status);
     void Update(float dt_s);
 
     tcLauncherState();
-    tcLauncherState(tcPlatformObject* parentObj);
+    tcLauncherState(std::shared_ptr<tcPlatformObject> parentObj);
     tcLauncherState(tcLauncherState&);
     ~tcLauncherState();
 
 private:
-    std::vector<tcLauncher*> launchers; ///< vector of launcher state info
+    std::vector<std::shared_ptr<tcLauncher>> launchers; ///< vector of launcher state info
     tcCommandObject commandObj; 
     static tcSimState *simState;
 

@@ -41,7 +41,7 @@ public:
     static void SetSimState(tcSimState *ss) {simState = ss;}
 
     void First();
-    tcGameObject* Get();
+    std::shared_ptr<tcGameObject> Get();
     void Next();
     bool NotDone();
 	void SetAllianceFilter(unsigned alliance_);
@@ -54,14 +54,14 @@ private:
     static tcSimState *simState;
     long firstPos; ///< index of first game object, last advances to first
     long currentPos; ///< current position index for pool
-    tcGameObject *currentObj;
+    std::shared_ptr<tcGameObject>currentObj;
     bool useRegion;
     tcGeoRect region;
     unsigned nIterated; ///< count of elements iterated
     unsigned nSize; ///< size of list
 	unsigned allianceFilter; ///< filter by alliance if non-zero
 
-    bool PassesFilter(const tcGameObject *obj);
+    bool PassesFilter(std::shared_ptr<const tcGameObject>obj);
 };
 
 #endif

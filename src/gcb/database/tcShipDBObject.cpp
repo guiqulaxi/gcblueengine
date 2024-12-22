@@ -45,18 +45,18 @@ using namespace std;
 namespace database
 {
 
-tcDatabaseObject* tcShipDBObject::AsDatabaseObject()
-{
-    return this;
-}
+// std::shared_ptr<tcDatabaseObject> tcShipDBObject::AsDatabaseObject()
+// {
+//     return this;
+// }
 
 void tcShipDBObject::CalculateParams()
 {
 }
 
-tcFlightportDBObject* tcShipDBObject::GetFlightport()
+std::shared_ptr<tcFlightportDBObject>tcShipDBObject::GetFlightport()
 {
-    tcFlightportDBObject* flightport = dynamic_cast<tcFlightportDBObject*>
+    std::shared_ptr<tcFlightportDBObject> flightport = std::dynamic_pointer_cast<tcFlightportDBObject>
         (database->GetObject(flightportClass.c_str()));
 
     if (!flightport)
@@ -233,7 +233,7 @@ tcShipDBObject::~tcShipDBObject()
 {
 }
 
-tcGameObject *tcShipDBObject::CreateGameObject()
+std::shared_ptr<tcGameObject>tcShipDBObject::CreateGameObject()
 {
     auto mpDatabase =tcDatabase::Get();
     switch (this->mnModelType)
@@ -242,7 +242,8 @@ tcGameObject *tcShipDBObject::CreateGameObject()
     {
         if (mpDatabase->GetObject(this->flightportClass.c_str()) != 0)
         {
-            return new tcCarrierObject(this);
+
+            return std::make_shared< tcCarrierObject>(std::dynamic_pointer_cast<tcShipDBObject>(tcDatabaseObject::shared_from_this()));
         }
         else
         {
@@ -252,12 +253,12 @@ tcGameObject *tcShipDBObject::CreateGameObject()
 #ifdef _DEBUG \
     //wxMessageBox(msg, "Object Create Error");
 #endif
-            return new tcSurfaceObject(this);
+            return  std::make_shared< tcSurfaceObject>(std::dynamic_pointer_cast<tcShipDBObject>(tcDatabaseObject::shared_from_this()));
         }
     }
     break;
     case MTYPE_SURFACE:
-        return new tcSurfaceObject(this);
+        return std::make_shared< tcSurfaceObject>(std::dynamic_pointer_cast<tcShipDBObject>(tcDatabaseObject::shared_from_this()));
         break;
     default:
         fprintf(stderr, "tcSimState::CreateGameObject - "

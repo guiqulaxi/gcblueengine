@@ -14,19 +14,19 @@ using namespace std;
 namespace database
 {
 
-tcDatabaseObject* tcSpaceDBObject::AsDatabaseObject()
-{
-    return this;
-}
+// std::shared_ptr<tcDatabaseObject> tcSpaceDBObject::AsDatabaseObject()
+// {
+//     return this;
+// }
 
 void tcSpaceDBObject::CalculateParams()
 {
 
 }
 
-tcFlightportDBObject* tcSpaceDBObject::GetFlightport()
+std::shared_ptr<tcFlightportDBObject> tcSpaceDBObject::GetFlightport()
 {
-    tcFlightportDBObject* flightport = dynamic_cast<tcFlightportDBObject*>
+    std::shared_ptr<tcFlightportDBObject> flightport = std::dynamic_pointer_cast<tcFlightportDBObject>
         (database->GetObject(flightportClass.c_str()));
 
     if (!flightport)
@@ -116,9 +116,10 @@ tcSpaceDBObject::~tcSpaceDBObject()
 {
 }
 
-tcGameObject *tcSpaceDBObject::CreateGameObject()
+std::shared_ptr<tcGameObject>tcSpaceDBObject::CreateGameObject()
 {
- return new tcSpaceObject(this);
+    return std::make_shared< tcSpaceObject>(std::dynamic_pointer_cast<tcSpaceDBObject>(tcDatabaseObject::shared_from_this()));
+
 }
 
 }

@@ -32,6 +32,7 @@
 
 
 #include <vector>
+#include <memory>
 #include "tcLoadoutData.h" // since can't forward declare member class :(
 
 namespace database
@@ -61,7 +62,7 @@ class tcGameStream;
 /**
 * State for stores object, used for weapons magazines for subs
 */
-class tcStores
+class tcStores:public std::enable_shared_from_this<tcStores>
 {
 public:
     class StoreItem
@@ -71,15 +72,15 @@ public:
         unsigned long quantity;
         unsigned int itemId;
         
-        tcDatabaseObject* GetDatabaseObject() const;
-        tcDatabaseObject* GetOrLoadDatabaseObject();
-        void SetDatabaseObject(tcDatabaseObject* obj);
+        std::shared_ptr<tcDatabaseObject> GetDatabaseObject() const;
+        std::shared_ptr<tcDatabaseObject> GetOrLoadDatabaseObject();
+        void SetDatabaseObject(std::shared_ptr<tcDatabaseObject> obj);
 
         StoreItem();
         StoreItem(const StoreItem& src);
         StoreItem(const std::string& name, unsigned long qty, unsigned int id);
     private:
-        tcDatabaseObject* databaseObj;
+        std::shared_ptr<tcDatabaseObject> databaseObj;
         
         void LoadDatabaseObject();
     };
@@ -100,13 +101,13 @@ public:
 
         unsigned int opId; ///< unique id for this operation
 
-        tcGameObject* GetObj();
+        std::shared_ptr<tcGameObject> GetObj();
     };
 
 	struct AutomationOperation
 	{
 		std::string type; ///< "Empty", "AAW", "ASuW", "ASW", "Strike", or custom DB loadout
-		tcGameObject* obj; ///< 0 for local platform, otherwise child obj
+		std::shared_ptr<tcGameObject> obj; ///< 0 for local platform, otherwise child obj
 		int stage; ///< 0 not started, 1 waiting for unload to finish
 	};
 
@@ -139,8 +140,8 @@ public:
     unsigned long CurrentItemQuantity(const std::string& itemMask, std::string& matchingItem) const;
     unsigned long CurrentQuantity() const;
 	unsigned long IncomingQuantity() const;
-	tcStoresDBObject* GetDatabaseObject() const;
-    tcDatabaseObject* GetDatabaseObjectForItem(const std::string& item) const;
+	std::shared_ptr<tcStoresDBObject> GetDatabaseObject() const;
+    std::shared_ptr<tcDatabaseObject> GetDatabaseObjectForItem(const std::string& item) const;
 	const std::string& GetDisplayName() const;
 	/// name of <idx> type
 	const std::string& GetItemName(unsigned int idx) const;
@@ -150,33 +151,33 @@ public:
 	unsigned int GetNumberItemTypes() const;
     const StoreItemInfo& GetItemInfo(size_t idx) const;
 
-    tcGameObject* GetParent() const;
+    std::shared_ptr<tcGameObject> GetParent() const;
     bool IsCompatible(const std::string& item) const;
     bool IsFull() const;
     bool LoadLauncher(unsigned int idx, const std::string& item, 
-             tcGameObject* child = 0, unsigned int maxToLoad = 12345);
-	bool LoadOther(const std::string& item, unsigned long quantity, tcGameObject* child = 0);
-    unsigned int MoveStores(const std::string& item, unsigned int quantity, tcPlatformObject* destination, unsigned int storesIdx);
+             std::shared_ptr<tcGameObject> child = 0, unsigned int maxToLoad = 12345);
+	bool LoadOther(const std::string& item, unsigned long quantity, std::shared_ptr<tcGameObject> child = 0);
+    unsigned int MoveStores(const std::string& item, unsigned int quantity, std::shared_ptr<tcPlatformObject> destination, unsigned int storesIdx);
     unsigned long GetFreeCapacityForItem(float itemWeight_kg, float itemVolume_m3) const;
-    bool GetBestLoadout(tcAirObject* obj, const std::vector<LauncherLoadout>& launcherLoadout, std::vector<WeaponInfo>& bestForLauncher, unsigned int groupSize=1);
-    bool GetBestGenericLoadout(tcPlatformObject* obj, const std::string& type, std::vector<WeaponInfo>& bestForLauncher);
+    bool GetBestLoadout(std::shared_ptr<tcAirObject> obj, const std::vector<LauncherLoadout>& launcherLoadout, std::vector<WeaponInfo>& bestForLauncher, unsigned int groupSize=1);
+    bool GetBestGenericLoadout(std::shared_ptr<tcPlatformObject> obj, const std::string& type, std::vector<WeaponInfo>& bestForLauncher);
     const std::vector<StoreItemInfo>& GetMoveSummary() const;
 
     virtual void SaveToPython(scriptinterface::tcScenarioLogger& logger);
-    void SetParent(tcPlatformObject* obj);
-    bool UnloadLauncher(unsigned int idx, tcGameObject* child = 0, unsigned long maxToUnload = 123456);
-    bool UnloadOther(const std::string& item, unsigned long quantity, tcGameObject* child = 0);
+    void SetParent(std::shared_ptr<tcPlatformObject> obj);
+    bool UnloadLauncher(unsigned int idx, std::shared_ptr<tcGameObject> child = 0, unsigned long maxToUnload = 123456);
+    bool UnloadOther(const std::string& item, unsigned long quantity, std::shared_ptr<tcGameObject> child = 0);
     void Update(double t);
 
-	void AddAutomationOp(const std::string& type, tcGameObject* child = 0);
-	bool AllLaunchersEmpty(tcGameObject* child);
-	bool AllLaunchersReady(tcGameObject* child);
-	int GetAvailableTargetFlags(tcGameObject* child, bool nuclear=false);
+	void AddAutomationOp(const std::string& type, std::shared_ptr<tcGameObject> child = 0);
+	bool AllLaunchersEmpty(std::shared_ptr<tcGameObject> child);
+	bool AllLaunchersReady(std::shared_ptr<tcGameObject> child);
+	int GetAvailableTargetFlags(std::shared_ptr<tcGameObject> child, bool nuclear=false);
 
-	bool HasActiveOp(tcGameObject* child) const;
-	bool HasStoresForThisObject(tcGameObject* obj);
-    bool CanUnloadThisObject(tcGameObject* obj);
-    bool FindLauncherOp(tcGameObject* obj, unsigned int launcherIdx, unsigned int& opId);
+	bool HasActiveOp(std::shared_ptr<tcGameObject> child) const;
+	bool HasStoresForThisObject(std::shared_ptr<tcGameObject> obj);
+    bool CanUnloadThisObject(std::shared_ptr<tcGameObject> obj);
+    bool FindLauncherOp(std::shared_ptr<tcGameObject> obj, unsigned int launcherIdx, unsigned int& opId);
     const StoreOperation* FindOpById(unsigned int opId) const;
 
     bool HasStoresForLoadout(const tcLoadoutData& loadoutData) const;
@@ -197,16 +198,16 @@ public:
     void ClearNewCommand();
     bool HasNewCommand() const;
     
-    static bool LoadAirLoadoutEditMode(tcGameObject* child, const std::string& type); // edit mode version work-around
-    static bool LoadPlatformEditMode(tcGameObject* child, const std::string& type); // edit mode version work-around
+    static bool LoadAirLoadoutEditMode(std::shared_ptr<tcGameObject> child, const std::string& type); // edit mode version work-around
+    static bool LoadPlatformEditMode(std::shared_ptr<tcGameObject> child, const std::string& type); // edit mode version work-around
 
-    tcStores(tcStoresDBObject* dbObj);
+    tcStores(std::shared_ptr<tcStoresDBObject> dbObj);
     virtual ~tcStores();
 
 private:
 
-    tcStoresDBObject* storesDBObj;
-    tcPlatformObject* parent;
+    std::shared_ptr<tcStoresDBObject> storesDBObj;
+    std::shared_ptr<tcPlatformObject> parent;
     std::vector<StoreItem> stores;
     std::vector<StoreOperation> ops;
 	std::vector<AutomationOperation> automationOps;
@@ -232,20 +233,20 @@ private:
 
 
     bool AddOperation(const std::string& itemName, unsigned int launcherIdx, unsigned long quantity, float transferTime_s,
-							int opType, tcGameObject* obj);
+							int opType, std::shared_ptr<tcGameObject> obj);
     void CompleteOperation(StoreOperation& op);
-    void CompleteMoveOperation(tcStores::StoreOperation& op, tcGameObject* obj);
-    tcGameObject* GetChildOrParent(tcGameObject* child);
-	bool ValidateOpObject(tcGameObject* obj);
+    void CompleteMoveOperation(tcStores::StoreOperation& op, std::shared_ptr<tcGameObject> obj);
+    std::shared_ptr<tcGameObject> GetChildOrParent(std::shared_ptr<tcGameObject> child);
+	bool ValidateOpObject(std::shared_ptr<tcGameObject> obj);
 
 	void UpdateAutomation();
-	bool UnloadPlatform(tcGameObject* child);
-	bool LoadPlatform(tcGameObject* child, const std::string& type);
-    bool LoadAirLoadout(tcGameObject* child, const std::string& type);
+	bool UnloadPlatform(std::shared_ptr<tcGameObject> child);
+	bool LoadPlatform(std::shared_ptr<tcGameObject> child, const std::string& type);
+    bool LoadAirLoadout(std::shared_ptr<tcGameObject> child, const std::string& type);
 
 	static void GetWeaponInfo(WeaponInfo& info);
     void UpdateWeightAndVolume(); 
-    bool StoresOperationAllowed(tcPlatformObject* destination) const;
+    bool StoresOperationAllowed(std::shared_ptr<tcPlatformObject> destination) const;
     size_t GetMyStoresIndex() const;
 };
 #endif

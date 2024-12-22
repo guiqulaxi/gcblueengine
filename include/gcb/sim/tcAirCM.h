@@ -47,12 +47,12 @@ class tcAirCM : public tcGameObject
 {
 public:
 
-    tcCounterMeasureDBObject* mpDBObject;  
+    std::shared_ptr<tcCounterMeasureDBObject> mpDBObject;  
 
-    virtual void LaunchFrom(tcGameObject* obj, unsigned nLauncher);
+    virtual void LaunchFrom(std::shared_ptr<tcGameObject> obj, unsigned nLauncher);
     virtual void Update(double t);
 
-    virtual float ApplyAdvancedDamage(const Damage& damage, tcGameObject* damager); ///< called when new damage occurs
+    virtual float ApplyAdvancedDamage(const Damage& damage, std::shared_ptr<tcGameObject> damager); ///< called when new damage occurs
 
     virtual tcUpdateStream& operator<<(tcUpdateStream& stream);
     virtual tcUpdateStream& operator>>(tcUpdateStream& stream);
@@ -63,7 +63,7 @@ public:
 
     tcAirCM();
     tcAirCM(const tcAirCM& src);
-    tcAirCM(tcCounterMeasureDBObject* obj);
+    tcAirCM(std::shared_ptr<tcCounterMeasureDBObject> obj);
     virtual ~tcAirCM();
     
 private:

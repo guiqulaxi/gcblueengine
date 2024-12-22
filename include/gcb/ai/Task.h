@@ -26,6 +26,7 @@
 #ifndef _TASK_H_
 #define _TASK_H_
 
+#include <memory>
 #if _MSC_VER > 1000
 #pragma once
 #endif
@@ -87,12 +88,12 @@ public:
     virtual tcGameStream& operator<<(tcGameStream& stream);
 	virtual tcGameStream& operator>>(tcGameStream& stream);
 
-    Task(tcPlatformObject* platform_, Blackboard* bb, 
+    Task(std::shared_ptr<tcPlatformObject> platform_, Blackboard* bb, 
         long id_, double priority_, int attributes_, const std::string& taskName_);
     virtual ~Task();
     
 
-    tcPlatformObject*  platform;
+    std::shared_ptr<tcPlatformObject>  platform;
 protected:
    	const std::string taskName;
 	int attributes; ///< bitfield of task attributes

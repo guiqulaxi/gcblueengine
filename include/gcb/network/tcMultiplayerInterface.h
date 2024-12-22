@@ -264,7 +264,7 @@ private:
 
     void ClearMessageMap();
     void DistributeChatText();
-    void GetUpdatePeriod(const tcGameObject* obj, const std::string& playerName,
+    void GetUpdatePeriod(std::shared_ptr<const tcGameObject> obj, const std::string& playerName,
         unsigned int& updatePeriod, unsigned int& detailedUpdatePeriod) const;
     bool IsNewPlayer(int id);
 

@@ -153,7 +153,7 @@ protected:
     void RemoveInactiveAircraft();
 	void MonitorMissionInProgress();
     void InitializeLaunchTime();
-	void UploadUnitMissionInfo(tcAirObject* air);
+	void UploadUnitMissionInfo( std::shared_ptr<tcAirObject> air);
     void UploadUnitPatrolInfo(ai::BlackboardInterface& bb);
     void GetReadyAircraft(std::vector<unsigned int>& readyAircraft);
     void GetAircraftToLoad(std::vector<unsigned int>& loadTheseAircraft);

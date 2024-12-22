@@ -201,9 +201,9 @@ public:
     void UpdateTrack(double tCoast_s);
 
     // 获取与此跟踪相关联的 tcGameObject 对象
-    tcGameObject* GetAssociated();
+    std::shared_ptr<tcGameObject> GetAssociated();
     // 获取与此跟踪相关联的 tcGameObject 对象的常量指针
-    const tcGameObject* GetAssociatedConst() const;
+    std::shared_ptr<const tcGameObject> GetAssociatedConst() const;
 
     // 序列化/反序列化到更新流
     tcUpdateStream& operator<<(tcUpdateStream& stream);
@@ -214,7 +214,7 @@ public:
     tcGameStream& operator>>(tcGameStream& stream);
 
     // 赋值操作符（注意：这里的实现可能不正确，应返回 *this）
-    tcSensorMapTrack* operator= (tcSensorMapTrack *pa) {return pa;}
+    std::shared_ptr<tcSensorMapTrack> operator= (std::shared_ptr<tcSensorMapTrack>pa) {return pa;}
     // 复制构造函数和赋值操作符（可能未完全实现）
     tcSensorMapTrack& operator= (const tcSensorMapTrack&);
     tcSensorMapTrack(const tcSensorMapTrack& src);

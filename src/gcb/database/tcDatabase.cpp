@@ -124,7 +124,7 @@ tcGameStream& tcDatabase::operator>>(tcGameStream& stream)
     unsigned long nIterated = 0;
     for (iter.First(); !iter.IsDone(); iter.Next())
     {
-        tcDatabaseObject* obj = iter.Get();
+        std::shared_ptr<tcDatabaseObject> obj = iter.Get();
 
         std::string databaseClass(obj->mzClass.c_str());
         stream << databaseClass;
@@ -205,7 +205,7 @@ void tcDatabase::BuildDictionaries()
     tcDatabaseIterator iter(0);
     for (iter.First(); !iter.IsDone(); iter.Next())
     {
-        tcDatabaseObject* obj = iter.Get();
+        std::shared_ptr<tcDatabaseObject> obj = iter.Get();
         assert(obj);
         assert(obj->mnKey != -1);
 
@@ -641,7 +641,7 @@ long tcDatabase::LoadLauncherData(const char* databaseClass, long forcedKey)
     }
 
     // create launcher db obj
-    tcLauncherDBObject* launcherData = new tcLauncherDBObject(std::string(launcherName.c_str()));
+    std::shared_ptr<tcLauncherDBObject> launcherData = std::make_shared< tcLauncherDBObject>(std::string(launcherName.c_str()));
 
     // add launcher configurations
     std::string command2 =
@@ -709,13 +709,13 @@ void tcDatabase::LoadPlatformTables()
     // iterate through database
     int nCount = mcObjectData.GetCount();
     long currentPos = mcObjectData.GetStartPosition();
-    tcDatabaseObject* obj = 0;
+    std::shared_ptr<tcDatabaseObject> obj = nullptr;
     long id = -1;
 
     for (int n=0; n<nCount; n++)
     {
         mcObjectData.GetNextAssoc(currentPos, id, obj);
-        if (tcPlatformDBObject* platformData = dynamic_cast<tcPlatformDBObject*>(obj))
+        if (std::shared_ptr<tcPlatformDBObject> platformData = std::dynamic_pointer_cast<tcPlatformDBObject>(obj))
         {
             // clear old info (for now)
             platformData->maLauncherClass.clear();
@@ -784,7 +784,7 @@ void tcDatabase::LoadPlatformTables()
 
 
         // add magazines (separate "if" to make it easier to modularize late)
-        if (tcPlatformDBObject* platformData = dynamic_cast<tcPlatformDBObject*>(obj))
+        if (std::shared_ptr<tcPlatformDBObject> platformData = std::dynamic_pointer_cast<tcPlatformDBObject>(obj))
         {
             std::string command =
                 strutil::format("select * from platform_magazine where DatabaseClass=\"%s\";",
@@ -814,7 +814,7 @@ void tcDatabase::LoadPlatformTables()
             platformData->ReorderMagazines();
         }
 
-        if (tcSensorPlatformDBObject* sensorPlatData = dynamic_cast<tcSensorPlatformDBObject*>(obj))
+        if (std::shared_ptr<tcSensorPlatformDBObject> sensorPlatData = std::dynamic_pointer_cast<tcSensorPlatformDBObject>(obj))
         {
             // clear old info
             sensorPlatData->sensorClass.clear();
@@ -874,7 +874,7 @@ void tcDatabase::ReloadRecord(const char* databaseClass)
     std::string databaseClassString(databaseClass);
     if (ObjectExists(databaseClassString))
     {
-        tcDatabaseObject* data = GetObject(databaseClass);
+       std::shared_ptr< tcDatabaseObject> data = GetObject(databaseClass);
         if (data != 0)
         {
             forcedKey = data->mnKey;
@@ -1266,10 +1266,10 @@ bool tcDatabase::LoadRecordSql(const char* databaseClass)
 */
 void tcDatabase::LoadRecordOtherTables(long key)
 {
-    tcDatabaseObject* obj = GetObject(key);
+    std::shared_ptr<tcDatabaseObject> obj = GetObject(key);
     assert(obj != 0);
 
-    if (tcPlatformDBObject* platformData = dynamic_cast<tcPlatformDBObject*>(obj))
+    if (std::shared_ptr<tcPlatformDBObject> platformData = std::dynamic_pointer_cast<tcPlatformDBObject>(obj))
     {
         // clear old info (for now)
         platformData->maLauncherClass.clear();
@@ -1369,7 +1369,7 @@ void tcDatabase::LoadRecordOtherTables(long key)
 
     } // if (tcPlatformDBObject* platformData =
 
-    if (tcSensorPlatformDBObject* sensorPlatData = dynamic_cast<tcSensorPlatformDBObject*>(obj))
+    if (std::shared_ptr<tcSensorPlatformDBObject> sensorPlatData = std::dynamic_pointer_cast<tcSensorPlatformDBObject>(obj))
     {
         // clear old info
         sensorPlatData->sensorClass.clear();
@@ -1389,7 +1389,7 @@ void tcDatabase::LoadRecordOtherTables(long key)
             sensorPlatData->sensorClass.push_back(sensorClass);
             sensorPlatData->sensorAz.push_back(sensorAz);
         }
-    } // if (tcSensorPlatformDBObject* sensorPlatData =
+    } // if (std::shared_ptr<tcSensorPlatformDBObject> sensorPlatData =
 
 }
 
@@ -2049,8 +2049,8 @@ int tcDatabase::CreateObjectCopy(long anKey)
     return 0;
 #if 0
     return 0;
-    tcDatabaseObject *pobj = NULL;
-    tcDatabaseObject *pobjcopy = NULL;
+    std::shared_ptr<tcDatabaseObject>pobj = NULL;
+    std::shared_ptr<tcDatabaseObject>pobjcopy = NULL;
     long nKey;
 
     if (GetObject(anKey,pobj)==false)
@@ -2058,23 +2058,23 @@ int tcDatabase::CreateObjectCopy(long anKey)
         return false; // error, not found
     }
 
-    if (tcPlatformDBObject *pgobj = dynamic_cast<tcPlatformDBObject*>(pobj))
+    if (std::shared_ptr<tcPlatformDBObject>pgobj = std::dynamic_pointer_cast<tcPlatformDBObject>(pobj))
     {
         pobjcopy = new tcPlatformDBObject(*pgobj);
     }
-    else if (tcLauncherDBObject *plobj = dynamic_cast<tcLauncherDBObject*>(pobj))
+    else if (std::shared_ptr<tcLauncherDBObject>plobj = std::dynamic_pointer_cast<tcLauncherDBObject>(pobj))
     {
         pobjcopy = new tcLauncherDBObject(*plobj);
     }
-    else if (tcMissileDBObject *pmobj = dynamic_cast<tcMissileDBObject*>(pobj))
+    else if (std::shared_ptr<tcMissileDBObject>pmobj =  std::dynamic_pointer_cast<tcMissileDBObject>(pobj))
     {
         pobjcopy = new tcMissileDBObject(*pmobj);
     }
-    else if (tcRadarDBObject *probj = dynamic_cast<tcRadarDBObject*>(pobj))
+    else if (tcRadarDBObject *probj =  std::dynamic_pointer_cast<tcRadarDBObject>(pobj))
     {
         pobjcopy  = new tcRadarDBObject(*probj);
     }
-    else if (tcESMDBObject *peobj = dynamic_cast<tcESMDBObject*>(pobj))
+    else if (tcESMDBObject *peobj =  std::dynamic_pointer_cast<tcESMDBObject>(pobj))
     {
         pobjcopy = new tcESMDBObject(*peobj);
     }
@@ -2098,7 +2098,7 @@ int tcDatabase::CreateObjectCopy(long anKey)
 int tcDatabase::DeleteObject(long anKey) 
 {
     // first remove the object from the nameToKey lookup
-    tcDatabaseObject* obj = GetObject(anKey);
+    std::shared_ptr<tcDatabaseObject> obj = GetObject(anKey);
     if (obj == 0)
     {
         assert(false);
@@ -2134,14 +2134,14 @@ void tcDatabase::ExportLauncherConfigurations()
 
     int nCount = mcObjectData.GetCount();
     long currentPos = mcObjectData.GetStartPosition();
-    tcDatabaseObject* obj = 0;
+    std::shared_ptr<tcDatabaseObject> obj = 0;
     long id = -1;
 
     for (int n=0; n<nCount; n++)
     {
         mcObjectData.GetNextAssoc(currentPos, id, obj);
         
-        if (tcLauncherDBObject* launcherData = dynamic_cast<tcLauncherDBObject*>(obj))
+        if (std::shared_ptr<tcLauncherDBObject> launcherData = std::dynamic_pointer_cast<tcLauncherDBObject>(obj))
         {
             size_t nConfigs = (size_t)launcherData->GetNumberConfigurations();
             if (nConfigs > 0)
@@ -2181,7 +2181,7 @@ void tcDatabase::ExportPlatformTables()
 
     int nCount = mcObjectData.GetCount();
     long currentPos = mcObjectData.GetStartPosition();
-    tcDatabaseObject* obj = 0;
+    std::shared_ptr<tcDatabaseObject> obj = 0;
     long id = -1;
 
     for (int n=0; n<nCount; n++)
@@ -2189,7 +2189,7 @@ void tcDatabase::ExportPlatformTables()
         mcObjectData.GetNextAssoc(currentPos, id, obj);
         
 
-        if (tcPlatformDBObject* platformData = dynamic_cast<tcPlatformDBObject*>(obj))
+        if (std::shared_ptr<tcPlatformDBObject> platformData = std::dynamic_pointer_cast<tcPlatformDBObject>(obj))
         {
             size_t nLaunchers = platformData->maLauncherClass.size();
             if (nLaunchers > 0)
@@ -2213,7 +2213,7 @@ void tcDatabase::ExportPlatformTables()
             }
         }
 
-        if (tcSensorPlatformDBObject* sensorPlatData = dynamic_cast<tcSensorPlatformDBObject*>(obj))
+        if (std::shared_ptr<tcSensorPlatformDBObject> sensorPlatData = std::dynamic_pointer_cast<tcSensorPlatformDBObject>(obj))
         {
             size_t nSensors = sensorPlatData->sensorClass.size();
             if (nSensors > 0)
@@ -2441,7 +2441,7 @@ void tcDatabase::PrintToFile(tcString sFileName)
 {
     tcFile file;
     long nMapSize, nKey, nPoolPos;
-    tcDatabaseObject *pdbobj;
+    std::shared_ptr<tcDatabaseObject>pdbobj;
 
     if (file.Open(sFileName.GetBuffer(),tcFile::modeCreate|tcFile::modeWrite)==false)
     {
@@ -2711,12 +2711,12 @@ std::vector<std::vector<std::string>> tcDatabase::GetFieldsForAllRows(const std:
 *
 * TODO fix this to guarantee return of object matching model type if one exists
 */
-tcDatabaseObject* tcDatabase::GetRandomOfType(UINT model_type) 
+std::shared_ptr<tcDatabaseObject> tcDatabase::GetRandomOfType(UINT model_type)
 {
     bool bSearching = true;
     bool bFound = false;
     int nTries = 0;
-    tcDatabaseObject *pdata = 0;
+    std::shared_ptr<tcDatabaseObject>pdata = nullptr;
 
     while ((bSearching)&&(nTries++ < 256))
     {
@@ -2744,7 +2744,7 @@ tcDatabaseObject* tcDatabase::GetRandomOfType(UINT model_type)
 */
 long tcDatabase::GetRandomKey() {
     long nMapSize, nKey = -1, nPoolPos;
-    tcDatabaseObject *pdbobj = 0;
+    std::shared_ptr<tcDatabaseObject>pdbobj = 0;
     bool bSearching;
 
     nMapSize = mcObjectData.GetCount();
@@ -2787,17 +2787,17 @@ const tcSignatureModel* tcDatabase::GetSignatureModel(const std::string& modelNa
 * lookup object by key reference
 * @return 0 if not found, non-zero otherwise
 */
-bool tcDatabase::GetObject(long anKey, tcDatabaseObject*& rpobj) {
+bool tcDatabase::GetObject(long anKey, std::shared_ptr<tcDatabaseObject> &rpobj) {
     return mcObjectData.Lookup(anKey,rpobj);
 }
 
-long tcDatabase::AddOrUpdateObject(tcDatabaseObject *rpobj)
+long tcDatabase::AddOrUpdateObject(std::shared_ptr<tcDatabaseObject>rpobj)
 {
 
     if (ObjectExists(rpobj->GetName()))
     {
         fprintf(stdout, "Updating database class: %s\n", rpobj->GetName());
-        tcDatabaseObject* oldObj = GetObject(rpobj->GetName());
+        std::shared_ptr<tcDatabaseObject> oldObj = GetObject(rpobj->GetName());
         assert(oldObj != 0);
         DeleteObject(oldObj->mnKey);
     }
@@ -2831,9 +2831,9 @@ void tcDatabase::AddOrUpdateDamageEffectData(const tcDamageEffect&data)
 /**
 * @return NULL if not found
 */
-tcDatabaseObject* tcDatabase::GetObject(long anKey)
+std::shared_ptr<tcDatabaseObject> tcDatabase::GetObject(long anKey)
 {
-    tcDatabaseObject* databaseObject;
+    std::shared_ptr<tcDatabaseObject> databaseObject;
     if (mcObjectData.Lookup(anKey, databaseObject))
     {
         return databaseObject;
@@ -2853,7 +2853,7 @@ const std::string& tcDatabase::GetObjectClassName(long key)
     static std::string result;
     result.clear();
 
-    if (tcDatabaseObject* databaseObject = GetObject(key))
+    if (std::shared_ptr<tcDatabaseObject> databaseObject = GetObject(key))
     {
         result = databaseObject->mzClass.c_str();
     }
@@ -2863,7 +2863,7 @@ const std::string& tcDatabase::GetObjectClassName(long key)
 
 long tcDatabase::GetKey(const char* s)
 {
-    tcDatabaseObject* obj = GetObject(std::string(s));
+    std::shared_ptr<tcDatabaseObject> obj = GetObject(std::string(s));
     if (obj != 0)
     {
         return obj->mnKey;
@@ -2878,7 +2878,7 @@ long tcDatabase::GetKey(const char* s)
 * Gets object by class name.
 * @return NULL if not found
 */
-tcDatabaseObject* tcDatabase::GetObject(const std::string& className)
+std::shared_ptr<tcDatabaseObject> tcDatabase::GetObject(const std::string& className)
 {
     std::string updatedClassName(className); // local variable that can be updated with cross-ref
 
@@ -2955,7 +2955,7 @@ long tcDatabase::GetNextObjectOfSameClass(long anKey)
 {
     long nPoolSize = mcObjectData.GetCount();
     long nCurrentKey;
-    tcDatabaseObject *pobj;
+    std::shared_ptr<tcDatabaseObject >pobj;
 
     nCurrentKey = anKey;
     if (mcObjectData.Lookup(nCurrentKey,pobj)==false) {return NULL_INDEX;}
@@ -3039,7 +3039,7 @@ long tcDatabase::GetPrevObjectOfSameClass(long anKey)
 {
     long nPoolSize = mcObjectData.GetCount();
     long nCurrentKey;
-    tcDatabaseObject *pobj;
+    std::shared_ptr<tcDatabaseObject>pobj;
 
     nCurrentKey = anKey;
     if (mcObjectData.Lookup(nCurrentKey,pobj)==false) {return NULL_INDEX;}
@@ -3065,8 +3065,8 @@ long tcDatabase::GetPrevObjectOfSameClass(long anKey)
 * these methods check mnClassID before downcasting and return NULL
 * if not consistent with the requested class or not found
 
-tcDatabaseObject* tcDatabase::GetSafeDBObject(long anKey) {
-   tcDatabaseObject* pdbobj;
+std::shared_ptr<tcDatabaseObject> tcDatabase::GetSafeDBObject(long anKey) {
+   std::shared_ptr<tcDatabaseObject> pdbobj;
 
    if (GetObject(anKey,pdbobj)==0) {return NULL;}
    if (pdbobj->mnClassID != DTYPE_OBJECT) {return NULL;}
@@ -3074,33 +3074,33 @@ tcDatabaseObject* tcDatabase::GetSafeDBObject(long anKey) {
 }
 
 tcPlatformDBObject* tcDatabase::GetSafeGenericDBObject(long anKey) {
-   tcDatabaseObject* pdbobj;
+   std::shared_ptr<tcDatabaseObject> pdbobj;
 
    if (GetObject(anKey,pdbobj)==0) {return NULL;}
    if (pdbobj->mnClassID != DTYPE_GENERIC) {return NULL;}
    else {return (tcPlatformDBObject*)pdbobj;}
 }
 
-tcLauncherDBObject* tcDatabase::GetSafeLauncherDBObject(long anKey) {
-   tcDatabaseObject* pdbobj;
+std::shared_ptr<tcLauncherDBObject> tcDatabase::GetSafeLauncherDBObject(long anKey) {
+   std::shared_ptr<tcDatabaseObject> pdbobj;
 
    if (GetObject(anKey,pdbobj)==0) {return NULL;}
    if (pdbobj->mnClassID != DTYPE_LAUNCHER) {return NULL;}
-   else {return (tcLauncherDBObject*)pdbobj;}
+   else {return (std::shared_ptr<tcLauncherDBObject>)pdbobj;}
 }
 
-tcMissileDBObject* tcDatabase::GetSafeMissileDBObject(long anKey) {
-   tcDatabaseObject* pdbobj;
+std::shared_ptr<tcMissileDBObject> tcDatabase::GetSafeMissileDBObject(long anKey) {
+   std::shared_ptr<tcDatabaseObject> pdbobj;
 
    if (GetObject(anKey,pdbobj)==0) {return NULL;}
    if (pdbobj->mnClassID != DTYPE_MISSILE) {return NULL;}
-   else {return (tcMissileDBObject*)pdbobj;}
+   else {return (std::shared_ptr<tcMissileDBObject>)pdbobj;}
 }
 */
 
 // lookup class string associated with key
 int tcDatabase::GetObjectClass(long anKey, std::string& rzClass) {
-    tcDatabaseObject *pdbobj;
+   std::shared_ptr< tcDatabaseObject >pdbobj;
     int bFound = mcObjectData.Lookup(anKey,pdbobj);
     if (bFound) {
         rzClass = pdbobj->mzClass;
@@ -3189,7 +3189,7 @@ std::vector<std::string> tcDatabase::WildcardSearch(const std::string& expressio
         //        if ( std::regex_match(s, e))
         if(strutil::wildcard_match(s,expression))
         {
-            const tcDatabaseObject* data = database::tcDatabase::GetObject(s);
+            std::shared_ptr<const tcDatabaseObject> data = database::tcDatabase::GetObject(s);
             assert(data != 0);
 
             if (filter.length() == 0)
@@ -3268,7 +3268,7 @@ std::vector<std::string> tcDatabase::WildcardSearchLoaded(const std::string& exp
         //        if ( std::regex_match(s, e))
         if(strutil::wildcard_match(s,expression))
         {
-            const tcDatabaseObject* data = database::tcDatabase::GetObject(mapIter->second);
+            std::shared_ptr<const tcDatabaseObject> data = database::tcDatabase::GetObject(mapIter->second);
             assert(data != 0);
 
             if (filter.length() == 0)

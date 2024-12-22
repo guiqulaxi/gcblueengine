@@ -32,6 +32,7 @@
 #include <map>
 #include <sstream>
 #include <vector>
+#include <memory>
 #include "tinyxml2.h"
 using namespace  tinyxml2;
 class tcStream;
@@ -147,9 +148,9 @@ public:
     ROEStatus GetAllianceROE(int alliance) const;
     void SetAllianceROE(int alliance, ROEMode air, ROEMode surf, ROEMode sub, ROEMode land);
 	void SetAllianceROE(int alliance, ROEStatus roeStatus);
-	bool IsTargetLegal(tcGameObject* attacker, tcSensorMapTrack* targetTrack) const;
-    bool IsTargetLegal(tcGameObject* attacker, long targetTrackId) const;
-    bool IsTargetLegal(tcGameObject* attacker, float lon_rad, float lat_rad) const;
+    bool IsTargetLegal(std::shared_ptr<tcGameObject> attacker, tcSensorMapTrack& targetTrack) const;
+    bool IsTargetLegal(std::shared_ptr<tcGameObject> attacker, long targetTrackId) const;
+    bool IsTargetLegal(std::shared_ptr<tcGameObject> attacker, float lon_rad, float lat_rad) const;
 
     void Update(double currentTime);
 	void WriteStatus(std::stringstream& stream, int alliance);

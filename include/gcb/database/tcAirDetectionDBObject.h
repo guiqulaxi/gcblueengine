@@ -32,7 +32,7 @@
 #endif // _MSC_VER > 1000
 
 #include <string>
-
+#include <memory>
 namespace database
 {
 	class tcSqlReader;
@@ -42,7 +42,7 @@ namespace database
     * Describes detectability of object through air via radar, optical,
 	* and IR.
     */
-    class tcAirDetectionDBObject
+    class tcAirDetectionDBObject: public std::enable_shared_from_this<tcAirDetectionDBObject>
     {
     public:
         enum {IRMODELA = 0, IRMODELB = 1, IRMODELC = 2};

@@ -80,7 +80,7 @@ namespace database
         tcSubDBObject();
         tcSubDBObject(const tcSubDBObject& obj); ///< copy constructor
         virtual ~tcSubDBObject();
-        virtual tcGameObject * CreateGameObject() override;
+        virtual std::shared_ptr<tcGameObject> CreateGameObject() override;
         void CalculateParams();
     private:
         // calculated parameters               

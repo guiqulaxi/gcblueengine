@@ -61,7 +61,7 @@ public:
 
 
     tcHeloObject();
-    tcHeloObject(tcAirDBObject* obj);
+    tcHeloObject(std::shared_ptr<tcAirDBObject> obj);
     virtual ~tcHeloObject();
 };
 

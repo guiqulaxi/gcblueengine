@@ -59,7 +59,7 @@ namespace database
 		Next();
 	}
 
-	tcDatabaseObject* tcDatabaseIterator::Get()
+	std::shared_ptr<tcDatabaseObject> tcDatabaseIterator::Get()
 	{
 		return currentObj;
 	}
@@ -105,7 +105,7 @@ namespace database
 	* to iterate through a filtered set of objects.
 	* @return true if current obj meets mask criteria, false otherwise
 	*/
-	bool tcDatabaseIterator::PassesMask(const tcDatabaseObject* obj)
+	bool tcDatabaseIterator::PassesMask(std::shared_ptr<const tcDatabaseObject> obj)
 	{
 		if (obj == 0) return false;
 		if (mask == 0) return true;

@@ -70,9 +70,9 @@ namespace database
         if (rangeError <= 0) rangeError = 1.5f; // 0 previously interpreted as active sensor with perfect range, now 0 < x <= 1 is passive, > 1 is active
     }
 
-    tcSensorState* tcSonarDBObject::CreateSensor(tcGameObject* parent)
+    std::shared_ptr<tcSensorState> tcSonarDBObject::CreateSensor(std::shared_ptr<tcGameObject> parent)
     {
-        tcSonar* sonar = new tcSonar(this);
+        std::shared_ptr<tcSonar> sonar = std::make_shared< tcSonar>(std::dynamic_pointer_cast<tcSonarDBObject>(tcDatabaseObject::shared_from_this()));
         sonar->SetParent(parent);
 
         return sonar;

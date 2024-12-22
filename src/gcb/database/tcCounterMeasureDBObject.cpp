@@ -195,16 +195,16 @@ namespace database
     {
     }
 
-    tcGameObject *tcCounterMeasureDBObject::CreateGameObject()
+    std::shared_ptr<tcGameObject>tcCounterMeasureDBObject::CreateGameObject()
     {
         if (this->mnModelType == MTYPE_AIRCM)
         {
-            return new tcAirCM(this);
+            return std::make_shared< tcAirCM>(std::dynamic_pointer_cast<tcCounterMeasureDBObject>(tcDatabaseObject::shared_from_this()));
         }
         else
         {
             assert(this->mnModelType == MTYPE_WATERCM);
-            return new tcWaterCM(this);
+            return std::make_shared<  tcWaterCM>(std::dynamic_pointer_cast<tcCounterMeasureDBObject>(tcDatabaseObject::shared_from_this()));
         }
     }
 

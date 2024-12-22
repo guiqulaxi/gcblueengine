@@ -674,8 +674,8 @@ const std::string& tcDatabaseManager::GetCountry(const std::string& databaseClas
 	static std::string countryName;
 	countryName.clear();
 
-	tcDatabaseObject* data = tcDatabase::Get()->GetObject(databaseClass);
-	if (tcPlatformDBObject* platformData = dynamic_cast<tcPlatformDBObject*>(data))
+    std::shared_ptr<tcDatabaseObject> data = tcDatabase::Get()->GetObject(databaseClass);
+    if (tcPlatformDBObject* platformData = std::dynamic_pointer_cast<tcPlatformDBObject>(data))
 	{
 		countryName = platformData->country.c_str();
 	}
@@ -1000,7 +1000,7 @@ bool tcDatabaseManager::IsWithinDateRange(const std::string& s, const const std:
 	tcDatabase* database = tcDatabase::Get();
 	bool dynamicLoad = database->IsUsingDynamicLoad();
 
-	tcDatabaseObject* data = database->GetObject(s);
+    std::shared_ptr<tcDatabaseObject> data = database->GetObject(s);
 	if (data != 0)
 	{
 		return (data->initialYear <= endDate) && (data->finalYear >= startDate);
@@ -1184,7 +1184,7 @@ void tcDatabaseManager::TestTemporaryLoad()
 	/*tcDatabase* database = tcDatabase::Get();
 	tcDBObjSerializerSql<tcSonarDBObject> serializer(database, sqlConnection, "sonar");
 
-	tcSonarDBObject* sonar = serializer.LoadRecordTemporary("AQS-13B");
+	 std::shared_ptr<tcSonarDBObject> sonar = serializer.LoadRecordTemporary("AQS-13B");
 	delete sonar;*/
 
 }

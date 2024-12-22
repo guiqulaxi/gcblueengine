@@ -61,9 +61,9 @@ namespace database
         float FlashyPaintScheme; ///< vessel has flashy paintjob 船舶是否具有醒目的涂装（同样，float可能不是最佳选择）
         std::string flightportClass; ///< database class name of flightport (or empty if none) 飞行港（或如果没有则为空）的数据库类名
 
-		tcDatabaseObject* AsDatabaseObject();
+        // std::shared_ptr<tcDatabaseObject> AsDatabaseObject();
         virtual const char* GetClassName() const {return "Ship";} ///< returns class name of database object
-		tcFlightportDBObject* GetFlightport();
+        std::shared_ptr<tcFlightportDBObject> GetFlightport();
 		virtual float GetFuelConsumptionConstant(float speed_kts = 0) const;
 
         virtual void PrintToFile(tcFile& file);
@@ -77,7 +77,7 @@ namespace database
         tcShipDBObject();
         tcShipDBObject(const tcShipDBObject& obj); ///< copy constructor
         virtual ~tcShipDBObject();
-        virtual tcGameObject * CreateGameObject() override;
+        virtual std::shared_ptr<tcGameObject> CreateGameObject() override;
          void CalculateParams();
 	private:
 

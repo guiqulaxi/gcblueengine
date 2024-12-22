@@ -53,10 +53,10 @@ class tcGameStream;
 class tcBallisticWeapon : public tcWeaponObject
 {
 public:
-	tcBallisticDBObject* mpDBObject;
+	std::shared_ptr<tcBallisticDBObject> mpDBObject;
 
     void Clear();
-	virtual void LaunchFrom(tcGameObject* obj, unsigned nLauncher);
+	virtual void LaunchFrom(std::shared_ptr<tcGameObject> obj, unsigned nLauncher);
     virtual void Update(double afStatusTime);
     bool IsGravityBomb() const;
     bool IsGunRound() const;
@@ -80,7 +80,7 @@ public:
 
     tcBallisticWeapon();
     tcBallisticWeapon(const tcBallisticWeapon&);
-    tcBallisticWeapon(tcBallisticDBObject* obj);
+    tcBallisticWeapon(std::shared_ptr<tcBallisticDBObject> obj);
 	~tcBallisticWeapon();
 protected:
 	float vz_mps;  ///< vertical velocity [m/s]

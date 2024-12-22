@@ -207,7 +207,7 @@ void ScriptedTask::Update(double t)
      }
 }
 
-ScriptedTask::ScriptedTask(tcPlatformObject* platform_, Blackboard* bb, 
+ScriptedTask::ScriptedTask(std::shared_ptr<tcPlatformObject> platform_, Blackboard* bb, 
         long id_, double priority_, int attributes_, const std::string& scriptName)
 : Task(platform_, bb, id_, priority_, attributes_, scriptName)
 {

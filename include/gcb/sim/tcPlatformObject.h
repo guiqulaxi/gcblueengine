@@ -98,8 +98,8 @@ public:
     double fuel_kg; ///< current fuel
 	float externalFuelCapacity_kg; ///< for external fuel tanks
 
-    tcLauncherState mcLauncherState; 
-    std::vector<tcStores*> magazines;
+    tcLauncherState mcLauncherState;
+    std::vector<std::shared_ptr<tcStores>> magazines;
 
     //int mnSensors;
     tcGuidanceState mcGS;///<目标 运动状态
@@ -107,13 +107,13 @@ public:
     tcLaunchRequest mcLaunchRequest;
     GeoPoint msTargetDatum;
     tcFormation formation;
-    tcPlatformDBObject *mpDBObject;
+    std::shared_ptr<tcPlatformDBObject>mpDBObject;
     tcCommandObject commandObj;
 
     std::vector<GeoPoint> missilePreplan; ///< waypoints for missile preplan of next launch
 
-    virtual void ApplyGeneralDamage(float damage, tcGameObject* damager);
-    virtual float ApplyAdvancedDamage(const Damage& damage, tcGameObject* damager); ///< called when new damage occurs
+    virtual void ApplyGeneralDamage(float damage, std::shared_ptr<tcGameObject> damager);
+    virtual float ApplyAdvancedDamage(const Damage& damage, std::shared_ptr<tcGameObject> damager); ///< called when new damage occurs
     virtual void ApplyRepairs(float repair); ///< called when repairs occur (damage removed)    
     virtual void Clear();
     virtual void DesignateDatum(tcPoint p); 
@@ -122,9 +122,9 @@ public:
     virtual void DesignateTarget(long anID); 
     Brain* GetBrain();
     virtual void GetDatum(GeoPoint& p) {p=msTargetDatum;}
-	virtual tcLauncher* GetLauncher(unsigned idx);
-    virtual const tcLauncher* GetLauncher(unsigned idx) const;
-    tcLauncher* GetLauncherById(unsigned int id);
+	virtual std::shared_ptr<tcLauncher> GetLauncher(unsigned idx);
+    virtual std::shared_ptr<const tcLauncher> GetLauncher(unsigned idx) const;
+    std::shared_ptr<tcLauncher> GetLauncherById(unsigned int id);
     unsigned int GetLauncherCount() const;
 	std::string GetLauncherDescription();
     virtual int GetLauncherQuantity(unsigned anLauncher);
@@ -132,9 +132,9 @@ public:
     
 
     unsigned int GetMagazineCount() const;
-    tcStores* GetMagazine(unsigned int idx);
-	const tcStores* GetMagazineConst(unsigned int idx) const;
-    tcStores* GetMagazineById(unsigned int id);
+    std::shared_ptr<tcStores> GetMagazine(unsigned int idx);
+    const std::shared_ptr<tcStores> GetMagazineConst(unsigned int idx) const;
+    std::shared_ptr<tcStores> GetMagazineById(unsigned int id);
     unsigned int GetMagazineQuantity(const std::string& item);
 	void SetLoadoutTag(const std::string& s);
 	const std::string& GetLoadoutTag() const;
@@ -235,7 +235,7 @@ public:
 
     tcPlatformObject();
     tcPlatformObject(tcPlatformObject&);
-    tcPlatformObject(tcPlatformDBObject *obj); 
+    tcPlatformObject(std::shared_ptr<tcPlatformDBObject>obj);
     virtual ~tcPlatformObject();
 
 protected:
@@ -257,7 +257,7 @@ protected:
     virtual void UpdateSpeed(float dt_s);
 
     void SaveFormationPositionToPython(scriptinterface::tcScenarioLogger& logger);
-    void ApplyLauncherDamage(float damage, tcGameObject* damager);
+    void ApplyLauncherDamage(float damage, std::shared_ptr<tcGameObject> damager);
     void ParseLoadoutCommand(const std::string& cmd, std::vector<std::string>& item, std::vector<unsigned int>& quantity);
 };
 

@@ -74,7 +74,7 @@ public:
         ECM_ACTIVE = 4
 	};
 
-    std::vector<tcSensorState*> sensorState;
+    std::vector<std::shared_ptr<tcSensorState>> sensorState;
 
     tcCommandObject sensorCommandObj; ///< ugly, could fix by handling sensors like launchers
 
@@ -82,15 +82,15 @@ public:
     bool HasActivatedSensor();
 	bool IsEnsonifying() const;
     bool IsRadiating() const;
-    const tcSensorState* GetSensor(unsigned idx) const;
+    std::shared_ptr<const tcSensorState> GetSensor(unsigned idx) const;
 	std::string GetSensorDescription();
-    tcSensorState* GetSensorMutable(unsigned idx) const;
-    tcSensorState* GetSensorMutable(const std::string& sensorClass) const;    
-    tcSensorState* GetSensorMutable(const std::string& sensorClass, unsigned int& idx) const;
-    const tcSensorState* GetSensorByDatabaseID(long id) const;
-    const tcSonar* GetStrongestActiveSonar() const;
-    void Init(tcSensorPlatformDBObject* obj, tcGameObject* parent); 
-	void Init(const char* databaseClass, tcGameObject* parent); 
+    std::shared_ptr<tcSensorState> GetSensorMutable(unsigned idx) const;
+    std::shared_ptr<tcSensorState> GetSensorMutable(const std::string& sensorClass) const;    
+    std::shared_ptr<tcSensorState> GetSensorMutable(const std::string& sensorClass, unsigned int& idx) const;
+    std::shared_ptr<const tcSensorState> GetSensorByDatabaseID(long id) const;
+    const std::shared_ptr<tcSonar> GetStrongestActiveSonar() const;
+    void Init(std::shared_ptr<tcSensorPlatformDBObject> obj, std::shared_ptr<tcGameObject> parent); 
+	void Init(const char* databaseClass, std::shared_ptr<tcGameObject> parent); 
 	void SetActivityFlag(unsigned int flag);
     void SetSensorState(unsigned idx, bool state);
     
@@ -102,7 +102,7 @@ public:
     void Serialize(tcFile& file, bool mbLoad);
 	void SaveToPython(scriptinterface::tcScenarioLogger& logger);
 
-    bool ApplyAdvancedDamage(const Damage& damage, tcGameObject* damager, float damageLevel);
+    bool ApplyAdvancedDamage(const Damage& damage, std::shared_ptr<tcGameObject> damager, float damageLevel);
 
     tcCommandStream& operator<<(tcCommandStream& stream);
     tcCreateStream& operator<<(tcCreateStream& stream);
@@ -119,8 +119,8 @@ public:
 
     tcSensorPlatform();
     tcSensorPlatform(const tcSensorPlatform&);
-    tcSensorPlatform(tcSensorPlatformDBObject* obj, tcGameObject* parent); 
-	tcSensorPlatform(const char* databaseClass, tcGameObject* parent);
+    tcSensorPlatform(std::shared_ptr<tcSensorPlatformDBObject> obj, std::shared_ptr<tcGameObject> parent); 
+	tcSensorPlatform(const char* databaseClass, std::shared_ptr<tcGameObject> parent);
     virtual ~tcSensorPlatform();
 
 protected:

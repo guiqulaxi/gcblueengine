@@ -48,9 +48,9 @@ class tcOpticalSensor : public tcSensorState
 {
     friend class tcPlatformDebugPopup;
 public:
-    tcOpticalDBObject* mpDBObj;
+    std::shared_ptr<tcOpticalDBObject> mpDBObj;
 
-    virtual bool CanDetectTarget(const tcGameObject* target, float& range_km, bool useRandom=true); 
+    virtual bool CanDetectTarget(std::shared_ptr<const tcGameObject> target, float& range_km, bool useRandom=true); 
     virtual bool InitFromDatabase(long key); ///< initializes sensor using database data at key
     
     // fire control methods (for laser designator)
@@ -73,22 +73,22 @@ public:
     virtual tcUpdateStream& operator<<(tcUpdateStream& stream);
     virtual tcUpdateStream& operator>>(tcUpdateStream& stream);
 
-    tcOpticalSensor* Clone();
+    std::shared_ptr<tcOpticalSensor> Clone();
     tcOpticalSensor();
-    tcOpticalSensor(tcOpticalDBObject* dbObj);
+    tcOpticalSensor(std::shared_ptr<tcOpticalDBObject> dbObj);
     virtual ~tcOpticalSensor();
 
 protected:
-    float CalculateNightPenalty(const tcGameObject* target) const;
-    float CalculateTargetSignature(const tcGameObject* target, float& targetAz_rad, float& targetAlt_m) const;
+    float CalculateNightPenalty(std::shared_ptr<const tcGameObject> target) const;
+    float CalculateTargetSignature(std::shared_ptr<const tcGameObject> target, float& targetAz_rad, float& targetAlt_m) const;
 
     void CounterMeasureTest(double t);
     // bool isSemiactive;
-    //tcRadar* GetSemiactiveIlluminator(); // add semi-active later for laser designated guidance
+    //std::shared_ptr<tcRadar> GetSemiactiveIlluminator(); // add semi-active later for laser designated guidance
     void UpdateSeeker(double t);
-    void UpdateSensorMap(double t, const tcGameObject* target, float range_km, float az_rad);
+    void UpdateSensorMap(double t, std::shared_ptr<const tcGameObject> target, float range_km, float az_rad);
     void UpdateSurveillance(double t);
-    void UpdateTrack(const tcGameObject* target, double t);
+    void UpdateTrack(std::shared_ptr<const tcGameObject> target, double t);
 
     // fire-control vars (laser designator)
     unsigned char fireControlTrackCount;

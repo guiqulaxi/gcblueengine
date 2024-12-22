@@ -41,7 +41,7 @@ namespace database
 	{
 	public:
 		void First();
-		tcDatabaseObject* Get();
+		std::shared_ptr<tcDatabaseObject> Get();
 		void Next();
 		bool IsDone();
         void SetFilterYear(float val);
@@ -54,14 +54,14 @@ namespace database
 		static tcDatabase* database;
 		long firstPos; ///< index of first game object, last advances to first
 		long currentPos; ///< current position index
-		tcDatabaseObject* currentObj;
+		std::shared_ptr<tcDatabaseObject> currentObj;
 		const unsigned int mask;
 		unsigned nIterated; ///< count of elements iterated
 		unsigned nSize; ///< size of list
         float filterYear; ///< 0 to disable filtering, otherwise fractional year to filter dbobj's with
         std::string filterCountry; ///< empty to disable filtering
 
-		bool PassesMask(const tcDatabaseObject* obj);
+		bool PassesMask(std::shared_ptr<const tcDatabaseObject> obj);
 	};
 
 }

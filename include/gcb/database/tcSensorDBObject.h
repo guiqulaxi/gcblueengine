@@ -66,7 +66,7 @@ namespace database
         float maxElevation_rad;
         float averageFrequency_Hz;
 
-		virtual tcSensorState* CreateSensor(tcGameObject* parent); ///< factory method
+        virtual  std::shared_ptr<tcSensorState> CreateSensor(std::shared_ptr<tcGameObject> parent); ///< factory method
 		virtual const char* GetClassName() const {return "Sensor";} ///< returns class name of database object
 		virtual void PrintToFile(tcFile& file);
         virtual const char* GetTypeDescription() const;

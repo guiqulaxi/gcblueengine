@@ -30,7 +30,7 @@
 #ifdef WIN32
 #pragma once
 #endif
-
+#include <memory>
 
 class tcGameObject;
 class tcWeaponObject;
@@ -96,15 +96,15 @@ public:
         float v_mps; ///< 碎片撞击时的速度，单位米每秒（mps）
     };
 
-    void CalculateTotalDamage(tcWeaponObject* weapon, tcGameObject* target, Damage& damage);
-	void CalculateTotalDamageCluster(tcBallisticWeapon* ballistic, tcGameObject* target, Damage& damage);
+    void CalculateTotalDamage(std::shared_ptr<tcWeaponObject> weapon, std::shared_ptr<tcGameObject> target, Damage& damage);
+    void CalculateTotalDamageCluster(std::shared_ptr<tcBallisticWeapon> ballistic, std::shared_ptr<tcGameObject> target, Damage& damage);
 
     float CalculateBlastOverpressure(float range_m, float w_kg) const;
     float CalculateWaterBlastOverpressure(float range_m, float w_kg) const;
     FragHits CalculateFragmentImpact(float range_m, float altitude_m, const FragWeapon& weap, float targetArea_m2) const;
     float CalculateRadiationIntensity(float range_m, float w_kg) const;
 
-    const database::tcWeaponDamage* GetWeaponDamageModel(tcWeaponObject* weapon) const;
+    const database::tcWeaponDamage* GetWeaponDamageModel(std::shared_ptr<tcWeaponObject> weapon) const;
 
 
     static tcDamageModel* Get();

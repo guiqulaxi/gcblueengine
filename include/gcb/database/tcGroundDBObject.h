@@ -47,9 +47,9 @@ namespace database
     public:
         std::string flightportClass; ///< database class name of flightport (or empty if none)
 
-		tcDatabaseObject* AsDatabaseObject();
+        // std::shared_ptr<tcDatabaseObject> AsDatabaseObject();
         virtual const char* GetClassName() const {return "Ground";} ///< returns class name of database object
-        tcFlightportDBObject* GetFlightport();
+        std::shared_ptr<tcFlightportDBObject> GetFlightport();
 
 		static void AddSqlColumns(std::string& columnString);
 		void ReadSql(tcSqlReader& entry);
@@ -60,7 +60,7 @@ namespace database
         tcGroundDBObject();
         tcGroundDBObject(const tcGroundDBObject& obj); ///< copy constructor
         virtual ~tcGroundDBObject();
-        virtual tcGameObject * CreateGameObject() override;
+        virtual std::shared_ptr<tcGameObject> CreateGameObject() override;
 
 	private:
 

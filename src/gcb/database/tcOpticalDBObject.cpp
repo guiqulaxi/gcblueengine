@@ -45,9 +45,9 @@
 namespace database
 {
 
-tcSensorState* tcOpticalDBObject::CreateSensor(tcGameObject* parent)
+std::shared_ptr<tcSensorState> tcOpticalDBObject::CreateSensor(std::shared_ptr<tcGameObject> parent)
 {
-    tcOpticalSensor* optical = new tcOpticalSensor(this);
+    std::shared_ptr<tcOpticalSensor> optical = std::make_shared<tcOpticalSensor>(dynamic_pointer_cast<tcOpticalDBObject>(tcDatabaseObject::shared_from_this()));
 	optical->SetParent(parent);
 	
 	return optical;

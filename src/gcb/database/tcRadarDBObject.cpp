@@ -49,9 +49,9 @@ namespace database
 
 
 
-tcSensorState* tcRadarDBObject::CreateSensor(tcGameObject* parent)
+std::shared_ptr<tcSensorState> tcRadarDBObject::CreateSensor(std::shared_ptr<tcGameObject> parent)
 {
-    tcRadar* radar = new tcRadar(this);
+    std::shared_ptr<tcRadar> radar = std::make_shared<tcRadar>(dynamic_pointer_cast<tcRadarDBObject>(tcDatabaseObject::shared_from_this()));
 	radar->SetParent(parent);
 	
 	return radar;

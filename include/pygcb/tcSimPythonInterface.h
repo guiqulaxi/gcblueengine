@@ -82,7 +82,7 @@ namespace scriptinterface
     class tcSimPythonInterface : public tcPythonInterface 
     {
     public:
-        void SetUnitInfo(tcPlatformObject *apObj);
+        void SetUnitInfo(std::shared_ptr<tcPlatformObject>apObj);
         void Test();
 
 
@@ -93,7 +93,7 @@ namespace scriptinterface
 
         int CallPython(const char *commandtext, const char *errortext);
         bool CallTaskScript(ScriptedTask* task, const char* azCommand);
-		tcPlatformObject* GetHookedObj() const;
+		std::shared_ptr<tcPlatformObject> GetHookedObj() const;
 		tcFlightPort* GetHookedObjFlightPort();
         bool IsHooked(long id) const;
 
@@ -181,7 +181,7 @@ namespace scriptinterface
 
         //        tcDirector *director;
         tcSimState *mpSimState;
-        tcPlatformObject *mpHookedObj;
+        std::shared_ptr<tcPlatformObject>mpHookedObj;
 //        tcSoundConsole *mpConsole;
 //        tcMapOverlay* overlay;
 

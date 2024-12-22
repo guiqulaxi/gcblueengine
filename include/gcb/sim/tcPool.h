@@ -28,24 +28,24 @@
 
 ////#include "wx/wx.h"  // for NULL definition
 #include <iostream>
-
+#include <memory>
 #define NULL_INDEX -1
 
 template <class T, int POOLSIZE> class tcPool {
 public:
-   bool Lookup(long n,T*& pt);
-   const T* LookupConst(long n) const;
+   bool Lookup(long n,std::shared_ptr<T>& pt);
+   std::shared_ptr<const T> LookupConst(long n) const;
    long GetStartPosition(void);
    long GetCount(void);
-   void GetNextAssoc(long& pos, long& index, T*& pt);
+   void GetNextAssoc(long& pos, long& index, std::shared_ptr<T>& pt);
    long GetNextKey(long pos);
    long GetPrevKey(long pos);
    T operator[] (long index) const;  // r-value version
    bool CheckForCorruption();
    //T*& operator[] (long index); // l-value version, T has to support assignment
-   bool CreateAndAddElement(T*& pt, long& newkey);  // T object created with new
-   bool AddElement(T* pt, long& newkey);  // T object already created
-   bool AddElementForceKey(T* pt, long newkey);  // T object already created
+   bool CreateAndAddElement(std::shared_ptr<T>& pt, long& newkey);  // T object created with new
+   bool AddElement(std::shared_ptr<T> pt, long& newkey);  // T object already created
+   bool AddElementForceKey(std::shared_ptr<T> pt, long newkey);  // T object already created
    bool RemoveKey(long n);
    bool RemoveKeyWithoutDelete(long n);
    void RemoveAll(void);
@@ -56,7 +56,7 @@ private:
    long mnSize; // current number of elements in pool
    long mnBase; // index of base element (first element)
    long mnTail; // index of last element
-   T* mpool[POOLSIZE]; // array of pointers to T
+   std::shared_ptr<T> mpool[POOLSIZE]; // array of pointers to T
    long maPrev[POOLSIZE]; // index of previous element
    long maNext[POOLSIZE]; // index of next element
    long maAvailable[POOLSIZE]; // array of free indices (FIFO)
@@ -86,27 +86,27 @@ bool tcPool<T,POOLSIZE>::CheckForCorruption()
 
 
 template <class T, int POOLSIZE>
-bool tcPool<T,POOLSIZE>::Lookup(long n,T*& pt) {
+bool tcPool<T,POOLSIZE>::Lookup(long n,std::shared_ptr<T>& pt) {
    if ((n >=0)&&(n < POOLSIZE))
    {
       pt = mpool[n];
    }
    else 
    {
-      pt = NULL;
+      pt = nullptr;
       if (n >=0) 
       {
           std::cerr << "error - invalid pool index" << std::endl;
       }
       return false;
    }
-   return (mpool[n] != NULL);
+   return (mpool[n] != nullptr);
 }
 
 template <class T, int POOLSIZE>
-const T* tcPool<T,POOLSIZE>::LookupConst(long n) const
+std::shared_ptr<const T> tcPool<T, POOLSIZE>::LookupConst(long n) const
 {
-    T* pt;
+    std::shared_ptr<const T> pt;
     if ((n >=0)&&(n < POOLSIZE))
     {
         pt = mpool[n];
@@ -121,7 +121,7 @@ const T* tcPool<T,POOLSIZE>::LookupConst(long n) const
 
 /**********************************************************/
 template <class T, int POOLSIZE>
-bool tcPool<T,POOLSIZE>::CreateAndAddElement(T*& pt, long& newkey) {
+bool tcPool<T,POOLSIZE>::CreateAndAddElement(std::shared_ptr<T> &pt, long& newkey) {
    if (mnSize >= POOLSIZE) {
       newkey = NULL_INDEX;
       pt = NULL;
@@ -134,7 +134,7 @@ bool tcPool<T,POOLSIZE>::CreateAndAddElement(T*& pt, long& newkey) {
    if (mnCheckoutIndex == POOLSIZE) {
       mnCheckoutIndex = 0;
    }
-   pt = new T;
+   pt = std::make_shared<T>();
    mpool[newkey] = pt;
    // insert at beginning of list
    maNext[newkey] = mnBase; // newkey next points to old base
@@ -146,7 +146,7 @@ bool tcPool<T,POOLSIZE>::CreateAndAddElement(T*& pt, long& newkey) {
 }
 /**********************************************************/
 template <class T, int POOLSIZE>
-bool tcPool<T,POOLSIZE>::AddElement(T* pt, long& newkey) {
+bool tcPool<T,POOLSIZE>::AddElement(std::shared_ptr<T> pt, long& newkey) {
    if (mnSize >= POOLSIZE) {
       newkey = NULL_INDEX;
       std::cerr << "error - pool out of memory" << std::endl;
@@ -181,7 +181,7 @@ bool tcPool<T,POOLSIZE>::AddElement(T* pt, long& newkey) {
 // This can be significantly slower than AddElement and should only be used
 // when trying to reconstruct a tcPool from a file.
 template <class T, int POOLSIZE>
-bool tcPool<T,POOLSIZE>::AddElementForceKey(T* pt, long newkey) {
+bool tcPool<T,POOLSIZE>::AddElementForceKey(std::shared_ptr<T> pt, long newkey) {
    long nDefaultKey;
 
    if (mnSize >= POOLSIZE)
@@ -258,7 +258,7 @@ long tcPool<T,POOLSIZE>::GetCount(void) {
 }
 /**********************************************************/
 template <class T, int POOLSIZE>
-void tcPool<T,POOLSIZE>::GetNextAssoc(long& pos, long& index, T*& pt){
+void tcPool<T,POOLSIZE>::GetNextAssoc(long& pos, long& index, std::shared_ptr<T> &pt){
    if ((pos < 0)||(pos >= POOLSIZE)) {
       pt = NULL;
       index = NULL_INDEX;
@@ -346,9 +346,9 @@ bool tcPool<T,POOLSIZE>::RemoveKey(long n)
    if (mnReturnIndex == POOLSIZE) {
        mnReturnIndex = 0;
    }
-   // remove from list   
-   delete mpool[n];
-   mpool[n] = NULL;
+   // remove from list
+   //delete mpool[n];
+   mpool[n] = nullptr;
    if (n==mnBase) {
        mnBase = maNext[n]; // if n is base then n next becomes new base
    }
@@ -418,8 +418,8 @@ void tcPool<T,POOLSIZE>::RemoveAll()
    {
       if (mpool[k] != NULL) 
       {
-         delete mpool[k];
-         mpool[k] = NULL;
+         //delete mpool[k];
+         mpool[k] = nullptr;
       }
       maPrev[k] = NULL_INDEX;
       maNext[k] = NULL_INDEX;
@@ -456,9 +456,9 @@ tcPool<T,POOLSIZE>::~tcPool()
    {
       // TODO: without the extra check this occasionally causes an exception/
       // due to deleting an invalid memory location
-      if ((mpool[k] != NULL)&&(mpool[k] > (void*)0x000000FF)) 
+      if ((mpool[k] != NULL)&&(mpool[k].get() > (void*)0x000000FF))
       { 
-         delete mpool[k];
+         //delete mpool[k];
          mpool[k] = NULL;
       }
    }

@@ -86,7 +86,7 @@ namespace database
 
 //        std::vector<animationDBInfo> animationInfo;
 
-		tcDatabaseObject* AsDatabaseObject();
+        // std::shared_ptr<tcDatabaseObject> AsDatabaseObject();
         virtual const char* GetClassName() const {return "Generic";} ///< returns class name of database object
 
 		virtual float GetFuelConsumptionConstant(float speed_kts = 0) const;

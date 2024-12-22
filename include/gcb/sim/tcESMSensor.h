@@ -50,13 +50,13 @@ class tcESMSensor : public tcSensorState
 {
     friend class tcPlatformDebugPopup;
 public:
-    tcESMDBObject* mpDBObj;
+    std::shared_ptr<tcESMDBObject> mpDBObj;
 
-	virtual bool CanDetectTarget(const tcGameObject* target, float& range_km, bool useRandom=true);
+    virtual bool CanDetectTarget(std::shared_ptr<const tcGameObject> target, float& range_km, bool useRandom=true);
     virtual bool InitFromDatabase(long key); ///< initializes sensor using database data at key
-    bool IsDetected(const tcSensorState* emitter, float ERP_dBW, float& az_rad);
-    bool IsDetectedECM(const tcECM* emitter, float& az_rad);
-    bool IsDetectedRadar(const tcRadar* emitter, float& az_rad);
+    bool IsDetected(std::shared_ptr<const tcSensorState> emitter, float ERP_dBW, float& az_rad);
+    bool IsDetectedECM( std::shared_ptr<const tcECM> emitter, float& az_rad);
+    bool IsDetectedRadar(std::shared_ptr<const tcRadar> emitter, float& az_rad);
     
     virtual bool IsESM() const;
     void Serialize(tcFile& file, bool mbLoad);
@@ -72,9 +72,9 @@ public:
 
     //virtual tcStream& operator<<(tcStream& stream);
     //virtual tcStream& operator>>(tcStream& stream);
-    tcESMSensor* Clone(void);
+    std::shared_ptr<tcESMSensor> Clone(void);
     tcESMSensor();
-    tcESMSensor(tcESMDBObject* dbObj);
+    tcESMSensor(std::shared_ptr<tcESMDBObject> dbObj);
     virtual ~tcESMSensor();
 
 private:
@@ -88,12 +88,12 @@ private:
     static bool rwrUpdate; ///< a hack to signal we're in an RWR update
 
     bool UpdateScanRWR(double t);
-	void ProcessESMDetection(tcGameObject* target, double t);
-    void UpdateSensorMap(const tcGameObject* target, long* emitters, unsigned int nEmitters, 
+	void ProcessESMDetection(std::shared_ptr<tcGameObject> target, double t);
+    void UpdateSensorMap(std::shared_ptr<const tcGameObject> target, long* emitters, unsigned int nEmitters,
 		float az_rad, double t);
 	void UpdateSeeker(double t);
 	void UpdateSurveillance(double t);
     void UpdateSurveillanceRWR(double t);
-	void UpdateTrack(const tcGameObject* target, double t);
+    void UpdateTrack(std::shared_ptr<const tcGameObject> target, double t);
 };
 #endif

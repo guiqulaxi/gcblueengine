@@ -52,8 +52,8 @@ void tcECMEvaluationDialog::UpdateCalculations()
 
     tcDatabase* database = tcDatabase::Get();
 
-    tcRadarDBObject* radarData = dynamic_cast<tcRadarDBObject*>(database->GetObject(radarClass));
-    tcECMDBObject* ecmData = dynamic_cast<tcECMDBObject*>(database->GetObject(ecmClass));
+    std::shared_ptr<tcRadarDBObject> radarData =  std::dynamic_pointer_cast<tcRadarDBObject>>(database->GetObject(radarClass));
+    std::shared_ptr<tcECMDBObject> ecmData =  std::dynamic_pointer_cast<tcECMDBObject>>(database->GetObject(ecmClass));
 
     if ((radarData == 0) || (ecmData == 0)) return;
 

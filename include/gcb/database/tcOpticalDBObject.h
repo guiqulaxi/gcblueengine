@@ -50,7 +50,7 @@ namespace database
 		bool isIR;					///< set true if detects infrared targets
 		float nightFactor;		   ///< peak darkness range reduction factor
 
-	    virtual tcSensorState* CreateSensor(tcGameObject* parent); ///< factory method
+        virtual std::shared_ptr<tcSensorState> CreateSensor(std::shared_ptr<tcGameObject> parent); ///< factory method
 		virtual const char* GetClassName() const {return "Optical";} ///< returns class name of database object
 		virtual void PrintToFile(tcFile& file);
 

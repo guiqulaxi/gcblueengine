@@ -115,9 +115,9 @@ public:
 
     static tcSimState* Get(); ///< accessor for singleton instance
 
-    void AddLaunchedPlatform(long newKey, tcGameObject* launchingPlatform, unsigned nLauncher);
-    void AddPlatform(tcGameObject *pplat);
-    void AddPlatformWithKey(tcGameObject *pplat, long key);
+    void AddLaunchedPlatform(long newKey, std::shared_ptr<tcGameObject> launchingPlatform, unsigned nLauncher);
+    void AddPlatform(std::shared_ptr<tcGameObject>pplat);
+    void AddPlatformWithKey(std::shared_ptr<tcGameObject>pplat, long key);
     void AddRandomPlatform();
 //    void AttachCommandInterface(tcCommandQueue *apCommandInterface) {mpCommandInterface=apCommandInterface;}
     void AttachDB(tcDatabase *pDatabase);
@@ -134,8 +134,8 @@ public:
     void ChangeNormSpeed(long anKey, float afNewNormSpeed);
     void Clear(); ///< clear all objects and reset simstate
     void ClearSensorMaps();
-    tcGameObject* CreateGameObject(tcDatabaseObject *apDBObject);
-    tcGameObject* CreateRandomPlatform(UINT platform_type);
+    std::shared_ptr<tcGameObject> CreateGameObject(std::shared_ptr<tcDatabaseObject> apDBObject);
+     std::shared_ptr<tcGameObject> CreateRandomPlatform(UINT platform_type);
     void DeleteAllPlatforms();
     void DeleteObject(long key);
     void DesignateTarget(long anKey, long anTargetKey);
@@ -149,17 +149,17 @@ public:
     void GetDateTime(tcDateTime& dt) const;
     const tcDateTime& GetDateTime() const;
     void GetDescription(long anKey, tcString& s);
-    void GetNextPlatform(long& pos, long& key, tcGameObject*& obj)
+    void GetNextPlatform(long& pos, long& key, std::shared_ptr<tcGameObject>& obj)
     {
         maPlatformState.GetNextAssoc(pos,key,obj);
     }
     int GetPlatformAlliance(long anKey, UINT& rnAlliance);
     unsigned int GetPlatformCount() {return maPlatformState.GetCount();}
     long GetPlatformStartPosition() {return maPlatformState.GetStartPosition();}
-    int GetPlatformState(long anKey, tcGameObject*& pplat);
-    tcGameObject* GetObject(long anKey);
-    const tcGameObject* GetObjectConst(long id) const;
-    tcGameObject* GetObjectByName(const std::string& unitName);
+    int GetPlatformState(long anKey, std::shared_ptr<tcGameObject>& pplat);
+    std::shared_ptr<tcGameObject> GetObject(long anKey);
+    std::shared_ptr<const tcGameObject> GetObjectConst(long id) const;
+    std::shared_ptr<tcGameObject> GetObjectByName(const std::string& unitName);
     void GetPlatformsWithinRegion(std::vector<long>& keyList, tcRect *apRegion);
     long GetRandomPlatform();
 	const char* GetScenarioDescription() const;
@@ -170,22 +170,22 @@ public:
     bool GetTrack(long id, unsigned alliance, tcSensorMapTrack& track);
     bool GetTruthTrack(long id, tcTrack& track);
 
-    bool IsLauncherReady(tcGameObject *apGameObj, unsigned anLauncher);
+    bool IsLauncherReady(std::shared_ptr<tcGameObject>apGameObj, unsigned anLauncher);
     bool IsLauncherReady(long anKey, unsigned anLauncher);
 	bool IsScenarioLoaded() const;
     bool IsMultiplayerGameStarted() const;
     void SetMultiplayerGameStarted(bool state);
     void LoadTimeFromStream(tcStream& stream);
     void PrintToFile(tcString);
-    void ProcessLanding(tcGameObject *receiver, tcGameObject *landing_unit);
+    void ProcessLanding(std::shared_ptr<tcGameObject>receiver, std::shared_ptr<tcGameObject>landing_unit);
 
-    bool RadarCanDetect(long anSensorKey, const tcGameObject* target,
-        tcGameObject* reference, float afSensorAz, long fcID = -1, unsigned fcIdx = 0);
-    bool SensorCanDetect(long sensorKey, const tcGameObject* target,
-        tcGameObject* reference, float sensorAz, long fcID = -1, unsigned fcIdx = 0);
-    void RegisterChildObject(const std::string& name, tcGameObject* parent); ///< call when adding child to flightdeck
+    bool RadarCanDetect(long anSensorKey, std::shared_ptr<const tcGameObject> target,
+        std::shared_ptr<tcGameObject> reference, float afSensorAz, long fcID = -1, unsigned fcIdx = 0);
+    bool SensorCanDetect(long sensorKey, std::shared_ptr<const tcGameObject> target,
+        std::shared_ptr<tcGameObject> reference, float sensorAz, long fcID = -1, unsigned fcIdx = 0);
+    void RegisterChildObject(const std::string& name, std::shared_ptr<tcGameObject> parent); ///< call when adding child to flightdeck
     void RemoveDestroyedObjects();
-	void RenameObject(tcGameObject* obj, const std::string& s);
+    void RenameObject(std::shared_ptr<tcGameObject> obj, const std::string& s);
     void RequestLaunch(long anKey,int anLauncher);
     void SaveTimeToStream(tcStream& stream);
 
@@ -232,41 +232,42 @@ private:
     std::map<std::string, long> objectNameMap; ///< for fast lookup by object name
     std::map<std::string, long> captiveObjectMap; ///< lookup of captive flightdeck objects, secondary key is parent id
     tcPositionRegistry* positionRegistry; ///< for fast(er) lookup by region
+#ifdef USE_TEST
     tcWeaponTester* weaponTester;
-
+#endif
     bool clientPause;
     double multiplayerTimeLag_s; ///< last value of server update time - client time
     tcFile damageLog;
     bool logDamage;
     bool isMultiplayerGameStarted;
 
-	void EvaluateGuidedMissileHit(tcMissileObject* missile, tcGameObject* target);
-	void EvaluateImpactWeaponHit(tcWeaponObject* weapon);
-    void EvaluatePointDefenseWeaponHit(tcWeaponObject* weapon);
+    void EvaluateGuidedMissileHit(std::shared_ptr<tcMissileObject> missile, std::shared_ptr<tcGameObject> target);
+	void EvaluateImpactWeaponHit(std::shared_ptr<tcWeaponObject> weapon);
+    void EvaluatePointDefenseWeaponHit(std::shared_ptr<tcWeaponObject> weapon);
 
-    void EvaluateTorpedoHit(tcTorpedoObject* torp, tcGameObject* target);
-    float GetFractionalDamage(float afDamage, tcGameObject *apGameObj);
+    void EvaluateTorpedoHit(std::shared_ptr<tcTorpedoObject> torp, std::shared_ptr<tcGameObject> target);
+    float GetFractionalDamage(float afDamage, std::shared_ptr<tcGameObject>apGameObj);
 
-    //void PlayEntitySoundEffect(tcGameObject* obj, const std::string& effect);
-    void ProcessRadarDetection(tcGameObject *apRadarPlat,tcGameObject *apTarget,
+    //void PlayEntitySoundEffect(std::shared_ptr<tcGameObject> obj, const std::string& effect);
+    void ProcessRadarDetection(std::shared_ptr<tcGameObject>apRadarPlat,std::shared_ptr<tcGameObject>apTarget,
         tcRadar *apRadarSS);
-    void RegisterPlatform(tcGameObject* obj);
-	void UnregisterPlatform(tcGameObject* obj);
-    void ReportDamage(tcGameObject* obj);
-    void UpdateFireControl(tcGameObject *apGameObj, tcRadar *apRadarSS);
-    void UpdateSeeker(tcGameObject *applat, tcRadar *apRadarSS);
-    void UpdateSurveillance(tcGameObject *applat, tcSensorState *apSensorState);
+    void RegisterPlatform(std::shared_ptr<tcGameObject> obj);
+    void UnregisterPlatform(std::shared_ptr<tcGameObject> obj);
+    void ReportDamage(std::shared_ptr<tcGameObject> obj);
+    void UpdateFireControl(std::shared_ptr<tcGameObject>apGameObj, tcRadar *apRadarSS);
+    void UpdateSeeker(std::shared_ptr<tcGameObject>applat, tcRadar *apRadarSS);
+    void UpdateSurveillance(std::shared_ptr<tcGameObject>applat, std::shared_ptr<tcSensorState>apSensorState);
 
     void TestDamageModel();
-    void EvaluateMissileDamage(tcMissileObject* missile);
-    void EvaluateTorpedoDamage(tcTorpedoObject* torp);
-    void EvaluateBallisticDamage(tcBallisticWeapon* ballistic);
-    void EvaluateWeaponDamage(tcWeaponObject* weapon, float minAlt_m, float maxAlt_m);
-    void LogWeaponDamage(tcGameObject* target, tcWeaponObject* weapon, const Damage& damage, float damageFraction);
-    void ReportHighYieldDetonation(tcWeaponObject* weapon);
-    void EvaluateDirectHitDamage(tcWeaponObject* weapon, tcDamageModel* damageModel);
+    void EvaluateMissileDamage(std::shared_ptr<tcMissileObject> missile);
+    void EvaluateTorpedoDamage(std::shared_ptr<tcTorpedoObject> torp);
+    void EvaluateBallisticDamage(std::shared_ptr<tcBallisticWeapon> ballistic);
+    void EvaluateWeaponDamage(std::shared_ptr<tcWeaponObject> weapon, float minAlt_m, float maxAlt_m);
+    void LogWeaponDamage(std::shared_ptr<tcGameObject> target, std::shared_ptr<tcWeaponObject> weapon, const Damage& damage, float damageFraction);
+    void ReportHighYieldDetonation(std::shared_ptr<tcWeaponObject> weapon);
+    void EvaluateDirectHitDamage(std::shared_ptr<tcWeaponObject> weapon, tcDamageModel* damageModel);
 
-    void PreloadAssociatedRecords(tcDatabaseObject* obj);
+    void PreloadAssociatedRecords(std::shared_ptr<tcDatabaseObject> obj);
 
 };
 

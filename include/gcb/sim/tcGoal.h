@@ -342,7 +342,7 @@ public:
 	void SetLogicAny(bool state);
 	bool IsLogicAny() const;
 
-    bool IsObjectWithinArea(const tcGameObject* obj) const;
+    bool IsObjectWithinArea(std::shared_ptr<const tcGameObject> obj) const;
     static bool IsPointWithinArea(const std::vector<GeoPoint>& area, float lon_rad, float lat_rad);
     static GeoPoint GetRandomPointWithinArea(const std::vector<GeoPoint>& area);
 

@@ -52,7 +52,7 @@ class tcGameStream;
 class tcAeroAirObject : public tcAirObject 
 {
 public:
-    tcJetDBObject *mpDBObject;
+    std::shared_ptr<tcJetDBObject>mpDBObject;
 
     virtual void ApplyRestrictions();
     virtual void Clear(void);
@@ -66,12 +66,12 @@ public:
     virtual void SetSpeed(float newSpeed);
 
     static void CalculateSpeedParams(float altitude_m, float throttle,
-        float& maxSpeed_mps, float& fuelRate_kgps, float damageLevel, const tcJetDBObject* airData);
+        float& maxSpeed_mps, float& fuelRate_kgps, float damageLevel, std::shared_ptr<const tcJetDBObject> airData);
     virtual float GetCurrentFuelRate() const;
     virtual float GetCruiseSpeedForAltitude(float alt_m) const;
     virtual float CalculateFuelRate(float speed_mps, float alt_m) const;
     virtual float GetCruiseRangeKm(float alt_m) const;
-	static float GetAeroCruiseRangeKm(float alt_m, float fuelLoad_kg, float damageLevel, const tcJetDBObject* airData, float& cruise_mps);
+    static float GetAeroCruiseRangeKm(float alt_m, float fuelLoad_kg, float damageLevel, std::shared_ptr<const tcJetDBObject> airData, float& cruise_mps);
     virtual float GetCruiseAltitude() const;
 	virtual float GetStallSpeedForAltitude(float alt_m) const;
 	float MilThrottleForThrust(float thrust_N) const;
@@ -93,7 +93,7 @@ public:
 
     tcAeroAirObject();
     tcAeroAirObject(tcAeroAirObject&);
-    tcAeroAirObject(tcJetDBObject *obj);
+    tcAeroAirObject(std::shared_ptr<tcJetDBObject>obj);
     virtual ~tcAeroAirObject();
 protected:    
     virtual void UpdateClimb(float dt_s);
@@ -114,11 +114,11 @@ private:
     float lastThrust_N; ///< saved for updating throttle to maintain speed in climb 保存上一次的推力，用于在爬升过程中保持速度
     float lastWeight_N; ///< saved for updating throttle to maintain speed in climb 保存上一次的重量，用于在爬升过程中保持速度
 
-    static float GetFuelRate(float throttle, float efficiencyFactor, float thrustFactor, float damageLevel, const tcJetDBObject* airData);
-    static float GetThrust(float throttle, float thrustFactor, float speed_mps, const tcJetDBObject* airData);
+    static float GetFuelRate(float throttle, float efficiencyFactor, float thrustFactor, float damageLevel, std::shared_ptr<const tcJetDBObject> airData);
+    static float GetThrust(float throttle, float thrustFactor, float speed_mps, std::shared_ptr<const tcJetDBObject> airData);
     float GetParasiticDragCoefficient(float vmach) const;
-    static float SolveForSpeed(float throttle, float altitude_m, float& rho, float damageLevel, const tcJetDBObject* airData);
-    static float SolveForThrottle(float speed_mps, float altitude_m, float damageLevel, const tcJetDBObject* airData);
+    static float SolveForSpeed(float throttle, float altitude_m, float& rho, float damageLevel, std::shared_ptr<const tcJetDBObject> airData);
+    static float SolveForThrottle(float speed_mps, float altitude_m, float damageLevel, std::shared_ptr<const tcJetDBObject> airData);
     float UpdateThrust(float dt_s);
 };
 

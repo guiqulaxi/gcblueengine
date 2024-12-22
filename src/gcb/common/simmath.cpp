@@ -756,7 +756,7 @@ float tcKinematics::RangeToKmAlt(float lon_rad, float lat_rad, float alt_m) cons
                                                    mfAlt_m, alt_m);
 }
 
-// float tcKinematics::RangeToKmAlt(const tcGameObject* obj) const
+// float tcKinematics::RangeToKmAlt(std::shared_ptr<const tcGameObject> obj) const
 // {
 //     assert(obj != 0);
 //     return RangeToKmAlt(obj->mcKin);

@@ -54,7 +54,7 @@ public:
         LANDING_CMD = 0x0001
     };
 
-    tcAirDBObject* mpDBObject;
+    std::shared_ptr<tcAirDBObject> mpDBObject;
     int readyForLanding; ///< 1 if gear down/ready for landing, 0 otherwise
 
 
@@ -114,7 +114,7 @@ public:
 
     tcAirObject();
     tcAirObject(tcAirObject&);
-    tcAirObject(tcAirDBObject* obj);
+    tcAirObject(std::shared_ptr<tcAirDBObject> obj);
     virtual ~tcAirObject();
 protected:
     tcCommandObject commandObj;

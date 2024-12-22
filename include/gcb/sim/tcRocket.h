@@ -47,7 +47,7 @@ class tcGameStream;
 class tcRocket : public tcBallisticWeapon
 {
 public:
-	virtual void LaunchFrom(tcGameObject* obj, unsigned nLauncher);
+	virtual void LaunchFrom(std::shared_ptr<tcGameObject> obj, unsigned nLauncher);
     virtual void Update(double afStatusTime);
 
     virtual tcGameStream& operator<<(tcGameStream& stream);
@@ -55,10 +55,10 @@ public:
 
     tcRocket();
     tcRocket(const tcRocket& obj);
-    tcRocket(tcBallisticDBObject* obj);
+    tcRocket(std::shared_ptr<tcBallisticDBObject> obj);
 	virtual ~tcRocket();
 protected:
-	tcBallisticDBObject* mpDBObject;
+	std::shared_ptr<tcBallisticDBObject> mpDBObject;
 };
 
 #endif

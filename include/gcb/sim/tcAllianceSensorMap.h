@@ -59,14 +59,14 @@ public:
 	unsigned int GetAlliance() const;
 	int GetTrackCount();
 	long GetStartTrackPosition();
-	void GetNextTrack(long& pos, tcSensorMapTrack*& pTrack);
+	void GetNextTrack(long& pos, std::shared_ptr<tcSensorMapTrack>& pTrack);
 	void Clear();
 	void DropTrack(long anID);
 
-    tcSensorReport* GetOrCreateReport(long platformID, long sensorID, long trackID, tcSensorMapTrack*& pSMTrack);
+    tcSensorReport* GetOrCreateReport(long platformID, long sensorID, long trackID, std::shared_ptr<tcSensorMapTrack> &pSMTrack);
 
-    void AddAlwaysVisibleTrack(tcGameObject* obj);
-	void MarkObjectDestroyed(const tcGameObject* obj);
+    void AddAlwaysVisibleTrack(std::shared_ptr<tcGameObject> obj);
+	void MarkObjectDestroyed(std::shared_ptr<const tcGameObject> obj);
 
 	void Update(double statusTime);
     void UpdateMultiplayerClient(double statusTime);
@@ -75,7 +75,7 @@ public:
      * @param anTrackID 就是目标ID
      * @return
      */
-	tcSensorMapTrack* GetSensorMapTrack(long anTrackID);
+    std::shared_ptr<tcSensorMapTrack> GetSensorMapTrack(long anTrackID);
 	bool GetTrack(long anTrackID, tcTrack& track);
 	int Serialize(tcFile& file, bool mbLoad);
 

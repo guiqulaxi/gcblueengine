@@ -32,7 +32,7 @@
 
 #include <string>
 #include "tcAllianceInfo.h"
-
+#include <memory>
 class tcUserInfo;
 class tcStream;
 class tcCommandStream;
@@ -49,7 +49,7 @@ namespace database
 /**
 * Base class for multiplayer client control of game objects
 */
-class tcControllableObject  
+class tcControllableObject
 {
 public:
 	enum
@@ -61,7 +61,7 @@ public:
 	void SetAlliance(unsigned char val);
 
     tcAllianceInfo::Affiliation GetAffiliationWith(unsigned char otherAlliance) const;
-    tcAllianceInfo::Affiliation GetAffiliationWith(const tcControllableObject* other) const;
+    // tcAllianceInfo::Affiliation GetAffiliationWith(const tcControllableObject* other) const;
 
 	unsigned char GetAccessLevel() const;
 	void SetAccessLevel(unsigned char level);

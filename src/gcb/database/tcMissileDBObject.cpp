@@ -137,8 +137,8 @@ float tcMissileDBObject::GetSeekerFOV()
     if (seekerFOV_rad >= 0) return seekerFOV_rad;
 
     long seekerKey = GetSensorKey();
-    tcDatabaseObject* obj = database->GetObject(seekerKey);
-    if (tcSensorDBObject* sensor = dynamic_cast<tcSensorDBObject*>(obj))
+    std::shared_ptr<tcDatabaseObject> obj = database->GetObject(seekerKey);
+    if (std::shared_ptr<tcSensorDBObject> sensor =  std::dynamic_pointer_cast<tcSensorDBObject>(obj))
     {
         seekerFOV_rad = C_PIOVER180 * sensor->mfFieldOfView_deg;
     }
@@ -186,8 +186,8 @@ bool tcMissileDBObject::IsARM()
 {
     if (isARM == -1)
     {
-        tcDatabaseObject* obj = database->GetObject(GetSensorKey());
-        if (tcESMDBObject* esm = dynamic_cast<tcESMDBObject*>(obj))
+        std::shared_ptr<tcDatabaseObject> obj = database->GetObject(GetSensorKey());
+        if (std::shared_ptr<tcESMDBObject> esm =  std::dynamic_pointer_cast<tcESMDBObject>(obj))
         {
             isARM = 1;
         }
@@ -227,8 +227,8 @@ bool tcMissileDBObject::IsFireAndForget()
         else // launchMode == SEEKER_TRACK
         {
             assert(launchMode == SEEKER_TRACK);
-            tcDatabaseObject* obj = database->GetObject(GetSensorKey());
-            if (tcRadarDBObject* radar = dynamic_cast<tcRadarDBObject*>(obj))
+            std::shared_ptr<tcDatabaseObject> obj = database->GetObject(GetSensorKey());
+            if (std::shared_ptr<tcRadarDBObject> radar = std::dynamic_pointer_cast<tcRadarDBObject>(obj))
             {
                 fireAndForget = (IsCommandLaunched() || radar->isSemiactive) ? 0 : 1;
             }
@@ -567,9 +567,10 @@ tcMissileDBObject::~tcMissileDBObject()
 {
 }
 
-tcGameObject *tcMissileDBObject::CreateGameObject()
+std::shared_ptr<tcGameObject>tcMissileDBObject::CreateGameObject()
 {
-    return new tcMissileObject(this);
+    return std::make_shared<tcMissileObject>(std::dynamic_pointer_cast<tcMissileDBObject>(tcDatabaseObject::shared_from_this()));
+
 }
 
 std::string tcMissileDBObject::teAltitudeModeToString(teAltitudeMode data)const

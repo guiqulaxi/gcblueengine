@@ -72,7 +72,7 @@ public:
     bool IsDatalinkActive() const;
 
     virtual float GetMassKg() const;
-    const tcWeaponDBObject* GetDBObject() const;
+    std::shared_ptr<const tcWeaponDBObject> GetDBObject() const;
     const database::tcWeaponDamage* GetDamageModel() const;
 
     /// returns true if id is intended target of this weapon
@@ -91,7 +91,7 @@ public:
     /// sets intended target
     void SetIntendedTarget(long targetId);
 
-    virtual float ApplyAdvancedDamage(const Damage& damage, tcGameObject* damager); ///< called when new damage occurs
+    virtual float ApplyAdvancedDamage(const Damage& damage, std::shared_ptr<tcGameObject> damager); ///< called when new damage occurs
     
 protected:
     long intendedTarget;
@@ -108,7 +108,7 @@ protected:
 
     long launchingPlatform;
 
-    tcWeaponDBObject* mpDBObject;  
+    std::shared_ptr<tcWeaponDBObject> mpDBObject;  
 
 	/** 
     * 保险延迟
@@ -137,13 +137,13 @@ protected:
 
 	bool HasPayload() const;
     void DeployPayload();
-    void LaunchPayload(tcGameObject* payload);
+    void LaunchPayload(std::shared_ptr<tcGameObject> payload);
 
     void UpdateDatalinkStatus();
 
     tcWeaponObject();
     tcWeaponObject(const tcWeaponObject&);
-    tcWeaponObject(tcWeaponDBObject* obj);
+    tcWeaponObject(std::shared_ptr<tcWeaponDBObject> obj);
     ~tcWeaponObject();
 };
 

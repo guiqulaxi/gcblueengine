@@ -30,6 +30,7 @@
 #ifndef _TCWEAPONTESTER_H_
 #define _TCWEAPONTESTER_H_
 #include <string>
+#include <memory>
 class tcGameObject;
 class tcPlatformObject;
 
@@ -44,7 +45,7 @@ class tcWeaponTester
 public:
     static tcWeaponTester* Get();
 
-    tcGameObject* GetPlatform();
+    std::shared_ptr<tcGameObject> GetPlatform();
     void SetTarget(const std::string& s);
     void SetWeapon(const std::string& s);
     void SetQuantity(unsigned int n);
@@ -67,7 +68,7 @@ private:
     double lastLaunch_s; ///< sim time of last launch
     double lastUpdate_s;
 
-    tcPlatformObject* ghost; ///< "ghost" parent that launches weapon
+    std::shared_ptr<tcPlatformObject> ghost; ///< "ghost" parent that launches weapon
 
 
     tcWeaponTester();

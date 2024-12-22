@@ -123,7 +123,7 @@ int tcEventManager::GetAccelLimit(unsigned int classification) const
 * Called when sensor track classification is updated
 * @param alliance alliance that is reporting this track
 */
-void tcEventManager::UpdatedContact(unsigned char alliance, tcSensorMapTrack* track)
+void tcEventManager::UpdatedContact(unsigned char alliance, std::shared_ptr<tcSensorMapTrack> track)
 {
     if (!userInfo->IsOwnAlliance(alliance)) return;
     
@@ -137,7 +137,7 @@ void tcEventManager::UpdatedContact(unsigned char alliance, tcSensorMapTrack* tr
 * Called when new track is formed
 * @param alliance alliance that is reporting this track
 */
-void tcEventManager::NewContact(unsigned char alliance, tcSensorMapTrack* track)
+void tcEventManager::NewContact(unsigned char alliance, std::shared_ptr<tcSensorMapTrack> track)
 {
     if (!userInfo->IsOwnAlliance(alliance)) return;
 

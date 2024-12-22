@@ -33,7 +33,7 @@
 
 #include <vector>
 #include <string>
-
+#include <memory>
 class tcFile;
 
 namespace database
@@ -45,7 +45,7 @@ namespace database
     /**
     * Sensor info for platform
     */
-    class tcSensorPlatformDBObject 
+    class tcSensorPlatformDBObject : public std::enable_shared_from_this<tcSensorPlatformDBObject>
     {
     public:
         enum 

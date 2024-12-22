@@ -95,8 +95,8 @@ void PointDefense::GetPointDefenseLaunchers(std::vector<unsigned int>& launchers
     unsigned int nLaunchers = platform->GetLauncherCount();
     for (unsigned int n=0; n<nLaunchers; n++)
     {
-        tcLauncher* launcher = platform->GetLauncher(n);
-        tcWeaponDBObject* weaponData = dynamic_cast<tcWeaponDBObject*>(launcher->mpChildDBObj);
+        std::shared_ptr<tcLauncher> launcher = platform->GetLauncher(n);
+        std::shared_ptr<tcWeaponDBObject> weaponData = std::dynamic_pointer_cast<tcWeaponDBObject>(launcher->mpChildDBObj);
 
         unsigned char launcherStatus = launcher->GetStatus(); // doesn't update, returns last status
         bool statusOkay = true;
@@ -193,7 +193,7 @@ void PointDefense::Update(double t)
             GeoPoint p(targets[target_idx].mfLon_rad, targets[target_idx].mfLat_rad, targets[target_idx].mfAlt_m);
             platform->DesignateLauncherDatum(p, launcher_idx);
 
-            tcLauncher* launcher = platform->GetLauncher(launcher_idx);
+            std::shared_ptr<tcLauncher> launcher = platform->GetLauncher(launcher_idx);
             launcher->UpdateStatus();
             unsigned char launcherStatus = launcher->GetStatus();
             if (launcherStatus == tcLauncher::LAUNCHER_READY)
@@ -207,7 +207,7 @@ void PointDefense::Update(double t)
     FinishUpdate(t);
 }
 
-PointDefense::PointDefense(tcPlatformObject* platform_, Blackboard* bb, 
+PointDefense::PointDefense(std::shared_ptr<tcPlatformObject> platform_, Blackboard* bb, 
                                    long id_, double priority_, int attributes_, const std::string& taskName_)
 : Task(platform_, bb, id_, priority_, attributes_, taskName_)
 {

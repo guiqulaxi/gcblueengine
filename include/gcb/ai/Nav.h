@@ -77,7 +77,7 @@ public:
     virtual tcGameStream& operator<<(tcGameStream& stream);
 	virtual tcGameStream& operator>>(tcGameStream& stream);
 
-    Nav(tcPlatformObject* platform_, Blackboard* bb, 
+    Nav(std::shared_ptr<tcPlatformObject> platform_, Blackboard* bb, 
         long id_, double priority_, int attributes_, const std::string& taskName_);
     ~Nav();
     

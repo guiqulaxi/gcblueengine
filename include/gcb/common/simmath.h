@@ -170,7 +170,7 @@ public:
     float RangeToKmAlt(const tcKinematics& k) const;
     float RangeToKmAlt(const tcTrack& track) const;
     float RangeToKmAlt(float lon_rad, float lat_rad, float alt_m) const;
-    // float RangeToKmAlt(const tcGameObject* obj) const;
+    // float RangeToKmAlt(std::shared_ptr<const tcGameObject> obj) const;
 
     //float InterceptHeadingToTrack(tcTrack& track, float& afTimeToIntercept);
     void GetInterceptData2D(const tcTrack& track, float& rfHeading_rad, 

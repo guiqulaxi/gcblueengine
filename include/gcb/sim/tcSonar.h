@@ -56,10 +56,10 @@ class tcSonar : public tcSensorState
 {
     friend class tcPlatformDebugPopup;
 public:
-    tcSonarDBObject *mpDBObj;
+    std::shared_ptr<tcSonarDBObject>mpDBObj;
 
-    float CalculateSimpleDetectionRange(tcGameObject* target, float& NL, float& SLp);
-    virtual bool CanDetectTarget(const tcGameObject* target, float& range_km, bool useRandom=true); 
+    float CalculateSimpleDetectionRange(std::shared_ptr<tcGameObject> target, float& NL, float& SLp);
+    virtual bool CanDetectTarget(std::shared_ptr<const tcGameObject> target, float& range_km, bool useRandom=true); 
     virtual bool InitFromDatabase(long key); ///< initializes sensor using database data at key
 	float GetLastSNRExcess() const;
 
@@ -83,9 +83,9 @@ public:
     virtual tcGameStream& operator<<(tcGameStream& stream);
     virtual tcGameStream& operator>>(tcGameStream& stream);
 
-    tcSonar* Clone();
+    std::shared_ptr<tcSonar> Clone();
     tcSonar();
-    tcSonar(tcSonarDBObject* dbObj);
+    tcSonar( std::shared_ptr<tcSonarDBObject> dbObj);
     virtual ~tcSonar();
 
 protected:
@@ -96,10 +96,10 @@ protected:
     void UpdateSeeker(double t);
     void UpdateSeekerWakeHoming(double t);
 
-    void UpdateSensorMapActive(double t, const tcGameObject* target, float range_km);
-    void UpdateSensorMapPassive(double t, const tcGameObject* target, float range_km, float az_rad);
+    void UpdateSensorMapActive(double t, std::shared_ptr<const tcGameObject> target, float range_km);
+    void UpdateSensorMapPassive(double t, std::shared_ptr<const tcGameObject> target, float range_km, float az_rad);
     void UpdateSurveillance(double t);
-    void UpdateTrack(const tcGameObject* target, double t);
+    void UpdateTrack(std::shared_ptr<const tcGameObject> target, double t);
 private:
 	float depth_m; ///< [m] depth of sonar
     float last_az_rad; ///< [rad] target azimuth from last call to CanDetectTarget
@@ -108,7 +108,7 @@ private:
     static float last_TL; ///< [dB] last transmission loss from last call to CanDetectTarget
     long emitterId; ///< if active sonar has been detected, database id of active sonar, -1 otherwise
 
-    bool CountermeasureRejected(const tcGameObject* target) const;
+    bool CountermeasureRejected(std::shared_ptr<const tcGameObject> target) const;
 };
 
 

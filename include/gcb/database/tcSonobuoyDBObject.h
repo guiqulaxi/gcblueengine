@@ -57,7 +57,7 @@ namespace database
 		tcSonobuoyDBObject(tcSonobuoyDBObject& obj);
 		tcSonobuoyDBObject();
 		virtual ~tcSonobuoyDBObject();
-        virtual tcGameObject *CreateGameObject() override;
+        virtual std::shared_ptr<tcGameObject>CreateGameObject() override;
 	};
 
 } // namespace database

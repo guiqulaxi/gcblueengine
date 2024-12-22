@@ -46,7 +46,7 @@ class tcBallisticMissile : public tcWeaponObject
 {
 public:
     void Clear();
-	virtual void LaunchFrom(tcGameObject* obj, unsigned nLauncher);
+	virtual void LaunchFrom(std::shared_ptr<tcGameObject> obj, unsigned nLauncher);
 
     virtual void Update(double t);
 //    virtual void UpdateEffects();
@@ -61,11 +61,11 @@ public:
     virtual tcGameStream& operator>>(tcGameStream& stream);
 
     tcBallisticMissile(const tcBallisticMissile& obj);
-    tcBallisticMissile(tcBallisticMissileDBObject* obj);
+    tcBallisticMissile(std::shared_ptr<tcBallisticMissileDBObject> obj);
     ~tcBallisticMissile();
 
 private:
-    tcBallisticMissileDBObject* mpDBObject;
+    std::shared_ptr<tcBallisticMissileDBObject> mpDBObject;
 
     bool subSurfaceLaunch; ///< true during subsurface launch phase for sub-launched missiles
 

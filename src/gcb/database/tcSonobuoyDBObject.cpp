@@ -136,9 +136,10 @@ tcSonobuoyDBObject::~tcSonobuoyDBObject()
 {
 }
 
-tcGameObject *tcSonobuoyDBObject::CreateGameObject()
+std::shared_ptr<tcGameObject>tcSonobuoyDBObject::CreateGameObject()
 {
-    return new tcSonobuoy(this);
+    return std::make_shared< tcSonobuoy>(std::dynamic_pointer_cast<tcSonobuoyDBObject>(tcDatabaseObject::tcDatabaseObject::shared_from_this()));
+
 }
 
 }

@@ -26,7 +26,7 @@ public:
     int CreateObjectCopy(long anKey);
     int DeleteObject(long anKey);
     long GetRandomKey();
-    tcDatabaseObject* GetRandomOfType(UINT model_type);
+    std::shared_ptr<tcDatabaseObject> GetRandomOfType(UINT model_type);
     std::vector<std::string> GetPlatformNames(const std::string& className);
     std::vector<std::string> GetPlatformNamesByDate(const std::string& className, float dateYear);
     std::vector<std::string> GetPlatformHulls(const std::string& className);
@@ -36,14 +36,14 @@ public:
     bool CheckTableReferences(const char* table, const char* field, const std::vector<std::string>& refTables, const char* refField,
                               std::ofstream &log, unsigned int& errorCount);
     long GetSize();
-    long AddOrUpdateObject( tcDatabaseObject* rpobj);
+    long AddOrUpdateObject( std::shared_ptr<tcDatabaseObject> rpobj);
     void AddOrUpdateSignatureModelData(const tcSignatureModel&data);
     void AddOrUpdateAcousticModelData(const tcAcousticModel& data);
     void AddOrUpdateWeaponDamageData(const tcWeaponDamage& data);
     void AddOrUpdateDamageEffectData(const tcDamageEffect& data);
 
-    tcDatabaseObject* GetObjectByKey(long anKey);
-    tcDatabaseObject* GetObjectByClassName(const std::string& className); ///< gets object by class name
+    std::shared_ptr<tcDatabaseObject> GetObjectByKey(long anKey);
+    std::shared_ptr<tcDatabaseObject> GetObjectByClassName(const std::string& className); ///< gets object by class name
     const std::string& GetObjectClassName(long key);
     std::vector<std::string> WildcardSearch(const std::string& expression, const std::string& filter);
     std::vector<std::string> WildcardSearchLoaded(const std::string& expression, const std::string& filter);

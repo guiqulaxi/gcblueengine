@@ -285,7 +285,7 @@ public:
     std::string GetTemplateName(unsigned int id) const;
 
     // non-python methods
-    tcGameObject* GetLastObjectAdded() const;
+    std::shared_ptr<tcGameObject> GetLastObjectAdded() const;
     //		void SetProgressReporting(wxProgressDialog* dlg);
 
     // Interface class management methods
@@ -321,7 +321,7 @@ public:
 private:
 
     double eventTime; ///< start time for briefing event functions
-    tcGameObject* lastObjectAdded; ///< last object added to sim
+    std::shared_ptr<tcGameObject> lastObjectAdded; ///< last object added to sim
     double lon_theater_deg; ///< default starting longitude for theater
     double lat_theater_deg; ///< default starting latitude for theater
     int sideCode; ///< used to toggle user's alliance in scenario, 0 means uninitialized

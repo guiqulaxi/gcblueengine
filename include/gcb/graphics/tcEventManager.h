@@ -32,7 +32,7 @@
 #endif 
 
 //#include "wx/wx.h"
-
+#include <memory>
 class tcSensorMapTrack;
 class tcUserInfo;
 class tcOptions;
@@ -47,8 +47,8 @@ public:
     
     static tcEventManager* Get();
 
-    void UpdatedContact(unsigned char alliance, tcSensorMapTrack* track);
-    void NewContact(unsigned char alliance, tcSensorMapTrack* track);
+    void UpdatedContact(unsigned char alliance, std::shared_ptr<tcSensorMapTrack> track);
+    void NewContact(unsigned char alliance, std::shared_ptr<tcSensorMapTrack> track);
     void DamageReceived(unsigned char alliance);
     void IdlePlatform(unsigned char alliance);
     void WeaponLaunched(unsigned char alliance);

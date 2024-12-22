@@ -137,8 +137,8 @@ void tcRadarCalculationControl::UpdateCalculation()
 	tcDatabaseManager* databaseManager = tcDatabaseManager::Get();
 	sqlite3x::sqlite3_connection& sqlConnection = databaseManager->GetConnection();
 
-	tcDatabaseObject* radarData1 = database->GetObject(databaseClass);
-	tcRadarDBObject* radarData = dynamic_cast<tcRadarDBObject*>(radarData1);
+	std::shared_ptr<tcDatabaseObject> radarData1 = database->GetObject(databaseClass);
+    std::shared_ptr<tcRadarDBObject> radarData =  std::dynamic_pointer_cast<tcRadarDBObject>(radarData1);
 
     // new entry, not saved??
     if (radarData == 0)

@@ -394,14 +394,14 @@ void tcMissionManager::DeleteMission(unsigned int missionId)
 	missionsToDelete.push_back(missionId);
 }
 
-tcAirObject* tcMissionManager::GetAircraft(long id)
+std::shared_ptr<tcAirObject> tcMissionManager::GetAircraft(long id)
 {
-	return dynamic_cast<tcAirObject*>(flightPort->GetObjectById(id));
+    return std::dynamic_pointer_cast<tcAirObject>(flightPort->GetObjectById(id));
 }
 
-tcAirObject* tcMissionManager::GetAircraft(const std::string& unitName)
+std::shared_ptr<tcAirObject> tcMissionManager::GetAircraft(const std::string& unitName)
 {
-    return dynamic_cast<tcAirObject*>(flightPort->GetObjectByName(unitName));
+    return std::dynamic_pointer_cast<tcAirObject>(flightPort->GetObjectByName(unitName));
 }
 
 /**
@@ -471,9 +471,9 @@ std::vector<MissionAircraftInfo>& tcMissionManager::GetAvailableAircraft(int tar
 		long id = airState->obj->mnID;
 		if (!IsAircraftReserved(id))
 		{
-			tcPlatformObject* platform = dynamic_cast<tcPlatformObject*>(airState->obj);
+            std::shared_ptr<tcPlatformObject> platform = std::dynamic_pointer_cast<tcPlatformObject>(airState->obj);
 			assert(platform != 0);
-            bool isHelo = dynamic_cast<tcHeloObject*>(platform) != 0;
+            bool isHelo = std::dynamic_pointer_cast<tcHeloObject>(platform) != nullptr;
     
 			if ((platform != 0) && (!isHelo || subsurfaceTarget || aewPatrol) && (platform->IsCapableVsTargetType(targetMask)) &&
                 (platform->GetDamageLevel() <= 0))
@@ -510,7 +510,7 @@ unsigned int tcMissionManager::GetEditMissionId() const
     return editMissionId;
 }
 
-tcGameObject* tcMissionManager::GetFlightportParent()
+std::shared_ptr<tcGameObject> tcMissionManager::GetFlightportParent()
 {
 	return flightPort->parent;
 }

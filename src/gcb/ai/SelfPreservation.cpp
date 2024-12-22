@@ -116,7 +116,7 @@ void SelfPreservation::Update(double t)
     FinishUpdate(t);
 }
 
-SelfPreservation::SelfPreservation(tcPlatformObject* platform_, Blackboard* bb, 
+SelfPreservation::SelfPreservation(std::shared_ptr<tcPlatformObject> platform_, Blackboard* bb, 
         long id_, double priority_, int attributes_, const std::string& taskName_)
 : Task(platform_, bb, id_, priority_, attributes_, taskName_)
 {

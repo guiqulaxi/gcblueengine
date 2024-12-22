@@ -89,7 +89,7 @@ public:
      * @return
      */
     static float GetRelativeAirDensity(float alt_m);
-	static void UpdateMissileKState(tsMissileKState& k, const database::tcMissileDBObject *apMissileData, float afTimeStep);
+    static void UpdateMissileKState(tsMissileKState& k, std::shared_ptr<const database::tcMissileDBObject> apMissileData, float afTimeStep);
 };
 
 

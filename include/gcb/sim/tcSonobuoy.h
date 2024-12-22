@@ -53,7 +53,7 @@ public:
     void LoadFromFile(tcFile& file);
     virtual void Serialize(tcFile& file, bool mbLoad);
 
-    virtual void LaunchFrom(tcGameObject* obj, unsigned nLauncher);
+    virtual void LaunchFrom(std::shared_ptr<tcGameObject> obj, unsigned nLauncher);
     virtual void Update(double afStatusTime);
 
     virtual tcGameStream& operator<<(tcGameStream& stream);
@@ -61,11 +61,11 @@ public:
 
     tcSonobuoy();
     tcSonobuoy(tcSonobuoy&);
-    tcSonobuoy(tcSonobuoyDBObject* obj);
+    tcSonobuoy(std::shared_ptr<tcSonobuoyDBObject> obj);
     virtual ~tcSonobuoy();
 
 private:
-    tcSonobuoyDBObject* mpDBObject;
+    std::shared_ptr<tcSonobuoyDBObject> mpDBObject;
     float batteryTimeRemaining_s; ///<减少电池剩余时间
     long parentId;
     float sonobuoyDepth_m; ///<浮标工作深度

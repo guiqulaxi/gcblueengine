@@ -285,7 +285,7 @@ void Nav::Update(double t)
     FinishUpdate(t);
 }
 
-Nav::Nav(tcPlatformObject* platform_, Blackboard* bb, 
+Nav::Nav(std::shared_ptr<tcPlatformObject> platform_, Blackboard* bb, 
                                    long id_, double priority_, int attributes_, const std::string& taskName_)
 : Task(platform_, bb, id_, priority_, attributes_, taskName_),
   Route()
@@ -297,7 +297,7 @@ Nav::Nav(tcPlatformObject* platform_, Blackboard* bb,
     if ((typeid(*platform) == typeid(tcCarrierObject)) ||
         (typeid(*platform) == typeid(tcSurfaceObject)))
     {
-        if (tcShipDBObject* shipData = dynamic_cast<tcShipDBObject*>(platform->mpDBObject))
+        if (std::shared_ptr<tcShipDBObject> shipData = std::dynamic_pointer_cast<tcShipDBObject>(platform->mpDBObject))
         {
             SetMaxPathAltitude_m(-(shipData->draft_m + 3.0f));
         }

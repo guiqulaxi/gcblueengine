@@ -33,7 +33,7 @@
 
 #include "gctypes.h"
 
-
+#include <memory>
 class tcAllianceSensorMap;
 class tcSensorMapTrack;
 
@@ -63,7 +63,7 @@ namespace scriptinterface {
       static long mnTrackID;
       static tcAllianceSensorMap *mpSensorMap;
 
-	  tcSensorMapTrack* GetTrack();
+	  std::shared_ptr<tcSensorMapTrack> GetTrack();
    };
 
 }

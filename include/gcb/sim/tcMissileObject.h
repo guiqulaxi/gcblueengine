@@ -65,10 +65,10 @@ public:
     unsigned int mnCurrentSegment;
 
 	Aero::tsMissileKState msKState;
-    tcMissileDBObject *mpDBObject; // pointer to valid database obj
+    std::shared_ptr<tcMissileDBObject>mpDBObject; // pointer to valid database obj
 
     void Clear();
-	virtual void LaunchFrom(tcGameObject* obj, unsigned nLauncher);
+	virtual void LaunchFrom(std::shared_ptr<tcGameObject> obj, unsigned nLauncher);
     void RandInitNear(float afLon_deg, float afLat_deg);
     virtual void Update(double afStatusTime);
 //    virtual void UpdateEffects();
@@ -82,8 +82,8 @@ public:
 
     void UpdateTargetPos(float lon_rad, float lat_rad);
 
-	virtual tcRadar* GetSeekerRadar() const;
-    virtual tcSensorState* GetSeekerSensor() const;
+	virtual std::shared_ptr<tcRadar> GetSeekerRadar() const;
+    virtual std::shared_ptr<tcSensorState> GetSeekerSensor() const;
     virtual void DesignateTarget(long anID);
     virtual int GetGuidanceParameters(tsGuidanceParameters& gp);
     float RuntimeRemaining();
@@ -112,13 +112,13 @@ public:
 		std::vector<double> speed_mps;
 	};
     static float EstimateRangeKm(float evalMin_km, float evalMax_km, float evalStep_km,
-                                 float launchSpeed_kts, float launchAltitude_m, float targetAltitude_m, tcMissileDBObject* missileData, bool logData=true);
+                                 float launchSpeed_kts, float launchAltitude_m, float targetAltitude_m, std::shared_ptr<tcMissileDBObject> missileData, bool logData=true);
     static float EstimateRangeFaster(float evalMin_km, float evalMax_km, unsigned int nSteps,
-                                 float launchSpeed_kts, float launchAltitude_m, float targetAltitude_m, tcMissileDBObject* missileData);
-    static bool EvaluateTarget(tcKinematics& missileKin, const tcSensorMapTrack& target, tcMissileDBObject* missileData, MissileTrajectory* trajectory=0);
+                                 float launchSpeed_kts, float launchAltitude_m, float targetAltitude_m, std::shared_ptr<tcMissileDBObject> missileData);
+    static bool EvaluateTarget(tcKinematics& missileKin, const tcSensorMapTrack& target, std::shared_ptr<tcMissileDBObject> missileData, MissileTrajectory* trajectory=0);
     tcMissileObject();
     tcMissileObject(tcMissileObject&);
-    tcMissileObject(tcMissileDBObject *obj);
+    tcMissileObject(std::shared_ptr<tcMissileDBObject>obj);
     ~tcMissileObject();
 
 private:
@@ -147,15 +147,15 @@ private:
     void UpdateDetonation();
     void UpdateGoalPitch();
     void UpdateDatumInterceptGuidance(double t, bool& useInterceptPitch, float& interceptPitch_rad);
-    static void UpdateGoalPitchSim(MissileSimData& simData, const tcMissileDBObject* missileData);
+    static void UpdateGoalPitchSim(MissileSimData& simData, const std::shared_ptr<tcMissileDBObject> missileData);
 
     void UpdateCommandHandoff();
     void UpdateSubsurface(double t);
     float GlimitedTurnRate() const;
-    static float GlimitedTurnRate(float speed_kts, const tcMissileDBObject* missileData);
+    static float GlimitedTurnRate(float speed_kts, const std::shared_ptr<tcMissileDBObject> missileData);
     
-    static void UpdateGuidanceSim(MissileSimData& simData, const tcMissileDBObject* missileData);
-	static float EstimateSeekerDetectionRange(const tcSensorMapTrack& target, tcMissileDBObject* missileData);
+    static void UpdateGuidanceSim(MissileSimData& simData, const std::shared_ptr<tcMissileDBObject> missileData);
+	static float EstimateSeekerDetectionRange(const tcSensorMapTrack& target, std::shared_ptr<tcMissileDBObject> missileData);
 
 };
 

@@ -444,7 +444,7 @@ void tcGame::Init()
         database->addTable("ballistic_missile");
          database->addTable("space");
 
-        database->SerializeSql("", true); // moved to top so that db is loaded for db browse panel
+        //database->SerializeSql("", true); // moved to top so that db is loaded for db browse panel
         database->SetProgressReporting( 0, 0);
 
 
@@ -635,6 +635,7 @@ bool tcGame::InitSim()
                                         "ballistic",
                                         "ballistic_missile",
                                         "cm",
+                                        "air",
                                         "ecm",
                                         "esm",
                                         "flightport",
@@ -676,7 +677,7 @@ void tcGame::SaveDatabaseToPython(const std::string& dirPath)
     auto& nameToTable=database->GetNameToTable();
     for(auto& kv:nameToTable)
     {
-        tcDatabaseObject* obj= simState->mpDatabase->GetObject(kv.first);
+        std::shared_ptr<tcDatabaseObject> obj= simState->mpDatabase->GetObject(kv.first);
         if(obj)
         {
             std::ofstream ofs;
@@ -742,7 +743,7 @@ void tcGame::SaveDatabaseToPython(const std::string& dirPath)
     // unsigned long nIterated = 0;
     // for (iter.First(); !iter.IsDone(); iter.Next())
     // {
-    //     tcDatabaseObject* obj = iter.Get();
+    //     std::shared_ptr<tcDatabaseObject> obj = iter.Get();
     //     std::ofstream ofs;
     //     std::string path= dirPath+"/"+obj->mzClass.c_str()+".py";
     //     ofs.open(path);
@@ -1668,7 +1669,7 @@ void tcGame::ProcessCommandList()
 
 //void tcGame::TextCommandShowFlightPanel(const tsCommandInfo& cmd)
 //{
-//    tcPlatformObject* platform = tcSimPythonInterface::Get()->GetHookedObj();
+//    std::shared_ptr<tcPlatformObject> platform = tcSimPythonInterface::Get()->GetHookedObj();
 //    tcFlightPort* flightPort = tcSimPythonInterface::Get()->GetHookedObjFlightPort();
 //    if (flightPort)
 //    {
@@ -1703,9 +1704,9 @@ void tcGame::ProcessCommandList()
 
 //void tcGame::TextCommandShowStoresPanel(const tsCommandInfo& cmd)
 //{
-//    if (tcPlatformObject* obj = tcSimPythonInterface::Get()->GetHookedObj())
+//    if (std::shared_ptr<tcPlatformObject> obj = tcSimPythonInterface::Get()->GetHookedObj())
 //    {
-//        if (tcStores* stores = obj->GetMagazine(0))
+//        if (std::shared_ptr<tcStores> stores = obj->GetMagazine(0))
 //        {
 //            tcStoresGui* existingGui = tcStoresGui::GetExistingGui(obj->mnID, -1);
 //            if (existingGui == 0)
@@ -1723,7 +1724,7 @@ void tcGame::ProcessCommandList()
 
 //void tcGame::TextCommandShowPlatformPanel(const tsCommandInfo& cmd)
 //{
-//    tcPlatformObject* obj = tcSimPythonInterface::Get()->GetHookedObj();
+//    std::shared_ptr<tcPlatformObject> obj = tcSimPythonInterface::Get()->GetHookedObj();
 //    if (obj)
 //    {
 //        tcPlatformGui* existingGui = tcPlatformGui::GetExistingGui(obj->mnID, -1);
@@ -1873,7 +1874,7 @@ void tcGame::ProcessTextCommand(tsCommandInfo cmd_info)
 #if 0
     if (s == "ShowFlightPanel")
     {
-        tcPlatformObject* platform = tcSimPythonInterface::Get()->GetHookedObj();
+        std::shared_ptr<tcPlatformObject> platform = tcSimPythonInterface::Get()->GetHookedObj();
         tcFlightPort* flightPort = tcSimPythonInterface::Get()->GetHookedObjFlightPort();
         if (flightPort)
         {
@@ -1907,9 +1908,9 @@ void tcGame::ProcessTextCommand(tsCommandInfo cmd_info)
     }
     else if (s == "ShowStoresPanel")
     {
-        if (tcPlatformObject* obj = tcSimPythonInterface::Get()->GetHookedObj())
+        if (std::shared_ptr<tcPlatformObject> obj = tcSimPythonInterface::Get()->GetHookedObj())
         {
-            if (tcStores* stores = obj->GetMagazine(0))
+            if (std::shared_ptr<tcStores> stores = obj->GetMagazine(0))
             {
                 tcStoresGui* existingGui = tcStoresGui::GetExistingGui(obj->mnID, -1);
                 if (existingGui == 0)
@@ -1926,7 +1927,7 @@ void tcGame::ProcessTextCommand(tsCommandInfo cmd_info)
     }
     else if (s == "ShowPlatformPanel")
     {
-        tcPlatformObject* obj = tcSimPythonInterface::Get()->GetHookedObj();
+        std::shared_ptr<tcPlatformObject> obj = tcSimPythonInterface::Get()->GetHookedObj();
         if (obj)
         {
             tcPlatformGui* existingGui = tcPlatformGui::GetExistingGui(obj->mnID, -1);
@@ -2026,7 +2027,7 @@ void tcGame::AddCommand(const std::string &cmd)
 
 //    long hookID = tacticalMap->GetHookID();
 
-//    tcGameObject* hookedObj = simState->GetObject(hookID);
+//    std::shared_ptr<tcGameObject> hookedObj = simState->GetObject(hookID);
 //    if (hookedObj == 0) return;
 
 
@@ -2098,7 +2099,7 @@ void tcGame::AddCommand(const std::string &cmd)
 
 //    long hookID = tacticalMap->GetHookID();
 
-//    tcGameObject* hookedObj = simState->GetObject(hookID);
+//    std::shared_ptr<tcGameObject> hookedObj = simState->GetObject(hookID);
 //    if (hookedObj == 0) return;
 
 //    Vector3d dir_eun(camx, camy, camz);
@@ -2136,7 +2137,7 @@ void tcGame::ValidateHooked()
         }
         else if (simState->IsMultiplayerClient())
         {
-            if (tcSensorMapTrack* track = simState->mcSensorMap.GetSensorMapTrack(id, playerAlliance))
+            if (std::shared_ptr<tcSensorMapTrack> track = simState->mcSensorMap.GetSensorMapTrack(id, playerAlliance))
             {
                 validHooks.push_back(id);
             }
@@ -2461,7 +2462,7 @@ void tcGame::UpdateOutSimData()
     rapidjson::Document document;
     document.SetObject();
     //更新对象位置
-    tcGameObject *obj;
+    std::shared_ptr<tcGameObject>obj;
     long cmappos = simState->maPlatformState.GetStartPosition();
     int nSize = simState->maPlatformState.GetCount();
     long nKey;
@@ -2501,7 +2502,7 @@ void tcGame::UpdateOutSimData()
         for (iter.First();iter.NotDone();iter.Next())
         {
             rapidjson::Value trackJson(rapidjson::kObjectType);
-            tcSensorMapTrack* track = iter.Get();
+            std::shared_ptr<tcSensorMapTrack> track = iter.Get();
             tcTrackToJson(*track,trackJson,document);
             tracksJson.PushBack(trackJson,document.GetAllocator());
         }

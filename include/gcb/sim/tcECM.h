@@ -43,7 +43,7 @@ class tcGameStream;
 using namespace database;
 
 /**
-* For safe access of tcRadar* pointer
+* For safe access of std::shared_ptr<tcRadar> pointer
 */
 class RadarInterface
 {
@@ -51,7 +51,7 @@ public:
     long id; ///< platform id
     unsigned idx; ///< sensor index
 
-    tcRadar* GetRadar(); ///< returns 0 if platform or sensor doesn't exist anymore
+    std::shared_ptr<tcRadar> GetRadar(); ///< returns 0 if platform or sensor doesn't exist anymore
 
     tcGameStream& operator<<(tcGameStream& stream);
     tcGameStream& operator>>(tcGameStream& stream);
@@ -70,7 +70,7 @@ class tcECM : public tcSensorState
 {
     friend class tcECMEvaluationDialog;
 public:
-	tcECMDBObject* mpDBObj;
+    std::shared_ptr<tcECMDBObject> mpDBObj;
 
     virtual bool InitFromDatabase(long key); ///< initializes sensor using database data at key
 
@@ -87,20 +87,20 @@ public:
     virtual tcGameStream& operator<<(tcGameStream& stream);
     virtual tcGameStream& operator>>(tcGameStream& stream);
 
-    tcECM* Clone();
+    std::shared_ptr<tcECM> Clone();
     tcECM();
-    tcECM(tcECMDBObject* dbObj);
+    tcECM(std::shared_ptr<tcECMDBObject> dbObj);
     virtual ~tcECM();
 
 private:
     std::vector<RadarInterface> jamList; ///< radars jammed on previous update
     
-    void AddOrUpdateJammerToTarget(tcRadar* targetRadar, unsigned sensorIdx, float JNR_dB, 
+    void AddOrUpdateJammerToTarget(std::shared_ptr<tcRadar> targetRadar, unsigned sensorIdx, float JNR_dB,
              float jammerBearing_rad, float jammerElevation_rad);
     void ClearJamList();
 
     void UpdateBarrage();
-    void UpdateBarrageTarget(tcGameObject* target);
-    void UpdateBarrageTargetRadar(tcRadar* radar, unsigned sensorIdx);
+    void UpdateBarrageTarget(std::shared_ptr<tcGameObject> target);
+    void UpdateBarrageTargetRadar(std::shared_ptr<tcRadar> radar, unsigned sensorIdx);
 };
 #endif

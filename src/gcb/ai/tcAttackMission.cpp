@@ -362,7 +362,7 @@ void tcAttackMission::RemoveInactiveAircraft()
     for (size_t n=0; n<missionAircraft.size(); n++)
     {
         // if aircraft is in the air, then keep it, otherwise remove
-        tcGameObject* obj = simState->GetObjectByName(missionAircraft[n].name);
+        std::shared_ptr<tcGameObject> obj = simState->GetObjectByName(missionAircraft[n].name);
 
         bool inAir = (obj != 0) && (obj->parent == 0);
         bool landedAtHome = (obj != 0) && (obj->parent == missionManager->GetFlightportParent());
@@ -433,7 +433,7 @@ void tcAttackMission::UpdateActiveAircraft(unsigned int& nActive)
         if (missionAircraft[n].active)
         {
             // 通过名称从模拟状态对象中获取对应的飞机对象，并进行动态类型转换
-            tcAirObject* air = dynamic_cast<tcAirObject*>(simState->GetObjectByName(missionAircraft[n].name));
+             std::shared_ptr<tcAirObject> air = std::dynamic_pointer_cast<tcAirObject>(simState->GetObjectByName(missionAircraft[n].name));
 
             // 检查飞机是否在空中（即没有父对象）
             bool inAir = (air != 0) && (air->parent == 0);
@@ -469,7 +469,7 @@ void tcAttackMission::UpdateInFlightAircraft()
 
     for (size_t n=0; n<missionAircraft.size(); n++)
     {
-        tcAirObject* obj = dynamic_cast<tcAirObject*>(simState->GetObjectByName(missionAircraft[n].name));
+        std::shared_ptr<tcAirObject> obj = std::dynamic_pointer_cast<tcAirObject>(simState->GetObjectByName(missionAircraft[n].name));
         if ((obj != 0) && (obj->parent == 0))
         {
             UploadUnitMissionInfo(obj);
@@ -669,7 +669,7 @@ void tcAttackMission::SetPatrolAnchor(const std::string& unitName, int mode)
     if (patrolAnchorMode > 0)
     {
         tcSimState* simState = tcSimState::Get();
-        tcPlatformObject* obj = dynamic_cast<tcPlatformObject*>(simState->GetObjectByName(patrolAnchorUnit));
+        std::shared_ptr<tcPlatformObject> obj = std::dynamic_pointer_cast<tcPlatformObject>(simState->GetObjectByName(patrolAnchorUnit));
         if (obj != 0)
         {
             referencePosition.mfLon_rad = obj->mcKin.mfLon_rad;
@@ -685,7 +685,7 @@ void tcAttackMission::UpdateTargetInfo()
     assert(missionManager != 0);
     if (missionManager == 0) return;
 
-    //   tcGameObject* host = missionManager->GetFlightportParent();
+    //   std::shared_ptr<tcGameObject> host = missionManager->GetFlightportParent();
     //   if (host == 0)
     //   {
     //       EndMission();
@@ -739,7 +739,7 @@ unsigned int tcAttackMission::GetAirborneAircraftCount() const
 
     for (size_t n=0; n<missionAircraft.size(); n++)
     {
-        tcPlatformObject* obj = dynamic_cast<tcPlatformObject*>(simState->GetObjectByName(missionAircraft[n].name));
+        std::shared_ptr<tcPlatformObject> obj = std::dynamic_pointer_cast<tcPlatformObject>(simState->GetObjectByName(missionAircraft[n].name));
         if ((obj != 0) && (obj->parent == 0))
         {
             nAirborne++;
@@ -760,7 +760,7 @@ void tcAttackMission::GetReadyAircraft(std::vector<unsigned int>& readyAircraft)
     for (size_t n=0; n<missionAircraft.size(); n++)
     {
         // 通过飞机名称从missionManager中获取对应的飞机对象
-        tcAirObject* aircraft = missionManager->GetAircraft(missionAircraft[n].name);
+         std::shared_ptr<tcAirObject> aircraft = missionManager->GetAircraft(missionAircraft[n].name);
         // 检查是否成功获取到飞机对象，并且该飞机当前未被标记为活动状态
         if ((aircraft != 0) && (!missionAircraft[n].active))
         {
@@ -788,7 +788,7 @@ void tcAttackMission::GetAircraftToLoad(std::vector<unsigned int>& loadTheseAirc
 
     for (size_t n=0; n<missionAircraft.size(); n++)
     {
-        tcAirObject* aircraft = missionManager->GetAircraft(missionAircraft[n].name);
+         std::shared_ptr<tcAirObject> aircraft = missionManager->GetAircraft(missionAircraft[n].name);
         if ((aircraft != 0) && (!missionAircraft[n].active))
         {
             std::string loadoutTag = aircraft->GetLoadoutTag();
@@ -886,7 +886,7 @@ void tcAttackMission::MonitorMissionInProgress()
     //bool anyInFlight = false;
     //for (size_t n=0; (n<missionAircraft.size()) && (!anyInFlight); n++)
     //{
-    //	tcPlatformObject* obj = dynamic_cast<tcPlatformObject*>(simState->GetObjectByName(missionAircraft[n].name));
+    //	std::shared_ptr<tcPlatformObject> obj = std::dynamic_pointer_cast<tcPlatformObject>(simState->GetObjectByName(missionAircraft[n].name));
     //	if (obj != 0)
     //	{
     //		if (obj->GetBrain()->TaskExists("CAP")) anyInFlight = true;
@@ -1103,7 +1103,7 @@ void tcAttackMission::Update(double t)
             size_t n = readyAircraft[k];
 
             // 获取飞机对象
-            if (tcAirObject* air = missionManager->GetAircraft(missionAircraft[n].name))
+            if ( std::shared_ptr<tcAirObject> air = missionManager->GetAircraft(missionAircraft[n].name))
             {
                 // 上传单位任务信息
                 UploadUnitMissionInfo(air);
@@ -1239,7 +1239,7 @@ void tcAttackMission::Update(double t)
 //         {
 //             size_t n = readyAircraft[k];
 
-//             if (tcAirObject* air = missionManager->GetAircraft(missionAircraft[n].name))
+//             if ( std::shared_ptr<tcAirObject> air = missionManager->GetAircraft(missionAircraft[n].name))
 //             {
 //                 UploadUnitMissionInfo(air);
 
@@ -1316,7 +1316,7 @@ void tcAttackMission::ReadyAllAircraft()
     for (size_t n=0; n<loadTheseAircraft.size(); n++)
     {
         unsigned int idx = loadTheseAircraft[n];
-        if (tcAirObject* air = missionManager->GetAircraft(missionAircraft[idx].name))
+        if ( std::shared_ptr<tcAirObject> air = missionManager->GetAircraft(missionAircraft[idx].name))
         {
             missionAircraft[idx].id = air->mnID; // update ID since it may have changed after landing (?)
             if (missionAircraft[idx].loadout.size() == 0)
@@ -1335,7 +1335,7 @@ void tcAttackMission::ReadyOverweightAircraft()
 {
     for (size_t n=0; n<missionAircraft.size(); n++)
     {
-        tcAirObject* aircraft = missionManager->GetAircraft(missionAircraft[n].name);
+         std::shared_ptr<tcAirObject> aircraft = missionManager->GetAircraft(missionAircraft[n].name);
         if ((aircraft != 0) && (!missionAircraft[n].active))
         {
             if (aircraft->IsOverweight() && !aircraft->IsLoading() && !aircraft->IsRefueling())
@@ -1388,7 +1388,7 @@ void tcAttackMission::UpdateRelativePosition()
     if (patrolAnchorMode <= 0) return;
 
     tcSimState* simState = tcSimState::Get();
-    tcPlatformObject* obj = dynamic_cast<tcPlatformObject*>(simState->GetObjectByName(patrolAnchorUnit));
+    std::shared_ptr<tcPlatformObject> obj = std::dynamic_pointer_cast<tcPlatformObject>(simState->GetObjectByName(patrolAnchorUnit));
     if (obj == 0) return;
 
     float dlon_rad = obj->mcKin.mfLon_rad - referencePosition.mfLon_rad;
@@ -1417,7 +1417,7 @@ void tcAttackMission::UpdateRelativePosition()
 
 }
 
-void tcAttackMission::UploadUnitMissionInfo(tcAirObject* air)
+void tcAttackMission::UploadUnitMissionInfo( std::shared_ptr<tcAirObject> air)
 {
     assert(air != 0);
 
@@ -1474,7 +1474,7 @@ void tcAttackMission::UploadUnitPatrolInfo(ai::BlackboardInterface& bb)
         if ((patrolAnchorMode > 0) && (patrolAnchorUnit.size() > 0))
         {
             tcSimState* simState = tcSimState::Get();
-            if (tcGameObject* anchorObj = simState->GetObjectByName(patrolAnchorUnit))
+            if (std::shared_ptr<tcGameObject> anchorObj = simState->GetObjectByName(patrolAnchorUnit))
             {
                 s=strutil::format("%s,%d", patrolAnchorUnit.c_str(), patrolAnchorMode);
                 bb.Write("PatrolAnchor", s);

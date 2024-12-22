@@ -159,7 +159,7 @@ namespace database
       tcMissileDBObject();
       tcMissileDBObject(const tcMissileDBObject& obj); ///< copy constructor
       virtual ~tcMissileDBObject();
-      virtual  tcGameObject *CreateGameObject() override;
+      virtual  std::shared_ptr<tcGameObject>CreateGameObject() override;
   private:
       std::string teAltitudeModeToString(teAltitudeMode data) const;
       std::string teGuidanceModeToString(teGuidanceMode data) const;

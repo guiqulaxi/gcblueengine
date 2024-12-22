@@ -102,7 +102,7 @@ namespace database
 		tcBallisticDBObject(const tcBallisticDBObject& obj); ///< copy constructor
 		tcBallisticDBObject();
 		virtual ~tcBallisticDBObject();
-virtual tcGameObject *CreateGameObject() override;
+virtual std::shared_ptr<tcGameObject>CreateGameObject() override;
         void CalculateParams();
     private:
 

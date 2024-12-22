@@ -48,7 +48,7 @@ namespace database
 class tcSubObject : public tcPlatformObject 
 {
 public:
-    tcSubDBObject* mpDBObject;
+    std::shared_ptr<tcSubDBObject> mpDBObject;
 
     virtual void ApplyRestrictions();
     virtual void Clear();
@@ -95,7 +95,7 @@ public:
 
     tcSubObject();
     tcSubObject(tcSubObject&);
-    tcSubObject(tcSubDBObject* obj);
+    tcSubObject(std::shared_ptr<tcSubDBObject> obj);
     virtual ~tcSubObject();
 protected:
 	enum

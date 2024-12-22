@@ -46,14 +46,14 @@
 namespace database
 {
 
-tcDatabaseObject* tcGroundDBObject::AsDatabaseObject()
-{
-	return this;
-}
+// std::shared_ptr<tcDatabaseObject> tcGroundDBObject::AsDatabaseObject()
+// {
+// 	return this;
+// }
 
-tcFlightportDBObject* tcGroundDBObject::GetFlightport()
+std::shared_ptr<tcFlightportDBObject> tcGroundDBObject::GetFlightport()
 {
-	tcFlightportDBObject* flightport = dynamic_cast<tcFlightportDBObject*>
+    std::shared_ptr<tcFlightportDBObject> flightport = std::dynamic_pointer_cast<tcFlightportDBObject>
         (database->GetObject(flightportClass.c_str()));
 
     if (!flightport)
@@ -144,20 +144,20 @@ tcGroundDBObject::~tcGroundDBObject()
 {
 }
 
-tcGameObject *tcGroundDBObject::CreateGameObject()
+std::shared_ptr<tcGameObject>tcGroundDBObject::CreateGameObject()
 {
     /* these types are defined in tcDatabase.h */
     switch (this->mnModelType)
     {
     case MTYPE_AIRFIELD:
-        return new tcAirfieldObject(this);
+        return std::make_shared<tcAirfieldObject>(std::dynamic_pointer_cast<tcGroundDBObject>(tcDatabaseObject::shared_from_this()));
         break;
     case MTYPE_FIXED:
-        return new tcGroundObject(this);
+        return std::make_shared< tcGroundObject>(std::dynamic_pointer_cast<tcGroundDBObject>(tcDatabaseObject::shared_from_this()));
         break;
 
     case MTYPE_GROUNDVEHICLE:
-        return new tcGroundVehicleObject(this);
+        return std::make_shared< tcGroundVehicleObject>(std::dynamic_pointer_cast<tcGroundDBObject>(tcDatabaseObject::shared_from_this()));
         break;
     default:
         fprintf(stderr, "tcSimState::CreateGameObject - "

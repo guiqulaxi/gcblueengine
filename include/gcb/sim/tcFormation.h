@@ -26,6 +26,7 @@
 #ifndef _TCFORMATION_H_
 #define _TCFORMATION_H_
 
+#include <memory>
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
@@ -66,17 +67,17 @@ public:
     float altitudeOffset_m; ///< for air formations, the altitude offset
     std::vector<long> followers;
 
-    void Update(tcPlatformObject* platform);
-    void Update(tcAirObject* air);
-	void UpdateFollow(tcPlatformObject* platform);
-	void UpdateSprintDrift(tcPlatformObject* platform);
+    void Update(std::shared_ptr<tcPlatformObject> platform);
+    void Update( std::shared_ptr<tcAirObject> air);
+	void UpdateFollow(std::shared_ptr<tcPlatformObject> platform);
+	void UpdateSprintDrift(std::shared_ptr<tcPlatformObject> platform);
 
     void Clear();
     bool IsLeader() const;
     bool IsFollower() const;
-    bool IsInPosition(tcPlatformObject* platform, float bearing_rad, float range_km) const;
-    bool IsInPositionLoose(tcPlatformObject* platform, float bearing_rad, float range_km) const;
-    bool IsInPositionLoose2(tcPlatformObject* platform, float bearing_rad, float range_km, 
+    bool IsInPosition(std::shared_ptr<tcPlatformObject> platform, float bearing_rad, float range_km) const;
+    bool IsInPositionLoose(std::shared_ptr<tcPlatformObject> platform, float bearing_rad, float range_km) const;
+    bool IsInPositionLoose2(std::shared_ptr<tcPlatformObject> platform, float bearing_rad, float range_km, 
         float& deltaBearing_rad, float& deltaRange_km) const;
 
 	void SetFormationMode(int mode);
@@ -127,8 +128,8 @@ private:
         float tgt_speed_mps, float own_speed_mps, bool& valid);
     float GetLazyInterceptHeadingClosingSpeed(float tgt_east_m, float tgt_north_m, float tgt_heading_rad, 
         float tgt_speed_mps, float& own_speed_mps, float closingSpeed_mps, bool& valid);
-    const tcPlatformObject* GetLeader(const tcPlatformObject* platform) const;
-	void GetPositionError(tcPlatformObject* platform, 
+    std::shared_ptr<const tcPlatformObject> GetLeader(std::shared_ptr<const tcPlatformObject> platform) const;
+	void GetPositionError(std::shared_ptr<tcPlatformObject> platform, 
 		float& drange_km, float& dbearing_rad, float& deast_km, float& dnorth_km, tcKinematics& leaderKin);
 };
 

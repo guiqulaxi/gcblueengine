@@ -55,17 +55,17 @@ tcSimpleAirDBObject::~tcSimpleAirDBObject()
 {
 }
 
- tcGameObject* tcSimpleAirDBObject::CreateGameObject()
+ std::shared_ptr<tcGameObject> tcSimpleAirDBObject::CreateGameObject()
 {
     /* these types are defined in tcDatabase.h */
     switch (this->mnModelType)
     {
     case MTYPE_FIXEDWING:
     case MTYPE_AIR:
-        return new tcAirObject(this);
+        return std::make_shared< tcAirObject>(dynamic_pointer_cast<tcSimpleAirDBObject>(tcDatabaseObject::shared_from_this()));
         break;
     case MTYPE_HELO:
-        return new tcHeloObject(this);
+        return std::make_shared<  tcHeloObject>(dynamic_pointer_cast<tcSimpleAirDBObject>(tcDatabaseObject::shared_from_this()));
         break;
     default:
         fprintf(stderr, "tcSimState::CreateGameObject - "

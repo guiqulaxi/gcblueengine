@@ -81,7 +81,7 @@ namespace database
         float batteryRate_kWpkt;            ///< [kW / kt] CALCULATED
 
         virtual const char* GetClassName() const {return "Torpedo";} ///< returns class name of database object
-        tcSonarDBObject* GetSeekerDBObj() const;
+         std::shared_ptr<tcSonarDBObject> GetSeekerDBObj() const;
 
         virtual void PrintToFile(tcFile& file);
 
@@ -94,7 +94,7 @@ namespace database
         tcTorpedoDBObject();
         tcTorpedoDBObject(const tcTorpedoDBObject& obj); ///< copy constructor
         virtual ~tcTorpedoDBObject();
-        virtual tcGameObject *CreateGameObject() override;
+        virtual std::shared_ptr<tcGameObject>CreateGameObject() override;
         void CalculateParams();
     private:
 

@@ -67,10 +67,10 @@ namespace database
     }
 
 
-    tcSonarDBObject* tcTorpedoDBObject::GetSeekerDBObj() const
+    std::shared_ptr<tcSonarDBObject> tcTorpedoDBObject::GetSeekerDBObj() const
     {
         assert(database);
-        return dynamic_cast<tcSonarDBObject*>(database->GetObject(sonarClass));
+        return std::dynamic_pointer_cast<tcSonarDBObject>(database->GetObject(sonarClass));
     }
 
 
@@ -221,9 +221,9 @@ namespace database
     {
     }
 
-    tcGameObject *tcTorpedoDBObject::CreateGameObject()
+    std::shared_ptr<tcGameObject>tcTorpedoDBObject::CreateGameObject()
     {
-        return new tcTorpedoObject(this);
+        return std::make_shared< tcTorpedoObject>(std::dynamic_pointer_cast<tcTorpedoDBObject>(tcDatabaseObject::shared_from_this()));
     }
 
 } // namespace database

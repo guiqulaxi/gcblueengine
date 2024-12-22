@@ -60,7 +60,7 @@ public:
     virtual tcGameStream& operator<<(tcGameStream& stream);
 	virtual tcGameStream& operator>>(tcGameStream& stream);
 
-    ScriptedTask(tcPlatformObject* platform_, Blackboard* bb, 
+    ScriptedTask(std::shared_ptr<tcPlatformObject> platform_, Blackboard* bb, 
         long id_, double priority_, int attributes_, const std::string& scriptName_);
     ~ScriptedTask();
     

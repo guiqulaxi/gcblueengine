@@ -22,7 +22,7 @@ class tcSpaceDBObject;
 class tcSpaceObject : public tcPlatformObject
 {
 public:
-    tcSpaceDBObject *mpDBObject;
+    std::shared_ptr<tcSpaceDBObject>mpDBObject;
 
     virtual void Clear();
 
@@ -42,7 +42,7 @@ public:
 
     tcSpaceObject();
     tcSpaceObject(tcSpaceObject&);
-    tcSpaceObject(tcSpaceDBObject *obj);
+    tcSpaceObject(std::shared_ptr<tcSpaceDBObject>obj);
     ~tcSpaceObject();
 
     // 访问器和修改器，用于获取和设置轨道参数

@@ -97,9 +97,9 @@ public:
 
     std::string displayName;
     long mnDBKey; ///< key in launcher database
-    tcLauncherDBObject *mpLauncherDBObj;
+    std::shared_ptr<tcLauncherDBObject>mpLauncherDBObj;
     long mnChildDBKey;
-    tcDatabaseObject *mpChildDBObj;
+    std::shared_ptr<tcDatabaseObject>mpChildDBObj;
 	bool isExternalFuelTank; ///< true if child is fuel tank
     float itemWeight_kg; ///< current unit weight of loaded items
 
@@ -121,7 +121,7 @@ public:
     float cycleTime_s; ///< from launcher_configuration table of current loaded child
     bool isReloadable; ///< from platform_launcher table
 
-    tcSensorState* fireControlSensor; ///< sensor for fire control guidance
+    std::shared_ptr<tcSensorState> fireControlSensor; ///< sensor for fire control guidance
     unsigned char fireControlSensorIdx; ///< index of sensor on parent platform
 
     // torpedo programming params
@@ -147,14 +147,14 @@ public:
     void CopyCommandInfoFrom(const tcLauncher& launcher);
     const std::string& GetChildClassName() const;
     const std::string& GetChildClassDisplayName() const;
-    tcDatabaseObject* GetChildDatabaseObject() const;
+    std::shared_ptr<tcDatabaseObject> GetChildDatabaseObject() const;
     
     const std::string& GetLauncherName() const;
 	float GetCycleTime() const;
 	unsigned GetFireControlTrackCount() const; ///< active FC tracks (0 if N/A)
 	unsigned GetMaxFireControlTracks() const; ///< max FC tracks (999 if N/A)
     int GetLauncherStatus();
-	tcGameObject* GetParent() const;
+	std::shared_ptr<tcGameObject> GetParent() const;
 	float GetPointingElevation() const;
     float GetSectorCenter() const; ///< returns center of engagement sector in radians
     float GetSectorWidth() const; ///< returns width of engagement sector in radians
@@ -177,7 +177,7 @@ public:
 	void SetDatum(double lon_rad, double lat_rad, float alt_m);
 	void SetLaunch(unsigned int quantity);
     void SetLoadState(bool state);
-    void SetParent(tcPlatformObject *obj);
+    void SetParent(std::shared_ptr<tcPlatformObject>obj);
 	void SetFOV(float fov_deg_);
 
     /// @return max quantity of item that launcher can hold, 0 if not compatible
@@ -189,16 +189,16 @@ public:
     std::vector<std::string> GetAllCompatibleList();
     bool IsItemCompatible(const std::string& item) const;
     bool Reload();
-    tcStores* FindLoadingStores(unsigned int& opId);
+    std::shared_ptr<tcStores> FindLoadingStores(unsigned int& opId);
     float GetLoadingTime();
     void CancelLoadInProgress();
     void QueueAutoReload();
 
 	unsigned char GetStatus() const;
 	void UpdateStatus();
-    void UpdateStatusSeekerTrack(tcGameObject* target);
+    void UpdateStatusSeekerTrack(std::shared_ptr<tcGameObject> target);
 
-    void UpdateScoreForDamage(tcGameObject* damager);
+    void UpdateScoreForDamage(std::shared_ptr<tcGameObject> damager);
     void ActivateFireControl();
 	bool AutoLaunchAgain();
     void SetRepeatShotsForType();
@@ -210,10 +210,10 @@ public:
     const std::string& TranslateStatusDetailed(int statusCode) const;
 
     tcLauncher();
-    tcLauncher(tcLauncherDBObject* dbObj, tcPlatformObject* parent_);
+    tcLauncher(std::shared_ptr<tcLauncherDBObject> dbObj, std::shared_ptr<tcPlatformObject> parent_);
     ~tcLauncher();
 private:
-    tcPlatformObject* parent;
+    std::shared_ptr<tcPlatformObject> parent;
     bool isDamaged;
 	unsigned char status;
     static tcSimState* simState;

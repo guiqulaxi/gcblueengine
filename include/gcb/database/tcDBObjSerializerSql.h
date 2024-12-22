@@ -127,7 +127,8 @@ namespace database
 			while (sqlReader.Read())
 			{
 				long key;
-				T* obj = new T;
+                std::shared_ptr<T> obj = std::make_shared< T>();
+                // T* obj = new T;
 				obj->ReadSql(sqlReader);
                 
                 // if the obj already exists, delete the old and add the new (update)
@@ -135,8 +136,8 @@ namespace database
                 if (database->ObjectExists(obj->GetName()))
                 {
                     fprintf(stdout, "Updating database class: %s\n", obj->GetName());
-                    tcDatabaseObject* oldObj = database->GetObject(obj->GetName());
-                    assert(oldObj != 0);
+                    std::shared_ptr<tcDatabaseObject>oldObj = database->GetObject(obj->GetName());
+                    // assert(oldObj != nullptr);
                     
                     database->DeleteObject(oldObj->mnKey);
                 }
@@ -180,15 +181,15 @@ namespace database
             
 			if (sqlReader.Read())
 			{
-				T* obj = new T;
-				obj->ReadSql(sqlReader);
+                std::shared_ptr<T> obj = std::make_shared<T>();
+                obj->ReadSql(sqlReader);
                 
                 // if the obj already exists, delete the old and add the new (update)
                 // (doesn't work for duplicates within database since BuildDictionaries needs to be called)
                 if (database->ObjectExists(obj->GetName()))
                 {
                     fprintf(stdout, "Updating database class: %s\n", obj->GetName());
-                    tcDatabaseObject* oldObj = database->GetObject(obj->GetName());
+                    std::shared_ptr<tcDatabaseObject> oldObj = database->GetObject(obj->GetName());
                     assert(oldObj != 0);
                     
                     database->DeleteObject(oldObj->mnKey);
@@ -238,7 +239,7 @@ namespace database
 			if (sqlReader.Read())
 			{
 				long key;
-				T* obj = new T;
+                std::shared_ptr<T> obj = std::make_shared<T>();
 				obj->ReadSql(sqlReader);
                 
                 // if the obj already exists, delete the old and add the new (update)
@@ -246,7 +247,7 @@ namespace database
                 if (database->ObjectExists(obj->GetName()))
                 {
                     fprintf(stdout, "Updating database class: %s\n", obj->GetName());
-                    tcDatabaseObject* oldObj = database->GetObject(obj->GetName());
+                    std::shared_ptr<tcDatabaseObject> oldObj = database->GetObject(obj->GetName());
                     assert(oldObj != 0);
                     
                     database->DeleteObject(oldObj->mnKey);
@@ -362,12 +363,12 @@ namespace database
 		long key;
 		long nEntries = database->mcObjectData.GetCount();
 		long pos = database->mcObjectData.GetStartPosition();
-		tcDatabaseObject* dbObj;
+        std::shared_ptr<tcDatabaseObject> dbObj;
 
 		for (long n=0;n<nEntries;n++) 
 		{
 			database->mcObjectData.GetNextAssoc(pos, key, dbObj);
-            T* obj = dynamic_cast<T*>(dbObj);
+            std::shared_ptr<T> obj = std::dynamic_pointer_cast<T>(dbObj);
 			if (obj != 0)
 			{
 				try

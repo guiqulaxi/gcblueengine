@@ -339,7 +339,7 @@ void Aero::LoadAtmosphereTable()
 
 
 
-void Aero::UpdateMissileKState(tsMissileKState& k, const database::tcMissileDBObject *apMissileData, float afTimeStep)
+void Aero::UpdateMissileKState(tsMissileKState& k, std::shared_ptr<const database::tcMissileDBObject> apMissileData, float afTimeStep)
 {
 
     //rhv2: 密度与速度的平方的乘积，用于计算阻力。

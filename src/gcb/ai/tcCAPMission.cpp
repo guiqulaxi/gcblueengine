@@ -109,7 +109,7 @@ void tcCAPMission::CalculatePatrolOffset()
 {
     if (missionManager ==  0) return;
 
-	tcGameObject* parent = missionManager->GetFlightportParent();
+	std::shared_ptr<tcGameObject> parent = missionManager->GetFlightportParent();
 	if (parent == 0)
 	{
 		assert(false);
@@ -142,7 +142,7 @@ void tcCAPMission::MonitorMissionInProgress()
 	bool anyInFlight = false;
 	for (size_t n=0; (n<missionAircraft.size()) && (!anyInFlight); n++)
 	{
-		tcPlatformObject* obj = dynamic_cast<tcPlatformObject*>(simState->GetObjectByName(missionAircraft[n].name));
+        std::shared_ptr<tcPlatformObject> obj = std::dynamic_pointer_cast<tcPlatformObject>(simState->GetObjectByName(missionAircraft[n].name));
 		if (obj != 0)
 		{
 			if (obj->GetBrain()->TaskExists("CAP")) anyInFlight = true;
@@ -196,7 +196,7 @@ void tcCAPMission::Update(double t)
 
 		for (size_t n=0; n<missionAircraft.size(); n++)
 		{
-			tcAirObject* aircraft = missionManager->GetAircraft(missionAircraft[n].id);
+             std::shared_ptr<tcAirObject> aircraft = missionManager->GetAircraft(missionAircraft[n].id);
 			if (aircraft != 0)
 			{
 				if (!aircraft->IsEquippedForTargetType(AIR_TARGET))
@@ -218,7 +218,7 @@ void tcCAPMission::Update(double t)
 		std::string s;
 		for (size_t n=0; n<missionAircraft.size(); n++)
 		{
-			tcAirObject* aircraft = missionManager->GetAircraft(missionAircraft[n].id);
+             std::shared_ptr<tcAirObject> aircraft = missionManager->GetAircraft(missionAircraft[n].id);
 			if (aircraft != 0)
 			{
 				ai::Brain* brain = aircraft->GetBrain();
@@ -280,7 +280,7 @@ void tcCAPMission::UpdateStation()
 
     for (size_t n=0; n<missionAircraft.size(); n++)
     {
-        tcPlatformObject* obj = dynamic_cast<tcPlatformObject*>(simState->GetObjectByName(missionAircraft[n].name));
+        std::shared_ptr<tcPlatformObject> obj = std::dynamic_pointer_cast<tcPlatformObject>(simState->GetObjectByName(missionAircraft[n].name));
         if (obj != 0)
         {
             ai::Brain* brain = obj->GetBrain();
