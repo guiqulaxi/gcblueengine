@@ -60,7 +60,7 @@ void tcLauncherState::AddFullLauncher(long anKey, float azimuth_rad, float eleva
 {
     assert(mpDatabase);
 
-    tcLauncherDBObject* ldata = dynamic_cast<tcLauncherDBObject*>(mpDatabase->GetObject(anKey));
+    std::shared_ptr<tcLauncherDBObject> ldata = std::dynamic_pointer_cast<tcLauncherDBObject>(mpDatabase->GetObject(anKey));
     if (ldata == 0) 
     {
         fprintf(stderr, "Error - tcLauncherState::AddFullLauncher - Not found in db (%d)\n",
@@ -76,7 +76,7 @@ void tcLauncherState::AddFullLauncher(long anKey, float azimuth_rad, float eleva
 
     // add new launcher
     assert(parent);
-    tcLauncher* new_launcher = new tcLauncher(ldata, parent);
+    std::shared_ptr<tcLauncher> new_launcher = std::make_shared< tcLauncher>(ldata, parent);
 
     new_launcher->pointingAngle = azimuth_rad;
 	new_launcher->mountPointingAngle = azimuth_rad;
@@ -110,25 +110,25 @@ void tcLauncherState::AddFullLauncher(long anKey, float azimuth_rad, float eleva
 */
 float tcLauncherState::EstimateInterceptTimeForLauncher(unsigned nLauncher, tcTrack& track)
 {
-	tcLauncher* launcher = GetLauncher(nLauncher);
+	std::shared_ptr<tcLauncher> launcher = GetLauncher(nLauncher);
 	if (!launcher)
 	{
 		fprintf(stderr, "EstimateInterceptTimeForLauncher - bad launcher\n");
 		return 0;
 	}
-	tcDatabaseObject* child = launcher->mpChildDBObj;
+	std::shared_ptr<tcDatabaseObject> child = launcher->mpChildDBObj;
 	tcKinematics kin = parent->mcKin;
 	float heading_rad = 0;
 	float tti_s = 0;
 
-	if (tcMissileDBObject* missileInfo = dynamic_cast<tcMissileDBObject*>(child))
+    if (std::shared_ptr<tcMissileDBObject> missileInfo =  std::dynamic_pointer_cast<tcMissileDBObject>(child))
 	{
 		kin.mfSpeed_kts = 600;
 
 		kin.GetInterceptData2D(track, heading_rad, tti_s);
 
 	}
-	else if (tcBallisticDBObject* ballInfo = dynamic_cast<tcBallisticDBObject*>(child))
+    else if (std::shared_ptr<tcBallisticDBObject> ballInfo =  std::dynamic_pointer_cast<tcBallisticDBObject>(child))
 	{
 		float targetAlt_m = track.GetOrGuessAltitude();
 		float range_km = kin.RangeToKm(track);
@@ -138,7 +138,7 @@ float tcLauncherState::EstimateInterceptTimeForLauncher(unsigned nLauncher, tcTr
 		tcKinematics launcherKin(parent->mcKin);
 
 	}
-	else if (tcTorpedoDBObject* torpedo = dynamic_cast<tcTorpedoDBObject*>(child))
+    else if (std::shared_ptr<tcTorpedoDBObject> torpedo =  std::dynamic_pointer_cast<tcTorpedoDBObject>(child))
 	{
 		if (!track.IsBearingOnly() && (track.IsHeadingValid() && track.IsSpeedValid()))
 		{
@@ -156,14 +156,14 @@ float tcLauncherState::EstimateInterceptTimeForLauncher(unsigned nLauncher, tcTr
 }
 
 
-tcLauncher* tcLauncherState::GetLauncher(unsigned int nLauncher)
+std::shared_ptr<tcLauncher> tcLauncherState::GetLauncher(unsigned int nLauncher)
 {
     if (nLauncher >= (unsigned int)mnCount) return 0;
 
     return launchers[nLauncher];
 }
 
-const tcLauncher* tcLauncherState::GetLauncher(unsigned nLauncher) const
+std::shared_ptr<const tcLauncher> tcLauncherState::GetLauncher(unsigned nLauncher) const
 {
     if ((int)nLauncher >= mnCount) return 0;
 
@@ -210,7 +210,7 @@ int tcLauncherState::GetLauncherStatus(unsigned nLauncher)
         std::cerr << "Bad launcher index" << std::endl;
         return tcLauncher::BAD_LAUNCHER;
     }
-    tcLauncher* ldata = launchers[nLauncher];
+    std::shared_ptr<tcLauncher> ldata = launchers[nLauncher];
     assert(ldata);
 
     return ldata->GetLauncherStatus();
@@ -237,7 +237,7 @@ void tcLauncherState::Launch(long& key, unsigned& nLauncher)
 {
     for (int n=0; n<mnCount; n++) 
     {
-        tcLauncher* pLauncher = launchers[n];
+        std::shared_ptr<tcLauncher> pLauncher = launchers[n];
 
         if ((pLauncher->mbActive)&&((int)pLauncher->mnCurrent > pLauncher->mnUncommitted))
         {
@@ -290,12 +290,12 @@ void tcLauncherState::Launch(long& key, unsigned& nLauncher)
 * @param sesnor pointer to tcRadar or tcOpticalSensor object that acts as fire control sensor
 * @param sensorIdx index of sensor object on parent platform
 */
-void tcLauncherState::SetFireControlSensor(unsigned nLauncher, tcSensorState* sensor, unsigned sensorIdx)
+void tcLauncherState::SetFireControlSensor(unsigned nLauncher, std::shared_ptr<tcSensorState> sensor, unsigned sensorIdx)
 {
     assert(sensor);
 
-	tcRadar* radar = dynamic_cast<tcRadar*>(sensor);
-    tcOpticalSensor* optical = dynamic_cast<tcOpticalSensor*>(sensor);
+    std::shared_ptr<tcRadar> radar =  std::dynamic_pointer_cast<tcRadar>(sensor);
+    std::shared_ptr<tcOpticalSensor> optical =  std::dynamic_pointer_cast<tcOpticalSensor>(sensor);
 
 	if ((radar == 0) && (optical == 0))
 	{
@@ -327,7 +327,7 @@ int tcLauncherState::SetLaunch(int nLauncher, int quantity)
 {   
     int statusCode;
 
-    tcLauncher* pLauncher = launchers[nLauncher];
+    std::shared_ptr<tcLauncher> pLauncher = launchers[nLauncher];
     pLauncher->ActivateFireControl();
 
     statusCode = GetLauncherStatus(nLauncher);
@@ -373,7 +373,7 @@ bool tcLauncherState::SetLauncherDatum(unsigned nLauncher,
 	// do not set datum if not in range of launcher (only check for guns for now)
 	if (!nullTarget)
     {
-        if (tcBallisticDBObject* ballDB = dynamic_cast<tcBallisticDBObject*>
+        if (std::shared_ptr<tcBallisticDBObject> ballDB =  std::dynamic_pointer_cast<tcBallisticDBObject>
             (launchers[nLauncher]->mpChildDBObj))
         {
             float maxRange_km = ballDB->GetMaxLevelGunRangeKm();
@@ -417,7 +417,7 @@ bool tcLauncherState::SetLauncherTarget(unsigned nLauncher, long targetID)
         return false;
     }
 
-    tcLauncher* launcher = launchers[nLauncher];
+    std::shared_ptr<tcLauncher> launcher = launchers[nLauncher];
     launcher->mnTargetID = targetID;
     launcher->msDatum.Set(0, 0, 0); // clear datum
     launcher->ClearPendingLaunch();
@@ -599,8 +599,8 @@ void tcLauncherState::Serialize(tcFile& file, bool abLoad)
             /*
             file.Read(&ma[i],sizeof(tcLauncher));
             // replace serialized pointer
-            tcDatabaseObject *pDatabaseObj = mpDatabase->GetObject(ma[i].mnDBKey);
-            ma[i].mpLauncherDBObj = dynamic_cast<tcLauncherDBObject*>(pDatabaseObj);
+            std::shared_ptr<tcDatabaseObject>pDatabaseObj = mpDatabase->GetObject(ma[i].mnDBKey);
+            ma[i].mpLauncherDBObj = std::dynamic_pointer_cast<tcLauncherDBObject>(pDatabaseObj);
             ma[i].mpChildDBObj = mpDatabase->GetObject(ma[i].mnChildDBKey);
             */
         }
@@ -651,7 +651,7 @@ void tcLauncherState::Update(float dt_s)
 {
     for(int n=0; n<mnCount; n++) 
     {
-        tcLauncher* launcher = launchers[n];
+        std::shared_ptr<tcLauncher> launcher = launchers[n];
 
 		if (simState->IsMultiplayerServer())
 		{
@@ -675,7 +675,7 @@ tcLauncherState::tcLauncherState()
 {
 }
 
-tcLauncherState::tcLauncherState(tcPlatformObject* parentObj)
+tcLauncherState::tcLauncherState(std::shared_ptr<tcPlatformObject> parentObj)
 :   parent(parentObj),
     mnCount(0)
 {
@@ -701,7 +701,7 @@ tcLauncherState::~tcLauncherState()
 {
     for (size_t n=0; n<launchers.size(); n++)
     {
-        delete launchers[n];
+        //delete launchers[n];
     }
     
 }

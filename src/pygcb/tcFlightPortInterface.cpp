@@ -503,8 +503,8 @@ object tcFlightPortInterface::GetInterface()
             if (referenceMode != 0)
             {
                 ai::tcMissionManager* missionManager = flightport->GetOrCreateMissionManager();
-                tcGameObject* host = missionManager->GetFlightportParent();
-                tcGameObject* ref = mpSimState->GetObject(referencePlatform);
+                std::shared_ptr<tcGameObject> host = missionManager->GetFlightportParent();
+                std::shared_ptr<tcGameObject> ref = mpSimState->GetObject(referencePlatform);
                 if ((host == 0) || (ref == 0) || (host->GetAlliance() != ref->GetAlliance()))
                 {
                     return; // invalid waypoint referencing
@@ -795,7 +795,7 @@ object tcFlightPortInterface::GetInterface()
 
 		tcAirState* airstate = flightport->units[n];
 		assert(airstate != 0);
-		tcPlatformObject *obj = dynamic_cast<tcPlatformObject*>(airstate->obj);
+		std::shared_ptr<tcPlatformObject>obj = std::dynamic_pointer_cast<tcPlatformObject>(airstate->obj);
 		return tcPlatformInterface(obj);
 	}
 
@@ -834,9 +834,9 @@ object tcFlightPortInterface::GetInterface()
             long id = airState->obj->mnID;
             if (!missionManager->IsAircraftReserved(id))
             {
-                tcPlatformObject* platform = dynamic_cast<tcPlatformObject*>(airState->obj);
+                std::shared_ptr<tcPlatformObject> platform = std::dynamic_pointer_cast<tcPlatformObject>(airState->obj);
                 assert(platform != 0);
-                bool isHelo = dynamic_cast<tcHeloObject*>(platform) != 0;
+                bool isHelo =  std::dynamic_pointer_cast<tcHeloObject>(platform) != nullptr;
                 if ((platform != 0) && (!isHelo || subsurfaceTarget || aewPatrol) && (platform->IsCapableVsTargetType(targetFlags)) &&
                     (platform->GetDamageLevel() <= 0))
                 {

@@ -76,13 +76,13 @@ tcGameStream& tcRocket::operator>>(tcGameStream& stream)
 * @param obj launching game object
 * @param launcher index of launcher
 */
-void tcRocket::LaunchFrom(tcGameObject* obj, unsigned nLauncher)
+void tcRocket::LaunchFrom(std::shared_ptr<tcGameObject> obj, unsigned nLauncher)
 {
     // 获取指定发射器的指针
-    const tcLauncher* pLauncher = obj->GetLauncher(nLauncher);
+    std::shared_ptr<const tcLauncher> pLauncher = obj->GetLauncher(nLauncher);
 
     // 检查发射对象是否是平台对象（可能是飞机、舰船等）
-    if (tcPlatformObject* platObj = dynamic_cast<tcPlatformObject*>(obj))
+    if (std::shared_ptr<tcPlatformObject> platObj = std::dynamic_pointer_cast<tcPlatformObject>(obj))
     {
         // 获取发射器在平台对象中的位置
         tc3DPoint launcherPos = platObj->mpDBObject->GetLauncherPosition(nLauncher);
@@ -199,7 +199,7 @@ void tcRocket::LaunchFrom(tcGameObject* obj, unsigned nLauncher)
     SetAlliance(obj->GetAlliance());
 
     // 将自己添加到模拟中
-    simState->AddPlatform(static_cast<tcGameObject*>(this));
+    simState->AddPlatform(shared_from_this());
 
     // 设置预定目标（必须在设置联盟和ID之后进行）
     // 这是tcWeaponObject的方法
@@ -319,7 +319,7 @@ tcRocket::tcRocket(const tcRocket& obj)
 /**
 * Constructor that initializes using info from database entry.
 */
-tcRocket::tcRocket(tcBallisticDBObject* obj)
+tcRocket::tcRocket(std::shared_ptr<tcBallisticDBObject> obj)
 : tcBallisticWeapon(obj)
 {
 	mnModelType = MTYPE_ROCKET;

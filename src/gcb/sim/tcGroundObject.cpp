@@ -162,7 +162,7 @@ tcGroundObject::tcGroundObject()
 /**
 * Constructor that initializes using info from database entry.
 */
-tcGroundObject::tcGroundObject(tcGroundDBObject *obj)
+tcGroundObject::tcGroundObject(std::shared_ptr<tcGroundDBObject>obj)
 : tcPlatformObject(obj),
   mpDBObject(obj)
 {

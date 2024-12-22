@@ -48,7 +48,7 @@
 #endif
 
 /******************************************************************************/
-/****************************** tcSurfaceObject *******************************/
+/****************************** std::shared_ptr<tcSurfaceObject>******************************/
 /******************************************************************************/
 
 /**
@@ -332,7 +332,7 @@ float tcSurfaceObject::GetSonarSourceLevel(float az_deg) const
 
 	if (!IsEnsonifying()) return SLp;
 
-	const tcSonar* sonar = GetStrongestActiveSonar();
+    const std::shared_ptr<tcSonar> sonar = GetStrongestActiveSonar();
 	if (sonar && (sonar->mpDBObj->SL > SLp))
 	{
 		return sonar->mpDBObj->SL;
@@ -495,7 +495,7 @@ tcSurfaceObject::tcSurfaceObject(tcSurfaceObject& o) : tcPlatformObject(o)
     mpDBObject = o.mpDBObject;
 }
 
-tcSurfaceObject::tcSurfaceObject(tcShipDBObject *obj)
+tcSurfaceObject::tcSurfaceObject(std::shared_ptr<tcShipDBObject>obj)
 : tcPlatformObject(obj),
   doneSinking(false)
 {

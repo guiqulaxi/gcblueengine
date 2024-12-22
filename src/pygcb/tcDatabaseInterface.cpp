@@ -81,7 +81,7 @@ long tcDatabaseInterface::GetSize()
 }
 
 
-tcDatabaseObject* tcDatabaseInterface::GetRandomOfType(UINT model_type)
+std::shared_ptr<tcDatabaseObject> tcDatabaseInterface::GetRandomOfType(UINT model_type)
 {
          return tcDatabase::Get()->GetRandomOfType(model_type);
 }
@@ -100,7 +100,7 @@ const tcSignatureModel* tcDatabaseInterface::GetSignatureModel(const std::string
 }
 
 
-long tcDatabaseInterface::AddOrUpdateObject(tcDatabaseObject *rpobj)
+long tcDatabaseInterface::AddOrUpdateObject(std::shared_ptr<tcDatabaseObject>rpobj)
 {
     return tcDatabase::Get()->AddOrUpdateObject(rpobj);
 }
@@ -129,7 +129,7 @@ void tcDatabaseInterface::AddOrUpdateDamageEffectData(const tcDamageEffect&data)
 /**
 * @return NULL if not found
 */
-tcDatabaseObject* tcDatabaseInterface::GetObjectByKey(long anKey)
+std::shared_ptr<tcDatabaseObject> tcDatabaseInterface::GetObjectByKey(long anKey)
 {
     return tcDatabase::Get()->GetObject(anKey);
 }
@@ -152,7 +152,7 @@ return tcDatabase::Get()->GetKey(s);
 * Gets object by class name.
 * @return NULL if not found
 */
-tcDatabaseObject* tcDatabaseInterface::GetObjectByClassName(const std::string& className)
+std::shared_ptr<tcDatabaseObject> tcDatabaseInterface::GetObjectByClassName(const std::string& className)
 {
 
 return tcDatabase::Get()->GetObject(className);

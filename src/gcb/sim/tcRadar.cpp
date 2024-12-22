@@ -391,14 +391,14 @@ void tcRadar::CounterMeasureTest(double t)
 
     lastCounterMeasureTime = t;
 
-    tcGameObject* target = simState->GetObject(mcTrack.mnID);
+    std::shared_ptr<tcGameObject> target = simState->GetObject(mcTrack.mnID);
     if (target == 0)
     {
         assert(false); // called with no target
         return;
     }
 
-    if (tcAirCM* cm = dynamic_cast<tcAirCM*>(target))
+    if (std::shared_ptr<tcAirCM> cm = std::dynamic_pointer_cast<tcAirCM>(target))
     {
         // already tracking a CM, don't check for switch back right now
         return;
@@ -426,10 +426,10 @@ void tcRadar::CounterMeasureTest(double t)
 
     for (iter.First();iter.NotDone();iter.Next())
     {
-        tcGameObject* obj = iter.Get();
+        std::shared_ptr<tcGameObject> obj = iter.Get();
 
         assert(obj != 0);
-        tcCounterMeasureDBObject* cmData = dynamic_cast<tcCounterMeasureDBObject*>(obj->mpDBObject);
+        std::shared_ptr<tcCounterMeasureDBObject> cmData = std::dynamic_pointer_cast<tcCounterMeasureDBObject>(obj->mpDBObject);
 
         bool isEligible = (cmData != 0) && (cmData->subType == "Chaff") &&
             (obj->mpDBObject->mnType == PTYPE_AIRCM);
@@ -494,7 +494,7 @@ void tcRadar::UpdateJammingDegradation()
     assert(jammingDegradation_dB >= 0);
 }
 
-float tcRadar::CalculateTargetRCS_dBsm(const tcGameObject* target, float& targetAz_rad, float& targetHeight_m) const
+float tcRadar::CalculateTargetRCS_dBsm( std::shared_ptr<const tcGameObject> target, float& targetAz_rad, float& targetHeight_m) const
 {
     assert(target != 0); // 确保目标对象不为空
 
@@ -503,7 +503,7 @@ float tcRadar::CalculateTargetRCS_dBsm(const tcGameObject* target, float& target
 
     targetHeight_m = tgt_kin->mfAlt_m; // 获取目标对象的高度
 
-    if (const tcAirDetectionDBObject* detectionData = dynamic_cast<const tcAirDetectionDBObject*>(target->mpDBObject)) // 如果目标对象是飞机探测数据库对象
+    if (std::shared_ptr<const tcAirDetectionDBObject> detectionData = std::dynamic_pointer_cast<const tcAirDetectionDBObject>(target->mpDBObject)) // 如果目标对象是飞机探测数据库对象
     {
         // 计算目标方位角，考虑目标航向
         targetAz_rad = nsNav::GCHeadingApprox_rad(rdr_kin->mfLat_rad, rdr_kin->mfLon_rad,
@@ -544,7 +544,7 @@ float tcRadar::CalculateTargetRCS_dBsm(const tcGameObject* target, float& target
 /**
 * @return dB adjustment to RCS based on elevation angle to target and terrain type under target
 */
-float tcRadar::CalculateClutterAdjustment_dB(const tcGameObject* target, float targetEl_rad) const
+float tcRadar::CalculateClutterAdjustment_dB(std::shared_ptr<const tcGameObject> target, float targetEl_rad) const
 {
     assert(target != 0);
 
@@ -567,11 +567,11 @@ float tcRadar::CalculateClutterAdjustment_dB(const tcGameObject* target, float t
 * @param targetRange_km must be 3D range, otherwise get NaN for some low range geometries
 * @param targetEl_rad elevation assuming platform is level
 */
-bool tcRadar::TargetInElevationCoverage(const tcGameObject* target, float targetRange_km, float& targetEl_rad) const
+bool tcRadar::TargetInElevationCoverage(std::shared_ptr<const tcGameObject> target, float targetRange_km, float& targetEl_rad) const
 {
     assert((target != 0)&&(parent != 0));
 
-    if (const tcWeaponObject* weapon = dynamic_cast<const tcWeaponObject*>(parent))
+    if ( std::shared_ptr<const tcWeaponObject> weapon = std::dynamic_pointer_cast<const tcWeaponObject>(parent))
     {
         return TargetInElevationCoverageWeapon(target, targetRange_km, targetEl_rad);
     }
@@ -596,7 +596,7 @@ bool tcRadar::TargetInElevationCoverage(const tcGameObject* target, float target
 * @param targetRange_km must be 3D range, otherwise get NaN for some low range geometries
 * @param targetEl_rad cone angle from parent boresight to target
 */
-bool tcRadar::TargetInElevationCoverageWeapon(const tcGameObject* target, float targetRange_km, float& targetEl_rad) const
+bool tcRadar::TargetInElevationCoverageWeapon(std::shared_ptr<const tcGameObject> target, float targetRange_km, float& targetEl_rad) const
 {
     assert((target != 0)&&(parent != 0));
 
@@ -627,7 +627,7 @@ bool tcRadar::TargetInElevationCoverageWeapon(const tcGameObject* target, float 
 /**
 *
 */
-bool tcRadar::CanDetectTarget(const tcGameObject* target, float& range_km, bool useRandom)
+bool tcRadar::CanDetectTarget(std::shared_ptr<const tcGameObject> target, float& range_km, bool useRandom)
 {
 
     float fTargetRange_km; // 目标距离（千米）
@@ -643,7 +643,7 @@ bool tcRadar::CanDetectTarget(const tcGameObject* target, float& range_km, bool 
     float illuminatorTargetRange_km = 1e8; // 照明器目标范围（千米）
     if (isSemiactive || isCommandReceiver)
     {
-        tcRadar* illum = GetFireControlRadar(); // 获取火控雷达
+        std::shared_ptr<tcRadar> illum = GetFireControlRadar(); // 获取火控雷达
         if (illum == NULL) return false; // 如果雷达为空，返回false
         if (!illum->CanDetectTarget(target, illuminatorTargetRange_km, false)) return false; // 假设照明器接收器是导弹，因此不做随机检测
         if (isCommandReceiver) return true; // 如果指令接收器，则返回true
@@ -778,14 +778,14 @@ bool tcRadar::InitFromDatabase(long key)
 
     tcSensorState::InitFromDatabase(key);
 
-	tcDatabaseObject* databaseObj = database->GetObject(key);
+	std::shared_ptr<tcDatabaseObject> databaseObj = database->GetObject(key);
 	if (databaseObj == 0)
 	{
         fprintf(stderr, "Error - tcRadar::InitFromDatabase - Not found in db\n");
         return false;
 	}
 
-    mpDBObj = dynamic_cast<tcRadarDBObject*>(databaseObj);
+    mpDBObj = std::dynamic_pointer_cast<tcRadarDBObject>(databaseObj);
     if (mpDBObj == 0) 
     {
         fprintf(stderr, "Error - tcRadar::InitFromDatabase - Not a radar database class (%s)\n",
@@ -833,9 +833,10 @@ void tcRadar::SetFireControlSensor(long id, unsigned char idx)
 /**
 *
 */
-tcRadar* tcRadar::Clone(void) 
+std::shared_ptr<tcRadar> tcRadar::Clone(void) 
 {
-    tcRadar *pNew = new tcRadar();
+    // tcRadar *pNew = new tcRadar();
+    std::shared_ptr<tcRadar> pNew=std::make_shared<tcRadar>();
     *pNew = *this;
     return pNew;
 }
@@ -889,7 +890,7 @@ bool tcRadar::RequestTrack(long targetId)
 	{
         tcSimState* simState = tcSimState::Get();
 
-        if (tcGameObject* newTargetObj = simState->GetObject(targetId))
+        if (std::shared_ptr<tcGameObject> newTargetObj = simState->GetObject(targetId))
         {
             newTargetObj->AddTargeter(parent->mnID);
         }
@@ -926,13 +927,13 @@ bool tcRadar::ReleaseTrack(long targetId)
 	unsigned int nParentSensors = sensorPlatform->GetSensorCount();
 	for (unsigned int n=0; n<nParentSensors; n++)
 	{
-		const tcSensorState* sensor = sensorPlatform->GetSensor(n);
+        std::shared_ptr<const tcSensorState> sensor = sensorPlatform->GetSensor(n);
 		isTrackingTarget = isTrackingTarget || sensor->IsTrackingWithRadar(targetId);
 	}
 
 	if (!isTrackingTarget)
 	{
-		tcGameObject* target = simState->GetObject(targetId);
+		std::shared_ptr<tcGameObject> target = simState->GetObject(targetId);
 		if (target != 0)
 		{
 			target->RemoveTargeter(parent->mnID);
@@ -963,10 +964,10 @@ bool tcRadar::IsTrackingWithRadar(long targetId) const
 void tcRadar::UpdateSeeker(double t)
 {
     long nTargetID;
-    tcGameObject *ptarget = 0;
+    std::shared_ptr<tcGameObject>ptarget = 0;
     bool bFound = false;
     bool isEligible = false;
-    tcMissileObject* missile = dynamic_cast<tcMissileObject*>(parent);
+    std::shared_ptr<tcMissileObject> missile = std::dynamic_pointer_cast<tcMissileObject>(parent);
 
     switch (mnMode) 
     {
@@ -1098,7 +1099,7 @@ void tcRadar::UpdateSeeker(double t)
             // find closest detectable target
             for (iter.First();iter.NotDone();iter.Next())
             {
-                tcGameObject *target = iter.Get();
+                std::shared_ptr<tcGameObject>target = iter.Get();
                 if (target != parent) // no self detection
                 {
                     float range_km = 0;
@@ -1126,7 +1127,7 @@ void tcRadar::UpdateSeeker(double t)
             if (minID==NULL_INDEX) return; // no targets found
 
             // if seeker has locked on a countermeasure, roll against the effectiveness * cm_factor to start a track
-            if (tcAirCM* airCM = dynamic_cast<tcAirCM*>(simState->GetObject(minID)))
+            if (std::shared_ptr<tcAirCM> airCM =  std::dynamic_pointer_cast<tcAirCM>(simState->GetObject(minID)))
             {
                 float prob_success = mpDBObj->counterMeasureFactor * airCM->mpDBObject->effectiveness;
                 if (randf() > prob_success)
@@ -1144,9 +1145,9 @@ void tcRadar::UpdateSeeker(double t)
 * Called after a surveillance detection to update sensor map for
 * appropriate alliance.
 */
-void tcRadar::UpdateSensorMap(double t, const tcGameObject* target, float range_km)
+void tcRadar::UpdateSensorMap(double t, std::shared_ptr<const tcGameObject> target, float range_km)
 {
-    tcSensorMapTrack* pSMTrack = 0;
+    std::shared_ptr<tcSensorMapTrack> pSMTrack = 0;
     tcSensorReport* report = simState->mcSensorMap.GetOrCreateReport(parent->mnID, mpDBObj->mnKey, target->mnID,
         pSMTrack, parent->GetAlliance());
 
@@ -1229,7 +1230,7 @@ void tcRadar::UpdateSurveillance(double t)
 
     for (iter.First();iter.NotDone();iter.Next())
     {
-        tcGameObject *target = iter.Get();
+        std::shared_ptr<tcGameObject>target = iter.Get();
         if (target != parent) // no self detection
         {
             float range_km = 0;
@@ -1270,7 +1271,7 @@ void tcRadar::UpdateTrackData(double t)
 
     for (iter.First();iter.NotDone();iter.Next())
     {
-        tcSensorMapTrack* track = iter.Get();
+        std::shared_ptr<tcSensorMapTrack> track = iter.Get();
         assert(track != 0);
 
         bool isActiveTrack = (track != 0) && (track->errorPoly.size() == 0) && ((track->mnFlags & TRACK_ACTIVE) != 0);
@@ -1278,7 +1279,7 @@ void tcRadar::UpdateTrackData(double t)
         // only check tracks that are tracked with active sensor
         if (isActiveTrack)
         {
-            tcGameObject* target = track->GetAssociated();
+            std::shared_ptr<tcGameObject> target = track->GetAssociated();
 
             float range_km = 0;
             bool isDetected = CanDetectTarget(target, range_km);
@@ -1290,7 +1291,7 @@ void tcRadar::UpdateTrackData(double t)
     }
 }
 
-void tcRadar::UpdateSensorMapTrackMode(const tcGameObject* target, tcSensorMapTrack* track, double t, float range_km)
+void tcRadar::UpdateSensorMapTrackMode(std::shared_ptr<const tcGameObject> target, std::shared_ptr<tcSensorMapTrack> track, double t, float range_km)
 {
     assert(target->mnID == track->mnID);
 
@@ -1318,7 +1319,7 @@ void tcRadar::UpdateSensorMapTrackMode(const tcGameObject* target, tcSensorMapTr
 * Update sensor track with target state. Normally used with
 * missile seekers.
 */
-void tcRadar::UpdateTrack(const tcGameObject* target, double t)
+void tcRadar::UpdateTrack(std::shared_ptr<const tcGameObject> target, double t)
 {
 
     mcTrack.mfLat_rad = (float)target->mcKin.mfLat_rad;
@@ -1350,7 +1351,7 @@ void tcRadar::UpdateTrack(const tcGameObject* target, double t)
 * origin of target model.
 * 用于在雷达锁定目标时对其进行微调，以增加模拟的真实性，使武器不会总是击中目标的原点
 */
-void tcRadar::AdjustTrackForFineTargeting(const tcGameObject* target)
+void tcRadar::AdjustTrackForFineTargeting(std::shared_ptr<const tcGameObject> target)
 {
 	if (last_range_km > 1.0f) return;
 
@@ -1359,7 +1360,7 @@ void tcRadar::AdjustTrackForFineTargeting(const tcGameObject* target)
 	** target will be engaged throughout life of seeker */
     if ((target_x_offset_m == 0) && (target_y_offset_m == 0))
 	{
-        tcGameObject* targetMutable = const_cast<tcGameObject*>(target); // TV3D making me do this
+        std::shared_ptr<const tcGameObject> targetMutable = std::dynamic_pointer_cast<const tcGameObject>(target); // TV3D making me do this
         Vector3d finePos = targetMutable->GetRandomExteriorPoint();
 
         target_x_offset_m = finePos.x();
@@ -1409,7 +1410,7 @@ tcRadar::tcRadar()
 {
 }
 
-tcRadar::tcRadar(tcRadarDBObject* dbObj)
+tcRadar::tcRadar(std::shared_ptr<tcRadarDBObject> dbObj)
 :   tcSensorState(dbObj),
     mpDBObj(dbObj),
     isSemiactive(mpDBObj->isSemiactive),

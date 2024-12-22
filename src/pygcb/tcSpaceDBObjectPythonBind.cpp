@@ -5,6 +5,6 @@
 using namespace database;
 void BindSpaceDBObject(module &m)
 {
-    py::class_<tcSpaceDBObject,tcPlatformDBObject>(m, "tcSpaceDBObject")
+    py::class_<tcSpaceDBObject,std::shared_ptr<tcSpaceDBObject>,tcPlatformDBObject>(m, "tcSpaceDBObject")
     .def(py::init<>());
 }

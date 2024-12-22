@@ -59,16 +59,16 @@ tcGameStream& RadarInterface::operator>>(tcGameStream& stream)
 }
 
 
-tcRadar* RadarInterface::GetRadar()
+std::shared_ptr<tcRadar> RadarInterface::GetRadar()
 {
-    tcGameObject* obj = tcSimState::Get()->GetObject(id);
+    std::shared_ptr<tcGameObject> obj = tcSimState::Get()->GetObject(id);
 
-    tcPlatformObject* platform = dynamic_cast<tcPlatformObject*>(obj);
+    std::shared_ptr<tcPlatformObject> platform = std::dynamic_pointer_cast<tcPlatformObject>(obj);
     if (platform)
     {
-        return dynamic_cast<tcRadar*>(platform->GetSensorMutable(idx));
+        return std::dynamic_pointer_cast<tcRadar>(platform->GetSensorMutable(idx));
     }
-    else if (tcMissileObject* missile = dynamic_cast<tcMissileObject*>(obj))
+    else if (std::shared_ptr<tcMissileObject> missile = dynamic_pointer_cast<tcMissileObject>(obj))
     {
         return missile->GetSeekerRadar();
     }
@@ -132,7 +132,7 @@ tcGameStream& tcECM::operator>>(tcGameStream& stream)
 
 
 
-void tcECM::AddOrUpdateJammerToTarget(tcRadar* targetRadar, unsigned sensorIdx, float JNR_dB, 
+void tcECM::AddOrUpdateJammerToTarget(std::shared_ptr<tcRadar> targetRadar, unsigned sensorIdx, float JNR_dB, 
                                       float jammerBearing_rad, float jammerElevation_rad)
 {
     jamList.push_back(RadarInterface(targetRadar->parent->mnID, sensorIdx));
@@ -151,7 +151,7 @@ void tcECM::ClearJamList()
     size_t nRadars = jamList.size();
     for (size_t n=0; n<nRadars; n++)
     {
-        if (tcRadar* radar = jamList[n].GetRadar())
+        if (std::shared_ptr<tcRadar> radar = jamList[n].GetRadar())
         {
             radar->RemoveJammer(parent->mnID);
         }
@@ -167,7 +167,7 @@ bool tcECM::InitFromDatabase(long key)
 
     tcSensorState::InitFromDatabase(key);
 
-    mpDBObj = dynamic_cast<tcECMDBObject*>(database->GetObject(key));
+    mpDBObj = std::dynamic_pointer_cast<tcECMDBObject>(database->GetObject(key));
     if (mpDBObj == NULL) 
     {
         fprintf(stderr, "Error - tcECM::InitFromDatabase - Not found in db or bad class for key\n");
@@ -238,31 +238,31 @@ void tcECM::UpdateBarrage()
 
     for (iter.First();iter.NotDone();iter.Next())
     {
-        tcGameObject *target = iter.Get();
+        std::shared_ptr<tcGameObject>target = iter.Get();
 
         UpdateBarrageTarget(target);
     }
 }
 
-void tcECM::UpdateBarrageTarget(tcGameObject* target)
+void tcECM::UpdateBarrageTarget(std::shared_ptr<tcGameObject> target)
 {
     if (parent->GetAlliance() == target->GetAlliance()) return; // no own-alliance or self jamming
 
     bool jamsSeekers = mpDBObj->isEffectiveVsSeeker;
     bool jamsSurveillance = mpDBObj->isEffectiveVsSurveillance;
 
-    tcMissileObject* missile = jamsSeekers ? dynamic_cast<tcMissileObject*>(target) : 0;
-    tcPlatformObject* platform = jamsSurveillance ? dynamic_cast<tcPlatformObject*>(target) : 0;
+    std::shared_ptr<tcMissileObject> missile = jamsSeekers ? std::dynamic_pointer_cast<tcMissileObject>(target) :nullptr;
+    std::shared_ptr<tcPlatformObject> platform = jamsSurveillance ? std::dynamic_pointer_cast<tcPlatformObject>(target) : nullptr;
     
-    if (platform != 0)
+    if (platform !=nullptr)
     {        
         //if (!platform->IsRadiating()) return; // update inactive platform radars to prevent switch on/off exploits
 
         unsigned nSensors = platform->GetSensorCount();
         for (unsigned n=0; n<nSensors; n++) 
         {
-            tcSensorState* sensor = platform->GetSensorMutable(n);
-            if (tcRadar* radar = dynamic_cast<tcRadar*>(sensor)) 
+            std::shared_ptr<tcSensorState> sensor = platform->GetSensorMutable(n);
+            if (std::shared_ptr<tcRadar> radar = std::dynamic_pointer_cast<tcRadar>(sensor))
             {
                 UpdateBarrageTargetRadar(radar, n);
             }
@@ -272,7 +272,7 @@ void tcECM::UpdateBarrageTarget(tcGameObject* target)
     {
         if (!missile->IsRadiating()) return;
 
-        if (tcRadar* radar = missile->GetSeekerRadar()) // some AGMs have no sensor
+        if (std::shared_ptr<tcRadar> radar = missile->GetSeekerRadar()) // some AGMs have no sensor
         {
             UpdateBarrageTargetRadar(radar, 0);
         }
@@ -287,7 +287,7 @@ void tcECM::UpdateBarrageTarget(tcGameObject* target)
 * 如果雷达在ECM系统的方位角和雷达地平线范围内，
 * 则将干扰机添加到雷达上，即使雷达关闭也能防止游戏玩家通过开关雷达来规避干扰。
 */
-void tcECM::UpdateBarrageTargetRadar(tcRadar* radar, unsigned sensorIdx)
+void tcECM::UpdateBarrageTargetRadar(std::shared_ptr<tcRadar> radar, unsigned sensorIdx)
 {
     assert(radar);
     assert(radar->parent);
@@ -328,7 +328,7 @@ void tcECM::UpdateBarrageTargetRadar(tcRadar* radar, unsigned sensorIdx)
     if (targetRange_km > fRadarHorizon) return;
 
     // test if radar within frequency range of ECM system
-    const tcRadarDBObject* radarData = radar->mpDBObj;
+    std::shared_ptr<const tcRadarDBObject> radarData = radar->mpDBObj;
     bool inBand = (mpDBObj->minFrequency_Hz <= radarData->averageFrequency_Hz) && 
                   (mpDBObj->maxFrequency_Hz >= radarData->averageFrequency_Hz);
     if (!inBand) return;
@@ -396,10 +396,12 @@ tcStream& tcECM::operator>>(tcStream& stream)
 /**
  *
  */
-tcECM* tcECM::Clone() 
+std::shared_ptr<tcECM> tcECM::Clone()
 {
-    tcECM *pNew = new tcECM();
+    std::shared_ptr<tcECM> pNew=std::make_shared<tcECM>();
     *pNew = *this;
+    // tcECM *pNew = new tcECM();
+    // *pNew = *this;
     return pNew;
 }
 
@@ -414,7 +416,7 @@ tcECM::tcECM()
     mpDBObj = NULL;
 }
 
-tcECM::tcECM(tcECMDBObject* dbObj)
+tcECM::tcECM(std::shared_ptr<tcECMDBObject> dbObj)
 : tcSensorState(dbObj),
   mpDBObj(dbObj)
 {

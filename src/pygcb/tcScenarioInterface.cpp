@@ -141,7 +141,7 @@ tcSimState* tcScenarioInterface::simState = 0;
 
 // non-python methods
 
-tcGameObject* tcScenarioInterface::GetLastObjectAdded() const
+std::shared_ptr<tcGameObject> tcScenarioInterface::GetLastObjectAdded() const
 {
     return lastObjectAdded;
 }
@@ -361,7 +361,7 @@ bool tcScenarioInterface::AddUnitToAlliance(scriptinterface::tcScenarioUnit unit
         return false;
     }
 
-    tcDatabaseObject *dbObj = simState->mpDatabase->GetObject(unit.className);
+    std::shared_ptr<tcDatabaseObject> dbObj = simState->mpDatabase->GetObject(unit.className);
     if (dbObj == NULL)
     {
         std::string errorMessage =
@@ -388,7 +388,7 @@ bool tcScenarioInterface::AddUnitToAlliance(scriptinterface::tcScenarioUnit unit
     if (unit.lon < -180.0) unit.lon += 360.0;
     else if (unit.lon >= 180.0) unit.lon -= 360.0;
 
-    tcGameObject *gameObj = simState->CreateGameObject(dbObj);
+    std::shared_ptr<tcGameObject>gameObj = simState->CreateGameObject(dbObj);
     if (gameObj == 0)
     {
         fprintf(stderr, "game obj creation error\n");
@@ -416,7 +416,7 @@ bool tcScenarioInterface::AddUnitToAlliance(scriptinterface::tcScenarioUnit unit
     float terrainHeight = mapData->GetTerrainHeight(unit.lon, unit.lat, 0);
 
     // class-specific initialization
-    tcPlatformObject* platObj = dynamic_cast<tcPlatformObject*>(gameObj);
+    std::shared_ptr<tcPlatformObject> platObj = std::dynamic_pointer_cast<tcPlatformObject>(gameObj);
     if (platObj != 0)
     {
         // limit speed to max
@@ -427,7 +427,7 @@ bool tcScenarioInterface::AddUnitToAlliance(scriptinterface::tcScenarioUnit unit
         platObj->SetSpeed(kin.mfSpeed_kts);
     }
     // need something to calculate steady state speed based on throttle and altitude.
-    if (tcAeroAirObject *aeroAirObj = dynamic_cast<tcAeroAirObject*>(gameObj))
+    if (std::shared_ptr<tcAeroAirObject>aeroAirObj =  std::dynamic_pointer_cast<tcAeroAirObject>(gameObj))
     {
         if (kin.mfSpeed_kts < 200.0f) kin.mfSpeed_kts = 200.0f;
         aeroAirObj->SetSpeed(kin.mfSpeed_kts);
@@ -437,7 +437,7 @@ bool tcScenarioInterface::AddUnitToAlliance(scriptinterface::tcScenarioUnit unit
         }
     }
 
-    if (tcAirObject *airObj = dynamic_cast<tcAirObject*>(gameObj))
+    if (std::shared_ptr<tcAirObject>airObj = std::dynamic_pointer_cast<tcAirObject>(gameObj))
     {
         if (kin.mfAlt_m < terrainHeight + 10.0f)
         {
@@ -452,7 +452,7 @@ bool tcScenarioInterface::AddUnitToAlliance(scriptinterface::tcScenarioUnit unit
         ai::Brain* brain = airObj->GetBrain();
         brain->AddTask("RTB", 2.0f, ai::Task::PERMANENT | ai::Task::HIDDEN);
     }
-    if (tcSubObject* sub = dynamic_cast<tcSubObject*>(gameObj))
+    if (std::shared_ptr<tcSubObject> sub =  std::dynamic_pointer_cast<tcSubObject>(gameObj))
     {
         if (kin.mfAlt_m < terrainHeight + 10.0f)
         {
@@ -461,30 +461,30 @@ bool tcScenarioInterface::AddUnitToAlliance(scriptinterface::tcScenarioUnit unit
         sub->SetAltitude(kin.mfAlt_m);
     }
 
-    if (tcSurfaceObject* surface = dynamic_cast<tcSurfaceObject*>(gameObj))
+    if (std::shared_ptr<tcSurfaceObject> surface = std::dynamic_pointer_cast<tcSurfaceObject>(gameObj))
     {
         surface->SetAltitude(0); // ignore altitude field and set to sea level
     }
 
     // place ground objects relative to terrain height
-    if (tcAirfieldObject* fieldObj = dynamic_cast<tcAirfieldObject*>(gameObj))
+    if (std::shared_ptr<tcAirfieldObject> fieldObj = std::dynamic_pointer_cast<tcAirfieldObject>(gameObj))
     {
         kin.mfAlt_m +=
             mapData->GetTerrainHeight(unit.lon, unit.lat, 0);
     }
-    else if (tcGroundObject* groundObj = dynamic_cast<tcGroundObject*>(gameObj))
+    else if (std::shared_ptr<tcGroundObject> groundObj = std::dynamic_pointer_cast<tcGroundObject>(gameObj))
     {
         kin.mfAlt_m = max(kin.mfAlt_m, 1.0f); // minimum 1 m over ground
 
         kin.mfAlt_m +=
             mapData->GetTerrainHeight(unit.lon, unit.lat, 0);
     }
-    else if (tcGroundVehicleObject* groundVehicleObj = dynamic_cast<tcGroundVehicleObject*>(gameObj))
+    else if (std::shared_ptr<tcGroundVehicleObject> groundVehicleObj = std::dynamic_pointer_cast<tcGroundVehicleObject>(gameObj))
     {
         kin.mfAlt_m +=
             mapData->GetTerrainHeight(unit.lon, unit.lat, 0);
     }
-    if (tcSpaceObject* space = dynamic_cast<tcSpaceObject*>(gameObj))
+    if (std::shared_ptr<tcSpaceObject> space = std::dynamic_pointer_cast<tcSpaceObject>(gameObj))
     {
         space->SetA(unit.a);
         space->Sete(unit.e);
@@ -528,8 +528,8 @@ bool tcScenarioInterface::AddUnitToFlightDeck(std::string parentName,
     unitId++;
 
     assert(simState);
-    tcGameObject* parentObj = simState->GetObjectByName(parentName);
-    if (tcFlightOpsObject* flightOps = dynamic_cast<tcFlightOpsObject*>(parentObj))
+    std::shared_ptr<tcGameObject> parentObj = simState->GetObjectByName(parentName);
+    if (std::shared_ptr<tcFlightOpsObject> flightOps =  std::dynamic_pointer_cast<tcFlightOpsObject>(parentObj))
     {
         teLocation loc;
         if (locCode == 1) loc = HANGAR;
@@ -540,7 +540,7 @@ bool tcScenarioInterface::AddUnitToFlightDeck(std::string parentName,
             cerr << "Bad location code when adding to " << parentName << "\n";
             return false;
         }
-        tcGameObject* child = flightOps->AddChildToFlightDeck(className, unitName, loc, 0);
+        std::shared_ptr<tcGameObject> child = flightOps->AddChildToFlightDeck(className, unitName, loc, 0);
         if (child != 0)
         {
             //				if (progressDialog != 0)
@@ -580,13 +580,13 @@ void tcScenarioInterface::AddToUnitMagazine(const std::string& unitName,
                                             const std::string& item, unsigned long quantity)
 {
     assert(simState);
-    tcGameObject* parentObj = simState->GetObjectByName(unitName);
-    if (tcPlatformObject* platform = dynamic_cast<tcPlatformObject*>(parentObj))
+    std::shared_ptr<tcGameObject> parentObj = simState->GetObjectByName(unitName);
+    if (std::shared_ptr<tcPlatformObject> platform = std::dynamic_pointer_cast<tcPlatformObject>(parentObj))
     {
         unsigned int nMagazines = platform->GetMagazineCount();
         for (unsigned int n=0; n<nMagazines; n++)
         {
-            tcStores* mag = platform->GetMagazine(n);
+            std::shared_ptr<tcStores> mag = platform->GetMagazine(n);
             if (!mag->IsFull() && mag->IsCompatible(item))
             {
                 mag->AddItems(item, quantity);
@@ -600,7 +600,7 @@ void tcScenarioInterface::AddToUnitMagazine(const std::string& unitName,
                         "Failed to load %s to unit %s(%s) ", item.c_str(),unitName.c_str(),parentObj->mzClass.c_str());
         for (unsigned int n=0; n<nMagazines; n++)
         {
-            tcStores* mag = platform->GetMagazine(n);
+            std::shared_ptr<tcStores> mag = platform->GetMagazine(n);
             fprintf(stderr, "(%d,", n);
             if (!mag->IsCompatible(item)) fprintf(stderr, "INCOMPAT");
             else if (mag->IsFull()) fprintf(stderr, "FULL");
@@ -627,7 +627,7 @@ void tcScenarioInterface::SetUnitAlwaysVisibleState(const std::string& unitName,
 {
     assert(simState != 0);
 
-    if (tcGameObject* obj = simState->GetObjectByName(unitName))
+    if (std::shared_ptr<tcGameObject> obj = simState->GetObjectByName(unitName))
     {
         if (state)
         {
@@ -654,8 +654,8 @@ void tcScenarioInterface::AddUnitTask(const std::string& unitName, const std::st
                                       double priority, int attributes)
 {
     assert(simState);
-    tcGameObject* parentObj = simState->GetObjectByName(unitName);
-    if (tcPlatformObject* platform = dynamic_cast<tcPlatformObject*>(parentObj))
+    std::shared_ptr<tcGameObject> parentObj = simState->GetObjectByName(unitName);
+    if (std::shared_ptr<tcPlatformObject> platform = std::dynamic_pointer_cast<tcPlatformObject>(parentObj))
     {
         ai::Brain* brain = platform->GetBrain();
         assert(brain);
@@ -673,8 +673,8 @@ void tcScenarioInterface::AddUnitTask(const std::string& unitName, const std::st
 tcPlatformInterface tcScenarioInterface::GetUnitInterface(const std::string& unitName)
 {
     assert(simState);
-    tcGameObject* obj = simState->GetObjectByName(unitName);
-    if (tcPlatformObject* platform = dynamic_cast<tcPlatformObject*>(obj))
+    std::shared_ptr<tcGameObject> obj = simState->GetObjectByName(unitName);
+    if (std::shared_ptr<tcPlatformObject> platform = std::dynamic_pointer_cast<tcPlatformObject>(obj))
     {
         return tcPlatformInterface(platform);
     }
@@ -686,7 +686,7 @@ tcPlatformInterface tcScenarioInterface::GetUnitInterface(const std::string& uni
 
 std::string tcScenarioInterface::GetUnitNameById(long id) const
 {
-    tcGameObject* obj = simState->GetObject(id);
+    std::shared_ptr<tcGameObject> obj = simState->GetObject(id);
 
     if (obj == 0)
     {
@@ -701,7 +701,7 @@ std::string tcScenarioInterface::GetUnitNameById(long id) const
 long tcScenarioInterface::GetUnitIdByName(const std::string& unitName) const
 {
     assert(simState != 0);
-    tcGameObject* obj = simState->GetObjectByName(unitName);
+    std::shared_ptr<tcGameObject> obj = simState->GetObjectByName(unitName);
     if (obj != 0)
     {
         return obj->mnID;
@@ -719,10 +719,10 @@ void tcScenarioInterface::SetUnitLauncherItem(const std::string& unitName,
                                               unsigned int launcherIdx, const std::string& item, unsigned int quantity)
 {
     assert(simState);
-    tcGameObject* parentObj = simState->GetObjectByName(unitName);
-    if (tcPlatformObject* platform = dynamic_cast<tcPlatformObject*>(parentObj))
+    std::shared_ptr<tcGameObject> parentObj = simState->GetObjectByName(unitName);
+    if (std::shared_ptr<tcPlatformObject> platform = std::dynamic_pointer_cast<tcPlatformObject>(parentObj))
     {
-        if (tcLauncher* launcher = platform->GetLauncher(launcherIdx))
+        if (std::shared_ptr<tcLauncher> launcher = platform->GetLauncher(launcherIdx))
         {
             if (quantity == 0)
             {
@@ -767,11 +767,11 @@ void tcScenarioInterface::SetUnitLauncherItem(const std::string& unitName,
 void tcScenarioInterface::SetFlightDeckUnitLoadout(const std::string& parent, const std::string& child,
                                                    const std::string& loadoutCommand)
 {
-    tcGameObject* parentObj = simState->GetObjectByName(parent);
-    if (tcFlightOpsObject* flightOps = dynamic_cast<tcFlightOpsObject*>(parentObj))
+    std::shared_ptr<tcGameObject> parentObj = simState->GetObjectByName(parent);
+    if (std::shared_ptr<tcFlightOpsObject> flightOps =  std::dynamic_pointer_cast<tcFlightOpsObject>(parentObj))
     {
-        tcGameObject* obj = flightOps->GetFlightPort()->GetObjectByName(child);
-        if (tcPlatformObject* platform = dynamic_cast<tcPlatformObject*>(obj))
+        std::shared_ptr<tcGameObject> obj = flightOps->GetFlightPort()->GetObjectByName(child);
+        if (std::shared_ptr<tcPlatformObject> platform = std::dynamic_pointer_cast<tcPlatformObject>(obj))
         {
             platform->SetLoadoutCommand(loadoutCommand);
         }
@@ -1120,8 +1120,8 @@ bool tcScenarioInterface::ParseUnitName(const std::string& referenceName, std::s
     */
 void tcScenarioInterface::DuplicateUnitTasking(const std::string& unitName1, const std::string& unitName2)
 {
-    tcPlatformObject* platform1 = dynamic_cast<tcPlatformObject*>(simState->GetObjectByName(unitName1));
-    tcPlatformObject* platform2 = dynamic_cast<tcPlatformObject*>(simState->GetObjectByName(unitName2));
+    std::shared_ptr<tcPlatformObject> platform1 = std::dynamic_pointer_cast<tcPlatformObject>(simState->GetObjectByName(unitName1));
+    std::shared_ptr<tcPlatformObject> platform2 = std::dynamic_pointer_cast<tcPlatformObject>(simState->GetObjectByName(unitName2));
 
     if ((platform1 == 0) || (platform2 == 0)) return;
 
@@ -1282,8 +1282,8 @@ void tcScenarioInterface::SetDateTime(int year, int month, int day, int hour, in
     tcGameObjIterator iter;
     for (iter.First();iter.NotDone();iter.Next())
     {
-        tcGameObject* obj = iter.Get();
-        if (tcFlightOpsObject* flightOps = dynamic_cast<tcFlightOpsObject*>(obj))
+        std::shared_ptr<tcGameObject> obj = iter.Get();
+        if (std::shared_ptr<tcFlightOpsObject> flightOps =  std::dynamic_pointer_cast<tcFlightOpsObject>(obj))
         {
             tcFlightPort* flightPort = flightOps->GetFlightPort();
             assert(flightPort != 0);
@@ -1427,7 +1427,7 @@ void tcScenarioInterface::SetUserAlliance(int alliance)
 //    {
 //        assert(director);
 //        assert(simState);
-//        tcGameObject* obj = simState->GetObjectByName(unitName);
+//        std::shared_ptr<tcGameObject> obj = simState->GetObjectByName(unitName);
 //        if (obj == NULL)
 //        {
 //            std::cerr << "HookPlatform: Object not found ("
@@ -1651,7 +1651,7 @@ void tcScenarioInterface::SetUserAlliance(int alliance)
 
 //        // repeated code from HookPlatform, refactor this
 //        assert(simState);
-//        tcGameObject* obj = simState->GetObjectByName(unitName);
+//        std::shared_ptr<tcGameObject> obj = simState->GetObjectByName(unitName);
 //        if (obj == NULL)
 //        {
 //            std::cerr << "FlybyCamera: Object not found ("
@@ -1671,7 +1671,7 @@ void tcScenarioInterface::SetUserAlliance(int alliance)
 
 //        // repeated code from HookPlatform, refactor this
 //        assert(simState);
-//        tcGameObject* obj = simState->GetObjectByName(unitName);
+//        std::shared_ptr<tcGameObject> obj = simState->GetObjectByName(unitName);
 //        if (obj == NULL)
 //        {
 //            std::cerr << "TrackCamera: Object not found ("
@@ -1783,7 +1783,7 @@ tcStringArray tcScenarioInterface::GetUnitList(float lon1_rad, float lat1_rad, f
 
     for (iter.First();iter.NotDone();iter.Next())
     {
-        tcGameObject* obj = iter.Get();
+        std::shared_ptr<tcGameObject> obj = iter.Get();
 
         unitList.PushBack(std::string(obj->GetName()));
     }
@@ -1945,7 +1945,7 @@ tcStringArray tcScenarioInterface::GetPlatformListByClass(const std::string& cla
 
     for (iter.First(); !iter.IsDone(); iter.Next())
     {
-        tcDatabaseObject* obj = iter.Get();
+        std::shared_ptr<tcDatabaseObject> obj = iter.Get();
         assert(obj);
         assert(obj->mnKey != -1);
 
@@ -1968,7 +1968,7 @@ void tcScenarioInterface::ApplySpecialFiltering(const std::string& className, tc
         for (size_t n=0; n<stringArray.Size(); n++)
         {
             std::string objectName(stringArray.GetString(n));
-            if (tcTorpedoDBObject* torpedoData = dynamic_cast<tcTorpedoDBObject*>(database->GetObject(objectName)))
+            if (std::shared_ptr<tcTorpedoDBObject> torpedoData =  std::dynamic_pointer_cast<tcTorpedoDBObject>(database->GetObject(objectName)))
             {
                 bool isMine = (torpedoData->weaponType == tcTorpedoDBObject::BOTTOM_MINE) ||
                               (torpedoData->weaponType == tcTorpedoDBObject::BOTTOM_MINE_CAPTOR);

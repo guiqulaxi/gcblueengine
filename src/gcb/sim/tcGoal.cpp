@@ -1807,7 +1807,7 @@ void tcDestroyGoal::Update()
 
     for (size_t n=0; n<targetList.size(); n++)
     {
-	    tcGameObject* obj = simState->GetObjectByName(targetList[n]);
+	    std::shared_ptr<tcGameObject> obj = simState->GetObjectByName(targetList[n]);
         if (obj == 0) quantityDestroyed++;
     }
 
@@ -2124,7 +2124,7 @@ void tcProtectGoal::Update()
 
     for (size_t n=0; n<targetList.size(); n++)
     {
-	    tcGameObject* obj = simState->GetObjectByName(targetList[n]);
+	    std::shared_ptr<tcGameObject> obj = simState->GetObjectByName(targetList[n]);
         if (obj != 0)
         {
             if (obj->GetDamageLevel() < 1.0)
@@ -2545,7 +2545,7 @@ bool tcAreaGoal::IsPointWithinArea(const std::vector<GeoPoint>& area, float lon_
     return (c != 0);
 }
 
-bool tcAreaGoal::IsObjectWithinArea(const tcGameObject* obj) const
+bool tcAreaGoal::IsObjectWithinArea(std::shared_ptr<const tcGameObject> obj) const
 {
     if (obj == 0) return false;
     
@@ -2718,7 +2718,7 @@ void tcAreaGoal::Update()
 
         for (iter.First();iter.NotDone();iter.Next())
         {
-            tcGameObject* obj = iter.Get();
+            std::shared_ptr<tcGameObject> obj = iter.Get();
             if ((obj != 0) && ((obj->mpDBObject->mnType & classMask) != 0))
             {
                 namedUnits.push_back(obj->mzUnit.c_str());
@@ -2738,7 +2738,7 @@ void tcAreaGoal::Update()
 		{
 			std::string targetString(namedUnits[n].c_str());
 
-			tcGameObject* obj = simState->GetObjectByName(targetString);
+			std::shared_ptr<tcGameObject> obj = simState->GetObjectByName(targetString);
 			if (obj != 0)
             {
                 numberThatExist++;
@@ -2780,7 +2780,7 @@ void tcAreaGoal::Update()
 		{
 			std::string targetString(namedUnits[n].c_str());
 
-			tcGameObject* obj = simState->GetObjectByName(targetString);
+			std::shared_ptr<tcGameObject> obj = simState->GetObjectByName(targetString);
 
 			if (obj == 0)
 			{

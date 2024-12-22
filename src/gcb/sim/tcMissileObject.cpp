@@ -74,7 +74,7 @@ tcUpdateStream& tcMissileObject::operator<<(tcUpdateStream& stream)
     mfInterceptTime = (msKState.mfSpeed_mps > 0) ? 1000.0f * mfRangeToObjective_km / msKState.mfSpeed_mps : 999.9;
 
 
-	tcSensorState* sensor = GetSensorMutable(0);
+	std::shared_ptr<tcSensorState> sensor = GetSensorMutable(0);
 	if (sensor)
 	{
 		sensor->operator<<(stream);
@@ -96,7 +96,7 @@ tcUpdateStream& tcMissileObject::operator>>(tcUpdateStream& stream)
 	stream << mfRangeToObjective_km;
 	msKState >> stream;
 
-	tcSensorState* sensor = GetSensorMutable(0);
+	std::shared_ptr<tcSensorState> sensor = GetSensorMutable(0);
 	if (sensor)
 	{
 		sensor->operator>>(stream);
@@ -222,13 +222,14 @@ teGuidanceMode tcMissileObject::GetCurrentGuidanceMode()
 * @param obj launching game object
 * @param launcher index of launcher
 */
-void tcMissileObject::LaunchFrom(tcGameObject* obj, unsigned nLauncher)
+void tcMissileObject::LaunchFrom(std::shared_ptr<tcGameObject> obj, unsigned nLauncher)
 {
-    tcLauncher virtualLauncher; // for missile deployment
-	tcLauncher* pLauncher = &virtualLauncher;
+ //    tcLauncher virtualLauncher; // for missile deployment
+    // std::shared_ptr<tcLauncher> pLauncher = &virtualLauncher;
+    std::shared_ptr<tcLauncher> pLauncher =std::make_shared<tcLauncher>();
 
 
-    tcPlatformObject* platObj = dynamic_cast<tcPlatformObject*>(obj);
+    std::shared_ptr<tcPlatformObject> platObj = std::dynamic_pointer_cast<tcPlatformObject>(obj);
     if (platObj != 0)
 	{
 		tc3DPoint launcherPos = platObj->mpDBObject->GetLauncherPosition(nLauncher);
@@ -237,25 +238,25 @@ void tcMissileObject::LaunchFrom(tcGameObject* obj, unsigned nLauncher)
 		mcKin.mfLon_rad = pos.mfLon_rad;
 		mcKin.mfLat_rad = pos.mfLat_rad;
 		mcKin.mfAlt_m = pos.mfAlt_m;
-        if (tcSubObject* sub = dynamic_cast<tcSubObject*>(obj))
+        if (std::shared_ptr<tcSubObject> sub =  std::dynamic_pointer_cast<tcSubObject>(obj))
         {
             subSurfaceLaunch = true;
         }
 
         pLauncher = obj->GetLauncher(nLauncher);
 	}
-	else if (tcMissileObject* missile = dynamic_cast<tcMissileObject*>(obj))
+    else if (std::shared_ptr<tcMissileObject> missile =  std::dynamic_pointer_cast<tcMissileObject>(obj))
 	{   // missile deploying missile
 		mcKin.mfLon_rad = obj->mcKin.mfLon_rad;
 		mcKin.mfLat_rad = obj->mcKin.mfLat_rad;
 		mcKin.mfAlt_m = obj->mcKin.mfAlt_m;
 
-        virtualLauncher.pointingAngle = 0;
-	    virtualLauncher.pointingElevation = 0;
-		virtualLauncher.firingArc_deg = 0;
-        virtualLauncher.msDatum = missile->msWaypoint;
-        virtualLauncher.mnTargetID = missile->GetIntendedTarget();
-        virtualLauncher.meLaunchMode = DATUM_ONLY;
+        pLauncher->pointingAngle = 0;
+        pLauncher->pointingElevation = 0;
+        pLauncher->firingArc_deg = 0;
+        pLauncher->msDatum = missile->msWaypoint;
+        pLauncher->mnTargetID = missile->GetIntendedTarget();
+        pLauncher->meLaunchMode = DATUM_ONLY;
 	}
 	else
 	{
@@ -271,7 +272,7 @@ void tcMissileObject::LaunchFrom(tcGameObject* obj, unsigned nLauncher)
 	mcKin.mfSpeed_kts = obj->mcKin.mfSpeed_kts;
 	mcKin.mfHeading_rad = obj->mcKin.mfHeading_rad;
 
-	if (dynamic_cast<tcAirObject*>(obj))
+	if (std::dynamic_pointer_cast<tcAirObject>(obj))
 	{
 		// assume air launch always aligned with velocity vector of parent platform
 		mcKin.mfPitch_rad = obj->mcKin.mfPitch_rad;
@@ -293,7 +294,7 @@ void tcMissileObject::LaunchFrom(tcGameObject* obj, unsigned nLauncher)
 
 	goalHeading_rad = obj->mcKin.mfHeading_rad + pLauncher->pointingAngle;
 
-    tcSensorState* sensor = GetSensorMutable(0);
+    std::shared_ptr<tcSensorState> sensor = GetSensorMutable(0);
 
 	if (pLauncher->meLaunchMode == DATUM_ONLY) 
 	{
@@ -364,7 +365,7 @@ void tcMissileObject::LaunchFrom(tcGameObject* obj, unsigned nLauncher)
             mcKin.mfHeading_rad = obj->mcKin.HeadingToTrack(targetTrack);
             goalHeading_rad = mcKin.mfHeading_rad;
         }
-        else if (tcGameObject* target = simState->GetObject(pLauncher->mnTargetID))
+        else if (std::shared_ptr<tcGameObject> target = simState->GetObject(pLauncher->mnTargetID))
         {
             mcKin.mfHeading_rad = obj->mcKin.HeadingToGeoRad(target->mcKin.mfLon_rad, target->mcKin.mfLat_rad);
             goalHeading_rad = mcKin.mfHeading_rad;
@@ -394,7 +395,7 @@ void tcMissileObject::LaunchFrom(tcGameObject* obj, unsigned nLauncher)
 
 	SetAlliance(obj->GetAlliance());     
 
-	simState->AddPlatform(static_cast<tcGameObject*>(this));
+	simState->AddPlatform(static_cast<std::shared_ptr<tcGameObject>>(this));
 
 	// Set intended target (has to be done after alliance and id is set).
 	// This is a tcWeaponObject method
@@ -585,7 +586,7 @@ void tcMissileObject::UpdateDetonation()
     const float tminDet_s = 0.05f; 
     /*if (isTerminal)
     {
-        tcSensorState* sensor = GetSensorMutable(0);
+        std::shared_ptr<tcSensorState> sensor = GetSensorMutable(0);
         if ((sensor == 0) || (sensor->mnMode != SSMODE_SEEKERTRACK))
         {
             fprintf(stdout, "Terminal lost track mode\n");
@@ -606,7 +607,7 @@ void tcMissileObject::UpdateDetonation()
         (mpDBObject->maFlightProfile[mnCurrentSegment].meGuidanceMode == GM_COMMAND);
 
 
-    tcSensorState* sensor = GetSensorMutable(0);
+    std::shared_ptr<tcSensorState> sensor = GetSensorMutable(0);
     bool isTerminalSeekerGuidance = (sensor != 0) && (sensor->mnMode == SSMODE_SEEKERTRACK);
 
     long targetID = -1;
@@ -629,7 +630,7 @@ void tcMissileObject::UpdateDetonation()
 
     isTerminal = true;
 
-    tcGameObject* target = simState->GetObject(targetID);
+    std::shared_ptr<tcGameObject> target = simState->GetObject(targetID);
     if (target == 0) return; // target lost
 
  
@@ -641,7 +642,7 @@ void tcMissileObject::UpdateDetonation()
     float detRange_m = mpDBObject->detonationRange_m;
 
 	// first check for impact
-	if (target->CalculateCollisionPoint(this, collisionPoint, dt, collisionRange_m))
+    if (target->CalculateCollisionPoint(tcGameObject::shared_from_this(), collisionPoint, dt, collisionRange_m))
 	{
         // if this isn't a direct hit weapon, check if we're close enough despite impending collision
         if (detRange_m > 0)
@@ -741,7 +742,7 @@ void tcMissileObject::UpdateGoalPitch()
     }
 }
 
-void tcMissileObject::UpdateGoalPitchSim(MissileSimData& simData, const tcMissileDBObject* missileData)
+void tcMissileObject::UpdateGoalPitchSim(MissileSimData& simData, const std::shared_ptr<tcMissileDBObject> missileData)
 {
     if (simData.goalAltitude_m == IGNORE_GOAL_ALTITUDE) return; // using intercept pitch, no altitude goal
 
@@ -856,7 +857,7 @@ void tcMissileObject::UpdateGuidance(double afStatusTime)
 		return;
 	}
 
-	tcSensorState* sensor = GetSensorMutable(0);
+	std::shared_ptr<tcSensorState> sensor = GetSensorMutable(0);
 
 	if (guidanceStatusTime == 0) {guidanceStatusTime = afStatusTime;}
 	guidanceStatusTime = afStatusTime;
@@ -954,7 +955,7 @@ void tcMissileObject::UpdateGuidance(double afStatusTime)
 			
 			if ((sensor != 0) && sensor->HasFireControlSensor())
 			{
-				tcSensorState* fireControl = sensor->GetFireControlSensor();
+				std::shared_ptr<tcSensorState> fireControl = sensor->GetFireControlSensor();
 				if ((fireControl == 0) || (!fireControl->IsActive()))
 				{
 					SelfDestruct();
@@ -1135,7 +1136,7 @@ void tcMissileObject::UpdateCommandHandoff()
     
     isCommandHandoff = true;
 
-    tcSensorState* sensor = GetSensorMutable(0);
+    std::shared_ptr<tcSensorState> sensor = GetSensorMutable(0);
     assert(sensor != 0);
     if (sensor == 0) return;
     
@@ -1147,7 +1148,7 @@ void tcMissileObject::UpdateCommandHandoff()
     }
 
     // check if seeker can detect target
-    tcGameObject* target = simState->GetObject(intendedTarget);
+    std::shared_ptr<tcGameObject> target = simState->GetObject(intendedTarget);
     float range_km = 0;
     sensor->SetCommandReceiver(false);
     if ((target != 0) && sensor->CanDetectTarget(target, range_km, false))
@@ -1165,7 +1166,7 @@ void tcMissileObject::UpdateCommandHandoff()
 /**
 * 
 */
-void tcMissileObject::UpdateGuidanceSim(MissileSimData& simData, const tcMissileDBObject* missileData)
+void tcMissileObject::UpdateGuidanceSim(MissileSimData& simData, const std::shared_ptr<tcMissileDBObject> missileData)
 {
 	if (missileData->mnNumSegments == 0) 
     {
@@ -1376,7 +1377,7 @@ void tcMissileObject::UpdateTargetPos(float lon_rad, float lat_rad)
     msWaypoint.mfLon_rad = lon_rad;
     msWaypoint.mfLat_rad = lat_rad;
 
-    tcSensorState* sensor = GetSensorMutable(0);
+    std::shared_ptr<tcSensorState> sensor = GetSensorMutable(0);
     if ((sensor != 0) && sensor->IsActive())
     {
         if (sensor->mnMode == SSMODE_SEEKERTRACK)
@@ -1403,7 +1404,7 @@ void tcMissileObject::ApplyRepairs(float repair)
     unsigned int nSensors = GetSensorCount();
     for (unsigned int n=0; n<nSensors; n++)
     {
-        tcSensorState* sensor = GetSensorMutable(n);
+        std::shared_ptr<tcSensorState> sensor = GetSensorMutable(n);
         assert(sensor);
         
         if (sensor->IsDamaged())
@@ -1433,7 +1434,7 @@ void tcMissileObject::DesignateTarget(long anID)
 {
     SetSeekerTarget(anID);
 
-	tcSensorState* sensor = GetSensorMutable(0);
+	std::shared_ptr<tcSensorState> sensor = GetSensorMutable(0);
 	if (sensor == 0)
 	{
 		assert(false);
@@ -1447,7 +1448,7 @@ void tcMissileObject::DesignateTarget(long anID)
 * Estimate range of missile in km based on launchAltitude_m
 */
 float tcMissileObject::EstimateRangeKm(float evalMin_km, float evalMax_km, float evalStep_km, 
-                                       float launchSpeed_kts, float launchAltitude_m, float targetAltitude_m, tcMissileDBObject* missileData,
+                                       float launchSpeed_kts, float launchAltitude_m, float targetAltitude_m, std::shared_ptr<tcMissileDBObject> missileData,
                                        bool logData)
 {
     if (missileData == 0)
@@ -1538,7 +1539,7 @@ float tcMissileObject::EstimateRangeKm(float evalMin_km, float evalMax_km, float
 * This version uses power-of-two steps to reduce calls to EvaluateTarget
 */
 float tcMissileObject::EstimateRangeFaster(float evalMin_km, float evalMax_km, unsigned int nSteps,
-                                 float launchSpeed_kts, float launchAltitude_m, float targetAltitude_m, tcMissileDBObject* missileData)
+                                 float launchSpeed_kts, float launchAltitude_m, float targetAltitude_m, std::shared_ptr<tcMissileDBObject> missileData)
 {
     if (missileData == 0)
     {
@@ -1643,23 +1644,23 @@ float tcMissileObject::EstimateRangeFaster(float evalMin_km, float evalMax_km, u
 /**
 * Estimate seeker detection range using database ID or general target type
 */
-float tcMissileObject::EstimateSeekerDetectionRange(const tcSensorMapTrack& target,tcMissileDBObject* missileData)
+float tcMissileObject::EstimateSeekerDetectionRange(const tcSensorMapTrack& target,std::shared_ptr<tcMissileDBObject> missileData)
 {
 	const float defaultRange_km = 50.0f;
 	const float esmDefaultRange_km = 50.0f;
-	tcSensorDBObject* seekerData = dynamic_cast<tcSensorDBObject*>(database->GetObject(missileData->GetSensorKey()));
+    std::shared_ptr<tcSensorDBObject> seekerData = std::dynamic_pointer_cast<tcSensorDBObject>(database->GetObject(missileData->GetSensorKey()));
 	if (seekerData == 0) return	defaultRange_km;
 
-	if (tcESMDBObject* esm = dynamic_cast<tcESMDBObject*>(seekerData))
+    if (std::shared_ptr<tcESMDBObject> esm = std::dynamic_pointer_cast<tcESMDBObject>(seekerData))
 	{
 		return esmDefaultRange_km;
 	}
 
-	tcDatabaseObject* targetData = database->GetObject(target.GetDatabaseId());
-	const tcAirDetectionDBObject* detectionData = dynamic_cast<const tcAirDetectionDBObject*>(targetData);
+	std::shared_ptr<tcDatabaseObject> targetData = database->GetObject(target.GetDatabaseId());
+    std::shared_ptr<const tcAirDetectionDBObject> detectionData = std::dynamic_pointer_cast<const tcAirDetectionDBObject>(targetData);
 	const float aspect_deg = 10.0f; // just arbitrarily assume a target aspect for now
 
-	if (tcRadarDBObject* radar = dynamic_cast<tcRadarDBObject*>(seekerData))
+    if (std::shared_ptr<tcRadarDBObject> radar =  std::dynamic_pointer_cast<tcRadarDBObject>(seekerData))
 	{
 		if (radar->isSemiactive) return radar->mfMaxRange_km;
 		
@@ -1685,7 +1686,7 @@ float tcMissileObject::EstimateSeekerDetectionRange(const tcSensorMapTrack& targ
 		return std::min(detectionRange_km, radar->mfMaxRange_km);
 	}
 
-	if (tcOpticalDBObject* optical = dynamic_cast<tcOpticalDBObject*>(seekerData))
+    if (std::shared_ptr<tcOpticalDBObject> optical =  std::dynamic_pointer_cast<tcOpticalDBObject>(seekerData))
 	{
 		float signature_dB = 20.0f;
 		if (detectionData != 0)
@@ -1703,7 +1704,7 @@ float tcMissileObject::EstimateSeekerDetectionRange(const tcSensorMapTrack& targ
 * @return true if target is in range (approximate)
 * @param missileKin IS MODIFIED with final missile state, be careful with this.
 */
-bool tcMissileObject::EvaluateTarget(tcKinematics& missileKin, const tcSensorMapTrack& target, tcMissileDBObject* missileData, MissileTrajectory* trajectory)
+bool tcMissileObject::EvaluateTarget(tcKinematics& missileKin, const tcSensorMapTrack& target, std::shared_ptr<tcMissileDBObject> missileData, MissileTrajectory* trajectory)
 {
     MissileSimData simData;
 
@@ -1888,7 +1889,7 @@ float tcMissileObject::GetDistanceFromLaunch() const
 */
 int tcMissileObject::GetGuidanceParameters(tsGuidanceParameters& gp) 
 {
-	tcSensorState* sensor = GetSensorMutable(0);
+	std::shared_ptr<tcSensorState> sensor = GetSensorMutable(0);
 	if (sensor == 0) return 0;
 
 	if (sensor->mnMode == SSMODE_SEEKERTRACK) 
@@ -1925,13 +1926,13 @@ float tcMissileObject::GetIRSignature(float az_deg) const
 /**
 * @return radar or 0 if sensor isn't a radar or doesn't exist (e.g. AGM cmd-only case)
 */
-tcRadar* tcMissileObject::GetSeekerRadar() const
+std::shared_ptr<tcRadar> tcMissileObject::GetSeekerRadar() const
 {
-	tcSensorState* sensor = GetSensorMutable(0);
-	return dynamic_cast<tcRadar*>(sensor);
+	std::shared_ptr<tcSensorState> sensor = GetSensorMutable(0);
+    return  std::dynamic_pointer_cast<tcRadar>(sensor);
 }
 
-tcSensorState* tcMissileObject::GetSeekerSensor() const
+std::shared_ptr<tcSensorState> tcMissileObject::GetSeekerSensor() const
 {
 	return GetSensorMutable(0);
 }
@@ -1949,7 +1950,7 @@ float tcMissileObject::GlimitedTurnRate() const
 /**
 * @return g-limited turn rate in radians/s
 */
-float tcMissileObject::GlimitedTurnRate(float speed_kts, const tcMissileDBObject* missileData)
+float tcMissileObject::GlimitedTurnRate(float speed_kts, const std::shared_ptr<tcMissileDBObject> missileData)
 {
     const float C_NUM = 19.0691f; // = (9.81 m/s2) / (kts to mps constant)
 
@@ -1983,7 +1984,7 @@ void tcMissileObject::SaveToFile(tcFile& file)
 	file.Write(&mfRangeToObjective_km,sizeof(mfRangeToObjective_km));
 	file.Write(&mnCurrentSegment,sizeof(mnCurrentSegment));
 
-	if (tcSensorState* sensor = GetSensorMutable(0))
+	if (std::shared_ptr<tcSensorState> sensor = GetSensorMutable(0))
 	{
 		sensor->Serialize(file,false);
 	}
@@ -2004,7 +2005,7 @@ void tcMissileObject::LoadFromFile(tcFile& file)
 	file.Read(&msWaypoint,sizeof(msWaypoint));
 	file.Read(&mfRangeToObjective_km,sizeof(mfRangeToObjective_km));
 	file.Read(&mnCurrentSegment,sizeof(mnCurrentSegment));
-	if (tcSensorState* sensor = GetSensorMutable(0))
+	if (std::shared_ptr<tcSensorState> sensor = GetSensorMutable(0))
 	{
 		sensor->Serialize(file,true);
 	}
@@ -2028,7 +2029,7 @@ void tcMissileObject::Serialize(tcFile& file, bool mbLoad)
 
 void tcMissileObject::SetSeekerTarget(long id)
 {
-    tcSensorState* sensor = GetSensorMutable(0);
+    std::shared_ptr<tcSensorState> sensor = GetSensorMutable(0);
 	if (sensor == 0)
 	{
 		assert(false);
@@ -2037,12 +2038,12 @@ void tcMissileObject::SetSeekerTarget(long id)
 
     long currentTarget = sensor->mcTrack.mnID;
 
-    if (tcGameObject* target = simState->GetObject(currentTarget))
+    if (std::shared_ptr<tcGameObject> target = simState->GetObject(currentTarget))
     {
         target->RemoveTargeter(mnID);
     }
 
-    if (tcGameObject* target = simState->GetObject(id))
+    if (std::shared_ptr<tcGameObject> target = simState->GetObject(id))
     {
         target->AddTargeter(mnID);
     }
@@ -2058,7 +2059,7 @@ void tcMissileObject::SetSeekerTarget(long id)
 bool tcMissileObject::StillNeedsIlluminator(long& platformId) const
 {
     platformId = -1;
-    tcSensorState* sensor = GetSensorMutable(0);
+    std::shared_ptr<tcSensorState> sensor = GetSensorMutable(0);
     if ((sensor == 0) || (!sensor->HasFireControlSensor())) return false;
 
     assert(sensor->HasFireControlSensor());
@@ -2072,7 +2073,7 @@ bool tcMissileObject::StillNeedsIlluminator(long& platformId) const
         }
         else if (mpDBObject->maFlightProfile[n].meGuidanceMode == GM_SENSOR1)
         {
-            if (tcRadar* radar = dynamic_cast<tcRadar*>(sensor))
+            if (std::shared_ptr<tcRadar> radar =  std::dynamic_pointer_cast<tcRadar>(sensor))
             {
                 if (radar->IsSemiactive() || radar->IsCommandReceiver())
                 {
@@ -2138,7 +2139,7 @@ tcMissileObject::tcMissileObject(tcMissileObject& o)
 /**
 * Constructor that initializes using info from database entry.
 */
-tcMissileObject::tcMissileObject(tcMissileDBObject *obj)
+tcMissileObject::tcMissileObject(std::shared_ptr<tcMissileDBObject>obj)
 :   tcWeaponObject(obj), 
     subSurfaceLaunch(false),
     distanceFromLaunch(0),
@@ -2155,7 +2156,7 @@ tcMissileObject::tcMissileObject(tcMissileDBObject *obj)
 {
 	mnModelType = MTYPE_MISSILE;
 
-	tcSensorPlatform::Init(obj->maSensorClass.c_str(), this); // to avoid using this in initializer
+    tcSensorPlatform::Init(obj->maSensorClass.c_str(), tcGameObject::shared_from_this()); // to avoid using this in initializer
 
 
 	// if these inits are missing, causes a crash with time accel after missile launch
@@ -2165,19 +2166,19 @@ tcMissileObject::tcMissileObject(tcMissileDBObject *obj)
 
 	// init sensors, only one sensor (primary) supported in this version
 	/*
-	tcSensorDBObject* databaseObj = dynamic_cast<tcSensorDBObject*>(database->GetObject(obj->maSensorClass.mz));
+    std::shared_ptr<tcSensorDBObject> databaseObj =  std::dynamic_pointer_cast<tcSensorDBObject>>(database->GetObject(obj->maSensorClass.mz));
 
 	if (databaseObj != 0)
 	{
-		if (tcRadarDBObject* radarData = dynamic_cast<tcRadarDBObject*>(databaseObj))
+        if (std::shared_ptr<tcRadarDBObject> radarData =  std::dynamic_pointer_cast<tcRadarDBObject>>(databaseObj))
 		{
 			sensor = new tcRadar(radarData);
 		}
-		else if (tcOpticalDBObject* opticalData = dynamic_cast<tcOpticalDBObject*>(databaseObj))
+        else if (std::shared_ptr<tcOpticalDBObject> opticalData =  std::dynamic_pointer_cast<tcOpticalDBObject>>(databaseObj))
 		{
 			sensor = new tcOpticalSensor(opticalData);
 		}
-		else if (tcESMDBObject* esmData = dynamic_cast<tcESMDBObject*>(databaseObj))
+        else if (std::shared_ptr<tcESMDBObject> esmData =  std::dynamic_pointer_cast<tcESMDBObject>>(databaseObj))
 		{
 			sensor = new tcESMSensor(esmData);
 		}

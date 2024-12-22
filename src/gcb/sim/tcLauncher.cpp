@@ -320,7 +320,7 @@ void tcLauncher::ActivateFireControl()
 
     assert(meLaunchMode == SEEKER_TRACK);
 
-    if (tcMissileDBObject* missileDBObj = dynamic_cast<tcMissileDBObject*>(mpChildDBObj))
+    if (std::shared_ptr<tcMissileDBObject> missileDBObj =  std::dynamic_pointer_cast<tcMissileDBObject>(mpChildDBObj))
     {
         /* check fire control state if necessary (this should be able to be handled without
         ** all of this sprawling code) */
@@ -345,7 +345,7 @@ bool tcLauncher::AutoLaunchAgain()
         return false;
     }
 
-    const tcAirObject* air = dynamic_cast<const tcAirObject*>(parent);
+      std::shared_ptr<const tcAirObject> air =  std::dynamic_pointer_cast<const tcAirObject>(parent);
     if (air != 0)
     {
         assert(false);
@@ -353,8 +353,8 @@ bool tcLauncher::AutoLaunchAgain()
         return false; // don't autolaunch for aircraft cannons
     }
 
-    if (tcBallisticDBObject* ballisticData = 
-        dynamic_cast<tcBallisticDBObject*>(mpChildDBObj))
+    if (std::shared_ptr<tcBallisticDBObject> ballisticData = 
+         std::dynamic_pointer_cast<tcBallisticDBObject>(mpChildDBObj))
     {
         switch (ballisticData->ballisticType)
         {
@@ -364,7 +364,7 @@ bool tcLauncher::AutoLaunchAgain()
                 tcTrack targetTrack;
                 if (simState->GetTruthTrack(mnTargetID, targetTrack))
                 {
-                    if (tcGameObject* obj = simState->GetObject(mnTargetID))
+                    if (std::shared_ptr<tcGameObject> obj = simState->GetObject(mnTargetID))
                     {
                         if (obj->GetDamageLevel() >= 1.0f) // cheating here, perfect kill assessment
                         {
@@ -426,7 +426,7 @@ void tcLauncher::CancelLoadInProgress()
     if (!IsLoading()) return;
 
     unsigned int opId = 0;
-    if (tcStores* stores = FindLoadingStores(opId))
+    if (std::shared_ptr<tcStores> stores = FindLoadingStores(opId))
     {
         if (stores->CancelOperation(opId))
         {
@@ -444,8 +444,8 @@ bool tcLauncher::CheckTraversalFOV() const
 {
 	if ((firingArc_deg <= 0) || (firingArc_deg >= 360.0f)) return false;
 
-	if (tcBallisticDBObject* ballisticData = 
-		dynamic_cast<tcBallisticDBObject*>(mpChildDBObj))
+	if (std::shared_ptr<tcBallisticDBObject> ballisticData = 
+         std::dynamic_pointer_cast<tcBallisticDBObject>(mpChildDBObj))
 	{
 		return ((ballisticData->ballisticType == tcBallisticDBObject::GUN_ROUND) ||
 			(ballisticData->ballisticType == tcBallisticDBObject::AUTO_CANNON) ||
@@ -472,7 +472,7 @@ void tcLauncher::ClearPendingLaunch()
 float tcLauncher::GetLoadingTime()
 {
     unsigned int opId = 99999;
-    if (tcStores* stores = FindLoadingStores(opId))
+    if (std::shared_ptr<tcStores> stores = FindLoadingStores(opId))
     {
         if (const tcStores::StoreOperation* op = stores->FindOpById(opId))
         {
@@ -494,7 +494,7 @@ float tcLauncher::GetLoadingTime()
 * @return stores associated with load/unload, or 0 if not found or load/unload not in progress
 * @param opId set to opId of operation within loading stores
 */
-tcStores* tcLauncher::FindLoadingStores(unsigned int& opId)
+std::shared_ptr<tcStores> tcLauncher::FindLoadingStores(unsigned int& opId)
 {
     if (!isLoading) return 0;
 
@@ -504,7 +504,7 @@ tcStores* tcLauncher::FindLoadingStores(unsigned int& opId)
     bool searching = true;
     for (unsigned int n=0; (n<parent->GetLauncherCount())&&(searching); n++)
     {
-        if (parent->GetLauncher(n) == this)
+        if (parent->GetLauncher(n).get() == this)
         {
             launcherIdx = n;
             searching = false;
@@ -516,7 +516,7 @@ tcStores* tcLauncher::FindLoadingStores(unsigned int& opId)
     size_t nStores = parent->GetMagazineCount();
     for (size_t n=0; n<nStores; n++)
     {
-        tcStores* stores = parent->GetMagazine(n);
+        std::shared_ptr<tcStores> stores = parent->GetMagazine(n);
         if (stores->FindLauncherOp(parent, launcherIdx, opId))
         {
             return stores;
@@ -524,12 +524,12 @@ tcStores* tcLauncher::FindLoadingStores(unsigned int& opId)
     }
 
     // if parent has parent, search those stores
-    if (tcPlatformObject* parentParent = dynamic_cast<tcPlatformObject*>(parent->parent))
+    if (std::shared_ptr<tcPlatformObject> parentParent = std::dynamic_pointer_cast<tcPlatformObject>(parent->parent))
     {
         size_t nStores = parentParent->GetMagazineCount();
         for (size_t n=0; n<nStores; n++)
         {
-            tcStores* stores = parentParent->GetMagazine(n);
+            std::shared_ptr<tcStores> stores = parentParent->GetMagazine(n);
             if (stores->FindLauncherOp(parent, launcherIdx, opId))
             {
                 return stores;
@@ -576,7 +576,7 @@ const std::string& tcLauncher::GetChildClassDisplayName() const
     return s;
 }
 
-tcDatabaseObject* tcLauncher::GetChildDatabaseObject() const
+std::shared_ptr<tcDatabaseObject> tcLauncher::GetChildDatabaseObject() const
 {
     return mpChildDBObj;
 }
@@ -613,7 +613,7 @@ bool tcLauncher::GetAutoPointing(float& az_rad, float& el_rad) const
 {
     if (firingArc_deg > 0)
     {
-        tcGameObject* targetObj = simState->GetObject(mnTargetID);
+        std::shared_ptr<tcGameObject> targetObj = simState->GetObject(mnTargetID);
         if (targetObj != 0)
         {
             float targetRange_m = 1000.0f * parent->RangeTo(*targetObj);
@@ -659,7 +659,7 @@ void tcLauncher::UpdatePointingAngle()
 {
 	if (firingArc_deg <= 0) return;
 
-	tcGameObject* targetObj = simState->GetObject(mnTargetID);
+	std::shared_ptr<tcGameObject> targetObj = simState->GetObject(mnTargetID);
 	if (targetObj != 0)
 	{
 		float targetRange_m = 1000.0f * parent->RangeTo(*targetObj);
@@ -830,7 +830,7 @@ int tcLauncher::GetLauncherStatus()
 	return (int)status;
 }
 
-tcGameObject* tcLauncher::GetParent() const
+std::shared_ptr<tcGameObject> tcLauncher::GetParent() const
 {
 	return parent;
 }
@@ -848,7 +848,7 @@ float tcLauncher::GetPointingElevation() const
 */
 float tcLauncher::GetSectorCenter() const
 {
-    if (tcBallisticDBObject* ball = dynamic_cast<tcBallisticDBObject*>(mpChildDBObj))
+    if (std::shared_ptr<tcBallisticDBObject> ball =  std::dynamic_pointer_cast<tcBallisticDBObject>(mpChildDBObj))
     {
         return pointingAngle;
     }
@@ -869,7 +869,7 @@ float tcLauncher::GetSectorCenter() const
 float tcLauncher::GetSectorWidth() const
 {
     // if ballistic then use firing arc of launcher
-    if (tcBallisticDBObject* ball = dynamic_cast<tcBallisticDBObject*>(mpChildDBObj))
+    if (std::shared_ptr<tcBallisticDBObject> ball = std::dynamic_pointer_cast<tcBallisticDBObject>(mpChildDBObj))
     {
         return C_PIOVER180 * firingArc_deg; // set when launcher is created, from platform_launcher table, (updated with each child for override 26JUN2011)
     }
@@ -880,7 +880,7 @@ float tcLauncher::GetSectorWidth() const
 
         if ((meLaunchMode == SEEKER_TRACK) && (!IsAutoPoint()))
         {
-            if (tcMissileDBObject* missile = dynamic_cast<tcMissileDBObject*>(mpChildDBObj))
+            if (std::shared_ptr<tcMissileDBObject> missile = std::dynamic_pointer_cast<tcMissileDBObject>(mpChildDBObj))
             {
                 return missile->GetSeekerFOV();
             }
@@ -1014,7 +1014,7 @@ bool tcLauncher::IsLoading() const
 
 bool tcLauncher::IsLoadedNuclear() const
 {
-    const tcWeaponDBObject* weaponData = dynamic_cast<const tcWeaponDBObject*>(mpChildDBObj);
+    std::shared_ptr<const tcWeaponDBObject> weaponData = std::dynamic_pointer_cast<const tcWeaponDBObject>(mpChildDBObj);
 
     if ((!isLoading) && (mnCurrent > 0) && (weaponData != 0)) 
     {
@@ -1046,14 +1046,14 @@ void tcLauncher::QueueAutoReload()
 bool tcLauncher::Reload()
 {
     assert(parent != 0);
-    tcPlatformObject* platform = parent;
+    std::shared_ptr<tcPlatformObject> platform = parent;
     if (platform == 0) return false;
 
     unsigned int launcherIdx = 999;
     bool searching = true;
     for (unsigned int n=0; (n<platform->GetLauncherCount())&&(searching); n++)
     {
-        if (platform->GetLauncher(n) == this)
+        if (platform->GetLauncher(n).get() == this)
         {
             launcherIdx = n;
             searching = false;
@@ -1065,13 +1065,13 @@ bool tcLauncher::Reload()
 
     std::string childClass(mpChildDBObj->mzClass.c_str());
     
-    tcStores* fastestMag = 0;
+    std::shared_ptr<tcStores> fastestMag = 0;
     float fastestTime_s = 9e9f;
 
     size_t nMagazines = platform->GetMagazineCount();
     for (size_t n=0; n<nMagazines; n++)
     {
-        tcStores* mag = platform->GetMagazine(n);
+        std::shared_ptr<tcStores> mag = platform->GetMagazine(n);
         std::string matchingItem;
         size_t nAvailable = mag->CurrentItemQuantity(childClass, matchingItem);
         if (nAvailable > 0)
@@ -1099,7 +1099,7 @@ bool tcLauncher::Reload()
         std::string item = mpLauncherDBObj->GetConfigurationClass(m);
         for (size_t n=0; n<nMagazines; n++)
         {
-            tcStores* mag = platform->GetMagazine(n);
+            std::shared_ptr<tcStores> mag = platform->GetMagazine(n);
             std::string matchingItem;
             size_t nAvailable = mag->CurrentItemQuantity(item, matchingItem);
             if (nAvailable > 0)
@@ -1135,7 +1135,7 @@ void tcLauncher::SetRepeatShotsForType()
         return; // if a burst of launches already schedule, don't do repeats
     }
 
-    if (tcBallisticDBObject* ballisticData = dynamic_cast<tcBallisticDBObject*>(mpChildDBObj))
+    if (std::shared_ptr<tcBallisticDBObject> ballisticData =  std::dynamic_pointer_cast<tcBallisticDBObject>(mpChildDBObj))
     {                
         bool pointDefense = (typeid(*parent) == typeid(tcSurfaceObject)) ||
                                     (typeid(*parent) == typeid(tcCarrierObject)) ||
@@ -1145,7 +1145,7 @@ void tcLauncher::SetRepeatShotsForType()
         {
         case tcBallisticDBObject::GUN_ROUND:
             {
-                if (tcAirObject* airTarget = dynamic_cast<tcAirObject*>(simState->GetObject(mnTargetID)))
+                if ( std::shared_ptr<tcAirObject> airTarget = std::dynamic_pointer_cast<tcAirObject>(simState->GetObject(mnTargetID)))
                 {
                     repeatShots = pointDefense ? 99 : 4;
                 }
@@ -1219,8 +1219,8 @@ void tcLauncher::SetChildClass(const std::string& childClass, bool ignoreRestric
 void tcLauncher::SetFOV(float fov_deg_)
 {
 	firingArc_deg = fov_deg_;
-	if (tcBallisticDBObject* ballisticDBObj = 
-		dynamic_cast<tcBallisticDBObject*>(mpChildDBObj))
+	if (std::shared_ptr<tcBallisticDBObject> ballisticDBObj = 
+         std::dynamic_pointer_cast<tcBallisticDBObject>(mpChildDBObj))
 	{
 		if ((ballisticDBObj->IsAutocannon() || ballisticDBObj->IsRocket()) && (firingArc_deg <= 0))
 		{
@@ -1267,7 +1267,7 @@ void tcLauncher::InitForNewChild(bool ignoreRestrictions)
     bool searching = true;
     for (unsigned int n=0; (n<parent->GetLauncherCount())&&(searching); n++)
     {
-        if (parent->GetLauncher(n) == this)
+        if (parent->GetLauncher(n).get() == this)
         {
             launcherIdx = n;
             searching = false;
@@ -1282,19 +1282,19 @@ void tcLauncher::InitForNewChild(bool ignoreRestrictions)
 	}
 
     // set detailed launch mode if missile
-    if (tcMissileDBObject* pMissileDBObj = 
-        dynamic_cast<tcMissileDBObject*>(mpChildDBObj)) 
+    if (std::shared_ptr<tcMissileDBObject> pMissileDBObj =
+        std::dynamic_pointer_cast<tcMissileDBObject>(mpChildDBObj))
     {
         meLaunchMode = pMissileDBObj->GetLaunchMode();
         mnTargetFlags = pMissileDBObj->targetFlags;
     }
-    else if (tcTorpedoDBObject* torpDBObj = 
-        dynamic_cast<tcTorpedoDBObject*>(mpChildDBObj))
+    else if (std::shared_ptr<tcTorpedoDBObject> torpDBObj = 
+        std::dynamic_pointer_cast<tcTorpedoDBObject>(mpChildDBObj))
     {
         meLaunchMode = DATUM_ONLY;
         mnTargetFlags = torpDBObj->targetFlags;
 
-        if (tcSonarDBObject* seekerDBObj = torpDBObj->GetSeekerDBObj())
+        if ( std::shared_ptr<tcSonarDBObject> seekerDBObj = torpDBObj->GetSeekerDBObj())
         {
             if (seekerDBObj->isActive) usePassive = false;
             else if (seekerDBObj->isPassive) usePassive = true;
@@ -1311,8 +1311,8 @@ void tcLauncher::InitForNewChild(bool ignoreRestrictions)
         floor_m = torpDBObj->maxDepth_m;
         runToEnable_m = 0; // zero to use launcher waypoint
     }
-    else if (tcBallisticDBObject* ballisticDBObj = 
-        dynamic_cast<tcBallisticDBObject*>(mpChildDBObj))
+    else if (std::shared_ptr<tcBallisticDBObject> ballisticDBObj = 
+        std::dynamic_pointer_cast<tcBallisticDBObject>(mpChildDBObj))
     {
         if (ballisticDBObj->IsAutocannon())
         {
@@ -1339,12 +1339,12 @@ void tcLauncher::InitForNewChild(bool ignoreRestrictions)
         }
         mnTargetFlags = ballisticDBObj->targetFlags;
     }
-	else if (tcFuelTankDBObject* fuelTankDBObj = 
-		dynamic_cast<tcFuelTankDBObject*>(mpChildDBObj))
+	else if (std::shared_ptr<tcFuelTankDBObject> fuelTankDBObj = 
+        std::dynamic_pointer_cast<tcFuelTankDBObject>(mpChildDBObj))
 	{
 		isExternalFuelTank = true;
 	}
-    else if (tcCounterMeasureDBObject* cmData = dynamic_cast<tcCounterMeasureDBObject*>(mpChildDBObj))
+    else if (std::shared_ptr<tcCounterMeasureDBObject> cmData = std::dynamic_pointer_cast<tcCounterMeasureDBObject>(mpChildDBObj))
     {
         if (cmData->subType == "Decoy")
         {
@@ -1377,7 +1377,7 @@ void tcLauncher::InitForNewChild(bool ignoreRestrictions)
 */
 bool tcLauncher::IsChildFireAndForget()
 {
-    if (tcMissileDBObject* missileData = dynamic_cast<tcMissileDBObject*>(mpChildDBObj)) 
+    if (std::shared_ptr<tcMissileDBObject> missileData = std::dynamic_pointer_cast<tcMissileDBObject>(mpChildDBObj))
     {
 		return missileData->IsFireAndForget();
     }
@@ -1406,9 +1406,9 @@ void tcLauncher::SetChildQuantity(unsigned int quantity)
 
 	if (isExternalFuelTank)
 	{
-		if (tcFuelTankDBObject* fuel = dynamic_cast<tcFuelTankDBObject*>(mpChildDBObj))
+        if (std::shared_ptr<tcFuelTankDBObject> fuel = std::dynamic_pointer_cast<tcFuelTankDBObject>(mpChildDBObj))
 		{
-			tcPlatformObject* platform = (parent);
+			std::shared_ptr<tcPlatformObject> platform = (parent);
 			if (platform != 0)
 			{
 				platform->AdjustExternalFuelCapacity(float(mnCurrent-mnPrevious) * fuel->fuelCapacity_kg);
@@ -1439,7 +1439,7 @@ void tcLauncher::SetDatum(double lon_rad, double lat_rad, float alt_m)
 	msDatum.Set(lon_rad, lat_rad, alt_m);
 
 	// update run to enable for torpedo 
-	if (tcTorpedoDBObject* torpedoData = dynamic_cast<tcTorpedoDBObject*>(mpChildDBObj))
+    if (std::shared_ptr<tcTorpedoDBObject> torpedoData = std::dynamic_pointer_cast<tcTorpedoDBObject>(mpChildDBObj))
 	{
 		runToEnable_m = 500.0f * parent->mcKin.RangeToKm(lon_rad, lat_rad);
 	}
@@ -1450,14 +1450,14 @@ void tcLauncher::SetDatum(double lon_rad, double lat_rad, float alt_m)
 */
 void tcLauncher::SetLaunch(unsigned int quantity)
 {
-	if (tcPlatformObject* platform = (parent))
+	if (std::shared_ptr<tcPlatformObject> platform = (parent))
 	{
 		// find launcher index
 		bool searching = true;
 		unsigned int nLaunchers = platform->GetLauncherCount();
 		for (unsigned int n=0; (n<nLaunchers) && searching; n++)
 		{
-			if (platform->GetLauncher(n) == this)
+            if (platform->GetLauncher(n).get() == this)
 			{
 				platform->SetLaunch(n, quantity);
 				searching = false;
@@ -1485,7 +1485,7 @@ void tcLauncher::SetLoadState(bool state)
 /**
 *
 */
-void tcLauncher::SetParent(tcPlatformObject *obj) 
+void tcLauncher::SetParent(std::shared_ptr<tcPlatformObject>obj) 
 {
     parent = obj;
 }
@@ -1511,11 +1511,11 @@ void tcLauncher::UpdateFireControlSensor()
     //    launch mode is FC_TRACK OR
     //    launch mode is SEEKER_TRACK and is ballistic OR (missile with NeedsFireControl)
 
-    tcWeaponDBObject* weaponData = dynamic_cast<tcWeaponDBObject*>(mpChildDBObj);
+    std::shared_ptr<tcWeaponDBObject> weaponData =  std::dynamic_pointer_cast<tcWeaponDBObject>(mpChildDBObj);
     if (weaponData == 0) return; // not a weapon, no fire control required
 
-    tcMissileDBObject* missileData = dynamic_cast<tcMissileDBObject*>(weaponData);
-    tcBallisticDBObject* ballisticData = dynamic_cast<tcBallisticDBObject*>(weaponData);
+    std::shared_ptr<tcMissileDBObject> missileData =  std::dynamic_pointer_cast<tcMissileDBObject>(weaponData);
+    std::shared_ptr<tcBallisticDBObject> ballisticData =  std::dynamic_pointer_cast<tcBallisticDBObject>(weaponData);
 
     bool needsFireControl = (meLaunchMode == FC_TRACK) ||
         ((meLaunchMode == SEEKER_TRACK) && ((ballisticData != 0) || ((missileData != 0) && (missileData->NeedsFireControl()))));
@@ -1535,13 +1535,13 @@ void tcLauncher::UpdateFireControlSensor()
     }
 
     bool needsRadar = true;
-    if (tcOpticalDBObject* opticalData = dynamic_cast<tcOpticalDBObject*>(tcDatabase::Get()->GetObject(seekerKey)))
+    if (std::shared_ptr<tcOpticalDBObject> opticalData = std::dynamic_pointer_cast<tcOpticalDBObject>(tcDatabase::Get()->GetObject(seekerKey)))
     {
         needsRadar = !opticalData->isSemiactive;
     }
     
     // *** Search for FireControlSensor and FireControlSensor2 first
-    tcPlatformObject* platform = (parent);
+    std::shared_ptr<tcPlatformObject> platform = (parent);
     if (platform == 0)
     {
         assert(false);
@@ -1554,7 +1554,7 @@ void tcLauncher::UpdateFireControlSensor()
     int launcherIdx = -1;
     for (unsigned int n=0; (n<nLaunchers)&&(searching); n++)
     {
-        if (platform->GetLauncher(n) == this)
+        if (platform->GetLauncher(n).get() == this)
         {
             launcherIdx = int(n);
             searching = false;
@@ -1577,7 +1577,7 @@ void tcLauncher::UpdateFireControlSensor()
 
     struct SensorData
     {
-        tcSensorState* sensor; // pointer to sensor
+        std::shared_ptr<tcSensorState> sensor; // pointer to sensor
         unsigned int idx; // index of this sensor on platform
     };
     std::vector<SensorData> sensorsToSearch;
@@ -1628,7 +1628,7 @@ void tcLauncher::UpdateFireControlSensor()
     {
         if (needsRadar)
         {
-            if (tcRadar* radar = dynamic_cast<tcRadar*>(sensorsToSearch[n].sensor))
+            if (std::shared_ptr<tcRadar> radar = std::dynamic_pointer_cast<tcRadar>(sensorsToSearch[n].sensor))
             {
                 if (radar->GetMaxFireControlTracks() > 0)
                 {
@@ -1642,7 +1642,7 @@ void tcLauncher::UpdateFireControlSensor()
         }
         else
         {
-            if (tcOpticalSensor* optical = dynamic_cast<tcOpticalSensor*>(sensorsToSearch[n].sensor))
+            if (std::shared_ptr<tcOpticalSensor> optical = std::dynamic_pointer_cast<tcOpticalSensor>(sensorsToSearch[n].sensor))
             {
                 if (optical->IsDesignator() && (optical->GetMaxFireControlTracks() > 0))
                 {
@@ -1668,7 +1668,7 @@ void tcLauncher::UpdateFireControlSensor()
 * Call after damage to launcher. This assumes all items in launcher are
 * destroyed.
 */
-void tcLauncher::UpdateScoreForDamage(tcGameObject* damager)
+void tcLauncher::UpdateScoreForDamage(std::shared_ptr<tcGameObject> damager)
 {
     if (!isDamaged) return;
 
@@ -1749,8 +1749,8 @@ void tcLauncher::UpdateStatus()
     assert(parent);
 
 	// limit depth for launching sub-launched missiles
-	if (tcMissileDBObject* missile = 
-		dynamic_cast<tcMissileDBObject*>(mpChildDBObj))
+    if (std::shared_ptr<tcMissileDBObject> missile =
+        std::dynamic_pointer_cast<tcMissileDBObject>(mpChildDBObj))
 	{
 		/* Check database minLaunchAlt_m to determine if too low/deep or
 		** high/shallow for launch */
@@ -1765,8 +1765,8 @@ void tcLauncher::UpdateStatus()
 			return;
 		}
 	}
-	else if (tcTorpedoDBObject* torpedo =  
-		dynamic_cast<tcTorpedoDBObject*>(mpChildDBObj))
+    else if (std::shared_ptr<tcTorpedoDBObject> torpedo =
+        std::dynamic_pointer_cast<tcTorpedoDBObject>(mpChildDBObj))
 	{
 		if (-parent->mcKin.mfAlt_m > torpedo->maxDepth_m)
 		{
@@ -1784,7 +1784,7 @@ void tcLauncher::UpdateStatus()
 		return;
 	}
 
-    tcGameObject* targetObj = simState->GetObject(mnTargetID);
+    std::shared_ptr<tcGameObject> targetObj = simState->GetObject(mnTargetID);
     bool badTarget = hasTarget && (targetObj == 0);
 
 	// TODO: called here as quick way to add autopoint feature, move to better location
@@ -1816,7 +1816,7 @@ void tcLauncher::UpdateStatus()
 		}
 
 		// for datum_only weapon types, check that target range is between min and max range
-		if (tcWeaponDBObject* weaponData = dynamic_cast<tcWeaponDBObject*>(mpChildDBObj))
+        if (std::shared_ptr<tcWeaponDBObject> weaponData = std::dynamic_pointer_cast<tcWeaponDBObject>(mpChildDBObj))
 		{
 			GeoPoint current;
 			current.Set(parent->mcKin.mfLon_rad, parent->mcKin.mfLat_rad);
@@ -1826,7 +1826,7 @@ void tcLauncher::UpdateStatus()
 			/** 2014-07-06 amram request to remove this check
 			   amram:  I specifically meant only missiles, not ALL datum weapons.
 			*/
-			if (tcMissileDBObject* missile = dynamic_cast<tcMissileDBObject*>(mpChildDBObj))
+            if (std::shared_ptr<tcMissileDBObject> missile = std::dynamic_pointer_cast<tcMissileDBObject>(mpChildDBObj))
 			{
 			}
 			else
@@ -1881,8 +1881,8 @@ void tcLauncher::UpdateStatus()
     float range_km = parent->mcKin.RangeToKm(track);
 
     // check for target mode ballistic in range
-    if (tcBallisticDBObject* ballisticData = 
-		dynamic_cast<tcBallisticDBObject*>(mpChildDBObj))
+    if (std::shared_ptr<tcBallisticDBObject> ballisticData =
+         std::dynamic_pointer_cast<tcBallisticDBObject>(mpChildDBObj))
 	{
         if (ballisticData->ballisticType != tcBallisticDBObject::SMART_BOMB)
         {
@@ -1906,8 +1906,8 @@ void tcLauncher::UpdateStatus()
 
 	// verify that platform is within 2x database maximum range
     // TODO since range isn't a common base class parameter (needs to be in weapondata?)
-    // if (tcWeaponDBObject* weaponData = 
-	// dynamic_cast<tcWeaponDBObject*>(mpChildDBObj))
+    // if (std::shared_ptr<tcWeaponDBObject> weaponData = 
+    //  std::dynamic_pointer_cast<tcWeaponDBObject>>(mpChildDBObj))
 	// {
     // }
 	
@@ -1980,9 +1980,9 @@ void tcLauncher::UpdateStatus()
 /**
 * Allows either missile or laser guided bomb child obj
 */
-void tcLauncher::UpdateStatusSeekerTrack(tcGameObject* target)
+void tcLauncher::UpdateStatusSeekerTrack(std::shared_ptr<tcGameObject> target)
 {
-    if (tcMissileDBObject *pMissileDBObj = dynamic_cast<tcMissileDBObject*>(mpChildDBObj))
+    if (std::shared_ptr<tcMissileDBObject>pMissileDBObj =  std::dynamic_pointer_cast<tcMissileDBObject>(mpChildDBObj))
     {
         /* check fire control state if necessary (this should be able to be handled without
         ** all of this sprawling code) */
@@ -2039,7 +2039,7 @@ void tcLauncher::UpdateStatusSeekerTrack(tcGameObject* target)
             status = NOT_DETECTED_SEEKER;
         }
     }
-    else if (tcBallisticDBObject* ballistic = dynamic_cast<tcBallisticDBObject*>(mpChildDBObj))
+    else if (std::shared_ptr<tcBallisticDBObject> ballistic =  std::dynamic_pointer_cast<tcBallisticDBObject>(mpChildDBObj))
     {
         /* check fire control state if necessary (this should be able to be handled without
         ** all of this sprawling code) */
@@ -2106,8 +2106,8 @@ const std::string& tcLauncher::TranslateStatusDetailed(int statusCode) const
     
 
     s = "";
-    tcWeaponDBObject* weaponData = dynamic_cast<tcWeaponDBObject*>(mpChildDBObj);
-    tcTorpedoDBObject* torpedoData = dynamic_cast<tcTorpedoDBObject*>(mpChildDBObj);
+    std::shared_ptr<tcWeaponDBObject> weaponData =  std::dynamic_pointer_cast<tcWeaponDBObject>(mpChildDBObj);
+    std::shared_ptr<tcTorpedoDBObject> torpedoData =  std::dynamic_pointer_cast<tcTorpedoDBObject>(mpChildDBObj);
 
 
     switch (statusCode)
@@ -2322,7 +2322,7 @@ tcLauncher::tcLauncher() :
 /**
 *
 */
-tcLauncher::tcLauncher(tcLauncherDBObject* dbObj, tcPlatformObject* parent_)
+tcLauncher::tcLauncher(std::shared_ptr<tcLauncherDBObject> dbObj, std::shared_ptr<tcPlatformObject> parent_)
 : mnDBKey(dbObj->mnKey),
   mpLauncherDBObj(dbObj),
   parent(parent_),

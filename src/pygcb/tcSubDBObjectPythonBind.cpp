@@ -4,7 +4,7 @@
 using namespace database;
 void BindSubDBObject(module &m)
 {
-    py::class_<tcSubDBObject,tcPlatformDBObject,  tcAirDetectionDBObject,  tcWaterDetectionDBObject>(m, "tcSubDBObject")
+    py::class_<tcSubDBObject,std::shared_ptr<tcSubDBObject>,tcPlatformDBObject,  tcAirDetectionDBObject,  tcWaterDetectionDBObject>(m, "tcSubDBObject")
     .def(py::init<>())
         .def_readwrite("draft_m", &tcSubDBObject::draft_m)
         .def_readwrite("surfaceSpeed_kts", &tcSubDBObject::surfaceSpeed_kts)

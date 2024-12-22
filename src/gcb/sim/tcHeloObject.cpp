@@ -70,7 +70,7 @@ float tcHeloObject::GetDippingSonarAlt() const
     const float NOT_APPLICABLE = 999.9f;
 	if (!IsEnsonifying()) return NOT_APPLICABLE;
 
-	const tcSonar* sonar = GetStrongestActiveSonar();
+	const std::shared_ptr<tcSonar> sonar = GetStrongestActiveSonar();
 
 	if (sonar != 0)
 	{
@@ -92,7 +92,7 @@ float tcHeloObject::GetSonarSourceLevel(float az_deg) const
  
 	if (!IsEnsonifying()) return NOT_APPLICABLE;
 
-	const tcSonar* sonar = GetStrongestActiveSonar();
+	const std::shared_ptr<tcSonar> sonar = GetStrongestActiveSonar();
 	if (sonar != 0)
 	{
 		return sonar->mpDBObj->SL;
@@ -277,7 +277,7 @@ void tcHeloObject::Update(double afStatusTime)
 	*/
 	if (!IsClientMode() || IsControlled())
 	{
-        formation.Update((tcAirObject*)this);
+        formation.Update((std::shared_ptr<tcAirObject>)this);
 
 		// don't use air method since we don't care about roll
 		tcPlatformObject::UpdateHeading(dt_s); 
@@ -343,7 +343,7 @@ tcHeloObject::tcHeloObject()
 /**
 * Constructor that initializes using info from database entry.
 */
-tcHeloObject::tcHeloObject(tcAirDBObject *obj)
+tcHeloObject::tcHeloObject(std::shared_ptr<tcAirDBObject>obj)
 : tcAirObject(obj)
 {
     mnModelType = MTYPE_HELO;

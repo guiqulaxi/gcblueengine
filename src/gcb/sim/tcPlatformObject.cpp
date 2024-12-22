@@ -95,7 +95,7 @@ void tcPlatformObject::DesignateLauncherDatum(GeoPoint p, unsigned int anLaunche
 */
 bool tcPlatformObject::DesignateLauncherTarget(long anID, unsigned anLauncher) 
 {
-    if (tcLauncher* launcher = mcLauncherState.GetLauncher(anLauncher))
+    if (std::shared_ptr<tcLauncher> launcher = mcLauncherState.GetLauncher(anLauncher))
     {
         launcher->ActivateFireControl();
     }
@@ -115,7 +115,7 @@ void tcPlatformObject::DesignateTarget(long anID)
         unsigned nLaunchers = mcLauncherState.GetLauncherCount();
         for (size_t n=0; n<nLaunchers; n++)
         {
-            tcLauncher* launcher = mcLauncherState.GetLauncher(n);
+            std::shared_ptr<tcLauncher> launcher = mcLauncherState.GetLauncher(n);
             if (launcher->mnCurrent == launcher->mnUncommitted) // don't wipe out previous target info if launch in progress
             {
                 mcLauncherState.SetLauncherTarget(n, -1);
@@ -136,7 +136,7 @@ void tcPlatformObject::DesignateTarget(long anID)
     unsigned nLaunchers = mcLauncherState.GetLauncherCount();
     for (size_t n=0; n<nLaunchers; n++)
     {
-        tcLauncher* launcher = mcLauncherState.GetLauncher(n);
+        std::shared_ptr<tcLauncher> launcher = mcLauncherState.GetLauncher(n);
         if ((launcher->IsEffective(track)) && (!track.IsBearingOnly()))
         {
             mcLauncherState.SetLauncherTarget(n, anID);
@@ -162,8 +162,8 @@ void tcPlatformObject::DestroyFormation()
     }
     else
     {
-        tcPlatformObject* leader = 
-            dynamic_cast<tcPlatformObject*>(simState->GetObject(formation.leaderId));
+        std::shared_ptr<tcPlatformObject> leader = 
+            std::dynamic_pointer_cast<tcPlatformObject>(simState->GetObject(formation.leaderId));
         if ((leader != 0) && (leader->GetAlliance() == GetAlliance()))
         {
             leader->formation.RemoveFollower(mnID);
@@ -185,7 +185,7 @@ void tcPlatformObject::UpdateAI(float t)
 // update guidance to maintain/achieve formation position
 void tcPlatformObject::UpdateFormationGuidance() 
 {
-    formation.Update(this);
+    formation.Update(std::dynamic_pointer_cast<tcPlatformObject>(tcGameObject::shared_from_this()));
 }
 
 /**
@@ -340,7 +340,7 @@ void tcPlatformObject::UpdateMagazines(double t)
     size_t nMagazines = magazines.size();
     for (size_t n=0; n<nMagazines; n++)
     {
-        tcStores* mag = magazines[n];
+        std::shared_ptr<tcStores> mag = magazines[n];
         assert(mag);
         mag->Update(t);
     }
@@ -423,12 +423,12 @@ float tcPlatformObject::GetFuelCapacity() const
 /**
 * @return pointer to launcher with index of <idx> or NULL (0) for error
 */
-tcLauncher* tcPlatformObject::GetLauncher(unsigned idx)
+std::shared_ptr<tcLauncher> tcPlatformObject::GetLauncher(unsigned idx)
 {
     return mcLauncherState.GetLauncher(idx);
 }
 
-const tcLauncher* tcPlatformObject::GetLauncher(unsigned idx) const
+std::shared_ptr<const tcLauncher> tcPlatformObject::GetLauncher(unsigned idx) const
 {
     return mcLauncherState.GetLauncher(idx);
 }
@@ -449,7 +449,7 @@ std::string tcPlatformObject::GetLauncherDescription()
 	unsigned nLaunchers = mcLauncherState.GetLauncherCount();
 	for (unsigned n=0; n < nLaunchers; n++)
 	{
-		tcLauncher* launcher = GetLauncher(n);
+		std::shared_ptr<tcLauncher> launcher = GetLauncher(n);
 
 		const char* childClassName = (launcher->mpChildDBObj != 0) ? launcher->mpChildDBObj->mzClass.c_str() :
 		                 errorString.c_str();
@@ -514,7 +514,7 @@ void tcPlatformObject::SetLoadoutCommand(const std::string& s)
     for (unsigned int launcherIdx=0; 
         (launcherIdx<item.size()) && (launcherIdx < nLaunchers); launcherIdx++)
     {
-        tcLauncher* launcher = mcLauncherState.GetLauncher(launcherIdx);
+        std::shared_ptr<tcLauncher> launcher = mcLauncherState.GetLauncher(launcherIdx);
         assert(launcher != 0);
 
         if (quantity[launcherIdx] > 0)
@@ -548,7 +548,7 @@ void tcPlatformObject::ScheduleLoadoutCommand(const std::string& s)
     std::vector<unsigned int> quantity;
     ParseLoadoutCommand(s, item, quantity);
 
-    tcPlatformObject* parentPlatform = dynamic_cast<tcPlatformObject*>(parent);
+    std::shared_ptr<tcPlatformObject> parentPlatform = std::dynamic_pointer_cast<tcPlatformObject>(parent);
     if (parentPlatform == 0)
     {
         fprintf(stderr, "tcPlatformObject::ScheduleLoadoutCommand - no host platform (%s)\n", 
@@ -562,7 +562,7 @@ void tcPlatformObject::ScheduleLoadoutCommand(const std::string& s)
     for (unsigned int launcherIdx=0; 
         (launcherIdx<item.size()) && (launcherIdx < nLaunchers); launcherIdx++)
     {
-        tcLauncher* launcher = mcLauncherState.GetLauncher(launcherIdx);
+        std::shared_ptr<tcLauncher> launcher = mcLauncherState.GetLauncher(launcherIdx);
         assert(launcher != 0);
 
         if (quantity[launcherIdx] > 0)
@@ -570,8 +570,8 @@ void tcPlatformObject::ScheduleLoadoutCommand(const std::string& s)
             size_t nMagazines = parentPlatform->GetMagazineCount();
             for (size_t n=0; n<nMagazines; n++)
             {
-                tcStores* mag = parentPlatform->GetMagazine(n);
-                bool result = mag->LoadLauncher(launcherIdx, item[launcherIdx], this, quantity[launcherIdx]);
+                std::shared_ptr<tcStores> mag = parentPlatform->GetMagazine(n);
+                bool result = mag->LoadLauncher(launcherIdx, item[launcherIdx], tcGameObject::shared_from_this(), quantity[launcherIdx]);
             }
         }
     }
@@ -663,7 +663,7 @@ bool tcPlatformObject::IsInterceptingTrack(long id)
 * Called when new general damage occurs. 
 * @param damage fractional amount of new damage
 */
-void tcPlatformObject::ApplyGeneralDamage(float damage, tcGameObject* damager)
+void tcPlatformObject::ApplyGeneralDamage(float damage, std::shared_ptr<tcGameObject> damager)
 {
     float priorDamage = mfDamageLevel;
     mfDamageLevel += damage;
@@ -676,7 +676,7 @@ void tcPlatformObject::ApplyGeneralDamage(float damage, tcGameObject* damager)
     unsigned int nLaunchers = GetLauncherCount();
     for (unsigned int m=0; m<nLaunchers; m++)
     {
-        tcLauncher* launcher = GetLauncher(m);
+        std::shared_ptr<tcLauncher> launcher = GetLauncher(m);
         assert(launcher);
         
         if ( !launcher->IsDamaged() && (randf() <= scaledDamage))
@@ -692,7 +692,7 @@ void tcPlatformObject::ApplyGeneralDamage(float damage, tcGameObject* damager)
     unsigned int nSensors = GetSensorCount();
     for (unsigned int n=0; n<nSensors; n++)
     {
-        tcSensorState* sensor = GetSensorMutable(n);
+        std::shared_ptr<tcSensorState> sensor = GetSensorMutable(n);
         assert(sensor);
 
         if ( !sensor->IsDamaged() && (randf() <= scaledDamage))
@@ -712,7 +712,7 @@ void tcPlatformObject::ApplyGeneralDamage(float damage, tcGameObject* damager)
 /**
 * @return damage fraction for new damage, 0 means no new damage
 */
-float tcPlatformObject::ApplyAdvancedDamage(const Damage& damage, tcGameObject* damager)
+float tcPlatformObject::ApplyAdvancedDamage(const Damage& damage, std::shared_ptr<tcGameObject> damager)
 {
     // 初始化各种伤害类型为0
     float impactDamage = 0; // 撞击伤害
@@ -821,14 +821,14 @@ float tcPlatformObject::ApplyAdvancedDamage(const Damage& damage, tcGameObject* 
 /**
 * Checks each launcher for failure when new damage occurs
 */
-void tcPlatformObject::ApplyLauncherDamage(float damage, tcGameObject* damager)
+void tcPlatformObject::ApplyLauncherDamage(float damage, std::shared_ptr<tcGameObject> damager)
 {
     float scaledDamage = (mfDamageLevel <= 0.5f) ? (0.4f * damage) : damage;
 
     unsigned int nLaunchers = GetLauncherCount();
     for (unsigned int m=0; m<nLaunchers; m++)
     {
-        tcLauncher* launcher = GetLauncher(m);
+        std::shared_ptr<tcLauncher> launcher = GetLauncher(m);
         assert(launcher);
         
         if ( !launcher->IsDamaged() && (randf() <= scaledDamage))
@@ -857,7 +857,7 @@ void tcPlatformObject::ApplyRepairs(float repair)
     unsigned int nLaunchers = GetLauncherCount();
     for (unsigned int m=0; m<nLaunchers; m++)
     {
-        tcLauncher* launcher = GetLauncher(m);
+        std::shared_ptr<tcLauncher> launcher = GetLauncher(m);
         assert(launcher);
         
         if (launcher->IsDamaged() && (randf() <= scaledRepairs))
@@ -869,7 +869,7 @@ void tcPlatformObject::ApplyRepairs(float repair)
     unsigned int nSensors = GetSensorCount();
     for (unsigned int n=0; n<nSensors; n++)
     {
-        tcSensorState* sensor = GetSensorMutable(n);
+        std::shared_ptr<tcSensorState> sensor = GetSensorMutable(n);
         assert(sensor);
         
         if (sensor->IsDamaged() && (randf() <= scaledRepairs))
@@ -908,13 +908,13 @@ void tcPlatformObject::AutoConfigureLaunchers(const std::vector<database::Launch
     size_t nLaunchers = (size_t)GetLauncherCount();
     for (size_t n=0; n<nLaunchers; n++)
     {
-        tcLauncher* launcher = GetLauncher(n);
+        std::shared_ptr<tcLauncher> launcher = GetLauncher(n);
         launcher->SetChildQuantity(0);
     }
 
     for (size_t k=0; k<launcherLoadout.size(); k++)
     {
-        if (tcLauncher* launcher = GetLauncherById(launcherLoadout[k].launcherId))
+        if (std::shared_ptr<tcLauncher> launcher = GetLauncherById(launcherLoadout[k].launcherId))
         {
             launcher->SetChildClass(launcherLoadout[k].item);
             launcher->SetChildQuantity(launcherLoadout[k].quantity);
@@ -938,13 +938,13 @@ void tcPlatformObject::AutoConfigureMagazines(const std::vector<database::Magazi
     size_t nMagazines = GetMagazineCount();
     for (size_t n=0; n<nMagazines; n++)
     {
-        tcStores* stores = GetMagazine(n);
+        std::shared_ptr<tcStores> stores = GetMagazine(n);
         stores->RemoveAllItems();
     }
 
     for (size_t k=0; k<magazineLoadout.size(); k++)
     {
-        if (tcStores* stores = GetMagazineById(magazineLoadout[k].magazineId))
+        if (std::shared_ptr<tcStores> stores = GetMagazineById(magazineLoadout[k].magazineId))
         {
             stores->AddItems(magazineLoadout[k].item, (unsigned long)magazineLoadout[k].quantity);
         }
@@ -1004,19 +1004,19 @@ unsigned int tcPlatformObject::GetMagazineCount() const
 /**
 *
 */
-tcStores* tcPlatformObject::GetMagazine(unsigned int idx)
+std::shared_ptr<tcStores> tcPlatformObject::GetMagazine(unsigned int idx)
 {
     if (idx >= magazines.size()) return 0;
     else return magazines[idx];
 }
 
-const tcStores* tcPlatformObject::GetMagazineConst(unsigned int idx) const
+const std::shared_ptr<tcStores> tcPlatformObject::GetMagazineConst(unsigned int idx) const
 {
     if (idx >= magazines.size()) return 0;
     else return magazines[idx];
 }
 
-tcStores* tcPlatformObject::GetMagazineById(unsigned int id)
+std::shared_ptr<tcStores> tcPlatformObject::GetMagazineById(unsigned int id)
 {
     if (magazines.size() != mpDBObject->magazineId.size())
     {
@@ -1035,7 +1035,7 @@ tcStores* tcPlatformObject::GetMagazineById(unsigned int id)
     return 0;
 }
 
-tcLauncher* tcPlatformObject::GetLauncherById(unsigned int id)
+std::shared_ptr<tcLauncher> tcPlatformObject::GetLauncherById(unsigned int id)
 {
     if (mcLauncherState.mnCount != mpDBObject->launcherId.size())
     {
@@ -1084,14 +1084,14 @@ bool tcPlatformObject::IsCapableVsTargetType(int targetFlag)
 {
 	if (IsEquippedForTargetType(targetFlag)) return true;
 
-	tcPlatformObject* parentPlatform = dynamic_cast<tcPlatformObject*>(parent);
+	std::shared_ptr<tcPlatformObject> parentPlatform = std::dynamic_pointer_cast<tcPlatformObject>(parent);
 	if (parentPlatform == 0) return false; // not landed or docked, or parent is not tcPlatformObject
 
 	size_t nMagazines = parentPlatform->GetMagazineCount();
 	for (size_t n=0; n<nMagazines; n++)
 	{
-		tcStores* mag = parentPlatform->GetMagazine(n);
-		int magFlags = mag->GetAvailableTargetFlags(this);
+        std::shared_ptr<tcStores> mag = parentPlatform->GetMagazine(n);
+        int magFlags = mag->GetAvailableTargetFlags(tcGameObject::shared_from_this());
 		if ((magFlags & targetFlag) != 0) return true;
 	}
 
@@ -1122,7 +1122,7 @@ bool tcPlatformObject::AllLaunchersEmpty()
 	size_t nLaunchers = GetLauncherCount();
 	for (size_t n=0; n<nLaunchers; n++)
 	{
-		tcLauncher* launcher = GetLauncher(n);
+		std::shared_ptr<tcLauncher> launcher = GetLauncher(n);
 		if ((launcher->IsLoading()) || (launcher->mnCurrent > 0)) return false;
 	}
 
@@ -1137,7 +1137,7 @@ bool tcPlatformObject::AllLaunchersFull()
 	size_t nLaunchers = GetLauncherCount();
 	for (size_t n=0; n<nLaunchers; n++)
 	{
-		tcLauncher* launcher = GetLauncher(n);
+		std::shared_ptr<tcLauncher> launcher = GetLauncher(n);
 		//if ((launcher->IsLoading()) || (launcher->mnCurrent < launcher->capacity)) return false;
         if ((launcher->IsLoading()) || (launcher->mnCurrent == 0)) return false;
 	}
@@ -1153,7 +1153,7 @@ bool tcPlatformObject::AllLaunchersReady()
 	size_t nLaunchers = GetLauncherCount();
 	for (size_t n=0; n<nLaunchers; n++)
 	{
-		tcLauncher* launcher = GetLauncher(n);
+		std::shared_ptr<tcLauncher> launcher = GetLauncher(n);
 		//if ((launcher->IsLoading()) || (launcher->mnCurrent < launcher->capacity)) return false;
         if (launcher->IsLoading()) return false;
 	}
@@ -1176,7 +1176,7 @@ bool tcPlatformObject::IsEquippedForTargetType(int targetFlag)
 
         for (size_t n=0; n<nSensors; n++)
         {
-            const tcRadar* radar = dynamic_cast<const tcRadar*>(GetSensor(n));
+            std::shared_ptr<const tcRadar> radar =  std::dynamic_pointer_cast<const tcRadar>(GetSensor(n));
             if ((radar != 0) && 
                 (radar->mpDBObj->isSurveillance) && 
                 (radar->mpDBObj->mfFieldOfView_deg >= 360))
@@ -1192,7 +1192,7 @@ bool tcPlatformObject::IsEquippedForTargetType(int targetFlag)
 	size_t nLaunchers = GetLauncherCount();
 	for (size_t n=0; n<nLaunchers; n++)
 	{
-		tcLauncher* launcher = GetLauncher(n);
+		std::shared_ptr<tcLauncher> launcher = GetLauncher(n);
 		if (launcher->IsLoading() || (launcher->mnCurrent == 0)) // 30MAY2011 changed to allow undercapacity, no particular reason, just seems too restrictive with weight limits
         {
             return false;
@@ -1223,14 +1223,14 @@ bool tcPlatformObject::RatingForTargetType(int targetFlag, float& weaponWeight_k
 	size_t nLaunchers = GetLauncherCount();
 	for (size_t n=0; n<nLaunchers; n++)
 	{
-		tcLauncher* launcher = GetLauncher(n);
+		std::shared_ptr<tcLauncher> launcher = GetLauncher(n);
 		stillLoading = stillLoading || launcher->IsLoading();
 		
 		if (((launcher->mnTargetFlags & targetFlag) != 0) && (launcher->mnCurrent > 0))
 		{
 			anyEffective = true;
 			weaponWeight_kg += float(launcher->mnCurrent) * launcher->GetItemWeight();
-			tcWeaponDBObject* weaponData = dynamic_cast<tcWeaponDBObject*>(launcher->GetChildDatabaseObject());
+            std::shared_ptr<tcWeaponDBObject> weaponData =  std::dynamic_pointer_cast<tcWeaponDBObject>(launcher->GetChildDatabaseObject());
 			if (weaponData != 0)
 			{
 				maxRange_km = std::max(weaponData->maxRange_km, maxRange_km);
@@ -1264,7 +1264,7 @@ bool tcPlatformObject::RatingForTargetTypeAEW(float& weaponWeight_kg, float& max
 
 	for (size_t n=0; n<nSensors; n++)
 	{
-		const tcRadar* radar = dynamic_cast<const tcRadar*>(GetSensor(n));
+        std::shared_ptr<const tcRadar> radar =  std::dynamic_pointer_cast<const tcRadar>(GetSensor(n));
         if ((radar != 0) && (!radar->IsDamaged()) && 
             (radar->mpDBObj->mfFieldOfView_deg >= 360) &&
             (radar->mpDBObj->isSurveillance) &&
@@ -1293,7 +1293,7 @@ bool tcPlatformObject::IsEquippedWithNuclear(int targetFlag)
 	size_t nLaunchers = GetLauncherCount();
 	for (size_t n=0; n<nLaunchers; n++)
 	{
-		tcLauncher* launcher = GetLauncher(n);
+		std::shared_ptr<tcLauncher> launcher = GetLauncher(n);
 		if (launcher->IsLoading() || (launcher->mnCurrent == 0) || 
             (launcher->capacity > launcher->mnCurrent))
         {
@@ -1316,7 +1316,7 @@ bool tcPlatformObject::IsLoading() const
     size_t nLaunchers = GetLauncherCount();
 	for (size_t n=0; n<nLaunchers; n++)
 	{
-		const tcLauncher* launcher = GetLauncher(n);
+		std::shared_ptr<const tcLauncher> launcher = GetLauncher(n);
 		if (launcher->IsLoading()) return true;
 	}
 
@@ -1327,7 +1327,7 @@ bool tcPlatformObject::IsLoading() const
 
 void tcPlatformObject::UnloadAllLaunchers()
 {
-	tcPlatformObject* parentPlatform = dynamic_cast<tcPlatformObject*>(parent);
+	std::shared_ptr<tcPlatformObject> parentPlatform = std::dynamic_pointer_cast<tcPlatformObject>(parent);
 	if (parentPlatform == 0)
 	{
 		fprintf(stderr, "tcPlatformObject::UnloadAllLaunchers - no host platform (%s)\n", 
@@ -1341,7 +1341,7 @@ void tcPlatformObject::UnloadAllLaunchers()
     bool anyLoaded = false;
 	for (size_t n=0; (n<nLaunchers)&&(!anyLoaded); n++)
 	{
-		tcLauncher* launcher = GetLauncher(n);    
+		std::shared_ptr<tcLauncher> launcher = GetLauncher(n);    
 		assert(launcher);
 
         anyLoaded = anyLoaded || (launcher->mnCurrent > 0);
@@ -1355,10 +1355,10 @@ void tcPlatformObject::UnloadAllLaunchers()
 	size_t nMagazines = parentPlatform->GetMagazineCount();
 	for (size_t n=0; n<nMagazines; n++)
 	{
-		tcStores* mag = parentPlatform->GetMagazine(n);
-        if (mag->CanUnloadThisObject(this))
+        std::shared_ptr<tcStores> mag = parentPlatform->GetMagazine(n);
+        if (mag->CanUnloadThisObject(tcGameObject::shared_from_this()))
 		{
-			mag->AddAutomationOp("Empty", this); // all equip for platform has to be in one magazine
+            mag->AddAutomationOp("Empty", tcGameObject::shared_from_this()); // all equip for platform has to be in one magazine
 			return;
 		}
 	}
@@ -1379,7 +1379,7 @@ void tcPlatformObject::EquipForTargetType(const std::string& targetType)
 		return;
 	}
 
-	tcPlatformObject* parentPlatform = dynamic_cast<tcPlatformObject*>(parent);
+	std::shared_ptr<tcPlatformObject> parentPlatform = std::dynamic_pointer_cast<tcPlatformObject>(parent);
 	if (parentPlatform == 0)
 	{
 		fprintf(stderr, "tcPlatformObject::EquipForTargetType - no host platform (%s)\n", 
@@ -1411,11 +1411,11 @@ void tcPlatformObject::EquipForTargetType(const std::string& targetType)
 	size_t nMagazines = parentPlatform->GetMagazineCount();
 	for (size_t n=0; n<nMagazines; n++)
 	{
-		tcStores* mag = parentPlatform->GetMagazine(n);
-		int magFlags = mag->GetAvailableTargetFlags(this, useNuclear);
+        std::shared_ptr<tcStores> mag = parentPlatform->GetMagazine(n);
+        int magFlags = mag->GetAvailableTargetFlags(tcGameObject::shared_from_this(), useNuclear);
 		if ((magFlags & targetFlag) != 0)
 		{
-			mag->AddAutomationOp(targetType, this);
+            mag->AddAutomationOp(targetType, tcGameObject::shared_from_this());
 			return;
 		}
 	}
@@ -1728,7 +1728,7 @@ void tcPlatformObject::SaveToPython(scriptinterface::tcScenarioLogger& logger)
     size_t nLaunchers = GetLauncherCount();
     for (size_t k=0; k<nLaunchers; k++)
     {
-        tcLauncher* launcher = GetLauncher(k);
+        std::shared_ptr<tcLauncher> launcher = GetLauncher(k);
         if (launcher->mnCurrent > 0)
         {
             s=strutil::format("SM.SetUnitLauncherItem(unit.unitName, %d, '%s', %d)", k,
@@ -1741,7 +1741,7 @@ void tcPlatformObject::SaveToPython(scriptinterface::tcScenarioLogger& logger)
         logger.AddScenarioText(s);
     }    
     
-    if (simState->mcSensorMap.GetAlwaysVisibleState(this))
+    if (simState->mcSensorMap.GetAlwaysVisibleState(tcGameObject::shared_from_this()))
     {
         logger.AddScenarioText("SM.SetUnitAlwaysVisibleState(unit.unitName, 1)");
     }
@@ -1763,7 +1763,7 @@ void tcPlatformObject::SaveToPython(scriptinterface::tcScenarioLogger& logger)
 void tcPlatformObject::SaveFormationPositionToPython(scriptinterface::tcScenarioLogger& logger)
 {
     std::string s;
-    const tcPlatformObject* leader = dynamic_cast<tcPlatformObject*>(simState->GetObject(formation.leaderId));
+    std::shared_ptr<const tcPlatformObject> leader = std::dynamic_pointer_cast<tcPlatformObject>(simState->GetObject(formation.leaderId));
     if (leader == 0)
     {
         s=strutil::format("unit.SetPosition(%f, %f, %.1f)", C_180OVERPI*mcKin.mfLon_rad,
@@ -2202,22 +2202,22 @@ void tcPlatformObject::LoadOther(const std::string& item, unsigned long quantity
     size_t nMagazines = GetMagazineCount();
     for (size_t n=0; n<nMagazines; n++)
     {
-        tcStores* mag = GetMagazine(n);
+        std::shared_ptr<tcStores> mag = GetMagazine(n);
         if (mag->CurrentItemQuantity(item, exactItem))
         {
-            mag->LoadOther(exactItem, quantity, this);
+            mag->LoadOther(exactItem, quantity, tcGameObject::shared_from_this());
             return;
         }
     }
-    if (tcPlatformObject* parent = dynamic_cast<tcPlatformObject*>(parent))
+    if (std::shared_ptr<tcPlatformObject> parent = std::dynamic_pointer_cast<tcPlatformObject>(parent))
     {
         size_t nMagazines = parent->GetMagazineCount();
         for (size_t n=0; n<nMagazines; n++)
         {
-            tcStores* mag = parent->GetMagazine(n);
+            std::shared_ptr<tcStores> mag = parent->GetMagazine(n);
             if (mag->CurrentItemQuantity(item, exactItem))
             {
-                mag->LoadOther(exactItem, quantity, this);
+                mag->LoadOther(exactItem, quantity, tcGameObject::shared_from_this());
                 return;
             }
         }
@@ -2231,7 +2231,7 @@ std::vector<tcSensorMapTrack> tcPlatformObject::GetTrackListValidROE(int anClass
 
     double t = simState->GetTime();
 
-    tcSensorMapTrack *pTrack;
+    std::shared_ptr<tcSensorMapTrack>pTrack;
     tcGoalTracker* goalTracker = tcGoalTracker::Get();
 
 
@@ -2257,7 +2257,7 @@ std::vector<tcSensorMapTrack> tcPlatformObject::GetTrackListValidROE(int anClass
         bool valid = classificationMatch && bearingOnlyValid &&
                      !pTrack->IsDestroyed() && !pTrack->IsStale();
 
-        if (valid && (goalTracker->IsTargetLegal(this, pTrack)))
+        if (valid && (goalTracker->IsTargetLegal(tcGameObject::shared_from_this(), *pTrack)))
         {
             GeoPoint p;
             p.mfAlt_m = 0;
@@ -2313,7 +2313,7 @@ void tcPlatformObject::SetFireControlSensors()
 
     for (size_t nLauncher=0; nLauncher<nLaunchers; nLauncher++) 
     {
-        tcLauncher* launcher = GetLauncher(nLauncher);
+        std::shared_ptr<tcLauncher> launcher = GetLauncher(nLauncher);
         launcher->UpdateFireControlSensor();
     }
 }
@@ -2333,7 +2333,7 @@ void tcPlatformObject::SetFormationLeader(long id)
         return;
     }
 
-    tcPlatformObject* leader = dynamic_cast<tcPlatformObject*>(simState->GetObject(id));
+    std::shared_ptr<tcPlatformObject> leader = std::dynamic_pointer_cast<tcPlatformObject>(simState->GetObject(id));
 
     // allow formation with non-friendly if within 1.0 km range 
     if (leader == 0) return;
@@ -2356,8 +2356,8 @@ void tcPlatformObject::SetFormationLeader(long id)
     // if already part of formation, remove from old formation
     if (formation.isActive && (formation.leaderId != -1))
     {
-        tcPlatformObject* oldLeader = 
-            dynamic_cast<tcPlatformObject*>(simState->GetObject(formation.leaderId));
+        std::shared_ptr<tcPlatformObject> oldLeader = 
+            std::dynamic_pointer_cast<tcPlatformObject>(simState->GetObject(formation.leaderId));
         if ((oldLeader != 0) && (oldLeader->GetAlliance() == GetAlliance()))
         {
             oldLeader->formation.RemoveFollower(mnID);
@@ -2411,13 +2411,13 @@ tcPlatformObject::tcPlatformObject()
 {
     assert(false);
     Clear();
-    brain = new Brain(this);
+    brain = new Brain(std::dynamic_pointer_cast<tcPlatformObject>(tcGameObject::shared_from_this()));
     mcLauncherState.mnCount = 0;
     mnModelType = MTYPE_PLATFORM;
 }
 
 
-tcPlatformObject::tcPlatformObject(tcPlatformDBObject *obj)
+tcPlatformObject::tcPlatformObject(std::shared_ptr<tcPlatformDBObject>obj)
 : tcGameObject(obj), tcSensorPlatform(),
   isRefueling(false),
   loadoutTag(""),
@@ -2425,10 +2425,10 @@ tcPlatformObject::tcPlatformObject(tcPlatformDBObject *obj)
   externalFuelCapacity_kg(0)
 {
     using namespace database;
+    auto sss=tcGameObject::shared_from_this();
+    tcSensorPlatform::Init(obj, std::dynamic_pointer_cast<tcPlatformObject>(tcGameObject::shared_from_this()));
 
-    tcSensorPlatform::Init(obj, this);
-
-    brain = new Brain(this);
+    brain = new Brain(std::dynamic_pointer_cast<tcPlatformObject>(tcGameObject::shared_from_this()));
 
     mpDBObject = obj;
     mnModelType = MTYPE_PLATFORM;
@@ -2449,24 +2449,24 @@ tcPlatformObject::tcPlatformObject(tcPlatformDBObject *obj)
     magazines.clear();
     for (int i=0; i<mpDBObject->mnNumMagazines; i++) 
     {
-        tcDatabaseObject* pDBObj = database->GetObject(mpDBObject->maMagazineClass[i].c_str());
+        std::shared_ptr<tcDatabaseObject> pDBObj = database->GetObject(mpDBObject->maMagazineClass[i].c_str());
 
-        if (tcStoresDBObject* storesDBObj = dynamic_cast<tcStoresDBObject*>(pDBObj))
+        if (std::shared_ptr<tcStoresDBObject> storesDBObj = std::dynamic_pointer_cast<tcStoresDBObject>(pDBObj))
 		{
-            tcStores* mag = new tcStores(storesDBObj);
-            mag->SetParent(this);
+            std::shared_ptr<tcStores> mag = std::make_shared< tcStores>(storesDBObj);
+            mag->SetParent(std::dynamic_pointer_cast<tcPlatformObject>(tcGameObject::shared_from_this()));
             magazines.push_back(mag);
 		}
 		else
 		{
-			fprintf(stderr, "Error - tcPlatformObject::tcPlatformObject(tcPlatformDBObject *obj)"
+			fprintf(stderr, "Error - tcPlatformObject::tcPlatformObject(std::shared_ptr<tcPlatformDBObject>obj)"
 				" - Stores obj not found\n");
 		}
         
     }
 
     // add launchers
-    mcLauncherState.SetParent(this);
+    mcLauncherState.SetParent(std::dynamic_pointer_cast<tcPlatformObject>(tcGameObject::shared_from_this()));
     mcLauncherState.mnCount = 0;
 
     for (int nLauncher=0; nLauncher<mpDBObject->mnNumLaunchers; nLauncher++) 
@@ -2510,13 +2510,13 @@ tcPlatformObject::tcPlatformObject(tcPlatformObject& o) :
 	externalFuelCapacity_kg(o.externalFuelCapacity_kg),
     formation(o.formation)
 {
-    brain = new Brain(this); // need copy constructor for this
+    brain = new Brain(std::dynamic_pointer_cast<tcPlatformObject>(tcGameObject::shared_from_this())); // need copy constructor for this
 
     fuel_kg = o.fuel_kg;
 //    mcAI = o.mcAI;
     mcGS = o.mcGS;
     mcLauncherState = o.mcLauncherState;
-    mcLauncherState.SetParent(this);
+    mcLauncherState.SetParent(std::dynamic_pointer_cast<tcPlatformObject>(tcGameObject::shared_from_this()));
     mcLaunchRequest = o.mcLaunchRequest;
     mpDBObject = o.mpDBObject;
     msTargetDatum = o.msTargetDatum;
@@ -2542,7 +2542,7 @@ tcPlatformObject::~tcPlatformObject()
 
     for (size_t n=0; n<magazines.size(); n++)
     {
-        delete magazines[n];
+        //delete magazines[n];
     }
 
 }

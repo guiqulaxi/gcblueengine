@@ -57,16 +57,16 @@
 * @return true if any sensors were damaged
 * @param newDamage new damage done to host platform, used for general failure test
 */
-bool tcSensorPlatform::ApplyAdvancedDamage(const Damage& damage, tcGameObject* damager, float damageLevel)
+bool tcSensorPlatform::ApplyAdvancedDamage(const Damage& damage, std::shared_ptr<tcGameObject> damager, float damageLevel)
 {
     bool result = false;
 
     // if damager is missile with ESM seeker (anti-rad), apply high damage to first active radar
     // (nothing to keep track of which emitter seeker is tracking so pick first one)
     bool ARMdamage = false;
-    if (tcMissileObject* missile = dynamic_cast<tcMissileObject*>(damager))
+    if (std::shared_ptr<tcMissileObject> missile =  std::dynamic_pointer_cast<tcMissileObject>(damager))
     {
-        if (tcESMSensor* esm = dynamic_cast<tcESMSensor*>(missile->GetSeekerSensor()))
+        if (std::shared_ptr<tcESMSensor> esm = std::dynamic_pointer_cast<tcESMSensor>(missile->GetSeekerSensor()))
         {
             ARMdamage = true;
         }
@@ -79,10 +79,10 @@ bool tcSensorPlatform::ApplyAdvancedDamage(const Damage& damage, tcGameObject* d
         bool searchingForRadar = true;
         for (unsigned int n=0; (n<nSensors)&&searchingForRadar; n++)
         {
-            tcSensorState* sensor = GetSensorMutable(n);
+            std::shared_ptr<tcSensorState> sensor = GetSensorMutable(n);
             assert(sensor);
 
-            tcRadar* radar = dynamic_cast<tcRadar*>(sensor);
+            std::shared_ptr<tcRadar> radar =  std::dynamic_pointer_cast<tcRadar>(sensor);
             if (radar && radar->IsActive())
             {
                 if (!radar->IsDamaged() && (randf() < 0.9f))
@@ -99,7 +99,7 @@ bool tcSensorPlatform::ApplyAdvancedDamage(const Damage& damage, tcGameObject* d
 
     for (unsigned int n=0; n<nSensors; n++)
     {
-        tcSensorState* sensor = GetSensorMutable(n);
+        std::shared_ptr<tcSensorState> sensor = GetSensorMutable(n);
         assert(sensor);
         
         result = result || sensor->ApplyAdvancedDamage(damage);
@@ -112,7 +112,7 @@ bool tcSensorPlatform::ApplyAdvancedDamage(const Damage& damage, tcGameObject* d
 
     for (unsigned int n=0; n<nSensors; n++)
     {
-        tcSensorState* sensor = GetSensorMutable(n);
+        std::shared_ptr<tcSensorState> sensor = GetSensorMutable(n);
 
         if (!sensor->IsDamaged() && (randf() <= scaledDamage))
         {
@@ -135,12 +135,12 @@ void tcSensorPlatform::ClearActivityFlags()
 /**
 * @return first sensor with matching database id
 */
-const tcSensorState* tcSensorPlatform::GetSensorByDatabaseID(long id) const
+std::shared_ptr<const tcSensorState> tcSensorPlatform::GetSensorByDatabaseID(long id) const
 {
     unsigned nSensors = GetSensorCount();
 	for (unsigned n=0; n < nSensors; n++)
 	{
-		const tcSensorState* sensor = GetSensor(n);
+        std::shared_ptr<const tcSensorState> sensor = GetSensor(n);
         if (sensor->mnDBKey == id) return sensor;
     }
 
@@ -167,7 +167,7 @@ std::string tcSensorPlatform::GetSensorDescription()
 	for (unsigned n=0; n < nSensors; n++)
 	{
         
-		const tcSensorState* sensor = GetSensor(n);
+        std::shared_ptr<const tcSensorState> sensor = GetSensor(n);
 		
 		const char* text = (sensor != 0) && (sensor->mpDBObj != 0) ?
 		    sensor->mpDBObj->mzClass.c_str() : errorString.c_str();
@@ -190,7 +190,7 @@ bool tcSensorPlatform::HasActivatedSensor()
     int nSensors = (int)sensorState.size();
     for (int k=0;k<nSensors;k++) 
     {
-        tcSensorState *pSensorState = sensorState[k];
+        std::shared_ptr<tcSensorState>pSensorState = sensorState[k];
         if (pSensorState->IsActive()) {return true;}
     }
     return false;
@@ -212,7 +212,7 @@ bool tcSensorPlatform::IsRadiating() const
 
 
 
-const tcSensorState* tcSensorPlatform::GetSensor(unsigned int idx) const
+std::shared_ptr<const tcSensorState> tcSensorPlatform::GetSensor(unsigned int idx) const
 {
     if (idx >= sensorState.size()) return 0;
     else return sensorState[idx];
@@ -221,7 +221,7 @@ const tcSensorState* tcSensorPlatform::GetSensor(unsigned int idx) const
 /**
 * This version is used for non-const access to the sensor
 */
-tcSensorState* tcSensorPlatform::GetSensorMutable(unsigned idx) const
+std::shared_ptr<tcSensorState> tcSensorPlatform::GetSensorMutable(unsigned idx) const
 {
     if (idx >= sensorState.size()) return 0;
     else return sensorState[idx];
@@ -230,7 +230,7 @@ tcSensorState* tcSensorPlatform::GetSensorMutable(unsigned idx) const
 /**
 * @returns mutable pointer to first sensor matching sensorClass or 0 if not found
 */
-tcSensorState* tcSensorPlatform::GetSensorMutable(const std::string& sensorClass) const
+std::shared_ptr<tcSensorState> tcSensorPlatform::GetSensorMutable(const std::string& sensorClass) const
 {
     for(size_t n=0; n<sensorState.size(); n++)
     {
@@ -243,7 +243,7 @@ tcSensorState* tcSensorPlatform::GetSensorMutable(const std::string& sensorClass
     return 0;
 }
 
-tcSensorState* tcSensorPlatform::GetSensorMutable(const std::string& sensorClass, unsigned int& idx) const
+std::shared_ptr<tcSensorState> tcSensorPlatform::GetSensorMutable(const std::string& sensorClass, unsigned int& idx) const
 {
     for (size_t n=0; n<sensorState.size(); n++)
     {
@@ -258,17 +258,17 @@ tcSensorState* tcSensorPlatform::GetSensorMutable(const std::string& sensorClass
     return 0;
 }
 
-const tcSonar* tcSensorPlatform::GetStrongestActiveSonar() const
+const std::shared_ptr<tcSonar> tcSensorPlatform::GetStrongestActiveSonar() const
 {
 	float maxSL = -999.0f;
-	tcSonar* strongest = 0;
+    std::shared_ptr<tcSonar> strongest = 0;
 
 	for(size_t n=0; n<sensorState.size(); n++)
 	{
-		tcSensorState* sensor = sensorState[n];
+		std::shared_ptr<tcSensorState> sensor = sensorState[n];
 		if (sensor->IsSonar())
 		{
-			tcSonar* sonar = dynamic_cast<tcSonar*>(sensor);
+            std::shared_ptr<tcSonar> sonar = std::dynamic_pointer_cast<tcSonar>(sensor);
 			if (sonar->IsActive() && (!sonar->IsPassive()) && (sonar->mpDBObj->SL > maxSL))
 			{
 				strongest = sonar;
@@ -292,7 +292,7 @@ void tcSensorPlatform::SetSensorState(unsigned idx, bool state)
 {
     if (idx >= sensorState.size()) return; // error
 
-	tcSensorState* sensor = sensorState[idx];
+	std::shared_ptr<tcSensorState> sensor = sensorState[idx];
 	if (sensor->IsActive() == state) return; // no change, return
 
     sensorState[idx]->SetActive(state);
@@ -308,7 +308,7 @@ void tcSensorPlatform::PrintToFile(tcFile& file)
     int nSensors = (int)sensorState.size();
     for(int i=0;i<nSensors;i++) 
     {
-        tcSensorState*& pSS = sensorState[i];
+        std::shared_ptr<tcSensorState>& pSS = sensorState[i];
         if (pSS != NULL) 
         {
             s.Format("   SENSOR%d: %s\n", i, pSS->mpDBObj->mzClass.c_str());
@@ -326,7 +326,7 @@ void tcSensorPlatform::SaveToFile(tcFile& file)
     size_t nSensors = sensorState.size();
     for(size_t i=0;i<nSensors;i++) 
     {
-        tcSensorState*& pss = sensorState[i];
+        std::shared_ptr<tcSensorState>& pss = sensorState[i];
         pss->Serialize(file, false);
     }
 }
@@ -340,7 +340,7 @@ void tcSensorPlatform::LoadFromFile(tcFile& file)
     size_t nSensors = sensorState.size();
     for(size_t i=0;i<nSensors;i++) 
     {
-        tcSensorState*& pss = sensorState[i];
+        std::shared_ptr<tcSensorState>& pss = sensorState[i];
         pss->Serialize(file,true);
     }
 }
@@ -368,24 +368,24 @@ void tcSensorPlatform::SaveToPython(scriptinterface::tcScenarioLogger& logger)
     size_t nSensors = sensorState.size();
     for(size_t n=0; n<nSensors; n++)
     {
-        tcSensorState *sensor = sensorState[n];
+        std::shared_ptr<tcSensorState>sensor = sensorState[n];
         assert(sensor);
         
         bool setState = false; // true to write command in py file to set state of sensor (i.e. isnt in default state)
 
-        if (tcRadar* radar = dynamic_cast<tcRadar*>(sensor))
+        if (std::shared_ptr<tcRadar> radar =  std::dynamic_pointer_cast<tcRadar>(sensor))
         {
             setState = sensor->mbActive != 0;
         }
-        else if (tcESMSensor* esm = dynamic_cast<tcESMSensor*>(sensor))
+        else if (std::shared_ptr<tcESMSensor> esm = std::dynamic_pointer_cast<tcESMSensor>(sensor))
         {
             setState = !sensor->mbActive;
         }
-        else if (tcOpticalSensor* optical = dynamic_cast<tcOpticalSensor*>(sensor))
+        else if (std::shared_ptr<tcOpticalSensor> optical =  std::dynamic_pointer_cast<tcOpticalSensor>(sensor))
         {
             setState = !sensor->mbActive;
         }
-        else if (tcSonar* sonar = dynamic_cast<tcSonar*>(sensor))
+        else if (std::shared_ptr<tcSonar> sonar = std::dynamic_pointer_cast<tcSonar>(sensor))
         {
             bool isPassive = sonar->IsPassive();
             setState = (isPassive && !sensor->mbActive) || (!isPassive && sensor->mbActive);
@@ -560,7 +560,7 @@ bool tcSensorPlatform::HasNewCommand() const
 * If the default constructor is used, this should be used to initialize
 * this object.
 */
-void tcSensorPlatform::Init(tcSensorPlatformDBObject* obj, tcGameObject* parent)
+void tcSensorPlatform::Init(std::shared_ptr<tcSensorPlatformDBObject> obj, std::shared_ptr<tcGameObject> parent)
 {
     using namespace database;
 
@@ -576,11 +576,11 @@ void tcSensorPlatform::Init(tcSensorPlatformDBObject* obj, tcGameObject* parent)
     
     for(size_t i=0; i<obj->sensorClass.size(); i++) 
     {
-        tcDatabaseObject *pDBObj = database->GetObject(obj->sensorClass[i]);
+        std::shared_ptr<tcDatabaseObject>pDBObj = database->GetObject(obj->sensorClass[i]);
 
-        if (tcSensorDBObject *pSensorDBObj = dynamic_cast<tcSensorDBObject*>(pDBObj))
+        if (std::shared_ptr<tcSensorDBObject>pSensorDBObj =  std::dynamic_pointer_cast<tcSensorDBObject>(pDBObj))
 		{
-			tcSensorState* sensor = pSensorDBObj->CreateSensor(parent); // factory method
+			std::shared_ptr<tcSensorState> sensor = pSensorDBObj->CreateSensor(parent); // factory method
 			assert(sensor);
 			float lookAz_rad = C_PIOVER180 * obj->sensorAz[i];
 			sensor->SetMountAz(lookAz_rad);
@@ -597,25 +597,25 @@ void tcSensorPlatform::Init(tcSensorPlatformDBObject* obj, tcGameObject* parent)
     }
 }
 
-void tcSensorPlatform::Init(const char* databaseClass, tcGameObject* parent)
+void tcSensorPlatform::Init(const char* databaseClass, std::shared_ptr<tcGameObject> parent)
 {
 	if (strlen(databaseClass) == 0)
 	{
 		return; // platform has no sensor
 	}
 
-	tcSensorDBObject* sensorData = dynamic_cast<tcSensorDBObject*>(
+    std::shared_ptr<tcSensorDBObject> sensorData =  std::dynamic_pointer_cast<tcSensorDBObject>(
 		tcDatabase::Get()->GetObject(databaseClass));
 
 	if (sensorData == 0)
 	{
-		fprintf(stderr, "Error - tcSensorPlatform(const char* databaseClass, tcGameObject* parent)"
+		fprintf(stderr, "Error - tcSensorPlatform(const char* databaseClass, std::shared_ptr<tcGameObject> parent)"
 			" - Sensor not found in database (%s)\n", databaseClass);
 		assert(false);
 		return;
 	}
 
-	tcSensorState* sensor = sensorData->CreateSensor(parent); // factory method
+	std::shared_ptr<tcSensorState> sensor = sensorData->CreateSensor(parent); // factory method
 	assert(sensor);
 
 	sensor->mfSensorHeight_m = 0.8f * parent->GetZmax(); //< guess sensor height is 80% of zmax
@@ -634,7 +634,7 @@ void tcSensorPlatform::Update(double t)
     size_t nSensors = sensorState.size();
     for(size_t n=0; n<nSensors; n++)
     {
-        tcSensorState *sensor = sensorState[n];
+        std::shared_ptr<tcSensorState>sensor = sensorState[n];
         assert(sensor);
         sensor->Update(t);
     } 
@@ -648,7 +648,7 @@ tcSensorPlatform::tcSensorPlatform()
 }
 
 
-tcSensorPlatform::tcSensorPlatform(tcSensorPlatformDBObject* obj, tcGameObject* parent)
+tcSensorPlatform::tcSensorPlatform(std::shared_ptr<tcSensorPlatformDBObject> obj, std::shared_ptr<tcGameObject> parent)
 :   sensorActivityFlags(0)
 {
     Init(obj, parent); // This way avoids using this pointer in base class initializer
@@ -658,7 +658,7 @@ tcSensorPlatform::tcSensorPlatform(tcSensorPlatformDBObject* obj, tcGameObject* 
 * Version for single sensor platforms (e.g. missiles)
 * Sensor is assumed to be pointed forward
 */
-tcSensorPlatform::tcSensorPlatform(const char* databaseClass, tcGameObject* parent)
+tcSensorPlatform::tcSensorPlatform(const char* databaseClass, std::shared_ptr<tcGameObject> parent)
 {
 	Init(databaseClass, parent);
 }
@@ -675,8 +675,8 @@ tcSensorPlatform::tcSensorPlatform(const tcSensorPlatform& o) :
     size_t nSensors = o.sensorState.size();
     for (size_t n=0;n<nSensors;n++) 
     {
-        const tcSensorState* pSensorState = o.sensorState[n];
-        tcSensorState* pNewSensorState = pSensorState->Clone();
+        std::shared_ptr<const tcSensorState> pSensorState = o.sensorState[n];
+        std::shared_ptr<tcSensorState> pNewSensorState = pSensorState->Clone();
         sensorState.push_back(pNewSensorState);
     }
 }
@@ -689,7 +689,7 @@ tcSensorPlatform::~tcSensorPlatform()
     size_t nSensors = sensorState.size();
     for (size_t n=0; n<nSensors; n++) 
     {
-        delete sensorState[n];
+        //delete sensorState[n];
     }
 }
 

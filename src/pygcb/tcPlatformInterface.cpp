@@ -246,7 +246,7 @@ namespace scriptinterface {
 
     float tcPlatformInterface::GetMaxAltitude() 
     {
-        if (tcAirObject* air = dynamic_cast<tcAirObject*>(mpPlatformObj))
+        if ( std::shared_ptr<tcAirObject> air = std::dynamic_pointer_cast<tcAirObject>(mpPlatformObj))
         {
             return air->mpDBObject->maxAltitude_m;
         }
@@ -267,7 +267,7 @@ namespace scriptinterface {
     */
     float tcPlatformInterface::GetCruiseRangeForAltitude(float alt_m)
     {
-        if (tcAirObject* air = dynamic_cast<tcAirObject*>(mpPlatformObj))
+        if ( std::shared_ptr<tcAirObject> air = std::dynamic_pointer_cast<tcAirObject>(mpPlatformObj))
         {
             return air->GetCruiseRangeKm(alt_m);
         }
@@ -279,7 +279,7 @@ namespace scriptinterface {
 
     float tcPlatformInterface::GetCruiseSpeedForAltitude(float alt_m)
     {
-        if (tcAirObject* air = dynamic_cast<tcAirObject*>(mpPlatformObj))
+        if ( std::shared_ptr<tcAirObject> air = std::dynamic_pointer_cast<tcAirObject>(mpPlatformObj))
         {
             return air->GetCruiseSpeedForAltitude(alt_m);
         }
@@ -291,7 +291,7 @@ namespace scriptinterface {
 
     float tcPlatformInterface::GetCruiseAltitude() const
     {
-        if (tcAirObject* air = dynamic_cast<tcAirObject*>(mpPlatformObj))
+        if ( std::shared_ptr<tcAirObject> air = std::dynamic_pointer_cast<tcAirObject>(mpPlatformObj))
         {
             return air->GetCruiseAltitude();
         }
@@ -303,7 +303,7 @@ namespace scriptinterface {
 
     float tcPlatformInterface::GetStallSpeedForAltitude(float alt_m)
     {
-        if (tcAirObject* air = dynamic_cast<tcAirObject*>(mpPlatformObj))
+        if ( std::shared_ptr<tcAirObject> air = std::dynamic_pointer_cast<tcAirObject>(mpPlatformObj))
         {
             return air->GetStallSpeedForAltitude(alt_m);
         }
@@ -326,7 +326,7 @@ namespace scriptinterface {
     {
         if (mpPlatformObj == 0) return 0;
 
-        if (tcAeroAirObject* aaObj = dynamic_cast<tcAeroAirObject*>(mpPlatformObj) )
+        if (std::shared_ptr<tcAeroAirObject> aaObj =  std::dynamic_pointer_cast<tcAeroAirObject>(mpPlatformObj) )
         {
             float maxSpeed_mps;
             float fuelRate_kgps;
@@ -335,7 +335,7 @@ namespace scriptinterface {
         }
         else
         {
-            tcSubObject* sub = dynamic_cast<tcSubObject*>(mpPlatformObj);
+            std::shared_ptr<tcSubObject> sub =  std::dynamic_pointer_cast<tcSubObject>(mpPlatformObj);
             if (sub == 0)
             {
                 return mpPlatformObj->mpDBObject->mfMaxSpeed_kts;
@@ -352,7 +352,7 @@ namespace scriptinterface {
     {
         if (mpPlatformObj == 0) return 0;
 
-        if (tcAeroAirObject* aaObj = dynamic_cast<tcAeroAirObject*>(mpPlatformObj) )
+        if (std::shared_ptr<tcAeroAirObject> aaObj =  std::dynamic_pointer_cast<tcAeroAirObject>(mpPlatformObj) )
         {
             float maxSpeed_mps;
             float fuelRate_kgps;
@@ -371,7 +371,7 @@ namespace scriptinterface {
     {
         if (mpPlatformObj == 0) return -1.0f;
 
-        if (tcAeroAirObject* aaObj = dynamic_cast<tcAeroAirObject*>(mpPlatformObj) )
+        if (std::shared_ptr<tcAeroAirObject> aaObj =  std::dynamic_pointer_cast<tcAeroAirObject>(mpPlatformObj) )
         {
             return aaObj->GetThrottleFraction();
         }
@@ -399,7 +399,7 @@ namespace scriptinterface {
     */
     int tcPlatformInterface::GetLandingState()
     {
-        if (tcAirObject *air = dynamic_cast<tcAirObject*>(mpPlatformObj))
+        if (std::shared_ptr<tcAirObject>air = std::dynamic_pointer_cast<tcAirObject>(mpPlatformObj))
         {
             return air->readyForLanding;
         }
@@ -435,7 +435,7 @@ namespace scriptinterface {
     */
     bool tcPlatformInterface::HasThrottle()
     {
-        if (tcAeroAirObject* aaObj = dynamic_cast<tcAeroAirObject*>(mpPlatformObj) )
+        if (std::shared_ptr<tcAeroAirObject> aaObj =  std::dynamic_pointer_cast<tcAeroAirObject>(mpPlatformObj) )
         {
             return true;
         }
@@ -476,7 +476,7 @@ namespace scriptinterface {
     {
         if (mpPlatformObj == 0) return;
 		if (!mpPlatformObj->IsControlled()) return;
-        if (tcAirObject *air = dynamic_cast<tcAirObject*>(mpPlatformObj))
+        if (std::shared_ptr<tcAirObject>air = std::dynamic_pointer_cast<tcAirObject>(mpPlatformObj))
         {
             air->SetLandingState(state);
         }
@@ -488,7 +488,7 @@ namespace scriptinterface {
     */
     void tcPlatformInterface::SetPitchLimitDeg(float lim_deg)
     {
-        if (tcAirObject *air = dynamic_cast<tcAirObject*>(mpPlatformObj))
+        if (std::shared_ptr<tcAirObject>air = std::dynamic_pointer_cast<tcAirObject>(mpPlatformObj))
         {
             air->SetPitchLimit(lim_deg*C_PIOVER180);
         }
@@ -508,7 +508,7 @@ namespace scriptinterface {
 
     void tcPlatformInterface::SetClimbDeg(float angle_deg)
     {
-        if (tcAirObject *air = dynamic_cast<tcAirObject*>(mpPlatformObj))
+        if (std::shared_ptr<tcAirObject>air = std::dynamic_pointer_cast<tcAirObject>(mpPlatformObj))
         {
             air->SetClimbCommand(angle_deg*C_PIOVER180);
         }
@@ -516,7 +516,7 @@ namespace scriptinterface {
 
     void tcPlatformInterface::SetClimbRad(float angle_rad)
     {
-        if (tcAirObject *air = dynamic_cast<tcAirObject*>(mpPlatformObj))
+        if (std::shared_ptr<tcAirObject>air = std::dynamic_pointer_cast<tcAirObject>(mpPlatformObj))
         {
             air->SetClimbCommand(angle_rad);
         }
@@ -528,7 +528,7 @@ namespace scriptinterface {
     */
     void tcPlatformInterface::SetMaxTurnRate(float rate_degps)
     {
-        if (tcAirObject *air = dynamic_cast<tcAirObject*>(mpPlatformObj))
+        if (std::shared_ptr<tcAirObject>air = std::dynamic_pointer_cast<tcAirObject>(mpPlatformObj))
         {
             air->SetMaxTurnRate(rate_degps);
         }
@@ -552,11 +552,11 @@ namespace scriptinterface {
         if (mpPlatformObj == 0) {return;}
 	    if (!mpPlatformObj->IsControlled()) return;
 
-        if (tcAeroAirObject* aaObj = dynamic_cast<tcAeroAirObject*>(mpPlatformObj))
+        if (std::shared_ptr<tcAeroAirObject> aaObj =  std::dynamic_pointer_cast<tcAeroAirObject>(mpPlatformObj))
         {
             aaObj->SetThrottleFraction(1.0f);
         }
-        else if (tcSubObject* sub = dynamic_cast<tcSubObject*>(mpPlatformObj))
+        else if (std::shared_ptr<tcSubObject> sub =  std::dynamic_pointer_cast<tcSubObject>(mpPlatformObj))
         {
             SetSpeed(sub->GetMaxSpeedForDepth(mpPlatformObj->mcKin.mfAlt_m));
         }
@@ -572,7 +572,7 @@ namespace scriptinterface {
     {
         if (mpPlatformObj == 0) {return;}
 	    if (!mpPlatformObj->IsControlled()) return;
-        if (tcAeroAirObject* aaObj = dynamic_cast<tcAeroAirObject*>(mpPlatformObj))
+        if (std::shared_ptr<tcAeroAirObject> aaObj =  std::dynamic_pointer_cast<tcAeroAirObject>(mpPlatformObj))
         {
             aaObj->SetThrottleFraction(throttleFraction);
         }
@@ -626,14 +626,14 @@ namespace scriptinterface {
             return;
         }
 
-        tcPlatformObject* leader = dynamic_cast<tcPlatformObject*>(mpSimState->GetObject(id));
+        std::shared_ptr<tcPlatformObject> leader = std::dynamic_pointer_cast<tcPlatformObject>(mpSimState->GetObject(id));
         
         if ((id == mpPlatformObj->mnID) || (leader == 0)) return;
 
         bool typeMatch = false;
 
-        if (IsSurface() && (dynamic_cast<tcSurfaceObject*>(leader) != 0)) typeMatch = true;
-        if (IsAir() && (dynamic_cast<tcAirObject*>(leader) != 0)) typeMatch = true;
+        if (IsSurface() && (std::dynamic_pointer_cast<tcSurfaceObject>(leader) != 0)) typeMatch = true;
+        if (IsAir() && (std::dynamic_pointer_cast<tcAirObject>(leader) != 0)) typeMatch = true;
 
         if (typeMatch)
         {
@@ -810,7 +810,7 @@ namespace scriptinterface {
 
 
 
-    tcGameObject* tcPlatformInterface::GetTargetObj() 
+    std::shared_ptr<tcGameObject> tcPlatformInterface::GetTargetObj() 
     {
         assert(mpSimState != 0);
         return mpSimState->GetObject(GetTarget());
@@ -844,7 +844,7 @@ namespace scriptinterface {
     bool tcPlatformInterface::GetTargetTrack(tcSensorMapTrack& track)
     {
         if (mpPlatformObj == 0) return false;
-        tcGameObject* pGameObj = GetTargetObj();
+        std::shared_ptr<tcGameObject> pGameObj = GetTargetObj();
 
         /* return truth data if obj found and own alliance
         ** On client machine, only own-alliance objects exist in sim state
@@ -874,7 +874,7 @@ namespace scriptinterface {
         }
         else // check for sensor track
         {
-            tcSensorMapTrack *smtrack = 
+            std::shared_ptr<tcSensorMapTrack>smtrack = 
                 mpSimState->mcSensorMap.GetSensorMapTrack(GetTarget(), mpPlatformObj->GetAlliance());
             if (smtrack)
             {
@@ -919,7 +919,7 @@ namespace scriptinterface {
 		size_t nLaunchers = mpPlatformObj->GetLauncherCount();
 		for (size_t n=0; n<nLaunchers; n++)
 		{
-			tcLauncher* launcher = mpPlatformObj->GetLauncher(n);
+			std::shared_ptr<tcLauncher> launcher = mpPlatformObj->GetLauncher(n);
 			assert(launcher != 0);
 
 			if (launcher->IsEffective(class_mask)) return true;
@@ -931,7 +931,7 @@ namespace scriptinterface {
     bool tcPlatformInterface::IsLauncherEffective(int anLauncher) 
     {
         if (mpPlatformObj == 0) return false;
-		tcLauncher* pLauncher = mpPlatformObj->GetLauncher(anLauncher);
+		std::shared_ptr<tcLauncher> pLauncher = mpPlatformObj->GetLauncher(anLauncher);
 		if (pLauncher == 0) return false; // bad launcher index
 
         tcSensorMapTrack track;
@@ -1089,7 +1089,7 @@ namespace scriptinterface {
     {
         if ((mpPlatformObj == 0) || (!mpPlatformObj->IsControlled())) return false;
 
-        tcAirObject* air = dynamic_cast<tcAirObject*>(mpPlatformObj);
+         std::shared_ptr<tcAirObject> air = std::dynamic_pointer_cast<tcAirObject>(mpPlatformObj);
         
         return (air != 0) && (air->CanRefuelInFlight());
     }
@@ -1102,7 +1102,7 @@ namespace scriptinterface {
     {
         if ((mpPlatformObj == 0) || (!mpPlatformObj->IsControlled())) return false;
 
-        tcAirObject* tanker = dynamic_cast<tcAirObject*>(mpSimState->GetObject(id));
+        std::shared_ptr<tcAirObject> tanker = std::dynamic_pointer_cast<tcAirObject>(mpSimState->GetObject(id));
         if (tanker == 0) return false;
 
         return tanker->AddFuelTarget(mpPlatformObj->mnID);
@@ -1115,9 +1115,9 @@ namespace scriptinterface {
     {
         if ((mpPlatformObj == 0) || (!mpPlatformObj->IsControlled())) return false;
 
-        tcAirObject* tanker = dynamic_cast<tcAirObject*>(mpSimState->GetObject(id));
+        std::shared_ptr<tcAirObject> tanker = std::dynamic_pointer_cast<tcAirObject>(mpSimState->GetObject(id));
         if (tanker == 0) return false;
-        if (tanker->GetAffiliationWith(mpPlatformObj) == tcAllianceInfo::FRIENDLY)
+        if (tanker->GetAffiliationWith(mpPlatformObj->GetAlliance()) == tcAllianceInfo::FRIENDLY)
         {
             return tanker->IsTanker() && (tanker->fuel_kg > 0.1*tanker->GetFuelCapacity());
         }
@@ -1134,9 +1134,9 @@ namespace scriptinterface {
     {
         if ((mpPlatformObj == 0) || (!mpPlatformObj->IsControlled())) return 0;
 
-        tcAirObject* tanker = dynamic_cast<tcAirObject*>(mpSimState->GetObject(id));
+        std::shared_ptr<tcAirObject> tanker = std::dynamic_pointer_cast<tcAirObject>(mpSimState->GetObject(id));
         if (tanker == 0) return 0;
-        if (tanker->GetAffiliationWith(mpPlatformObj) == tcAllianceInfo::FRIENDLY)
+        if (tanker->GetAffiliationWith(mpPlatformObj->GetAlliance()) == tcAllianceInfo::FRIENDLY)
         {
             return tanker->TankerSpotsFree();
         }
@@ -1203,8 +1203,8 @@ namespace scriptinterface {
         bool isAAM = false;
         if (nTargetType == MISSILE_TARGET)
         {
-            const tcGameObject* target = track.GetAssociatedConst();
-            const tcWeaponDBObject* weaponData = (target != 0) ? dynamic_cast<tcWeaponDBObject*>(target->mpDBObject) : 0;
+            std::shared_ptr<const tcGameObject> target = track.GetAssociatedConst();
+            std::shared_ptr<const tcWeaponDBObject> weaponData = (target != nullptr) ?  std::dynamic_pointer_cast<tcWeaponDBObject>(target->mpDBObject) : nullptr;
             if (weaponData != 0)
             {
                 isAAM = (weaponData->targetFlags & (AIR_TARGET | MISSILE_TARGET)) != 0;
@@ -1240,7 +1240,7 @@ namespace scriptinterface {
 			if (bCompatible && launcherOperational) 
 			{
                 bool inRangeCalculated = true;
-                if (tcMissileDBObject* missileData = dynamic_cast<tcMissileDBObject*>(info.weaponData))
+                if (std::shared_ptr<tcMissileDBObject> missileData =  std::dynamic_pointer_cast<tcMissileDBObject>(info.weaponData))
                 {
                     tcSensorMapTrack targetTrack(track);
                     tcKinematics missileKin(mpPlatformObj->mcKin);
@@ -1345,7 +1345,7 @@ namespace scriptinterface {
         info.weaponData = 0;
         info.lifeTime_s = 0;
 
-        tcLauncher* pLauncher = mpPlatformObj->GetLauncher(anLauncher);
+        std::shared_ptr<tcLauncher> pLauncher = mpPlatformObj->GetLauncher(anLauncher);
         if (pLauncher == 0)
 		{
 			assert(false);
@@ -1371,7 +1371,7 @@ namespace scriptinterface {
 
         bool isGunRound = false;
 
-        tcWeaponDBObject* weaponData = dynamic_cast<tcWeaponDBObject*>(pLauncher->mpChildDBObj);
+        std::shared_ptr<tcWeaponDBObject> weaponData =  std::dynamic_pointer_cast<tcWeaponDBObject>(pLauncher->mpChildDBObj);
         info.weaponData = weaponData;
 
         if (weaponData != 0)
@@ -1386,15 +1386,15 @@ namespace scriptinterface {
         }
         
 
-        if (tcMissileDBObject* missileDBObj = 
-            dynamic_cast<tcMissileDBObject*>(weaponData))
+        if (std::shared_ptr<tcMissileDBObject> missileDBObj = 
+             std::dynamic_pointer_cast<tcMissileDBObject>(weaponData))
 		{
             info.isARM = missileDBObj->IsARM();
             info.speed_mps = missileDBObj->EstimateSpeed_mps();
             info.acceptsWaypoints = missileDBObj->AcceptsWaypoints();
 		}
-		else if (tcBallisticDBObject* ballisticDBObj = 
-            dynamic_cast<tcBallisticDBObject*>(weaponData))
+		else if (std::shared_ptr<tcBallisticDBObject> ballisticDBObj = 
+             std::dynamic_pointer_cast<tcBallisticDBObject>(weaponData))
 		{
             // not exact, higher target elevation could shorten range
             info.maxRange_km = ballisticDBObj->CalculateRangeKm(mpPlatformObj->mcKin.mfAlt_m, C_KTSTOMPS*mpPlatformObj->mcKin.mfSpeed_kts);
@@ -1428,8 +1428,8 @@ namespace scriptinterface {
                 {
                     info.mnLaunchMode = 10;
                      tcDatabase* database = tcDatabase::Get();
-                    if (tcCounterMeasureDBObject* cmDBObj = 
-                        dynamic_cast<tcCounterMeasureDBObject*>(database->GetObject(ballisticDBObj->payloadClass)))
+                    if (std::shared_ptr<tcCounterMeasureDBObject> cmDBObj = 
+                         std::dynamic_pointer_cast<tcCounterMeasureDBObject>(database->GetObject(ballisticDBObj->payloadClass)))
                     {
                         info.lifeTime_s = cmDBObj->lifeSpan_s;
                     }
@@ -1438,20 +1438,20 @@ namespace scriptinterface {
                 break;
             }
         }
-		else if (tcTorpedoDBObject* torpDBObj = 
-            dynamic_cast<tcTorpedoDBObject*>(weaponData))
+		else if (std::shared_ptr<tcTorpedoDBObject> torpDBObj = 
+             std::dynamic_pointer_cast<tcTorpedoDBObject>(weaponData))
         {
             info.maxDepth_m = torpDBObj->maxDepth_m;
         }
-        else if (tcCounterMeasureDBObject* cmDBObj = 
-            dynamic_cast<tcCounterMeasureDBObject*>(pLauncher->mpChildDBObj))
+        else if (std::shared_ptr<tcCounterMeasureDBObject> cmDBObj = 
+             std::dynamic_pointer_cast<tcCounterMeasureDBObject>(pLauncher->mpChildDBObj))
         {
             info.mnLaunchMode = 10;
             info.lifeTime_s = cmDBObj->lifeSpan_s;
             return true;
         }
-        else if (tcSonobuoyDBObject* buoyData = 
-            dynamic_cast<tcSonobuoyDBObject*>(pLauncher->mpChildDBObj))
+        else if (std::shared_ptr<tcSonobuoyDBObject> buoyData = 
+             std::dynamic_pointer_cast<tcSonobuoyDBObject>(pLauncher->mpChildDBObj))
         {
             info.mnLaunchMode = 11;
             return true;
@@ -1487,7 +1487,7 @@ namespace scriptinterface {
         
         if ((mpPlatformObj != 0) && (launcher >= 0))
         {
-            if (tcLauncher* pLauncher = mpPlatformObj->GetLauncher(launcher))
+            if (std::shared_ptr<tcLauncher> pLauncher = mpPlatformObj->GetLauncher(launcher))
             {
                 status = pLauncher->GetStatus();
             }
@@ -1502,7 +1502,7 @@ namespace scriptinterface {
     {
         if ((mpPlatformObj == 0) || (nLauncher < 0)) return false;
 
-        tcLauncher* launcher = mpPlatformObj->GetLauncher(nLauncher);
+        std::shared_ptr<tcLauncher> launcher = mpPlatformObj->GetLauncher(nLauncher);
         if (launcher == 0)
 		{
 			assert(false);
@@ -1511,10 +1511,10 @@ namespace scriptinterface {
 
         float rangeToTarget_km = GetRangeToDatum(lon_rad, lat_rad);
 
-        tcWeaponDBObject* weaponData = dynamic_cast<tcWeaponDBObject*>(launcher->mpChildDBObj);
+        std::shared_ptr<tcWeaponDBObject> weaponData =  std::dynamic_pointer_cast<tcWeaponDBObject>(launcher->mpChildDBObj);
         
-        if (tcMissileDBObject* missileDBObj = 
-            dynamic_cast<tcMissileDBObject*>(weaponData))
+        if (std::shared_ptr<tcMissileDBObject> missileDBObj = 
+             std::dynamic_pointer_cast<tcMissileDBObject>(weaponData))
         {
             tcSensorMapTrack targetTrack;
             targetTrack.mfLon_rad = lon_rad;
@@ -1528,30 +1528,30 @@ namespace scriptinterface {
             bool inRangeCalculated = tcMissileObject::EvaluateTarget(missileKin, targetTrack, missileDBObj);
             return inRangeCalculated;
         }
-		else if (tcBallisticDBObject* ballisticDBObj = 
-            dynamic_cast<tcBallisticDBObject*>(weaponData))
+		else if (std::shared_ptr<tcBallisticDBObject> ballisticDBObj = 
+             std::dynamic_pointer_cast<tcBallisticDBObject>(weaponData))
 		{
             float maxRange_km = ballisticDBObj->CalculateRangeKm(mpPlatformObj->mcKin.mfAlt_m - alt_m, C_KTSTOMPS*mpPlatformObj->mcKin.mfSpeed_kts);
             
             return (rangeToTarget_km < maxRange_km);
         }
-		else if (tcTorpedoDBObject* torpDBObj = 
-            dynamic_cast<tcTorpedoDBObject*>(weaponData))
+		else if (std::shared_ptr<tcTorpedoDBObject> torpDBObj = 
+             std::dynamic_pointer_cast<tcTorpedoDBObject>(weaponData))
         {
             return (rangeToTarget_km < torpDBObj->maxRange_km);
         }
-        else if (tcCounterMeasureDBObject* cmDBObj = 
-            dynamic_cast<tcCounterMeasureDBObject*>(launcher->mpChildDBObj))
+        else if (std::shared_ptr<tcCounterMeasureDBObject> cmDBObj = 
+             std::dynamic_pointer_cast<tcCounterMeasureDBObject>(launcher->mpChildDBObj))
         {
             return true;
         }
-        else if (tcSonobuoyDBObject* buoyData = 
-            dynamic_cast<tcSonobuoyDBObject*>(launcher->mpChildDBObj))
+        else if (std::shared_ptr<tcSonobuoyDBObject> buoyData = 
+             std::dynamic_pointer_cast<tcSonobuoyDBObject>(launcher->mpChildDBObj))
         {
             return true;
         }
-        else if (tcBallisticMissileDBObject* ballisticMissileData = 
-            dynamic_cast<tcBallisticMissileDBObject*>(weaponData))
+        else if (std::shared_ptr<tcBallisticMissileDBObject> ballisticMissileData = 
+             std::dynamic_pointer_cast<tcBallisticMissileDBObject>(weaponData))
         {
             return (rangeToTarget_km < ballisticMissileData->maxRange_km);
         }
@@ -1565,7 +1565,7 @@ namespace scriptinterface {
 
     float tcPlatformInterface::CalculateBombElevationDeg(float targetLon_rad, float targetLat_rad)
     {
-        if (tcAirObject *air = dynamic_cast<tcAirObject*>(mpPlatformObj))
+        if (std::shared_ptr<tcAirObject>air = std::dynamic_pointer_cast<tcAirObject>(mpPlatformObj))
         {
             return C_180OVERPI * air->CalculateBombElevationRad(targetLon_rad, targetLat_rad);
         }
@@ -1583,7 +1583,7 @@ namespace scriptinterface {
 	*/
 	float tcPlatformInterface::EstimateMissileRangeKm(float launchSpeed_mps, float launchAlt_m, float targetAlt_m, const std::string& missileType)
 	{
-		tcMissileDBObject* missileData = dynamic_cast<tcMissileDBObject*>(tcDatabase::Get()->GetObject(missileType));
+        std::shared_ptr<tcMissileDBObject> missileData =  std::dynamic_pointer_cast<tcMissileDBObject>(tcDatabase::Get()->GetObject(missileType));
 		if (missileData == 0)
 		{
 			fprintf(stderr, "tcPlatformInterface::EstimateMissileRangeKm - Missile (%s) not found\n", missileType.c_str());
@@ -1640,7 +1640,7 @@ namespace scriptinterface {
         s = mpPlatformObj->mcLauncherState.GetLauncherChildClass(anLauncher);
 
         tcDatabase* database = tcDatabase::Get();
-        if (tcDatabaseObject* data = database->GetObject(s))
+        if (std::shared_ptr<tcDatabaseObject> data = database->GetObject(s))
         {
             return std::string(data->GetDisplayName());
         }
@@ -1690,7 +1690,7 @@ namespace scriptinterface {
         {
             if (mpPlatformObj->IsOwnAlliance() && mpPlatformObj->IsHooked())
             {
-                tcLauncher* launcher = mpPlatformObj->GetLauncher(anLauncher);
+                std::shared_ptr<tcLauncher> launcher = mpPlatformObj->GetLauncher(anLauncher);
                 if (launcher != 0)
                 {
 //                    DisplayMessage(launcher->TranslateStatusDetailed(launcherStatus));
@@ -1715,7 +1715,7 @@ namespace scriptinterface {
     {
         if (mpPlatformObj == 0) return 0;
 
-        if (tcLauncher* launcher = mpPlatformObj->GetLauncher(anLauncher))
+        if (std::shared_ptr<tcLauncher> launcher = mpPlatformObj->GetLauncher(anLauncher))
         {
             return (int)launcher->GetCompatibleCount();
         }
@@ -1732,7 +1732,7 @@ namespace scriptinterface {
     {
         if (mpPlatformObj == 0) return std::string("Error");
 
-        if (tcLauncher* launcher = mpPlatformObj->GetLauncher(anLauncher))
+        if (std::shared_ptr<tcLauncher> launcher = mpPlatformObj->GetLauncher(anLauncher))
         {
             return launcher->GetCompatibleName(anType);
         }
@@ -1772,12 +1772,12 @@ namespace scriptinterface {
        
         for (iter.First(); iter.NotDone(); iter.Next())
         {
-			if (tcWeaponObject* weapon = dynamic_cast<tcWeaponObject*>(iter.Get()))
+            if (std::shared_ptr<tcWeaponObject> weapon =  std::dynamic_pointer_cast<tcWeaponObject>(iter.Get()))
 			{
 				info.weaponsOut += int(weapon->WasLaunchedBy(mpPlatformObj->mnID));
 			}
 
-            if (tcMissileObject* missile = dynamic_cast<tcMissileObject*>(iter.Get()))
+            if (std::shared_ptr<tcMissileObject> missile =  std::dynamic_pointer_cast<tcMissileObject>(iter.Get()))
             {
                 long fireControlPlatform;
                 if (missile->StillNeedsIlluminator(fireControlPlatform))
@@ -1787,7 +1787,7 @@ namespace scriptinterface {
      
                         info.radarGuidanceActive = true;
                         assert(missile->GetSeekerSensor() != 0);
-                        if (tcRadar* fireControlRadar = missile->GetSeekerSensor()->GetFireControlRadar())
+                        if (std::shared_ptr<tcRadar> fireControlRadar = missile->GetSeekerSensor()->GetFireControlRadar())
                         {
                             float half_fov_rad = 0.5*C_PIOVER180*fireControlRadar->mpDBObj->mfFieldOfView_deg;
                             float look_az_rad = mpPlatformObj->mcKin.mfHeading_rad + fireControlRadar->mountAz_rad;
@@ -1873,7 +1873,7 @@ namespace scriptinterface {
         unsigned int nMagazines = mpPlatformObj->GetMagazineCount();
         for (unsigned int n=0; n<nMagazines; n++)
         {
-            tcStores* mag = mpPlatformObj->GetMagazine(n);
+            std::shared_ptr<tcStores> mag = mpPlatformObj->GetMagazine(n);
             if (!mag->IsFull() && mag->IsCompatible(item)) return true;
         }
         return false;
@@ -1907,7 +1907,7 @@ namespace scriptinterface {
         unsigned int nMagazines = mpPlatformObj->GetMagazineCount();
         for (unsigned int n=0; n<nMagazines; n++)
         {
-            tcStores* mag = mpPlatformObj->GetMagazine(n);
+            std::shared_ptr<tcStores> mag = mpPlatformObj->GetMagazine(n);
             if (!mag->IsFull() && mag->IsCompatible(parsedItem))
             {
                 mag->AddItems(parsedItem, quantity);
@@ -1928,7 +1928,7 @@ namespace scriptinterface {
     int tcPlatformInterface::GetMagazineIdQuantity(std::string item, int magazine_id)
     {
         if (mpPlatformObj == 0) return 0;
-        tcStores* mag = mpPlatformObj->GetMagazine(magazine_id);
+        std::shared_ptr<tcStores> mag = mpPlatformObj->GetMagazine(magazine_id);
         std::string matchingItem;
         size_t nAvailable = mag->CurrentItemQuantity(item, matchingItem);
         return nAvailable;
@@ -1937,7 +1937,7 @@ namespace scriptinterface {
     void tcPlatformInterface::SetMagazineEmpty(int magazine_id)
     {
         if (mpPlatformObj == 0) return;
-		tcStores* stores = mpPlatformObj->GetMagazine(magazine_id);
+        std::shared_ptr<tcStores> stores = mpPlatformObj->GetMagazine(magazine_id);
 		stores->RemoveAllItems();
     }
 
@@ -1958,7 +1958,7 @@ namespace scriptinterface {
         unsigned int nMagazines = mpPlatformObj->GetMagazineCount();
         for (unsigned int n=0; n<nMagazines; n++)
         {
-            tcStores* mag = mpPlatformObj->GetMagazine(n);
+            std::shared_ptr<tcStores> mag = mpPlatformObj->GetMagazine(n);
             assert(mag != 0);
             size_t nItems = mag->GetNumberItemTypes();
             for (size_t k=0; k<nItems; k++)
@@ -2008,7 +2008,7 @@ namespace scriptinterface {
         {
             for (size_t n=0; n<nLaunchers; n++)
             {
-                tcLauncher* launcher = mpPlatformObj->GetLauncher(n);
+                std::shared_ptr<tcLauncher> launcher = mpPlatformObj->GetLauncher(n);
                 
                 std::vector<std::string> arrayString = launcher->GetAllCompatibleList();
                 size_t nCompatible = arrayString.size();
@@ -2023,7 +2023,7 @@ namespace scriptinterface {
         }
         else if ((size_t)launcher_idx < nLaunchers)
         {
-            tcLauncher* launcher = mpPlatformObj->GetLauncher(launcher_idx);
+            std::shared_ptr<tcLauncher> launcher = mpPlatformObj->GetLauncher(launcher_idx);
             assert(launcher != 0);
 
             std::vector<std::string> arrayString = launcher->GetAllCompatibleList();
@@ -2075,7 +2075,7 @@ namespace scriptinterface {
 
 		if (!mpPlatformObj->IsControlled()) return;
         // verify launcher is empty and item is compatible with launcher  
-        tcLauncher* launcher = mpPlatformObj->GetLauncher(anLauncher);
+        std::shared_ptr<tcLauncher> launcher = mpPlatformObj->GetLauncher(anLauncher);
         if (!launcher) return;
         if (!launcher->IsItemCompatible(item)) return;
 
@@ -2097,7 +2097,7 @@ namespace scriptinterface {
         unsigned int nMagazines = mpPlatformObj->GetMagazineCount();
         for (unsigned int n=0; n<nMagazines; n++)
         {
-            tcStores* mag = mpPlatformObj->GetMagazine(n);
+            std::shared_ptr<tcStores> mag = mpPlatformObj->GetMagazine(n);
             if (mag->CurrentItemQuantity(item, exactItem))
             {
                 mag->LoadLauncher(anLauncher, exactItem);
@@ -2112,7 +2112,7 @@ namespace scriptinterface {
     {
         if (!isDeveloperMode) return;
 
-        tcLauncher* launcher = mpPlatformObj->GetLauncher(anLauncher);
+        std::shared_ptr<tcLauncher> launcher = mpPlatformObj->GetLauncher(anLauncher);
         if (!launcher) return;
 
         launcher->SetChildClass("", true);
@@ -2131,7 +2131,7 @@ namespace scriptinterface {
 		size_t nMagazines = mpPlatformObj->GetMagazineCount();
 		for (size_t n=0; n<nMagazines; n++)
 		{
-			tcStores* mag = mpPlatformObj->GetMagazine(n);
+            std::shared_ptr<tcStores> mag = mpPlatformObj->GetMagazine(n);
 			if (mag->CurrentItemQuantity(item, exactItem))
 			{
 				mag->LoadOther(exactItem, quantity, mpPlatformObj);
@@ -2139,12 +2139,12 @@ namespace scriptinterface {
 			}
 		}
 
-		if (tcPlatformObject* parent = dynamic_cast<tcPlatformObject*>(mpPlatformObj->parent))
+		if (std::shared_ptr<tcPlatformObject> parent = std::dynamic_pointer_cast<tcPlatformObject>(mpPlatformObj->parent))
 		{
 			size_t nMagazines = parent->GetMagazineCount();
 			for (size_t n=0; n<nMagazines; n++)
 			{
-				tcStores* mag = parent->GetMagazine(n);
+                std::shared_ptr<tcStores> mag = parent->GetMagazine(n);
 				if (mag->CurrentItemQuantity(item, exactItem))
 				{
 					mag->LoadOther(exactItem, quantity, mpPlatformObj);
@@ -2156,7 +2156,7 @@ namespace scriptinterface {
 
     bool tcPlatformInterface::MaintenanceHold() const
     {
-        if (tcAirObject* air = dynamic_cast<tcAirObject*>(mpPlatformObj))
+        if ( std::shared_ptr<tcAirObject> air = std::dynamic_pointer_cast<tcAirObject>(mpPlatformObj))
         {
             return air->MaintenanceHold();
         }
@@ -2221,7 +2221,7 @@ namespace scriptinterface {
 
             for (iter.First(); !iter.IsDone(); iter.Next())
             {
-                tcDatabaseObject* obj = iter.Get();
+                std::shared_ptr<tcDatabaseObject> obj = iter.Get();
                 assert(obj);
                 assert(obj->mnKey != -1);
 
@@ -2240,7 +2240,7 @@ namespace scriptinterface {
     {
         tcStringArray stringArray;
 
-        if (tcAirObject* air = dynamic_cast<tcAirObject*>(mpPlatformObj))
+        if ( std::shared_ptr<tcAirObject> air = std::dynamic_pointer_cast<tcAirObject>(mpPlatformObj))
         {
 			tcDateTime dateTime = mpSimState->GetDateTime();
 
@@ -2265,7 +2265,7 @@ namespace scriptinterface {
         if (mpPlatformObj == 0) return 0;
 
 		if (!mpPlatformObj->IsControlled()) return 0;
-        tcLauncher* launcher = mpPlatformObj->GetLauncher(launcherIdx);
+        std::shared_ptr<tcLauncher> launcher = mpPlatformObj->GetLauncher(launcherIdx);
         if (!launcher) return 0;
         if (!launcher->IsItemCompatible(item)) return 0;
 		unsigned int launcherCapacity = launcher->GetCapacityForItem(item);
@@ -2278,7 +2278,7 @@ namespace scriptinterface {
     {
         if (!tcGameObject::IsEditMode()) return;
 
-        if (tcAirObject* air = dynamic_cast<tcAirObject*>(mpPlatformObj))
+        if ( std::shared_ptr<tcAirObject> air = std::dynamic_pointer_cast<tcAirObject>(mpPlatformObj))
         {
             tcStores::LoadPlatformEditMode(air, loadout);
         }
@@ -2333,7 +2333,7 @@ namespace scriptinterface {
     */
     float tcPlatformInterface::GetWeightMargin()
     {
-        if (tcAirObject* air = dynamic_cast<tcAirObject*>(mpPlatformObj))
+        if ( std::shared_ptr<tcAirObject> air = std::dynamic_pointer_cast<tcAirObject>(mpPlatformObj))
         {
             return air->mpDBObject->maxTakeoffWeight_kg - air->GetTotalWeight();
         }
@@ -2351,7 +2351,7 @@ namespace scriptinterface {
         if (mpPlatformObj == 0) return;
 
 		if (!mpPlatformObj->IsControlled()) return;
-        tcLauncher* launcher = mpPlatformObj->GetLauncher(anLauncher);
+        std::shared_ptr<tcLauncher> launcher = mpPlatformObj->GetLauncher(anLauncher);
         if (!launcher) return;
         if (!launcher->mpChildDBObj) return;
 
@@ -2372,7 +2372,7 @@ namespace scriptinterface {
         unsigned int nMagazines = mpPlatformObj->GetMagazineCount();
         for (unsigned int n=0; n<nMagazines; n++)
         {
-            tcStores* mag = mpPlatformObj->GetMagazine(n);
+            std::shared_ptr<tcStores> mag = mpPlatformObj->GetMagazine(n);
             if (!mag->IsFull() && mag->IsCompatible(item))
             {
                 mag->UnloadLauncher(anLauncher);
@@ -2519,7 +2519,7 @@ namespace scriptinterface {
         {
             if (referenceMode != 0)
             {
-                tcGameObject* ref = mpSimState->GetObject(referencePlatform);
+                std::shared_ptr<tcGameObject> ref = mpSimState->GetObject(referencePlatform);
                 if ((mpPlatformObj == 0) || (ref == 0) || (mpPlatformObj->GetAlliance() != ref->GetAlliance()))
                 {
                     return; // invalid waypoint referencing
@@ -2726,15 +2726,15 @@ namespace scriptinterface {
 
     tcTrackIterator tcPlatformInterface::GetNextTrack(long nPos) 
     {
-        tcSensorMapTrack *pSMTrack;
+        std::shared_ptr<tcSensorMapTrack> psmtrack;
         tcTrackIterator t;
 
         long nKey = nPos;
 
-        mpSensorMap->GetNextTrack(nKey, pSMTrack);
+        mpSensorMap->GetNextTrack(nKey, psmtrack);
         t.mnKey = nKey;
-        tcSensorMapTrack *pt = (tcSensorMapTrack*)&t;
-        *pt = *pSMTrack;
+        std::shared_ptr<tcSensorMapTrack>pt = (std::shared_ptr<tcSensorMapTrack>)&t;
+        *pt = *psmtrack;
         return t;
     }
 
@@ -2771,7 +2771,7 @@ namespace scriptinterface {
         UINT16 anClassMask, UINT8 anAffiliation, int maxEngagements) 
     {
         tcSensorMapTrack track;
-        tcSensorMapTrack *pTrack;
+        // std::shared_ptr<tcSensorMapTrack>pTrack;
 
         if (mpSensorMap == 0) {return track;}
 
@@ -2784,14 +2784,14 @@ namespace scriptinterface {
         float fMinRange_km = 1e15f;
         for(int n=0; n<nCount; n++) 
         {
-			pTrack = trackList.GetTrackPointer(n);
+           tcSensorMapTrack& pTrack = trackList.GetTrackRef(n);
 
             bool engagementsMatch = (maxEngagements == 0) || 
-                ((int)pTrack->GetEngagedCount() <= maxEngagements);
+                ((int)pTrack.GetEngagedCount() <= maxEngagements);
 
 			if (engagementsMatch && (trackList.range_km[n] < fMinRange_km))
 			{
-				track = *pTrack;
+                track = pTrack;
                 fMinRange_km = trackList.range_km[n];
 			}
         }
@@ -2818,7 +2818,7 @@ namespace scriptinterface {
 
         tcTrackList trackList;
 
-        tcSensorMapTrack *pTrack;
+        std::shared_ptr<tcSensorMapTrack>pTrack;
 
         assert(mpSensorMap);
         assert(anAffiliation != tcAllianceInfo::FRIENDLY);
@@ -2874,7 +2874,7 @@ namespace scriptinterface {
 
         double t = mpSimState->GetTime();
 
-        tcSensorMapTrack *pTrack;
+        std::shared_ptr<tcSensorMapTrack>pTrack;
 		tcGoalTracker* goalTracker = tcGoalTracker::Get();
 
         assert(mpSensorMap != 0);
@@ -2897,7 +2897,7 @@ namespace scriptinterface {
             bool valid = classificationMatch && bearingOnlyValid && 
                 !pTrack->IsDestroyed() && !pTrack->IsStale();
 
-			if (valid && (goalTracker->IsTargetLegal(mpPlatformObj, pTrack)))
+            if (valid && (goalTracker->IsTargetLegal(mpPlatformObj, *pTrack)))
             {
                 GeoPoint p;
                 p.mfAlt_m = 0;
@@ -2952,8 +2952,8 @@ namespace scriptinterface {
             return trackList;
         }
 
-        tcAirObject* air = dynamic_cast<tcAirObject*>(mpPlatformObj);
-        tcAirObject* helo = dynamic_cast<tcHeloObject*>(air);
+         std::shared_ptr<tcAirObject> air = std::dynamic_pointer_cast<tcAirObject>(mpPlatformObj);
+        std::shared_ptr<tcAirObject> helo =  std::dynamic_pointer_cast<tcHeloObject>(air);
 
         bool thisPlatformIsHelo = (helo != 0);
         bool carrierCompatible = (air != 0) && (air->mpDBObject->IsCarrierCompatible());
@@ -2965,7 +2965,7 @@ namespace scriptinterface {
         {
             for (iter.First();iter.NotDone();iter.Next())
             {
-                tcGameObject* obj = iter.Get();
+                std::shared_ptr<tcGameObject> obj = iter.Get();
 
                 if ((obj->GetAlliance() == mpPlatformObj->GetAlliance()) && (obj != mpPlatformObj))
                 {
@@ -2985,15 +2985,15 @@ namespace scriptinterface {
         {
             for (iter.First();iter.NotDone();iter.Next())
             {
-                tcGameObject* obj = iter.Get();
+                std::shared_ptr<tcGameObject> obj = iter.Get();
 
                 if ((obj->GetAlliance() == mpPlatformObj->GetAlliance()) && (obj != mpPlatformObj) &&
                     (obj->RangeTo(*mpPlatformObj) <= maxRange_km)  )
                 {
-                    if (tcFlightOpsObject* flightOps = dynamic_cast<tcFlightOpsObject*>(obj))
+                    if (std::shared_ptr<tcFlightOpsObject> flightOps =  std::dynamic_pointer_cast<tcFlightOpsObject>(obj))
                     {
                         tcFlightPort* flightPort = flightOps->GetFlightPort();
-                        bool isCarrier = dynamic_cast<tcCarrierObject*>(obj) != 0;
+                        bool isCarrier =  std::dynamic_pointer_cast<tcCarrierObject>(obj) != nullptr;
                         bool heloOnly = flightPort->IsHeloOnly();
                         bool matches = (carrierCompatible || !isCarrier) && (!heloOnly || thisPlatformIsHelo);
                         bool runwayLengthOkay = (air != 0) && (flightPort->GetMaxRunwayLength() >= air->mpDBObject->minimumRunway_m);
@@ -3013,10 +3013,10 @@ namespace scriptinterface {
         {
             for (iter.First();iter.NotDone();iter.Next())
             {
-                tcGameObject* obj = iter.Get();
-                tcAirObject* air = dynamic_cast<tcAirObject*>(obj);
+                std::shared_ptr<tcGameObject> obj = iter.Get();
+                 std::shared_ptr<tcAirObject> air = std::dynamic_pointer_cast<tcAirObject>(obj);
 
-                if ((air != 0) && (air->IsTanker()) && (air->GetAffiliationWith(mpPlatformObj) == tcAllianceInfo::FRIENDLY) && 
+                if ((air != 0) && (air->IsTanker()) && (air->GetAffiliationWith(mpPlatformObj->GetAlliance()) == tcAllianceInfo::FRIENDLY) &&
                     (air != mpPlatformObj) && (air->RangeTo(*mpPlatformObj) <= maxRange_km))
                 {
                     bool tankerHasFuel = (air->fuel_kg > 0.1f * air->GetFuelCapacity());
@@ -3115,7 +3115,7 @@ namespace scriptinterface {
         unsigned nSensors = mpPlatformObj->GetSensorCount();
         if ((n < 0)||((unsigned)n >= nSensors)) return info;
 
-        const tcSensorState* sensor_state = mpPlatformObj->GetSensor(n);
+        std::shared_ptr<const tcSensorState> sensor_state = mpPlatformObj->GetSensor(n);
         info.isActive = sensor_state->IsActive();
         info.type = 0;
 
@@ -3129,7 +3129,7 @@ namespace scriptinterface {
         }
         else if (sensor_state->IsSonar())
         {
-            tcSonarDBObject* sonar = dynamic_cast<tcSonarDBObject*>(sensor_state->mpDBObj);
+             std::shared_ptr<tcSonarDBObject> sonar = std::dynamic_pointer_cast< tcSonarDBObject>(sensor_state->mpDBObj);
             if (sonar->isPassive) info.type += 4;
             if (sonar->isActive) info.type += 8;
         }
@@ -3271,7 +3271,7 @@ namespace scriptinterface {
     {
         if (mpPlatformObj == 0) return -1;
 
-        tcGameObject* obj = mpSimState->GetObjectByName(unitName);
+        std::shared_ptr<tcGameObject> obj = mpSimState->GetObjectByName(unitName);
         bool isOwnAlliance = (obj != 0) && (mpPlatformObj->GetAlliance() == obj->GetAlliance());
 
         if ((obj == 0) || !isOwnAlliance)
@@ -3288,7 +3288,7 @@ namespace scriptinterface {
     {
         if (mpPlatformObj == 0) return "Error, not platform";
 
-        tcGameObject* obj = mpSimState->GetObject(id);
+        std::shared_ptr<tcGameObject> obj = mpSimState->GetObject(id);
 		bool isOwnAlliance = (obj != 0) && (mpPlatformObj->GetAlliance() == obj->GetAlliance());
 
         if ((obj == 0) || !isOwnAlliance)
@@ -3385,7 +3385,7 @@ namespace scriptinterface {
     // flightport (airstrip, cv flight deck, helo pad)
     bool tcPlatformInterface::HasFlightPort(void)
     {
-        if (dynamic_cast<tcFlightOpsObject*>(mpPlatformObj))
+        if ( std::dynamic_pointer_cast<tcFlightOpsObject>(mpPlatformObj))
 		{
 			return true;
 		}
@@ -3407,7 +3407,7 @@ namespace scriptinterface {
 
         if (mpPlatformObj == 0) return errorTrack;
 
-        tcGameObject* obj = mpSimState->GetObject(id);
+        std::shared_ptr<tcGameObject> obj = mpSimState->GetObject(id);
 
 		bool isOwnAlliance = mpPlatformObj->GetAlliance() == obj->GetAlliance();
 
@@ -3418,7 +3418,7 @@ namespace scriptinterface {
 			return data;
 		}
 
-        tcFlightOpsObject* flightOps = dynamic_cast<tcFlightOpsObject*>(obj);
+        std::shared_ptr<tcFlightOpsObject> flightOps =  std::dynamic_pointer_cast<tcFlightOpsObject>(obj);
         if (flightOps == 0)
         {
 			tcTrack data;
@@ -3426,11 +3426,11 @@ namespace scriptinterface {
 			return data;
         }
 
-        tcAirObject* air = dynamic_cast<tcAirObject*>(mpPlatformObj);
+         std::shared_ptr<tcAirObject> air = std::dynamic_pointer_cast<tcAirObject>(mpPlatformObj);
 
         // if target platform is a surface platform, check that landing aircraft
         // is carrier compatible
-        if (tcSurfaceObject* surface = dynamic_cast<tcSurfaceObject*>(obj))
+        if (std::shared_ptr<tcSurfaceObject> surface = std::dynamic_pointer_cast<tcSurfaceObject>(obj))
         {
             if ((air == 0) || !air->mpDBObject->IsCarrierCompatible())
             {
@@ -3458,7 +3458,7 @@ namespace scriptinterface {
     {
         tcFlightPortInterface fpi;
         
-        tcFlightOpsObject* flightOps = dynamic_cast<tcFlightOpsObject*>(mpPlatformObj);
+        std::shared_ptr<tcFlightOpsObject> flightOps =  std::dynamic_pointer_cast<tcFlightOpsObject>(mpPlatformObj);
         if (flightOps != 0) 
         {
 			fpi.flightport = flightOps->GetFlightPort();
@@ -3489,7 +3489,7 @@ namespace scriptinterface {
 //        s = missionIdent.AfterFirst('-');
 //        s.ToLong(&missionId);
 
-        tcFlightOpsObject* flightOps = dynamic_cast<tcFlightOpsObject*>(mpSimState->GetObject(hostId));
+        std::shared_ptr<tcFlightOpsObject> flightOps =  std::dynamic_pointer_cast<tcFlightOpsObject>(mpSimState->GetObject(hostId));
         if ((flightOps == 0) || (missionId < 1)) return missionInterface;
 
         tcFlightPort* flightPort = flightOps->GetFlightPort();
@@ -3544,7 +3544,7 @@ namespace scriptinterface {
         float newTerrainHeight = mapData->GetTerrainHeight(C_180OVERPI*afLon_rad, C_180OVERPI*afLat_rad, 0);
 
         // class-specific altitude adjustment
-        if (tcAirObject *airObj = dynamic_cast<tcAirObject*>(mpPlatformObj))
+        if (std::shared_ptr<tcAirObject>airObj = std::dynamic_pointer_cast<tcAirObject>(mpPlatformObj))
         {
             if (kin.mfAlt_m < newTerrainHeight + 10.0f)
             {
@@ -3557,7 +3557,7 @@ namespace scriptinterface {
             
             airObj->SetAltitude(airObj->mcKin.mfAlt_m);
         }
-        if (tcSubObject* sub = dynamic_cast<tcSubObject*>(mpPlatformObj))
+        if (std::shared_ptr<tcSubObject> sub =  std::dynamic_pointer_cast<tcSubObject>(mpPlatformObj))
         {
             if (kin.mfAlt_m < newTerrainHeight + 10.0f)
             {
@@ -3567,15 +3567,15 @@ namespace scriptinterface {
         }
 
 		// place ground objects relative to terrain height
-		if (tcAirfieldObject* fieldObj = dynamic_cast<tcAirfieldObject*>(mpPlatformObj))
+        if (std::shared_ptr<tcAirfieldObject> fieldObj = std::dynamic_pointer_cast<tcAirfieldObject>(mpPlatformObj))
 		{
             kin.mfAlt_m = newTerrainHeight;
 		}
-		else if (tcGroundObject* groundObj = dynamic_cast<tcGroundObject*>(mpPlatformObj))
+        else if (std::shared_ptr<tcGroundObject> groundObj = std::dynamic_pointer_cast<tcGroundObject>(mpPlatformObj))
 		{
 			kin.mfAlt_m = newTerrainHeight;
 		}
-		else if (tcGroundVehicleObject* groundVehicleObj = dynamic_cast<tcGroundVehicleObject*>(mpPlatformObj))
+        else if (std::shared_ptr<tcGroundVehicleObject> groundVehicleObj = std::dynamic_pointer_cast<tcGroundVehicleObject>(mpPlatformObj))
 		{
 			kin.mfAlt_m = newTerrainHeight;
 		}
@@ -3659,15 +3659,15 @@ namespace scriptinterface {
     {
         assert(mpSimState != 0);
 
-		tcGameObject* obj = mpSimState->GetObjectByName(unitName);
-		tcPlatformObject* platform = dynamic_cast<tcPlatformObject*>(obj);
+		std::shared_ptr<tcGameObject> obj = mpSimState->GetObjectByName(unitName);
+		std::shared_ptr<tcPlatformObject> platform = std::dynamic_pointer_cast<tcPlatformObject>(obj);
 
 		if (tcGameObject::IsEditMode())
 		{
 			return tcPlatformInterface(platform);
 		}
 
-		bool isFriendly = (platform != 0) && (mpPlatformObj != 0) && (mpPlatformObj->GetAffiliationWith(platform) == tcAllianceInfo::FRIENDLY);
+        bool isFriendly = (platform != 0) && (mpPlatformObj != 0) && (mpPlatformObj->GetAffiliationWith(platform->GetAlliance()) == tcAllianceInfo::FRIENDLY);
 
 		if (isFriendly)
 		{
@@ -3871,7 +3871,7 @@ namespace scriptinterface {
 //            assert(tacticalMap != 0);
 //            if (tacticalMap->hookedId.size() > 0)
 //            {
-//                tcGameObject* obj = mpSimState->GetObject(tacticalMap->hookedId[0]);
+//                std::shared_ptr<tcGameObject> obj = mpSimState->GetObject(tacticalMap->hookedId[0]);
 //                if (obj != 0)
 //                {
 //                    obj->SetInvulnerable(state);
@@ -3897,7 +3897,7 @@ namespace scriptinterface {
 //            assert(tacticalMap != 0);
 //            if (tacticalMap->hookedId.size() > 0)
 //            {
-//                tcGameObject* obj = mpSimState->GetObject(tacticalMap->hookedId[0]);
+//                std::shared_ptr<tcGameObject> obj = mpSimState->GetObject(tacticalMap->hookedId[0]);
 //                if (obj != 0)
 //                {
 //                    targetName = obj->GetName();
@@ -3906,7 +3906,7 @@ namespace scriptinterface {
 //        }
 
         if (targetName.size() == 0) return;
-
+#ifdef USE_TEST
         tcWeaponTester* weaponTester = tcWeaponTester::Get();
         assert(weaponTester != 0);
 
@@ -3914,6 +3914,8 @@ namespace scriptinterface {
 
         weaponTester->SetTarget(targetName);
         weaponTester->SetWeapon(weaponClass);
+#endif
+
         //weaponTester->SetQuantity(quantity);
 
         //mpPlatformObj->SetInvulnerable(state);
@@ -3922,7 +3924,7 @@ namespace scriptinterface {
     void tcPlatformInterface::SetTestParameter(const std::string& paramName, float val)
     {
         if ((!isDeveloperMode)) return;
-
+#ifdef USE_TEST
         tcWeaponTester* weaponTester = tcWeaponTester::Get();
         assert(weaponTester != 0);
 
@@ -3944,6 +3946,7 @@ namespace scriptinterface {
         {
             weaponTester->SetLaunchInterval(val);
         }
+#endif
 
     }
 
@@ -4026,7 +4029,7 @@ namespace scriptinterface {
     /**
     * This method directly sets local obj
     */
-    void tcPlatformInterface::SetPlatform(tcPlatformObject *obj) 
+    void tcPlatformInterface::SetPlatform(std::shared_ptr<tcPlatformObject>obj) 
     {
         assert(mpSimState);
 
@@ -4050,7 +4053,7 @@ namespace scriptinterface {
 	}
 
 
-    tcPlatformObject* tcPlatformInterface::mpStaticPlatformObj = 0;
+    std::shared_ptr<tcPlatformObject> tcPlatformInterface::mpStaticPlatformObj = 0;
     tcSimState* tcPlatformInterface::mpSimState = 0;
     tcAllianceSensorMap* tcPlatformInterface::mpSensorMap = 0;
 //    tcSoundConsole* tcPlatformInterface::mpConsole = 0;
@@ -4067,7 +4070,7 @@ namespace scriptinterface {
 		assert(mpSimState);
 	}
 
-	tcPlatformInterface::tcPlatformInterface(tcPlatformObject* obj)
+	tcPlatformInterface::tcPlatformInterface(std::shared_ptr<tcPlatformObject> obj)
 		: mpPlatformObj(obj)
 	{
 		assert(mpSimState);

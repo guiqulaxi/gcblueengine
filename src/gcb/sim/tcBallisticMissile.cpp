@@ -157,12 +157,12 @@ tcGameStream& tcBallisticMissile::operator>>(tcGameStream& stream)
 * @param obj launching game object
 * @param launcher index of launcher
 */
-void tcBallisticMissile::LaunchFrom(tcGameObject* obj, unsigned nLauncher)
+void tcBallisticMissile::LaunchFrom(std::shared_ptr<tcGameObject> obj, unsigned nLauncher)
 {
-    tcLauncher virtualLauncher; // for missile deployment
-	tcLauncher* pLauncher = &virtualLauncher;
+    //tcLauncher virtualLauncher; // for missile deployment
+    std::shared_ptr<tcLauncher> pLauncher = std::make_shared<tcLauncher>();
 
-    if (tcPlatformObject* platObj = dynamic_cast<tcPlatformObject*>(obj))
+    if (std::shared_ptr<tcPlatformObject> platObj = std::dynamic_pointer_cast<tcPlatformObject>(obj))
 	{
 		tc3DPoint launcherPos = platObj->mpDBObject->GetLauncherPosition(nLauncher);
 		GeoPoint pos = obj->RelPosToLatLonAlt(launcherPos.x, launcherPos.y,
@@ -170,7 +170,7 @@ void tcBallisticMissile::LaunchFrom(tcGameObject* obj, unsigned nLauncher)
 		mcKin.mfLon_rad = pos.mfLon_rad;
 		mcKin.mfLat_rad = pos.mfLat_rad;
 		mcKin.mfAlt_m = pos.mfAlt_m;
-        if (tcSubObject* sub = dynamic_cast<tcSubObject*>(obj))
+        if (std::shared_ptr<tcSubObject> sub = std::dynamic_pointer_cast<tcSubObject>(obj))
         {
             subSurfaceLaunch = true;
         }
@@ -222,7 +222,7 @@ void tcBallisticMissile::LaunchFrom(tcGameObject* obj, unsigned nLauncher)
 
 	SetAlliance(obj->GetAlliance());     
 
-	simState->AddPlatform(static_cast<tcGameObject*>(this));
+	simState->AddPlatform(static_cast<std::shared_ptr<tcGameObject>>(this));
 
 	// Set intended target (has to be done after alliance and id is set).
 	// This is a tcWeaponObject method
@@ -852,7 +852,7 @@ tcBallisticMissile::tcBallisticMissile(const tcBallisticMissile& obj)
 /**
 * Constructor that initializes using info from database entry.
 */
-tcBallisticMissile::tcBallisticMissile(tcBallisticMissileDBObject *obj)
+tcBallisticMissile::tcBallisticMissile(std::shared_ptr<tcBallisticMissileDBObject>obj)
 :   tcWeaponObject(obj),
 	mpDBObject(obj),
     subSurfaceLaunch(false),

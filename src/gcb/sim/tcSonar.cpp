@@ -113,7 +113,7 @@ tcGameStream& tcSonar::operator>>(tcGameStream& stream)
 * Changed this 15MAY2011 to iterate through calls to CanDetectTarget for range estimate
 *   instead of maintaining a separate calculation
 */
-float tcSonar::CalculateSimpleDetectionRange(tcGameObject* target, float& NL, float& SLp)
+float tcSonar::CalculateSimpleDetectionRange(std::shared_ptr<tcGameObject> target, float& NL, float& SLp)
 {
 	std::vector<float> range_km;
 	std::vector<float> snr_dB;
@@ -169,7 +169,7 @@ float tcSonar::CalculateSimpleDetectionRange(tcGameObject* target, float& NL, fl
 /**
 * Basic sonar equation, R. Urick, Principles of Underwater Sound, 1983.
 */
-bool tcSonar::CanDetectTarget(const tcGameObject* target, float& range_km, bool useRandom)
+bool tcSonar::CanDetectTarget(std::shared_ptr<const tcGameObject> target, float& range_km, bool useRandom)
 {
     float fCoverageAz1, fCoverageAz2; // 声纳覆盖范围的起始和结束方位角（弧度）
     bool isInSearchVolume = false; // 目标是否在搜索体积内
@@ -189,12 +189,12 @@ bool tcSonar::CanDetectTarget(const tcGameObject* target, float& range_km, bool 
     const tcKinematics *tgt_kin = &target->mcKin;
 
     // 尝试将目标转换为tcWaterDetectionDBObject类型，以获取目标相关的声纳信息
-    tcWaterDetectionDBObject* targetData = dynamic_cast<tcWaterDetectionDBObject*>(target->mpDBObject);
-    if (targetData == 0) return false; // 如果转换失败，表示目标不是水下检测对象，无法检测
+    std::shared_ptr<tcWaterDetectionDBObject> targetData = std::dynamic_pointer_cast<tcWaterDetectionDBObject>(target->mpDBObject);
+    if (targetData == nullptr) return false; // 如果转换失败，表示目标不是水下检测对象，无法检测
 
     // 尝试将父对象转换为tcWaterDetectionDBObject类型，以获取父对象相关的声纳信息
-    tcWaterDetectionDBObject* parentData = dynamic_cast<tcWaterDetectionDBObject*>(parent->mpDBObject);
-    if (parentData == 0)
+    std::shared_ptr<tcWaterDetectionDBObject> parentData = std::dynamic_pointer_cast<tcWaterDetectionDBObject>(parent->mpDBObject);
+    if (parentData == nullptr)
     {
         // 如果父对象不是水下检测数据库对象，则断言失败并打印错误信息
         assert(false);
@@ -269,14 +269,14 @@ bool tcSonar::CanDetectTarget(const tcGameObject* target, float& range_km, bool 
     if (targetAlt_m > 0)
     {
         // 尝试将目标转换为直升机对象
-        const tcHeloObject* helo = dynamic_cast<const tcHeloObject*>(target);
+        std::shared_ptr<const tcHeloObject> helo =  std::dynamic_pointer_cast<const tcHeloObject>(target);
         if (helo != 0)
         {
             // 获取直升机下潜声呐的高度
             targetAlt_m = helo->GetDippingSonarAlt();
             if (targetAlt_m > 0) return false; // 如果声呐不在水下，则返回false
             // 获取直升机最强的活动声呐，并获取其发射器ID
-            const tcSonar* sonar = helo->GetStrongestActiveSonar();
+            const std::shared_ptr<tcSonar> sonar = helo->GetStrongestActiveSonar();
             emitterId = sonar->mpDBObj->mnKey;
         }
         else
@@ -335,9 +335,9 @@ bool tcSonar::CanDetectTarget(const tcGameObject* target, float& range_km, bool 
 /**
 * @return true if CM is rejected by sensor
 */
-bool tcSonar::CountermeasureRejected(const tcGameObject* target) const
+bool tcSonar::CountermeasureRejected(std::shared_ptr<const tcGameObject> target) const
 {
-    const tcWaterCM* waterCM = dynamic_cast<const tcWaterCM*>(target);
+    std::shared_ptr<const tcWaterCM> waterCM = std::dynamic_pointer_cast<const tcWaterCM>(target);
     if (waterCM == 0)
     {
         assert(false); // called with invalid target
@@ -357,7 +357,7 @@ bool tcSonar::InitFromDatabase(long key)
 
     tcSensorState::InitFromDatabase(key);
 
-    mpDBObj = dynamic_cast<tcSonarDBObject*>(database->GetObject(key));
+    mpDBObj = std::dynamic_pointer_cast<tcSonarDBObject>(database->GetObject(key));
     if (mpDBObj == NULL) 
     {
         fprintf(stderr, "Error - tcSonar::InitFromDatabase - Not found in db or bad class for key\n");
@@ -424,9 +424,9 @@ tcSonar& tcSonar::operator=(tcSonar& ss)
 /**
 *
 */
-tcSonar* tcSonar::Clone() 
+std::shared_ptr<tcSonar> tcSonar::Clone()
 {
-    tcSonar *pNew = new tcSonar();
+    std::shared_ptr<tcSonar> pNew = std::make_shared<tcSonar>();
     *pNew = *this;
     return pNew;
 }
@@ -487,7 +487,7 @@ void tcSonar::UpdateSeeker(double t)
 
 
     long nTargetID;
-    tcGameObject *ptarget = 0;
+    std::shared_ptr<tcGameObject>ptarget = 0;
     int bFound;
 
 
@@ -540,12 +540,12 @@ void tcSonar::UpdateSeeker(double t)
 
             unsigned int detectMask = PTYPE_SURFACE;
             if (!mpDBObj->isWakeHoming) detectMask |= PTYPE_SUBSURFACE;
-            tcTorpedoObject* torpedo = dynamic_cast<tcTorpedoObject*>(parent);
+            std::shared_ptr<tcTorpedoObject> torpedo = std::dynamic_pointer_cast<tcTorpedoObject>(parent);
 
             // find closest detectable target
             for (iter.First();iter.NotDone();iter.Next())
             {
-                tcGameObject *target = iter.Get();
+                std::shared_ptr<tcGameObject>target = iter.Get();
 
                 bool isEligible = (target->mpDBObject->mnType != PTYPE_TORPEDO) &&
                     ((target->mpDBObject->mnType & detectMask) != 0) && (target != parent);
@@ -599,8 +599,8 @@ void tcSonar::UpdateSeeker(double t)
 
 void tcSonar::UpdateSeekerWakeHoming(double t)
 {
-    tcSurfaceObject* trackTarget = 0;
-    tcTorpedoObject* torpedo = dynamic_cast<tcTorpedoObject*>(parent);
+    std::shared_ptr<tcSurfaceObject> trackTarget = 0;
+    std::shared_ptr<tcTorpedoObject> torpedo = std::dynamic_pointer_cast<tcTorpedoObject>(parent);
 
     const float detectionDist_m = 500.0f; // hard code 0.5 km dist from wake
 
@@ -618,9 +618,9 @@ void tcSonar::UpdateSeekerWakeHoming(double t)
             } 
             else
             {
-                tcGameObject* obj = 0;
+                std::shared_ptr<tcGameObject> obj = 0;
                 simState->maPlatformState.Lookup(nTargetID, obj);
-                trackTarget = dynamic_cast<tcSurfaceObject*>(obj);
+                trackTarget = std::dynamic_pointer_cast<tcSurfaceObject>(obj);
             }
         }
         break;
@@ -637,7 +637,7 @@ void tcSonar::UpdateSeekerWakeHoming(double t)
             // find first detectable target
             for (iter.First();(iter.NotDone() && (trackTarget == 0));iter.Next())
             {
-                tcSurfaceObject *target = dynamic_cast<tcSurfaceObject*>(iter.Get());
+                std::shared_ptr<tcSurfaceObject>target = std::dynamic_pointer_cast<tcSurfaceObject>(iter.Get());
 
                 bool isEligible = (target != 0) && (target != parent);
 
@@ -702,9 +702,9 @@ void tcSonar::UpdateSeekerWakeHoming(double t)
 * Called after a surveillance detection to update sensor map for
 * appropriate alliance.
 */
-void tcSonar::UpdateSensorMapActive(double t, const tcGameObject* target, float range_km)
+void tcSonar::UpdateSensorMapActive(double t, std::shared_ptr<const tcGameObject> target, float range_km)
 {
-    tcSensorMapTrack* pSMTrack = 0;
+    std::shared_ptr<tcSensorMapTrack> pSMTrack = 0;
     tcSensorReport* report = simState->mcSensorMap.GetOrCreateReport(parent->mnID, mpDBObj->mnKey, target->mnID,
             pSMTrack, parent->GetAlliance());
     if (report == 0) return;
@@ -773,12 +773,12 @@ void tcSonar::UpdateSensorMapActive(double t, const tcGameObject* target, float 
 * Called after a surveillance detection to update sensor map for
 * appropriate alliance.
 */
-void tcSonar::UpdateSensorMapPassive(double t, const tcGameObject* target, 
+void tcSonar::UpdateSensorMapPassive(double t, std::shared_ptr<const tcGameObject> target, 
                                      float range_km, float az_rad)
 {
     assert(simState != 0);
 
-    tcSensorMapTrack* pSMTrack = 0;
+    std::shared_ptr<tcSensorMapTrack> pSMTrack = 0;
     tcSensorReport* report = simState->mcSensorMap.GetOrCreateReport(parent->mnID, mpDBObj->mnKey, target->mnID,
             pSMTrack, parent->GetAlliance());
     if (report == 0) return;
@@ -874,7 +874,7 @@ void tcSonar::UpdateSurveillance(double t)
 
     for (iter.First();iter.NotDone();iter.Next())
     {
-        tcGameObject* target = iter.Get();
+        std::shared_ptr<tcGameObject> target = iter.Get();
         if (target != parent) // no self detection
         {
             bool isEligible = (target->mpDBObject->mnType & (PTYPE_SUBSURFACE | PTYPE_SURFACE)) != 0;
@@ -912,7 +912,7 @@ void tcSonar::UpdateSurveillance(double t)
 * Assumes CanDetectTarget has been called immediately before with
 * this target.
 */
-void tcSonar::UpdateTrack(const tcGameObject* target, double t)
+void tcSonar::UpdateTrack(std::shared_ptr<const tcGameObject> target, double t)
 {
     bool cheatPassive = last_range_km <= 2.0f; 
 
@@ -1049,7 +1049,7 @@ tcSonar::tcSonar()
     mfSensorHeight_m = 0.0f;
 }
 
-tcSonar::tcSonar(tcSonarDBObject* dbObj)
+tcSonar::tcSonar( std::shared_ptr<tcSonarDBObject> dbObj)
 : tcSensorState(dbObj),
   mpDBObj(dbObj),
   isPassive(dbObj->isPassive),

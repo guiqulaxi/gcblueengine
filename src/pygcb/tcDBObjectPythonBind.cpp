@@ -59,7 +59,7 @@ void BindDBObject(module &m)
     //         return std::string(self.c_str()); // 返回Python字符串
     //     }, "返回字符串的Python表示");
 
-    py::class_<tcDatabaseObject>(m, "tcDatabaseObject")
+    py::class_<tcDatabaseObject,std::shared_ptr<tcDatabaseObject>>(m, "tcDatabaseObject")
         .def(pybind11::init<>()) // 绑定默认构造函数
         .def_readwrite("mzClass", &tcDatabaseObject::mzClass)
         .def_readwrite("natoClass", &tcDatabaseObject::natoClass)
@@ -104,7 +104,7 @@ void BindDBObject(module &m)
         .def_readwrite("topModifier_dB", &tcSignatureModel::topModifier_dB)
         .def_readwrite("bottomModifier_dB", &tcSignatureModel::bottomModifier_dB)
         .def("GetModifier", &tcSignatureModel::GetModifier, "az_deg"_a, "el_deg"_a);
-    pybind11::class_<tcSensorPlatformDBObject>(m, "tcSensorPlatformDBObject")
+    pybind11::class_<tcSensorPlatformDBObject,std::shared_ptr<tcSensorPlatformDBObject>>(m, "tcSensorPlatformDBObject")
         .def(pybind11::init<>()) // 绑定默认构造函数
         .def_readwrite("sensorClass", &tcSensorPlatformDBObject::sensorClass)
         .def_readwrite("sensorId", &tcSensorPlatformDBObject::sensorId)
@@ -112,7 +112,7 @@ void BindDBObject(module &m)
     // .def_static("MAXSENSORS", (int)tcSensorPlatformDBObject::MAXSENSORS, "Maximum number of sensor entries supported in database");
     BindPlatformDBObject(m);
 
-    pybind11::class_<tcAirDetectionDBObject>(m, "tcAirDetectionDBObject")
+    pybind11::class_<tcAirDetectionDBObject,std::shared_ptr<tcAirDetectionDBObject>>(m, "tcAirDetectionDBObject")
         .def(pybind11::init<>())
         .def_readwrite("RCS_dBsm", &tcAirDetectionDBObject::RCS_dBsm)
         .def_readwrite("RCS_Model", &tcAirDetectionDBObject::RCS_Model)
@@ -128,7 +128,7 @@ void BindDBObject(module &m)
         .def_readwrite("irSignatureC", &tcAirDetectionDBObject::irSignatureC)
         .def("BindSignatureModels",&tcAirDetectionDBObject::BindSignatureModels);
 
-    py::class_<tcWeaponDBObject, tcDatabaseObject>(m, "tcWeaponDBObject")
+    py::class_<tcWeaponDBObject, std::shared_ptr<tcWeaponDBObject>,tcDatabaseObject>(m, "tcWeaponDBObject")
         .def(py::init<>())
         .def_readwrite("mfDamage", &tcWeaponDBObject::mfDamage)
         .def_readwrite("damageModel", &tcWeaponDBObject::damageModel)
@@ -147,7 +147,7 @@ void BindDBObject(module &m)
         .def_readwrite("detonationRange_m", &tcWeaponDBObject::detonationRange_m)
         .def("CalculateParams",&tcWeaponDBObject::CalculateParams);
 
-    py::class_<tcBallisticDBObject, tcWeaponDBObject>(m, "tcBallisticDBObject")
+    py::class_<tcBallisticDBObject,std::shared_ptr<tcBallisticDBObject>, tcWeaponDBObject>(m, "tcBallisticDBObject")
         .def(py::init<>()) // 假设tcBallisticDBObject有一个默认构造函数
         .def_readwrite("ballisticType", &tcBallisticDBObject::ballisticType)
         .def_readwrite("angleError_rad", &tcBallisticDBObject::angleError_rad)
@@ -165,14 +165,14 @@ void BindDBObject(module &m)
 
 
 
-    py::class_<tcWaterDetectionDBObject>(m, "tcWaterDetectionDBObject")
+    py::class_<tcWaterDetectionDBObject,std::shared_ptr<tcWaterDetectionDBObject>>(m, "tcWaterDetectionDBObject")
         .def(py::init<>())
         .def_readwrite("TS", &tcWaterDetectionDBObject::TS)
         .def_readwrite("TS_Model", &tcWaterDetectionDBObject::TS_Model)
         .def_readwrite("acousticModel", &tcWaterDetectionDBObject::acousticModel)
         .def_readwrite("SL_Model", &tcWaterDetectionDBObject::SL_Model)
         .def("BindSignatureModels",&tcWaterDetectionDBObject::BindSignatureModels);
-    py::class_<tcCounterMeasureDBObject,
+    py::class_<tcCounterMeasureDBObject,std::shared_ptr<tcCounterMeasureDBObject>,
                tcDatabaseObject, tcAirDetectionDBObject,
                tcWaterDetectionDBObject>(m, "tcCounterMeasureDBObject")
         .def(py::init<>()) // 假设有一个默认构造函数
@@ -187,7 +187,7 @@ void BindDBObject(module &m)
         .def_readwrite("countryName", &tcCountryData::countryName)
         .def_readwrite("navalEnsign", &tcCountryData::navalEnsign);
 
-    py::class_<tcFlightportDBObject,tcDatabaseObject>(m, "tcFlightportDBObject")
+    py::class_<tcFlightportDBObject,std::shared_ptr<tcFlightportDBObject>,tcDatabaseObject>(m, "tcFlightportDBObject")
         .def(py::init<>())
         .def_readwrite("heloOnly", &tcFlightportDBObject::heloOnly)
         .def_readwrite("hangarCapacity", &tcFlightportDBObject::hangarCapacity)
@@ -203,16 +203,16 @@ void BindDBObject(module &m)
         .def_readwrite("orientation_deg", &tcFlightportDBObject::spotDBInfo::orientation_deg)
         .def_readwrite("length", &tcFlightportDBObject::spotDBInfo::length);
 
-    py::class_<tcFuelTankDBObject,tcDatabaseObject>(m, "tcFuelTankDBObject")
+    py::class_<tcFuelTankDBObject,std::shared_ptr<tcFuelTankDBObject>,tcDatabaseObject>(m, "tcFuelTankDBObject")
         .def(py::init<>())
         .def_readwrite("fuelCapacity_kg", &tcFuelTankDBObject::fuelCapacity_kg)
         .def("CalculateParams",&tcFuelTankDBObject::CalculateParams);
 
-    py::class_<tcGroundDBObject,tcPlatformDBObject,tcAirDetectionDBObject>(m, "tcGroundDBObject")
+    py::class_<tcGroundDBObject,std::shared_ptr<tcGroundDBObject>,tcPlatformDBObject,tcAirDetectionDBObject>(m, "tcGroundDBObject")
         .def(py::init<>())
         .def_readwrite("flightportClass", &tcGroundDBObject::flightportClass)
         .def("CalculateParams",&tcFuelTankDBObject::CalculateParams);
-    py::class_<tcAirDBObject,tcPlatformDBObject, tcAirDetectionDBObject, tcWaterDetectionDBObject>(m, "tcAirDBObject")
+    py::class_<tcAirDBObject,std::shared_ptr<tcAirDBObject>,tcPlatformDBObject, tcAirDetectionDBObject, tcWaterDetectionDBObject>(m, "tcAirDBObject")
         .def(py::init<>())
         .def_readwrite("maxTakeoffWeight_kg", &tcAirDBObject::maxTakeoffWeight_kg)
         .def_readwrite("maxAltitude_m", &tcAirDBObject::maxAltitude_m)
@@ -226,9 +226,9 @@ void BindDBObject(module &m)
         .def_readwrite("maintenanceMin_s", &tcAirDBObject::maintenanceMin_s)
         .def_readwrite("maintenanceMax_s", &tcAirDBObject::maintenanceMax_s)
         .def("CalculateParams",&tcAirDBObject::CalculateParams);
-    py::class_<tcSimpleAirDBObject,tcAirDBObject>(m, "tcSimpleAirDBObject")
+    py::class_<tcSimpleAirDBObject,std::shared_ptr<tcSimpleAirDBObject>,tcAirDBObject>(m, "tcSimpleAirDBObject")
         .def(py::init<>());
-    py::class_<tcJetDBObject,tcAirDBObject>(m, "tcJetDBObject")
+    py::class_<tcJetDBObject,std::shared_ptr<tcJetDBObject>,tcAirDBObject>(m, "tcJetDBObject")
         .def(py::init<>())
         .def_readwrite("militaryThrust_N", &tcJetDBObject::militaryThrust_N)
         .def_readwrite("militaryThrustSpeedSlope", &tcJetDBObject::militaryThrustSpeedSlope)
@@ -242,9 +242,11 @@ void BindDBObject(module &m)
         .def_readwrite("mfMsupm", &tcJetDBObject::mfMsupm)
         .def_readwrite("cruiseSpeed_mps", &tcJetDBObject::cruiseSpeed_mps)
         .def_readwrite("stallSpeed_mps", &tcJetDBObject::stallSpeed_mps)
+        .def_readwrite("thrustTable", &tcJetDBObject::thrustTable)
+        .def_readwrite("fuelEfficiencyTable", &tcJetDBObject::fuelEfficiencyTable)
         .def("CalculateParams",&tcJetDBObject::CalculateParams);
 
-    py::class_<tcLauncherDBObject,tcDatabaseObject>(m, "tcLauncherDBObject")
+    py::class_<tcLauncherDBObject,std::shared_ptr<tcLauncherDBObject>,tcDatabaseObject>(m, "tcLauncherDBObject")
         .def(py::init<>()) // Default constructor
         // Add other member functions if needed
         .def_readwrite("childClassList", &tcLauncherDBObject::childClassList)
@@ -284,7 +286,7 @@ void BindDBObject(module &m)
 
 
 
-    py::class_<tcStoresDBObject,tcDatabaseObject>(m, "tcStoresDBObject")
+    py::class_<tcStoresDBObject,std::shared_ptr<tcStoresDBObject>,tcDatabaseObject>(m, "tcStoresDBObject")
         .def(py::init<>())
         .def_readwrite("displayName", &tcStoresDBObject::displayName)
         .def_readwrite("capacity", &tcStoresDBObject::capacity)
@@ -296,7 +298,7 @@ void BindDBObject(module &m)
     BindSubDBObject(m);
     BindTorpedoDBObject(m);
     BindBallisticMissileDBObject(m);
-
-    py::class_<tcItemDBObject , tcDatabaseObject>(m, "tcItemDBObject")
+    BindSpaceDBObject(m);
+    py::class_<tcItemDBObject , std::shared_ptr<tcItemDBObject>,tcDatabaseObject>(m, "tcItemDBObject")
         .def(py::init<>());
 }

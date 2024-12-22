@@ -51,7 +51,7 @@
 #endif
 
 /******************************************************************************/
-/****************************** tcAirObject *******************************/
+/****************************** std::shared_ptr<tcAirObject>******************************/
 /******************************************************************************/
 
 tcCommandStream& tcAirObject::operator<<(tcCommandStream& stream)
@@ -159,7 +159,7 @@ bool tcAirObject::AddFuelTarget(long id)
     size_t nFuelPoints = (size_t)mpDBObject->outFuelPods;
     if (fuelTargets.size() >= nFuelPoints) return false;
 
-    tcAirObject* target = dynamic_cast<tcAirObject*>(simState->GetObject(id));
+    std::shared_ptr<tcAirObject> target = std::dynamic_pointer_cast<tcAirObject>(simState->GetObject(id));
     if (target == 0) return false;
     if (target->GetAffiliationWith(this->GetAlliance()) != tcAllianceInfo::FRIENDLY)
     {
@@ -247,7 +247,7 @@ void tcAirObject::LightenLoad()
     if (IsLoading() || IsRefueling()) return;
 
     // 尝试将父对象转换为tcPlatformObject类型，如果转换失败（即父对象不是平台对象），则进行错误处理
-    tcPlatformObject* parentPlatform = dynamic_cast<tcPlatformObject*>(parent);
+    std::shared_ptr<tcPlatformObject> parentPlatform = std::dynamic_pointer_cast<tcPlatformObject>(parent);
     if (parentPlatform == 0)
     {
         // 输出错误信息，表示没有找到宿主平台
@@ -268,11 +268,12 @@ void tcAirObject::LightenLoad()
         bool searching = true; // 标记是否仍在搜索可卸载的弹药库
         for (size_t n=0; (n<nMagazines) && searching; n++) // 遍历所有弹药库
         {
-            tcStores* mag = parentPlatform->GetMagazine(n); // 获取当前弹药库
+            std::shared_ptr<tcStores> mag = parentPlatform->GetMagazine(n); // 获取当前弹药库
             if (mag->IsCompatible("Fuel")) // 如果弹药库兼容燃油
             {
                 // 尝试从弹药库中卸载指定量的燃油（超重量+1，确保能完全卸载超重量）
-                bool result = mag->UnloadOther("Fuel", (unsigned long)(excessWeight_kg)+1, this);
+
+                bool result = mag->UnloadOther("Fuel", (unsigned long)(excessWeight_kg)+1, tcGameObject::shared_from_this());
                 searching = false; // 无论是否成功，都停止搜索
                 if (result) return; // 如果成功卸载，则直接返回
             }
@@ -286,11 +287,11 @@ void tcAirObject::LightenLoad()
     float heaviestItem_kg = 1e9f; // 最重物品的重量，初始化为一个很大的数
     for (size_t n=0; n<nLaunchers; n++) // 遍历所有发射器
     {
-        const tcLauncher* launcher = GetLauncher(n); // 获取当前发射器
+        std::shared_ptr<const tcLauncher> launcher = GetLauncher(n); // 获取当前发射器
         float itemWeight_kg = launcher->GetItemWeight(); // 获取当前发射器内物品的重量
         // 尝试将发射器的子对象转换为武器或燃油箱数据对象
-        tcWeaponDBObject* weaponData = dynamic_cast<tcWeaponDBObject*>(launcher->mpChildDBObj);
-        tcFuelTankDBObject* tankData = dynamic_cast<tcFuelTankDBObject*>(launcher->mpChildDBObj);
+        std::shared_ptr<tcWeaponDBObject> weaponData = dynamic_pointer_cast<tcWeaponDBObject>(launcher->mpChildDBObj);
+        std::shared_ptr<tcFuelTankDBObject> tankData = dynamic_pointer_cast<tcFuelTankDBObject>(launcher->mpChildDBObj);
         // 如果发射器内有物品，且当前物品比已知最重物品轻（注意这里的逻辑是找最“轻”的重物，即排除更重的），且物品是武器或燃油箱
         if ((launcher->mnCurrent > 0) && (itemWeight_kg < heaviestItem_kg) &&
             ((weaponData != 0) || (tankData != 0)))
@@ -303,18 +304,18 @@ void tcAirObject::LightenLoad()
     // 如果找到了最重的物品，则尝试将其卸载到弹药库中
     if (heaviestIdx >= 0)
     {
-        const tcLauncher* launcher = GetLauncher(heaviestIdx); // 获取最重物品的发射器
+        std::shared_ptr<const tcLauncher> launcher = GetLauncher(heaviestIdx); // 获取最重物品的发射器
         assert(launcher != 0); // 断言发射器不为空
         std::string itemName = launcher->GetChildClassName(); // 获取最重物品的类型名称
 
         size_t nMagazines = parentPlatform->GetMagazineCount(); // 再次获取宿主平台的弹药库数量
         for (size_t n=0; n<nMagazines; n++) // 遍历所有弹药库
         {
-            tcStores* mag = parentPlatform->GetMagazine(n); // 获取当前弹药库
-            if (mag->CanUnloadThisObject(this) && (mag->IsCompatible(itemName))) // 如果弹药库可以接收当前对象，且兼容最重物品的类型
+            std::shared_ptr<tcStores> mag = parentPlatform->GetMagazine(n); // 获取当前弹药库
+            if (mag->CanUnloadThisObject(tcGameObject::shared_from_this()) && (mag->IsCompatible(itemName))) // 如果弹药库可以接收当前对象，且兼容最重物品的类型
             {
                 // 尝试从发射器中卸载一个最重物品到弹药库
-                bool result = mag->UnloadLauncher(heaviestIdx, this, 1);
+                bool result = mag->UnloadLauncher(heaviestIdx, tcGameObject::shared_from_this(), 1);
                 if (result)
                 {
                     return; // 如果成功卸载，则直接返回
@@ -390,7 +391,7 @@ float tcAirObject::GetIRSignature(float az_deg) const
         return mpDBObject->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELC);
     }
 
-    //const tcAeroAirObject* jet = dynamic_cast<const tcAeroAirObject*>(target);
+    //std::shared_ptr<const tcAeroAirObject> jet =  std::dynamic_pointer_cast<const tcAeroAirObject>>(target);
     //bool afterburnersOn = (jet == 0) ? false : (jet->GetThrottleFraction() > 1.0f);
 
 
@@ -418,7 +419,7 @@ void tcAirObject::EquipForTargetType(const std::string& targetType)
         return;
     }
 
-    tcPlatformObject* parentPlatform = dynamic_cast<tcPlatformObject*>(parent);
+    std::shared_ptr<tcPlatformObject> parentPlatform = std::dynamic_pointer_cast<tcPlatformObject>(parent);
 	if (parentPlatform == 0)
 	{
 		fprintf(stderr, "tcAirObject::EquipForTargetType - no host platform (%s)\n", 
@@ -434,11 +435,11 @@ void tcAirObject::EquipForTargetType(const std::string& targetType)
         size_t nMagazines = parentPlatform->GetMagazineCount();
         for (size_t n=0; n<nMagazines; n++)
         {
-            tcStores* mag = parentPlatform->GetMagazine(n);
+            std::shared_ptr<tcStores> mag = parentPlatform->GetMagazine(n);
             bool loadoutAvailable = mag->HasStoresForLoadout(*loadoutData);
             if (loadoutAvailable)
             {
-                mag->AddAutomationOp(targetType, this);
+                mag->AddAutomationOp(targetType, tcGameObject::shared_from_this());
                 return;
             }
         }
@@ -467,14 +468,14 @@ float tcAirObject::GetTotalWeight() const
     size_t nLaunchers = GetLauncherCount();
     for (size_t n=0; n<nLaunchers; n++)
     {
-        const tcLauncher* launcher = GetLauncher(n);
+        std::shared_ptr<const tcLauncher> launcher = GetLauncher(n);
         weight_kg += launcher->GetWeight();
     }
 
 	size_t nStores = GetMagazineCount();
 	for (size_t n=0; n<nStores; n++)
 	{
-		const tcStores* store = GetMagazineConst(n);
+        const std::shared_ptr<tcStores> store = GetMagazineConst(n);
 		weight_kg += store->GetWeightKg();
 	}
     
@@ -613,10 +614,10 @@ void tcAirObject::LoadFromFile(tcFile& file)
 */
 bool tcAirObject::MaintenanceHold() const
 {
-    tcFlightOpsObject* flightOps = dynamic_cast<tcFlightOpsObject*>(parent);
+    std::shared_ptr<tcFlightOpsObject> flightOps = std::dynamic_pointer_cast<tcFlightOpsObject>(parent);
 	if (flightOps == 0) return false;
 
-    const tcAirState* airState = flightOps->GetFlightPort()->FindAirStateObj(this);
+    const tcAirState* airState = flightOps->GetFlightPort()->FindAirStateObj(tcGameObject::shared_from_this());
     if (airState != 0)
     {
         return ((airState->op == OP_MAINTENANCE) || (airState->op == OP_REPAIR));
@@ -987,7 +988,7 @@ void tcAirObject::UpdateInFlightRefuel(float dt_s)
     for (size_t n=0; n<fuelTargets.size(); n++)
     {
         long id = fuelTargets[n];
-        tcAirObject* target = dynamic_cast<tcAirObject*>(simState->GetObject(id));
+        std::shared_ptr<tcAirObject> target = std::dynamic_pointer_cast<tcAirObject>(simState->GetObject(id));
         if ((target != 0) && (target->fuel_kg < target->GetFuelCapacity() - 30) &&
             (mcKin.RangeToKmAlt(target->mcKin) <= maxRefuelRange_km))
         {
@@ -1076,7 +1077,7 @@ void tcAirObject::Update(double afStatusTime)
     // if (!IsClientMode() || IsControlled()) // not sure why IsControlled()? supposed to be smoother for controlled obj?
     if (!IsClientMode())
 	{
-        formation.Update((tcAirObject*)this);
+        formation.Update((std::shared_ptr<tcAirObject>)this);
         
 		UpdateHeading(dt_s);
 
@@ -1124,7 +1125,7 @@ tcAirObject::tcAirObject()
 /**
 * Constructor that initializes using info from database entry.
 */
-tcAirObject::tcAirObject(tcAirDBObject* obj)
+tcAirObject::tcAirObject(std::shared_ptr<tcAirDBObject> obj)
 : tcPlatformObject(obj),
   doneCrashing(false),
   climbCommand_rad(0),

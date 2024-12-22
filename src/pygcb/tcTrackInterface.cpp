@@ -69,12 +69,12 @@ namespace scriptinterface {
 	   mpSensorMap->DropTrack(mnTrackID);
    }
 
-   tcSensorMapTrack* tcTrackInterface::GetTrack()
+   std::shared_ptr<tcSensorMapTrack> tcTrackInterface::GetTrack()
    {
 	   assert(mpSensorMap);
 	   if (mpSensorMap == 0) return 0;
 	   if (mnTrackID == -1) return 0;
-	   tcSensorMapTrack* track = mpSensorMap->GetSensorMapTrack(mnTrackID);
+	   std::shared_ptr<tcSensorMapTrack> track = mpSensorMap->GetSensorMapTrack(mnTrackID);
 	   if (track == NULL) 
 	   {
 		   fprintf(stderr, "Warning - tcTrackInterface::GetTrack - "
@@ -88,15 +88,15 @@ namespace scriptinterface {
    {
       if (mpSensorMap == NULL) {return;}
       if (mnTrackID == 0xFFFFFFFF) {return;}
-      tcSensorMapTrack *pSMTrack = mpSensorMap->GetSensorMapTrack(mnTrackID);
-      if (pSMTrack == NULL) 
+      std::shared_ptr<tcSensorMapTrack> psmtrack = mpSensorMap->GetSensorMapTrack(mnTrackID);
+      if (psmtrack == NULL)
 	  {
 		  fprintf(stderr, "Warning - tcTrackInterface::SetAffiliation - "
 			  "couldn't find track id: %d, alliance: %d\n",
 			  mnTrackID, mpSensorMap->GetAlliance());
 		  return;
 	  }
-      pSMTrack->mnAffiliation = anAffil;
+      psmtrack->mnAffiliation = anAffil;
    }
 
    void tcTrackInterface::DeclareFriendly() 
@@ -115,7 +115,7 @@ namespace scriptinterface {
 
    void tcTrackInterface::UpdateAmbiguityList()
    {
-	   tcSensorMapTrack* track = GetTrack();
+	   std::shared_ptr<tcSensorMapTrack> track = GetTrack();
 	   if (track)
 	   {
 		   track->UpdateAmbiguityList();

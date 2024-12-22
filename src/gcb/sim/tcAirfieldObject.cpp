@@ -145,7 +145,7 @@ tcGameStream& tcAirfieldObject::operator>>(tcGameStream& stream)
 
 
 
-void tcAirfieldObject::ApplyGeneralDamage(float damage, tcGameObject* damager)
+void tcAirfieldObject::ApplyGeneralDamage(float damage, std::shared_ptr<tcGameObject> damager)
 {
 	tcPlatformObject::ApplyGeneralDamage(damage, damager);
 
@@ -304,8 +304,8 @@ void tcAirfieldObject::Update(double afStatusTime)
 /**
 *
 */
-tcAirfieldObject::tcAirfieldObject() 
-: tcFlightOpsObject(0, this)
+tcAirfieldObject::tcAirfieldObject()
+: tcFlightOpsObject(0, tcGameObject::shared_from_this())
 {
    Clear();
 
@@ -320,8 +320,8 @@ tcAirfieldObject::tcAirfieldObject()
 * DB object will have info on number and types of aircraft the carrier
 * can hold.
 */
-tcAirfieldObject::tcAirfieldObject(tcGroundDBObject *obj)
-: tcPlatformObject(obj), tcFlightOpsObject(obj->GetFlightport(), this),
+tcAirfieldObject::tcAirfieldObject(std::shared_ptr<tcGroundDBObject>obj)
+: tcPlatformObject(std::dynamic_pointer_cast<tcPlatformDBObject>(obj)), tcFlightOpsObject(obj->GetFlightport(), tcGameObject::shared_from_this()),
   mpDBObject(obj)
 {
 	mcKin.mfSpeed_kts = 0; // make sure this doesn't move (shouldn't be necessary)

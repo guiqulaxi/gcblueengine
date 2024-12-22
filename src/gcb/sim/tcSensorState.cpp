@@ -264,7 +264,7 @@ void tcSensorState::CalculateLonLatCovariance(float az_rad, float lat_rad, float
 }
 
 
-bool tcSensorState::CanDetectTarget(const tcGameObject* target, float& range_km, bool useRandom)
+bool tcSensorState::CanDetectTarget(std::shared_ptr<const tcGameObject> target, float& range_km, bool useRandom)
 {
 	assert(false); // derived class method should always be called
 	return false;
@@ -330,28 +330,28 @@ long tcSensorState::GetFireControlPlatform() const
 /**
 * @return fire control sensor as a radar or 0 if not a radar or does not exist
 */
-tcRadar* tcSensorState::GetFireControlRadar()
+std::shared_ptr<tcRadar> tcSensorState::GetFireControlRadar()
 {
-	tcSensorState* sensor = GetFireControlSensor();
-    tcRadar* radar = dynamic_cast<tcRadar*>(sensor);
+	std::shared_ptr<tcSensorState> sensor = GetFireControlSensor();
+    std::shared_ptr<tcRadar> radar = std::dynamic_pointer_cast<tcRadar>(sensor);
     return radar;
 }
 
-tcOpticalSensor* tcSensorState::GetLaserDesignator()
+std::shared_ptr<tcOpticalSensor> tcSensorState::GetLaserDesignator()
 {
-    tcSensorState* sensor = GetFireControlSensor();
-    return dynamic_cast<tcOpticalSensor*>(sensor);
+    std::shared_ptr<tcSensorState> sensor = GetFireControlSensor();
+    return std::dynamic_pointer_cast<tcOpticalSensor>(sensor);
 }
 
 /**
 * @return fire control sensor or 0 if not a radar or does not exist
 */
-tcSensorState* tcSensorState::GetFireControlSensor()
+std::shared_ptr<tcSensorState> tcSensorState::GetFireControlSensor()
 {
     assert(simState);
 
-    tcPlatformObject *platform = 
-        dynamic_cast<tcPlatformObject*>(simState->GetObject(fireControlId));
+    std::shared_ptr<tcPlatformObject>platform = 
+        std::dynamic_pointer_cast<tcPlatformObject>(simState->GetObject(fireControlId));
 
     if (platform == 0) return 0; // platform doesn't exist
 
@@ -450,7 +450,7 @@ bool tcSensorState::IsCommandReceiver() const
 /**
 * @return true if sensor has line of sight to target
 */
-bool tcSensorState::HasLOS(const tcGameObject* target)
+bool tcSensorState::HasLOS(std::shared_ptr<const tcGameObject> target)
 {
     assert(parent != 0);
     assert(target != 0);
@@ -483,7 +483,7 @@ bool tcSensorState::InitFromDatabase(long key)
 {
 	assert(database);
 
-    mpDBObj = dynamic_cast<tcSensorDBObject*>(database->GetObject(key));
+    mpDBObj =  std::dynamic_pointer_cast<tcSensorDBObject>(database->GetObject(key));
     if (mpDBObj == NULL) 
     {
         fprintf(stderr, "Error - tcSensorState::InitFromDatabase - Not found in db or bad class for key\n");
@@ -656,12 +656,12 @@ void tcSensorState::SetMountAz(float az)
 	mountAz_rad = az;
 }
 
-void tcSensorState::SetParent(tcGameObject* obj) 
+void tcSensorState::SetParent(std::shared_ptr<tcGameObject> obj) 
 {
 	parent = obj;
-	sensorPlatform = dynamic_cast<tcSensorPlatform*>(obj);
+    sensorPlatform = std::dynamic_pointer_cast<tcSensorPlatform>(obj);
 
-    if (tcMissileObject* missile = dynamic_cast<tcMissileObject*>(obj))
+    if (std::shared_ptr<tcMissileObject> missile =  std::dynamic_pointer_cast<tcMissileObject>(obj))
     {
         assert(missile->mpDBObject != 0);
         SetCommandReceiver(missile->mpDBObject->IsCommandLaunched());
@@ -683,7 +683,7 @@ void tcSensorState::Update(double t)
 * @param track 指向tcSensorMapTrack的指针，表示目标的跟踪信息
 */
 void tcSensorState::UpdateActiveReport(tcSensorReport* report, double t, float az_rad, float range_km, float alt_m,
-                                       const tcSensorMapTrack* track)
+                                       std::shared_ptr<const tcSensorMapTrack> track)
 {
     // 检查报告是否为新报告
     bool newReport = report->IsNew();
@@ -748,7 +748,7 @@ void tcSensorState::UpdateActiveReport(tcSensorReport* report, double t, float a
     float sigmaGroundRange_m = sqrtf(altVar) * altDiff_km / range_km; // 由于高度误差导致的地面距离误差
 
 #ifdef _DEBUG
-    const tcGameObject* target = track->GetAssociatedConst(); // 获取目标对象
+    std::shared_ptr<const tcGameObject> target = track->GetAssociatedConst(); // 获取目标对象
     float trueSlantRange_km = target->mcKin.RangeToKmAlt(parent->mcKin.mfLon_rad, parent->mcKin.mfLat_rad, parent->mcKin.mfAlt_m); // 计算真实斜距
     float trueGroundRange_km = target->RangeTo(*parent); // 计算真实地面距离
 #endif
@@ -785,7 +785,7 @@ void tcSensorState::UpdateActiveReport(tcSensorReport* report, double t, float a
 
 // 更新被动报告的函数
 void tcSensorState::UpdatePassiveReport(tcSensorReport* report, double t, float az_rad, float range_km,
-                                        const tcSensorMapTrack* track)
+                                        std::shared_ptr<const tcSensorMapTrack> track)
 {
     // 检查报告是否是新生成的
     bool newReport = report->IsNew();
@@ -812,7 +812,7 @@ void tcSensorState::UpdatePassiveReport(tcSensorReport* report, double t, float 
     if ((mpDBObj->rangeError > 0) && (mpDBObj->rangeError <= 0.5))
     {
         // 如果传感器是ESM类型且在近距离内，则减小距离误差
-        tcESMSensor* esm = dynamic_cast<tcESMSensor*>(this);
+        std::shared_ptr<tcESMSensor> esm = std::dynamic_pointer_cast<tcESMSensor>(shared_from_this());
         if ((esm != 0) && (range_km < 3.0))
         {
             effectiveRangeError = 0.5f*mpDBObj->rangeError;
@@ -896,7 +896,7 @@ int tcSensorState::UpdateScan(double afTime)
 /**
  *
  */
-tcSensorState& tcSensorState::operator=(tcSensorState& ss) 
+tcSensorState& tcSensorState::operator=(const tcSensorState &ss)
 {
     assert(false); // is this method used?
 
@@ -923,12 +923,13 @@ tcSensorState& tcSensorState::operator=(tcSensorState& ss)
 /**
  *
  */
-tcSensorState* tcSensorState::Clone() const
+std::shared_ptr<tcSensorState> tcSensorState::Clone() const
 {
     assert(false); // is this method used?
 
     // TODO: should use a copy constructor (if this method is used)
-    tcSensorState *pNew = new tcSensorState(*this); 
+    std::shared_ptr<tcSensorState>pNew = std::make_shared<tcSensorState>();
+    *pNew = *this;
     return pNew;
 }
 
@@ -961,7 +962,7 @@ tcSensorState::tcSensorState() :
 	}
 }
 
-tcSensorState::tcSensorState(tcSensorDBObject* dbObj)
+tcSensorState::tcSensorState(std::shared_ptr<tcSensorDBObject> dbObj)
 : mpDBObj(dbObj),
   	mnDBKey(dbObj->mnKey),
     mbActive(false),
@@ -999,7 +1000,7 @@ tcSensorState::~tcSensorState()
     // release fire control track
     if ((!simState->IsMultiplayerClient()) && (fireControlId != -1))
     {
-        if (tcSensorState *illuminator = GetFireControlSensor())
+        if (std::shared_ptr<tcSensorState>illuminator = GetFireControlSensor())
         {
             illuminator->ReleaseTrack(mcTrack.mnID);
         }

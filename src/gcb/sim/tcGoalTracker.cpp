@@ -647,23 +647,22 @@ bool tcGoalTracker::HasStatusChanged(int alliance)
     return result;
 }
 
-bool tcGoalTracker::IsTargetLegal(tcGameObject* attacker, tcSensorMapTrack* targetTrack) const
+bool tcGoalTracker::IsTargetLegal(std::shared_ptr<tcGameObject> attacker, tcSensorMapTrack &targetTrack) const
 {
     assert(attacker != 0);
 	
-	if (targetTrack == 0) return false;
 
     unsigned int attackerAlliance = attacker->GetAlliance();
     ROEStatus roeStatus = GetAllianceROE(int(attackerAlliance));
 
 
-	bool isWeapon = (targetTrack->IsMissile() || targetTrack->IsTorpedo()) && (targetTrack->mnAffiliation != tcAllianceInfo::FRIENDLY);
-	bool isHostile = targetTrack->IsIdentified() && (targetTrack->mnAffiliation == tcAllianceInfo::HOSTILE);
-	bool isNeutralOrFriendly = (targetTrack->mnAffiliation == tcAllianceInfo::NEUTRAL) ||
-							   (targetTrack->mnAffiliation == tcAllianceInfo::FRIENDLY);
+    bool isWeapon = (targetTrack.IsMissile() || targetTrack.IsTorpedo()) && (targetTrack.mnAffiliation != tcAllianceInfo::FRIENDLY);
+    bool isHostile = targetTrack.IsIdentified() && (targetTrack.mnAffiliation == tcAllianceInfo::HOSTILE);
+    bool isNeutralOrFriendly = (targetTrack.mnAffiliation == tcAllianceInfo::NEUTRAL) ||
+                               (targetTrack.mnAffiliation == tcAllianceInfo::FRIENDLY);
 
 	ROEMode roeMode = WEAPONS_HOLD;
-	switch (targetTrack->mnClassification)
+    switch (targetTrack.mnClassification)
 	{
 	case PTYPE_AIR:
 	case PTYPE_FIXEDWING:
@@ -716,7 +715,7 @@ bool tcGoalTracker::IsTargetLegal(tcGameObject* attacker, tcSensorMapTrack* targ
 
 }
 
-bool tcGoalTracker::IsTargetLegal(tcGameObject* attacker, long targetTrackId) const
+bool tcGoalTracker::IsTargetLegal(std::shared_ptr<tcGameObject> attacker, long targetTrackId) const
 {
     assert(attacker != 0);
 
@@ -725,7 +724,7 @@ bool tcGoalTracker::IsTargetLegal(tcGameObject* attacker, long targetTrackId) co
     tcSensorMapTrack targetTrack;
     if (tcSimState::Get()->GetTrack(targetTrackId, attackerAlliance, targetTrack))
     {
-		return IsTargetLegal(attacker, &targetTrack);
+        return IsTargetLegal(attacker, targetTrack);
     }
     else
     {
@@ -734,7 +733,7 @@ bool tcGoalTracker::IsTargetLegal(tcGameObject* attacker, long targetTrackId) co
 
 }
 
-bool tcGoalTracker::IsTargetLegal(tcGameObject* attacker, float lon_rad, float lat_rad) const
+bool tcGoalTracker::IsTargetLegal(std::shared_ptr<tcGameObject> attacker, float lon_rad, float lat_rad) const
 {
     assert(attacker != 0);
 
@@ -756,9 +755,9 @@ bool tcGoalTracker::IsTargetLegal(tcGameObject* attacker, float lon_rad, float l
 
     for (iter.First();iter.NotDone();iter.Next())
     {
-        tcSensorMapTrack* targetTrack = iter.Get();
+        std::shared_ptr<tcSensorMapTrack> targetTrack = iter.Get();
 
-		bool isLegal = IsTargetLegal(attacker, targetTrack);
+        bool isLegal = IsTargetLegal(attacker, *targetTrack);
 
         if (isLegal)
         {

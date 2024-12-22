@@ -165,11 +165,11 @@ void tcGameObject::ClearChildren()
         size_t child_count = children.size();
         for (size_t i=0;i<child_count;i++) 
         {
-            tcGameObject* child = children.at(i);
+            std::shared_ptr<tcGameObject> child = children.at(i);
             if (child != 0) 
             {
                 simState->UnregisterChildObject(child->GetName());
-                delete child;
+               // delete child;
             }   
         }
         children.clear();
@@ -178,10 +178,10 @@ void tcGameObject::ClearChildren()
         size_t launch_count = toLaunch.size();
         for (size_t i=0;i<launch_count;i++) 
         {
-            tcGameObject* gameObj = toLaunch.at(i);
+            std::shared_ptr<tcGameObject> gameObj = toLaunch.at(i);
             if (gameObj != 0) 
             {
-                delete gameObj;
+               // delete gameObj;
             }   
         }
         toLaunch.clear();
@@ -194,7 +194,7 @@ void tcGameObject::ClearChildren()
 *
 * @param rel_pos Relative position structure to store results in.
 */
-void tcGameObject::GetRelPosOf(tcGameObject *obj, tsRelativePosition& rel_pos)
+void tcGameObject::GetRelPosOf(std::shared_ptr<tcGameObject>obj, tsRelativePosition& rel_pos)
 {
     rel_pos.pitch = 0;
     rel_pos.roll = 0;
@@ -225,7 +225,7 @@ void tcGameObject::GetRelPosOf(tcGameObject *obj, tsRelativePosition& rel_pos)
 * 
 * Results are in the local world frame of reference
 */
-void tcGameObject::GetRelativeStateWorld(tcGameObject *obj, Vector3d& position, Vector3d& velocity)
+void tcGameObject::GetRelativeStateWorld(std::shared_ptr<tcGameObject>obj, Vector3d& position, Vector3d& velocity)
 {
     // local world coordinates, x--east, y--north, z--up
 
@@ -252,7 +252,7 @@ void tcGameObject::GetRelativeStateWorld(tcGameObject *obj, Vector3d& position, 
 * 
 * Results are in the frame of reference of this object
 */
-void tcGameObject::GetRelativeStateLocal(tcGameObject *obj, Vector3d& position, Vector3d& velocity)
+void tcGameObject::GetRelativeStateLocal(std::shared_ptr<tcGameObject>obj, Vector3d& position, Vector3d& velocity)
 {
     // relative world coordinates, x--east, y--north, z--up
 	GetRelativeStateWorld(obj, position, velocity);
@@ -411,7 +411,7 @@ bool tcGameObject::IsPlatformObject() const
     return false;
 }
 
-void tcGameObject::LaunchFrom(tcGameObject* obj, unsigned nLauncher)
+void tcGameObject::LaunchFrom(std::shared_ptr<tcGameObject> obj, unsigned nLauncher)
 {
 	assert(false); //this should be overridden in derived class
 }
@@ -481,7 +481,7 @@ tcOBBBoundingBox tcGameObject::GetOBBBoundingBox() const
 * @return true if collision occurs, false otherwise
 * @param distance_m range to collision in meters
 */
-bool tcGameObject::CalculateCollisionPoint(tcGameObject* collider, Vector3d& pos, float& dt, float& distance_m)
+bool tcGameObject::CalculateCollisionPoint(std::shared_ptr<tcGameObject> collider, Vector3d& pos, float& dt, float& distance_m)
 {
       //获得对应的包围盒
       tcOBBBoundingBox aBBox=GetOBBBoundingBox();
@@ -523,7 +523,7 @@ bool tcGameObject::CalculateCollisionPoint(tcGameObject* collider, Vector3d& pos
       return isIntersect;
 }
 
-//bool tcGameObject::CalculateCollisionPoint(tcGameObject* collider, Vector3d& pos, float& dt, float& distance_m)
+//bool tcGameObject::CalculateCollisionPoint(std::shared_ptr<tcGameObject> collider, Vector3d& pos, float& dt, float& distance_m)
 //{
 //    //以目标为中心，速度方向正负100米取两个点，
 //    Vector3d x_collider; // position of collider in model frame
@@ -578,7 +578,7 @@ bool tcGameObject::CalculateCollisionPoint(tcGameObject* collider, Vector3d& pos
 
 //}
 
-//bool tcGameObject::CalculateCollisionPoint(tcGameObject* collider, Vector3d& pos, float& dt, float& distance_m)
+//bool tcGameObject::CalculateCollisionPoint(std::shared_ptr<tcGameObject> collider, Vector3d& pos, float& dt, float& distance_m)
 //{
 //    //以目标为中心，速度方向正负100米取两个点，
 //	Vector3d x_collider; // position of collider in model frame
@@ -639,7 +639,7 @@ bool tcGameObject::CalculateCollisionPoint(tcGameObject* collider, Vector3d& pos
 * @param distance_m range to collision in meters 碰撞点位置到目标（collider）的距离
 * @param dir direction vector in local coords to check for collision
 */
-bool tcGameObject::CalculateCollisionPointDir(tcGameObject* collider, const Vector3d& dir, Vector3d& pos, float& distance_m)
+bool tcGameObject::CalculateCollisionPointDir(std::shared_ptr<tcGameObject> collider, const Vector3d& dir, Vector3d& pos, float& distance_m)
 {
     //获得对应的包围盒
     tcOBBBoundingBox aBBox=GetOBBBoundingBox();
@@ -673,7 +673,7 @@ bool tcGameObject::CalculateCollisionPointDir(tcGameObject* collider, const Vect
     return isIntersect;
 
 }
-//bool tcGameObject::CalculateCollisionPointDir(tcGameObject* collider, const Vector3d& dir, Vector3d& pos, float& distance_m)
+//bool tcGameObject::CalculateCollisionPointDir(std::shared_ptr<tcGameObject> collider, const Vector3d& dir, Vector3d& pos, float& distance_m)
 //{
 //    Vector3d x_collider; // position of collider in model frame 目标的
 //    Vector3d v_collider; // velocity of collider in model frame 目标的
@@ -719,7 +719,7 @@ bool tcGameObject::CalculateCollisionPointDir(tcGameObject* collider, const Vect
 * @param distance_m range to collision in meters
 * @param dir direction vector in local coords to check for collision
 */
-bool tcGameObject::CalculateCollisionPointOrigin(tcGameObject* collider, Vector3d& pos, float& distance_m)
+bool tcGameObject::CalculateCollisionPointOrigin(std::shared_ptr<tcGameObject> collider, Vector3d& pos, float& distance_m)
 {
 
     //获得对应的包围盒
@@ -1114,25 +1114,25 @@ float tcGameObject::RangeTo(const tcGameObject& p) const
 /**
  *
  */
-void tcGameObject::AddChild(tcGameObject *child)
+void tcGameObject::AddChild(std::shared_ptr<tcGameObject>child)
 {
     child->mnID = nextChildId++; // id of child is index within children vect
-    child->parent = this;
+    child->parent = tcGameObject::shared_from_this();
     children.push_back(child);
 
-    simState->RegisterChildObject(child->GetName(), this);
+    simState->RegisterChildObject(child->GetName(), tcGameObject::shared_from_this());
 }
 
 /**
 * Version that forces id and does not increment nextChildId
 */
-void tcGameObject::AddChildWithId(tcGameObject *child, long id_)
+void tcGameObject::AddChildWithId(std::shared_ptr<tcGameObject>child, long id_)
 {
     child->mnID = id_;
-    child->parent = this;
+    child->parent = tcGameObject::shared_from_this();
     children.push_back(child);
 
-    simState->RegisterChildObject(child->GetName(), this);
+    simState->RegisterChildObject(child->GetName(), tcGameObject::shared_from_this());
 }
 
 void tcGameObject::AddTargeter(long id)
@@ -1156,7 +1156,7 @@ void tcGameObject::AddTargeter(long id)
 /**
 * @return pointer to child with matching id, or 0 if not found
 */
-tcGameObject* tcGameObject::GetChildById(long id) const
+std::shared_ptr<tcGameObject> tcGameObject::GetChildById(long id) const
 {
     size_t nChildren = children.size();
 	for (size_t n=0; n<nChildren; n++)
@@ -1173,7 +1173,7 @@ tcGameObject* tcGameObject::GetChildById(long id) const
 /**
 * Linear search for child with matching name
 */
-tcGameObject* tcGameObject::GetChildByName(const std::string& name) const
+std::shared_ptr<tcGameObject> tcGameObject::GetChildByName(const std::string& name) const
 {
     size_t nChildren = children.size();
 	for (size_t n=0; n<nChildren; n++)
@@ -1188,7 +1188,7 @@ tcGameObject* tcGameObject::GetChildByName(const std::string& name) const
 }
 
 
-tcGameObject* tcGameObject::GetChild(size_t idx)
+std::shared_ptr<tcGameObject> tcGameObject::GetChild(size_t idx)
 {
     if (idx < children.size())
     {
@@ -1219,7 +1219,7 @@ size_t tcGameObject::GetNumberOfChildren() const
 * @return a random point on exterior of model in model
 * coordinates by colliding ray with random direction
 */
-Vector3d tcGameObject::GetRandomExteriorPoint()
+Vector3d tcGameObject::GetRandomExteriorPoint() const
 {
     static Vector3d errorVal(0, 0, 0);
     return  errorVal;
@@ -1301,7 +1301,7 @@ float tcGameObject::GetZmin()
 /**
 * Linear search to verify child
 */
-bool tcGameObject::IsChild(const tcGameObject* child) const
+bool tcGameObject::IsChild(std::shared_ptr<const tcGameObject> child) const
 {
     size_t nChildren = children.size();
 	for (size_t n=0; n<nChildren; n++)
@@ -1318,7 +1318,7 @@ bool tcGameObject::IsChild(const tcGameObject* child) const
 /**
  * Removes child without freeing memory (use for transfers only).
  */
-void tcGameObject::RemoveChild(tcGameObject *child)
+void tcGameObject::RemoveChild(std::shared_ptr<tcGameObject>child)
 {
     size_t nChildren = children.size();
 	for (size_t n=0; n<nChildren; n++)
@@ -1353,7 +1353,7 @@ void tcGameObject::RemoveTargeter(long id)
 }
 
 
-void tcGameObject::ApplyGeneralDamage(float damage, tcGameObject* damager)
+void tcGameObject::ApplyGeneralDamage(float damage, std::shared_ptr<tcGameObject> damager)
 {
     float priorDamage = mfDamageLevel;
     mfDamageLevel += damage;
@@ -1366,7 +1366,7 @@ void tcGameObject::ApplyGeneralDamage(float damage, tcGameObject* damager)
 /**
 * @return damage fraction for new damage, 0 means no new damage
 */
-float tcGameObject::ApplyAdvancedDamage(const Damage& damage, tcGameObject* damager)
+float tcGameObject::ApplyAdvancedDamage(const Damage& damage, std::shared_ptr<tcGameObject> damager)
 {
     assert(false); // this should be overridden in base class
     return 0;
@@ -1470,7 +1470,7 @@ void tcGameObject::SaveToFile(tcFile& file)
 * damage gets the remaining 50%
 * Call after damage has been applied to damagee
 */
-void tcGameObject::UpdateScoreForDamage(tcGameObject* damager, float priorDamage)
+void tcGameObject::UpdateScoreForDamage(std::shared_ptr<tcGameObject> damager, float priorDamage)
 {
     if (priorDamage >= 1.0f) return; // already destroyed
 
@@ -1501,7 +1501,7 @@ void tcGameObject::UpdateScoreForDamage(tcGameObject* damager, float priorDamage
         report.damagerClass.push_back(damager->mpDBObject->mzClass.c_str());
         report.damagerQuantity.push_back(1);
 
-        if (damager->GetAffiliationWith(this) == tcAllianceInfo::HOSTILE)
+        if (damager->GetAffiliationWith(this->GetAlliance()) == tcAllianceInfo::HOSTILE)
         {
             tcGoalTracker::Get()->AdjustAllianceScore(damager->GetAlliance(), damageCredit);
         }
@@ -1781,7 +1781,7 @@ tcGameStream& tcGameObject::operator<<(tcGameStream& stream)
         long id;
         stream >> id;
 
-        tcGameObject* child = CreateObject(databaseClass);
+        std::shared_ptr<tcGameObject> child = CreateObject(databaseClass);
         child->operator<<(stream);
         AddChildWithId(child, id);
     }
@@ -1797,7 +1797,7 @@ tcGameStream& tcGameObject::operator<<(tcGameStream& stream)
         long id;
         stream >> id;
 
-        tcGameObject* child = CreateObject(databaseClass);
+        std::shared_ptr<tcGameObject> child = CreateObject(databaseClass);
         child->operator<<(stream);
         child->mnID = id;
 
@@ -1832,7 +1832,7 @@ void tcGameObject::CleanupTargeters()
 
     for (size_t n=0; n<targeters.size(); n++)
     {
-        if (tcGameObject* obj = simState->GetObject(targeters[n]))
+        if (std::shared_ptr<tcGameObject> obj = simState->GetObject(targeters[n]))
         {
             temp.push_back(targeters[n]);
         }
@@ -1841,9 +1841,9 @@ void tcGameObject::CleanupTargeters()
     targeters = temp;
 }
 
-tcGameObject* tcGameObject::CreateObject(const std::string& databaseClass)
+std::shared_ptr<tcGameObject> tcGameObject::CreateObject(const std::string& databaseClass)
 {
-    tcDatabaseObject* dataObj = database->GetObject(databaseClass);
+    std::shared_ptr<tcDatabaseObject> dataObj = database->GetObject(databaseClass);
     if (dataObj == 0)
     {
         std::string errorMessage = 
@@ -1855,7 +1855,7 @@ tcGameObject* tcGameObject::CreateObject(const std::string& databaseClass)
         return 0;
     }
 
-    tcGameObject* obj = simState->CreateGameObject(dataObj);
+    std::shared_ptr<tcGameObject> obj = simState->CreateGameObject(dataObj);
     if (obj == 0)
     {
         fprintf(stderr, "Error while loading binary save file. Game child obj creation error\n");
@@ -2088,7 +2088,7 @@ tcGameObject::tcGameObject(tcGameObject& o)
 * before using this method.
 * @see SetGameObjectDatabase
 */
-tcGameObject::tcGameObject(tcDatabaseObject *obj)
+tcGameObject::tcGameObject(std::shared_ptr<tcDatabaseObject>obj)
 :  recreateFlag(false),
    mnID(-1),
    nextChildId(1),

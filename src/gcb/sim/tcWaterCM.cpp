@@ -97,7 +97,7 @@ tcUpdateStream& tcWaterCM::operator>>(tcUpdateStream& stream)
 /**
 * @return damage fraction for new damage, 0 means no new damage
 */
-float tcWaterCM::ApplyAdvancedDamage(const Damage& damage, tcGameObject* damager)
+float tcWaterCM::ApplyAdvancedDamage(const Damage& damage, std::shared_ptr<tcGameObject> damager)
 {
     bool kill = (damage.waterBlast_psi > 50.0f); // || (damage.fragHits > 0) || (damage.kinetic_J > 0) || (damage.thermal_J_cm2 > 50.0f);
 
@@ -155,11 +155,11 @@ bool tcWaterCM::IsNoisemaker() const
 * @param obj launching game object
 * @param launcher index of launcher
 */
-void tcWaterCM::LaunchFrom(tcGameObject* obj, unsigned nLauncher)
+void tcWaterCM::LaunchFrom(std::shared_ptr<tcGameObject> obj, unsigned nLauncher)
 {
-    tcLauncher* launcher = 0;
+    std::shared_ptr<tcLauncher> launcher = 0;
 
-    if (tcPlatformObject* platObj = dynamic_cast<tcPlatformObject*>(obj))
+    if (std::shared_ptr<tcPlatformObject> platObj = std::dynamic_pointer_cast<tcPlatformObject>(obj))
 	{
 		tc3DPoint launcherPos = platObj->mpDBObject->GetLauncherPosition(nLauncher);
 		GeoPoint pos = obj->RelPosToLatLonAlt(launcherPos.x, launcherPos.y,
@@ -232,7 +232,7 @@ void tcWaterCM::LaunchFrom(tcGameObject* obj, unsigned nLauncher)
 	SetAlliance(obj->GetAlliance());     
 
     tcSimState* simState = tcSimState::Get();
-	simState->AddPlatform(static_cast<tcGameObject*>(this));
+    simState->AddPlatform(tcGameObject::shared_from_this());
      
 }
 
@@ -395,7 +395,7 @@ tcWaterCM::tcWaterCM(const tcWaterCM& src)
 /**
 * Constructor that initializes using info from database entry.
 */
-tcWaterCM::tcWaterCM(tcCounterMeasureDBObject* obj)
+tcWaterCM::tcWaterCM(std::shared_ptr<tcCounterMeasureDBObject> obj)
  :  tcGameObject(obj), 
     mpDBObject(obj)
 {

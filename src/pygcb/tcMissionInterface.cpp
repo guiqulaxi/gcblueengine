@@ -152,8 +152,8 @@ object tcMissionInterface::GetInterface()
         
         for (size_t n=0; n<missionAircraft.size(); n++)
         {
-            tcPlatformObject* platform = 
-                dynamic_cast<tcPlatformObject*>(simState->GetObjectByName(missionAircraft[n].name));
+            std::shared_ptr<tcPlatformObject> platform = 
+                std::dynamic_pointer_cast<tcPlatformObject>(simState->GetObjectByName(missionAircraft[n].name));
             if ((platform != 0) && (platform->parent == 0))
             {
                 if (ai::Nav* nav = platform->GetBrain()->GetNavTask())

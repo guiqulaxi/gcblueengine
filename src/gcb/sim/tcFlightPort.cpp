@@ -130,12 +130,12 @@ tcUpdateStream& tcAirState::operator<<(tcUpdateStream& stream)
 	// if this obj is in a ready or launch spot, then update launcher and fuel state
     if (detailedUpdate || (current_location != HANGAR))
     {
-        if (tcPlatformObject* platform = obj)
+        if (std::shared_ptr<tcPlatformObject> platform = obj)
         {
             size_t nLaunchers = platform->GetLauncherCount();
             for (size_t n=0; n<nLaunchers; n++)
             {
-                tcLauncher* launcher = platform->GetLauncher(n);
+                std::shared_ptr<tcLauncher> launcher = platform->GetLauncher(n);
                 launcher->operator<<(stream);
 
                 unsigned char isLoading;
@@ -192,12 +192,12 @@ tcUpdateStream& tcAirState::operator>>(tcUpdateStream& stream)
 	
     if (detailedUpdate || (current_location != HANGAR))
     {
-        if (tcPlatformObject* platform = obj)
+        if (std::shared_ptr<tcPlatformObject> platform = obj)
         {
             size_t nLaunchers = platform->GetLauncherCount();
             for (size_t n=0; n<nLaunchers; n++)
             {
-                tcLauncher* launcher = platform->GetLauncher(n);
+                std::shared_ptr<tcLauncher> launcher = platform->GetLauncher(n);
                 launcher->operator>>(stream);
 
                 // additional info that we don't want part of the normal launcher update (could use detail level instead)
@@ -367,7 +367,7 @@ tcUpdateStream& tcFlightPort::operator<<(tcUpdateStream& stream)
 		while ((!foundMatch) && (childIdx < nChildren))
 		{
 			tcAirState* airState = GetAirState(childIdx);
-			tcGameObject* obj = airState->obj;
+			std::shared_ptr<tcGameObject> obj = airState->obj;
 			assert(obj);
 
 			short int childId = (short)obj->mnID;
@@ -463,7 +463,7 @@ tcUpdateStream& tcFlightPort::operator>>(tcUpdateStream& stream)
         tempStream1.SetDetailLevel(stream.GetDetailLevel());
 
 		tcAirState* airState = GetAirState(nextUpdateIdx);
-		tcGameObject* obj = airState->obj;
+		std::shared_ptr<tcGameObject> obj = airState->obj;
 		assert(obj);
 
 		short int localId = (short int)obj->mnID;
@@ -593,7 +593,7 @@ tcGameStream& tcFlightPort::operator<<(tcGameStream& stream)
 
         airstate->lastMultiplayerUpdate = 0;
 
-        tcAirObject* obj = dynamic_cast<tcAirObject*>(parent->GetChildById(objId));
+        std::shared_ptr<tcAirObject> obj = std::dynamic_pointer_cast<tcAirObject>(parent->GetChildById(objId));
         airstate->obj = obj;
         assert(obj != 0);
         
@@ -685,7 +685,7 @@ bool tcFlightPort::HasNewCommand() const
 * @param position obj的期望位置（例如哪个跑道）。
 * @return 1表示成功，0表示失败。
 */
-int tcFlightPort::AddObject(tcAirObject *obj, teLocation loc, unsigned int position)
+int tcFlightPort::AddObject(std::shared_ptr<tcAirObject>obj, teLocation loc, unsigned int position)
 {
     std::vector<tsSpotInfo> *bestLocation = NULL; // 最佳位置指针，初始化为空
     int emptySpotIdx = -1; // 空位索引，初始化为-1
@@ -803,15 +803,15 @@ void tcFlightPort::AddSpot(teLocation loc, float x, float y, float z,
 * @param obj 尝试着陆的对象
 * @return -1 表示坠毁，0 表示距离着陆点不够近，1 表示已着陆
 */
-int tcFlightPort::CheckLanding(tcAirObject *obj)
+int tcFlightPort::CheckLanding(std::shared_ptr<tcAirObject>obj)
 {
-    tcAirObject* air = obj; // 将传入的对象指针赋值给局部变量air
+     std::shared_ptr<tcAirObject> air = obj; // 将传入的对象指针赋值给局部变量air
     bool isAir = (air != 0); // 判断air是否非空，即是否为有效的空中对象
-    //bool isHelo = dynamic_cast<tcHeloObject*>(air) != 0; // 原始代码中的动态类型转换，用于判断是否为直升机（已被注释）
+    //bool isHelo =  std::dynamic_pointer_cast<tcHeloObject>>(air) != 0; // 原始代码中的动态类型转换，用于判断是否为直升机（已被注释）
     bool isHelo = typeid(*air) == typeid(tcHeloObject); // 使用RTTI（运行时类型识别）判断air是否为直升机对象
     bool compatible = isAir && (!mpDBObject->heloOnly || isHelo); // 判断对象是否与飞行港兼容（是否为空中对象且飞行港接受直升机或对象为直升机）
 
-    tcCarrierObject* carrier = dynamic_cast<tcCarrierObject*>(parent); // 判断父对象是否为航母
+    std::shared_ptr<tcCarrierObject> carrier = std::dynamic_pointer_cast<tcCarrierObject>(parent); // 判断父对象是否为航母
     bool carrierLanding = (carrier != 0); // 判断是否在航母上着陆
     bool carrierCompatible = air->mpDBObject->IsCarrierCompatible(); // 判断对象是否与航母兼容
 
@@ -851,21 +851,21 @@ void tcFlightPort::Clear()
     {
         tcAirState *airstate = units.at(n);
 		parent->RemoveChild(airstate->obj);
-		delete airstate->obj;
+        // delete airstate->obj;
         delete airstate;
     }
     units.clear();
 
 	for (size_t n=0; n<toLaunch.size(); n++)
 	{
-		delete toLaunch[n];
+        // delete toLaunch[n];
 	}
     toLaunch.clear();
 
 
 	for (size_t n=0; n<toLand.size(); n++)
 	{
-		delete toLand[n];
+        // delete toLand[n];
 	}
     toLand.clear();
 
@@ -938,7 +938,7 @@ int tcFlightPort::FindEmptySpot(teLocation loc, std::vector<tsSpotInfo>*& loc_ve
 * Search (linear) units vector for obj
 * @return index with matching obj or -1 if not found.
 */
-int tcFlightPort::FindAirState(tcGameObject* obj)
+int tcFlightPort::FindAirState(std::shared_ptr<tcGameObject> obj)
 {
 	assert(obj);
 
@@ -955,7 +955,7 @@ int tcFlightPort::FindAirState(tcGameObject* obj)
 * Search (linear) units vector for obj
 * @return tcAirState ptr for matching obj or 0 if not found.
 */
-tcAirState* tcFlightPort::FindAirStateObj(tcGameObject* obj)
+tcAirState* tcFlightPort::FindAirStateObj(std::shared_ptr<const tcGameObject> obj)
 {
 	assert(obj);
 
@@ -972,7 +972,7 @@ tcAirState* tcFlightPort::FindAirStateObj(tcGameObject* obj)
 * Search (linear) units vector for obj
 * @return tcAirState ptr for matching obj or 0 if not found.
 */
-const tcAirState* tcFlightPort::FindAirStateObj(const tcGameObject* obj) const
+const tcAirState* tcFlightPort::FindAirStateObj(std::shared_ptr<const tcGameObject> obj) const
 {
 	assert(obj);
 
@@ -1007,7 +1007,7 @@ int tcFlightPort::GetAirStateIdx(long id) const
     return -1; // not found
 }
 
-tcFlightportDBObject* tcFlightPort::GetDatabaseObject() const
+std::shared_ptr<tcFlightportDBObject> tcFlightPort::GetDatabaseObject() const
 {
     return mpDBObject;
 }
@@ -1015,7 +1015,7 @@ tcFlightportDBObject* tcFlightPort::GetDatabaseObject() const
 /**
 * @returns game object for unit with index n
 */
-tcGameObject* tcFlightPort::GetObject(unsigned n)
+std::shared_ptr<tcGameObject> tcFlightPort::GetObject(unsigned n)
 {
 	assert(n < units.size());
 
@@ -1025,14 +1025,14 @@ tcGameObject* tcFlightPort::GetObject(unsigned n)
 /**
 * @return game object for unit with matching id
 */
-tcGameObject* tcFlightPort::GetObjectById(long id)
+std::shared_ptr<tcGameObject> tcFlightPort::GetObjectById(long id)
 {
 	int idx = GetAirStateIdx(id);
 	if (idx < 0) return 0;
 	return GetObject(unsigned(idx));
 }
 
-tcGameObject* tcFlightPort::GetObjectByName(const std::string& unitName)
+std::shared_ptr<tcGameObject> tcFlightPort::GetObjectByName(const std::string& unitName)
 {
     size_t nUnits = units.size();
     for (size_t n=0; n<nUnits; n++) 
@@ -1215,7 +1215,7 @@ int tcFlightPort::LaunchAirstate(tcAirState* airstate)
 		return 0; // not ready yet or damaged, do not allow takeoff
 	}
     
-    tcAirObject* air = airstate->obj;
+     std::shared_ptr<tcAirObject> air = airstate->obj;
     if (air == 0)
     {
         fprintf(stderr, "tcFlightPort::Launch -- tried to launch non-air object\n");
@@ -1348,7 +1348,7 @@ void tcFlightPort::MoveObjectToDestination(tcAirState *airstate, teLocation dest
     airstate->op = OP_TRANSIT;
 }
 /**
- * Find airstate in units vector. Add tcGameObject* to toLaunch vector. 
+ * Find airstate in units vector. Add std::shared_ptr<tcGameObject> to toLaunch vector. 
  * Remove airstate from units vector.
  */
 bool tcFlightPort::MoveToLaunchQueue(tcAirState *airstate)
@@ -1383,7 +1383,7 @@ void tcFlightPort::RemoveDestroyedUnits()
         else
         {
             parent->RemoveChild(units[n]->obj);
-            delete(units[n]->obj);
+            // delete(units[n]->obj);
             delete units[n];
         }
     }
@@ -1427,7 +1427,7 @@ void tcFlightPort::RemoveStaleUnits()
         else
         {
             parent->RemoveChild(units[n]->obj);
-            delete(units[n]->obj);
+            // delete(units[n]->obj);
             delete units[n];
         }
     }
@@ -1454,7 +1454,7 @@ tsSpotInfo* tcFlightPort::GetCurrentSpotInfo(tcAirState *airstate)
 *
 * @return track with landing point coord and heading with orientation 
 */
-tcTrack tcFlightPort::GetLandingData(const tcGameObject* obj)
+tcTrack tcFlightPort::GetLandingData(std::shared_ptr<const tcGameObject> obj)
 {
 	tcTrack data;
 
@@ -1504,7 +1504,7 @@ std::vector<tsSpotInfo>* tcFlightPort::GetLocVector(teLocation loc)
 /**
 * Initialize flightport using data in dbObj.
 */
-void tcFlightPort::InitFromDatabase(database::tcFlightportDBObject *dbObj)
+void tcFlightPort::InitFromDatabase(std::shared_ptr<tcFlightportDBObject> dbObj)
 {
     assert(dbObj);
 
@@ -1540,7 +1540,7 @@ void tcFlightPort::InitFromDatabase(database::tcFlightportDBObject *dbObj)
 void tcFlightPort::InitRelPos(tcAirState *airstate)
 {
     // 获取与当前飞机状态相关联的游戏对象
-    tcGameObject *pGameObj = airstate->obj;
+    std::shared_ptr<tcGameObject>pGameObj = airstate->obj;
     // 如果飞机当前位于机库或预警15分钟内区域
     if ((airstate->current_location == HANGAR)||(airstate->current_location == ALERT15))
     {
@@ -1724,7 +1724,7 @@ void tcFlightPort::SetObjectDestination(tcAirState* airstate, teLocation loc, un
 
 void tcFlightPort::UpdateRelPos(tcAirState *airstate, double time)
 {
-//    tcGameObject *pGameObj = airstate->obj;
+//    std::shared_ptr<tcGameObject>pGameObj = airstate->obj;
     if (airstate->inTransit)
     {
         if (time >= airstate->ready_time) 
@@ -1749,9 +1749,9 @@ void tcFlightPort::UpdateRelPos(tcAirState *airstate, double time)
 */
 void tcFlightPort::UpdateUnitKin(tcAirState *airstate)
 {
-    tcAirObject* air_unit = airstate->obj;
+     std::shared_ptr<tcAirObject> air_unit = airstate->obj;
     if (air_unit == NULL) return; // error
-    tcGameObject* parent = air_unit->parent;
+    std::shared_ptr<tcGameObject> parent = air_unit->parent;
     if (parent == NULL) return; // error
 
     air_unit->mcKin = parent->mcKin;
@@ -1781,7 +1781,7 @@ void tcFlightPort::UpdateUnitKin(tcAirState *airstate)
     bb.Write("Home", parent->mzUnit.c_str());
 
 
-    if (tcAeroAirObject* aa_unit = dynamic_cast<tcAeroAirObject*>(air_unit))
+    if (std::shared_ptr<tcAeroAirObject> aa_unit = std::dynamic_pointer_cast<tcAeroAirObject>(air_unit))
     {
 		aa_unit->mcKin.mfSpeed_kts += 200.0f;
         aa_unit->SetThrottleFraction(1.1f);
@@ -1790,7 +1790,7 @@ void tcFlightPort::UpdateUnitKin(tcAirState *airstate)
         brain->AddTask("JetTakeoff", 2.0f);
 
     }
-	else if (tcHeloObject* helo_unit = dynamic_cast<tcHeloObject*>(air_unit))
+    else if (std::shared_ptr<tcHeloObject> helo_unit = std::dynamic_pointer_cast<tcHeloObject>(air_unit))
 	{
 		helo_unit->mcKin.mfClimbAngle_rad = 1.5f;
 		helo_unit->SetSpeed(100);
@@ -1909,7 +1909,7 @@ void tcFlightPort::Update(double t)
         UpdatePlatform(airstate); // 更新平台状态
 
         bool moveable = false; // 是否可移动
-        if (tcAirObject* air = airstate->obj) // 如果存在对应的航空对象
+        if ( std::shared_ptr<tcAirObject> air = airstate->obj) // 如果存在对应的航空对象
         {
             // 如果不在加油、不在装载且不在维护状态，则设置为可移动
             moveable = !air->IsRefueling() && !air->IsLoading() && (airstate->op != OP_MAINTENANCE);
@@ -1977,7 +1977,7 @@ void tcFlightPort::UpdateLanded()
     size_t landing_count = toLand.size(); // 获取待着陆对象数量
     for(size_t n=0;n<landing_count;n++) // 遍历待着陆对象
     {
-        tcAirObject* obj = toLand.at(n); // 获取当前待着陆对象
+        std::shared_ptr<tcAirObject> obj = toLand.at(n); // 获取当前待着陆对象
 
         // 将着陆对象添加到机库并设置为维护状态
         if (AddObject(obj, HANGAR, 0))
@@ -1985,7 +1985,7 @@ void tcFlightPort::UpdateLanded()
             double maintenanceTime_s = 300.0; // "快速"维护时间
 
             // 确认对象是指向tcAirObject的有效指针
-            if (tcAirObject* air = obj)
+            if ( std::shared_ptr<tcAirObject> air = obj)
             {
                 air->SetLoadoutTag(""); // 着陆时清除负载标签，无论装备状态如何
                 air->UnloadAllLaunchers(); // 卸载所有发射器
@@ -2053,7 +2053,7 @@ void tcFlightPort::UpdatePlatform(tcAirState* airstate)
 void tcFlightPort::UpdateRefueling(tcAirState *airstate) // 定义UpdateRefueling函数，用于更新加油状态，接收一个指向tcAirState的指针作为参数
 {
     assert(airstate != 0); // 断言airstate指针不为空，确保传入了一个有效的指针
-    tcAirObject* aircraft = airstate->obj; // 从airstate中获取指向飞机的指针
+     std::shared_ptr<tcAirObject> aircraft = airstate->obj; // 从airstate中获取指向飞机的指针
     if ((aircraft != 0) && (airstate->current_location != HANGAR) && // 如果飞机指针不为空，且飞机当前位置不在机库
         (!aircraft->IsOverweight()) && (!aircraft->IsRefueling())) // 并且飞机没有超重，也没有正在进行加油操作
     {

@@ -248,7 +248,7 @@ tcSpaceObject::tcSpaceObject(tcSpaceObject& o) : tcPlatformObject(o)
     mpDBObject = o.mpDBObject;
 }
 
-tcSpaceObject::tcSpaceObject(tcSpaceDBObject *obj)
+tcSpaceObject::tcSpaceObject(std::shared_ptr<tcSpaceDBObject>obj)
     : tcPlatformObject(obj)
 {
     mpDBObject = obj;

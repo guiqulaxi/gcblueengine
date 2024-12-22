@@ -55,8 +55,8 @@ namespace scriptinterface
 	{
 		long id = GetUnitId(idx);
 
-		tcGameObject* gameObj = simState->GetObject(id);
-		if (tcPlatformObject* platformObj = dynamic_cast<tcPlatformObject*>(gameObj))
+		std::shared_ptr<tcGameObject> gameObj = simState->GetObject(id);
+		if (std::shared_ptr<tcPlatformObject> platformObj = std::dynamic_pointer_cast<tcPlatformObject>(gameObj))
 		{
 			return tcPlatformInterface(platformObj);
 		}
@@ -75,8 +75,8 @@ namespace scriptinterface
 	{
 		long id = GetUnitId(idx);
 
-		tcGameObject* gameObj = simState->GetObject(id);
-		if (tcWeaponObject* weaponObj = dynamic_cast<tcWeaponObject*>(gameObj))
+		std::shared_ptr<tcGameObject> gameObj = simState->GetObject(id);
+        if (std::shared_ptr<tcWeaponObject> weaponObj =  std::dynamic_pointer_cast<tcWeaponObject>(gameObj))
 		{
 			return tcWeaponInterface(weaponObj);
 		}
@@ -108,7 +108,7 @@ namespace scriptinterface
         for (size_t n=0; n<groupUnits.size(); n++)
         {
             long id_n = groupUnits[n];
-            tcAirObject* air = dynamic_cast<tcAirObject*>(simState->GetObject(id_n));
+             std::shared_ptr<tcAirObject> air = std::dynamic_pointer_cast<tcAirObject>(simState->GetObject(id_n));
             if ((air != 0) && (air->IsTanker()))
             {
                 result.AddString(air->mzUnit.c_str());
@@ -143,16 +143,16 @@ namespace scriptinterface
     bool tcGroupInterface::IsPlatform(int idx) const
     {
         long id = GetUnitId(idx);
-		const tcGameObject* gameObj = simState->GetObject(id);
-        const tcPlatformObject* platformObj = dynamic_cast<const tcPlatformObject*>(gameObj);
+		std::shared_ptr<const tcGameObject> gameObj = simState->GetObject(id);
+        std::shared_ptr<const tcPlatformObject> platformObj =  std::dynamic_pointer_cast<const tcPlatformObject>(gameObj);
         return (platformObj != 0);
     }
 
     bool tcGroupInterface::IsWeapon(int idx) const
     {
         long id = GetUnitId(idx);
-		const tcGameObject* gameObj = simState->GetObject(id);
-        const tcWeaponObject* weaponObj = dynamic_cast<const tcWeaponObject*>(gameObj);
+		std::shared_ptr<const tcGameObject> gameObj = simState->GetObject(id);
+        std::shared_ptr<const tcWeaponObject> weaponObj =  std::dynamic_pointer_cast<const tcWeaponObject>(gameObj);
         return (weaponObj != 0);
     }
 
@@ -179,7 +179,7 @@ namespace scriptinterface
         for (size_t n=0; n<groupUnits.size(); n++)
         {
             long id_n = groupUnits[n];
-            tcGameObject* gameObj = simState->GetObject(id_n);
+            std::shared_ptr<tcGameObject> gameObj = simState->GetObject(id_n);
             if ((gameObj != 0) && (name == gameObj->mzUnit.c_str()))
             {
                 return id_n;
@@ -194,7 +194,7 @@ namespace scriptinterface
         for (size_t n=0; n<groupUnits.size(); n++)
         {
             long id_n = groupUnits[n];
-            tcGameObject* gameObj = simState->GetObject(id_n);
+            std::shared_ptr<tcGameObject> gameObj = simState->GetObject(id_n);
             if ((gameObj != 0) && (name == gameObj->mzUnit.c_str()))
             {
                 return int(n);
@@ -247,7 +247,7 @@ namespace scriptinterface
 
         for (size_t k=0; k<groupUnits.size(); k++)
         {
-            tcGameObject* gameObj = simState->GetObject(groupUnits[k]);
+            std::shared_ptr<tcGameObject> gameObj = simState->GetObject(groupUnits[k]);
             if ((gameObj != 0) && (gameObj->IsControlled()))
             {
                 controlledIds.push_back(groupUnits[k]);
@@ -268,7 +268,7 @@ namespace scriptinterface
 
         for (size_t k=0; k<groupUnits.size(); k++)
         {
-            tcGameObject* gameObj = simState->GetObject(groupUnits[k]);
+            std::shared_ptr<tcGameObject> gameObj = simState->GetObject(groupUnits[k]);
             if ((gameObj != 0) && (gameObj->IsAvailable()))
             {
                 availableIds.push_back(groupUnits[k]);

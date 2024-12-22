@@ -151,7 +151,7 @@ tcGameStream& tcCarrierObject::operator>>(tcGameStream& stream)
 /**
 * @return damage fraction for new damage, 0 means no new damage
 */
-float tcCarrierObject::ApplyAdvancedDamage(const Damage& damage, tcGameObject* damager)
+float tcCarrierObject::ApplyAdvancedDamage(const Damage& damage, std::shared_ptr<tcGameObject> damager)
 {
     float startDamageLevel = mfDamageLevel;
 
@@ -175,7 +175,7 @@ float tcCarrierObject::ApplyAdvancedDamage(const Damage& damage, tcGameObject* d
 
 
 
-void tcCarrierObject::ApplyGeneralDamage(float damage, tcGameObject* damager)
+void tcCarrierObject::ApplyGeneralDamage(float damage, std::shared_ptr<tcGameObject> damager)
 {
 	tcPlatformObject::ApplyGeneralDamage(damage, damager);
 
@@ -294,8 +294,8 @@ void tcCarrierObject::Update(double afStatusTime)
 /**
 *
 */
-tcCarrierObject::tcCarrierObject() 
-: tcFlightOpsObject(0, this)
+tcCarrierObject::tcCarrierObject()
+: tcFlightOpsObject(nullptr, tcGameObject::shared_from_this())
 {
    Clear();
 
@@ -320,8 +320,8 @@ tcCarrierObject::tcCarrierObject(tcCarrierObject& o)
 * DB object will have info on number and types of aircraft the carrier
 * can hold.
 */
-tcCarrierObject::tcCarrierObject(tcShipDBObject* obj)
-: tcSurfaceObject(obj), tcFlightOpsObject(obj->GetFlightport(), this)
+tcCarrierObject::tcCarrierObject(std::shared_ptr<tcShipDBObject> obj)
+: tcSurfaceObject(obj), tcFlightOpsObject(obj->GetFlightport(), tcGameObject::shared_from_this())
 {
     mpDBObject = obj;
     mnModelType = MTYPE_CARRIER;

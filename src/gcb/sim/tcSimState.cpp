@@ -113,14 +113,16 @@ tcSimState* tcSimState::Get()
 
 void tcSimState::AttachWeaponTester()
 {
+#ifdef USE_TEST
     weaponTester = tcWeaponTester::Get();
+#endif
 }
 
 
 void tcSimState::ChangeHeadingToLocation(long anKey, float afLon, float afLat) 
 {
     int bFound;
-    tcGameObject *po;
+    std::shared_ptr<tcGameObject>po;
 
     bFound = maPlatformState.Lookup(anKey,po);
     if (!bFound) {WTL("Err - ChangeHeadingToLocation - 1");return;}
@@ -135,7 +137,7 @@ void tcSimState::ChangeHeadingToLocation(long anKey, float afLon, float afLat)
 void tcSimState::ChangeHeading(long anKey, float afNewHeading)
 {
     int bFound;
-    tcGameObject *po;
+    std::shared_ptr<tcGameObject>po;
 
     bFound = maPlatformState.Lookup(anKey,po);
     if (!bFound) {WTL("Err - ChangeHeading - 1");return;}
@@ -149,7 +151,7 @@ void tcSimState::ChangeHeading(long anKey, float afNewHeading)
 void tcSimState::ChangeHeadingForced(long anKey, float afNewHeading) 
 {
     int bFound;
-    tcGameObject *po;
+    std::shared_ptr<tcGameObject>po;
 
     bFound = maPlatformState.Lookup(anKey,po);
     if (!bFound) {WTL("Err - ChangeHeadingForced - 1");return;}
@@ -163,7 +165,7 @@ void tcSimState::ChangeHeadingForced(long anKey, float afNewHeading)
 void tcSimState::ChangeLocation(long anKey, float afLon_rad, float afLat_rad) 
 {
     int bFound;
-    tcGameObject *po;
+    std::shared_ptr<tcGameObject>po;
 
     bFound = maPlatformState.Lookup(anKey,po);
     if (!bFound) {WTLC("Err - ChangeLocation - 1");return;}
@@ -177,13 +179,13 @@ void tcSimState::ChangeLocation(long anKey, float afLon_rad, float afLat_rad)
 void tcSimState::ChangeNormSpeed(long anKey, float afNewNormSpeed) 
 {
     int bFound;
-    tcGameObject *po;
-    tcPlatformDBObject *pdata;
+    std::shared_ptr<tcGameObject>po;
+    std::shared_ptr<tcPlatformDBObject>pdata;
 
     bFound = maPlatformState.Lookup(anKey,po);
     if (!bFound) {WTL("Err - ChangeNormSpeed - 1");return;}
 
-    pdata = dynamic_cast<tcPlatformDBObject*>(mpDatabase->GetObject(po->mnDBKey));
+    pdata = std::dynamic_pointer_cast<tcPlatformDBObject>(mpDatabase->GetObject(po->mnDBKey));
     if(pdata==NULL) {WTL("Err - ChangeNormSpeed - pdata");return;}
 
     afNewNormSpeed = (afNewNormSpeed < 0) ? 0 : afNewNormSpeed;
@@ -198,7 +200,7 @@ void tcSimState::ChangeNormSpeed(long anKey, float afNewNormSpeed)
 void tcSimState::RequestLaunch(long anKey,int anLauncher) 
 {
     int bFound;
-    tcGameObject *po;
+    std::shared_ptr<tcGameObject>po;
 
     bFound = maPlatformState.Lookup(anKey,po);
     if (!bFound) {WTL("Err - RequestLaunch - not found");return;}
@@ -212,7 +214,7 @@ void tcSimState::RequestLaunch(long anKey,int anLauncher)
 */
 void tcSimState::ResyncObjAlliance()
 {
-    tcGameObject *obj;
+    std::shared_ptr<tcGameObject>obj;
     long cmappos = maPlatformState.GetStartPosition();
     int nSize = maPlatformState.GetCount();
     long nKey;
@@ -240,8 +242,8 @@ void tcSimState::ResyncObjAlliance()
 * @param fcID id of platform that has fire control sensor (for semi-active)
 * @param fcIdx index of fire control sensor on fc platform (for semi-active)
 */
-bool tcSimState::RadarCanDetect(long anSensorKey, const tcGameObject* target,
-                                tcGameObject* reference, float afSensorAz,
+bool tcSimState::RadarCanDetect(long anSensorKey, std::shared_ptr<const tcGameObject> target,
+                                std::shared_ptr<tcGameObject> reference, float afSensorAz,
                                 long fcID, unsigned fcIdx)
 {
     float fRange_km;
@@ -262,41 +264,41 @@ bool tcSimState::RadarCanDetect(long anSensorKey, const tcGameObject* target,
     return mcDefaultRadar.CanDetectTarget(target,fRange_km);
 }
 
-bool tcSimState::SensorCanDetect(long sensorKey, const tcGameObject* target,
-                                 tcGameObject* reference, float sensorAz, long fcID, unsigned fcIdx)
+bool tcSimState::SensorCanDetect(long sensorKey, std::shared_ptr<const tcGameObject> target,
+                                 std::shared_ptr<tcGameObject> reference, float sensorAz, long fcID, unsigned fcIdx)
 {
     if (target == 0) return false;
 
-    tcDatabaseObject* databaseObj = mpDatabase->GetObject(sensorKey);
+    std::shared_ptr<tcDatabaseObject> databaseObj = mpDatabase->GetObject(sensorKey);
     if (databaseObj == 0)
     {
         assert(false);
         return false;
     }
 
-    tcSensorState* sensor = 0;
+    std::shared_ptr<tcSensorState> sensor = nullptr;
 
-    if (tcRadarDBObject* radarData = dynamic_cast<tcRadarDBObject*>(databaseObj))
+    if (std::shared_ptr<tcRadarDBObject> radarData =  std::dynamic_pointer_cast<tcRadarDBObject>(databaseObj))
     {
-        tcRadar* radar = new tcRadar(radarData);
+        std::shared_ptr<tcRadar> radar =std::make_shared<tcRadar> (radarData);
         if (radar->IsSemiactive() || radar->IsCommandReceiver())
         {
             radar->SetFireControlSensor(fcID, fcIdx);
         }
         sensor = radar;
     }
-    else if (tcOpticalDBObject* opticalData = dynamic_cast<tcOpticalDBObject*>(databaseObj))
+    else if (std::shared_ptr<tcOpticalDBObject> opticalData =  std::dynamic_pointer_cast<tcOpticalDBObject>(databaseObj))
     {
-        tcOpticalSensor* optical = new tcOpticalSensor(opticalData);
+        std::shared_ptr<tcOpticalSensor> optical = std::make_shared< tcOpticalSensor>(opticalData);
         if (optical->IsSemiactive())
         {
             optical->SetFireControlSensor(fcID, fcIdx);
         }
         sensor = optical;
     }
-    else if (tcESMDBObject* esmData = dynamic_cast<tcESMDBObject*>(databaseObj))
+    else if (std::shared_ptr<tcESMDBObject> esmData =  std::dynamic_pointer_cast<tcESMDBObject>(databaseObj))
     {
-        sensor = new tcESMSensor(esmData);
+        sensor = std::make_shared< tcESMSensor>(esmData);
     }
 
     if (sensor != 0)
@@ -316,7 +318,7 @@ bool tcSimState::SensorCanDetect(long sensorKey, const tcGameObject* target,
         */
         sensor->SetFireControlSensor(-1, 0);
 
-        delete sensor;
+        // delete sensor;
 
         return canDetect;
     }
@@ -334,7 +336,7 @@ bool tcSimState::SensorCanDetect(long sensorKey, const tcGameObject* target,
 void tcSimState::DesignateTarget(long anKey, long anTargetKey) 
 {
     int bFound;
-    tcGameObject *po;
+    std::shared_ptr<tcGameObject>po;
 
     bFound = maPlatformState.Lookup(anKey,po);
     if (!bFound) {WTL("Err - tcSimState::DesignateTarget - source not found");return;}
@@ -347,7 +349,7 @@ void tcSimState::DesignateTarget(long anKey, long anTargetKey)
 void tcSimState::DesignateDatum(long anKey, tcPoint p) 
 {
     int bFound;
-    tcGameObject *po;
+    std::shared_ptr<tcGameObject>po;
 
     bFound = maPlatformState.Lookup(anKey,po);
     if (!bFound) {WTL("Err - tcSimState::DesignateDatum - source not found");return;}
@@ -361,11 +363,11 @@ void tcSimState::DesignateDatum(long anKey, tcPoint p)
 void tcSimState::DesignateLauncherDatum(long anKey, GeoPoint p, unsigned anLauncher) 
 {
     int bFound;
-    tcGameObject *po;
+    std::shared_ptr<tcGameObject>po;
 
     bFound = maPlatformState.Lookup(anKey,po);
     if (!bFound) {WTL("Err - tcSimState::DesignateLauncherDatum - source not found");return;}
-    tcPlatformObject* pPlatformObj = dynamic_cast<tcPlatformObject*>(po);
+    std::shared_ptr<tcPlatformObject> pPlatformObj = std::dynamic_pointer_cast<tcPlatformObject>(po);
     if (pPlatformObj==NULL) {return;}
     pPlatformObj->DesignateLauncherDatum(p, anLauncher);
 }
@@ -376,12 +378,12 @@ void tcSimState::DesignateLauncherDatum(long anKey, GeoPoint p, unsigned anLaunc
 bool tcSimState::DesignateLauncherTarget(long anKey, long anTargetKey, unsigned anLauncher) 
 {
     int bFound;
-    tcGameObject *po;
+    std::shared_ptr<tcGameObject>po;
 
     bFound = maPlatformState.Lookup(anKey,po);
     if (!bFound) {WTL("Err - tcSimState::DesignateLauncherTarget - source not found");return false;}
 
-    tcPlatformObject* pPlatformObj = dynamic_cast<tcPlatformObject*>(po);
+    std::shared_ptr<tcPlatformObject> pPlatformObj = std::dynamic_pointer_cast<tcPlatformObject>(po);
     if (pPlatformObj==NULL) {return false;}
 
     pPlatformObj->DesignateLauncherTarget(anTargetKey, anLauncher);
@@ -402,19 +404,19 @@ bool tcSimState::DesignateLauncherTarget(long anKey, long anTargetKey, unsigned 
     }
 }
 
-void tcSimState::EvaluateMissileDamage(tcMissileObject* missile)
+void tcSimState::EvaluateMissileDamage(std::shared_ptr<tcMissileObject> missile)
 {
     EvaluateWeaponDamage(missile, -5.0f, 100e3f);
 }
 
 
-void tcSimState::EvaluateDirectHitDamage(tcWeaponObject* weapon, tcDamageModel* damageModel)
+void tcSimState::EvaluateDirectHitDamage(std::shared_ptr<tcWeaponObject> weapon, tcDamageModel* damageModel)
 {
     ///msg:毁伤计算
     if (!weapon->IsDirectHit()) return;
 
     long targetId = weapon->GetDirectHitTargetId();
-    tcGameObject* target = GetObject(targetId);
+    std::shared_ptr<tcGameObject> target = GetObject(targetId);
 
     Damage damage;
     damageModel->CalculateTotalDamage(weapon, target, damage);
@@ -474,7 +476,7 @@ void tcSimState::EvaluateDirectHitDamage(tcWeaponObject* weapon, tcDamageModel* 
 /**
 * @param minAlt_m and maxAlt_m used to restrict altitude range for weapon effects so e.g. subs aren't affected by high altitude blast
 */
-void tcSimState::EvaluateWeaponDamage(tcWeaponObject* weapon, float minAlt_m, float maxAlt_m)
+void tcSimState::EvaluateWeaponDamage(std::shared_ptr<tcWeaponObject> weapon, float minAlt_m, float maxAlt_m)
 {
 #ifdef _DEBUG
     if (weapon->IsGoodDetonation())
@@ -539,7 +541,7 @@ void tcSimState::EvaluateWeaponDamage(tcWeaponObject* weapon, float minAlt_m, fl
 
     for (int idx = 0; idx < nPlats; idx++)
     {
-        tcGameObject* target = GetObject(blastPlats[idx]);
+        std::shared_ptr<tcGameObject> target = GetObject(blastPlats[idx]);
 
         bool eligible = target && (target->mnID != weapon->mnID) &&
                 (target->mcKin.mfAlt_m >= minAlt_m) && (target->mcKin.mfAlt_m <= maxAlt_m) &&
@@ -613,12 +615,12 @@ void tcSimState::EvaluateWeaponDamage(tcWeaponObject* weapon, float minAlt_m, fl
 
 
 
-void tcSimState::EvaluateTorpedoDamage(tcTorpedoObject* torp)
+void tcSimState::EvaluateTorpedoDamage(std::shared_ptr<tcTorpedoObject> torp)
 {
     EvaluateWeaponDamage(torp, -99999.0f, 0.0f);
 }
 
-void tcSimState::EvaluateBallisticDamage(tcBallisticWeapon* ballistic)
+void tcSimState::EvaluateBallisticDamage(std::shared_ptr<tcBallisticWeapon> ballistic)
 {
     // first determine if this is a bomb or a gun burst, these are handled differently
     if (ballistic->IsGravityBomb() || ballistic->IsGunRound() || ballistic->IsSmartBomb() || ballistic->IsRocket())
@@ -629,7 +631,7 @@ void tcSimState::EvaluateBallisticDamage(tcBallisticWeapon* ballistic)
 
     // gun burst "autocannon" model
     // calculate the target pos in local coords to gun burst
-    tcGameObject* target = GetObject(ballistic->GetIntendedTarget());
+    std::shared_ptr<tcGameObject> target = GetObject(ballistic->GetIntendedTarget());
     if (target == 0) return;
 
     Vector3d pos;
@@ -764,7 +766,7 @@ void tcSimState::EvaluateBallisticDamage(tcBallisticWeapon* ballistic)
 */
 void tcSimState::Update() 
 {
-    tcGameObject *obj;
+    std::shared_ptr<tcGameObject>obj;
     long cmappos = maPlatformState.GetStartPosition();
     int nSize = maPlatformState.GetCount();
     long nKey,nNewKey;
@@ -805,7 +807,7 @@ void tcSimState::Update()
         maPlatformState.GetNextAssoc(cmappos,nKey,obj);
 
         bool isPlatformObject = obj->IsPlatformObject();
-        //tcPlatformObject *pPlatformObj = dynamic_cast<tcPlatformObject*>(obj);
+        //std::shared_ptr<tcPlatformObject>pPlatformObj = std::dynamic_pointer_cast<tcPlatformObject>(obj);
 
         if (isPlatformObject && (multiplayerMode != MM_CLIENT))
         {
@@ -823,8 +825,9 @@ void tcSimState::Update()
         UpdateWeaponHits2();
         UpdateLandings(mfSimTime);
         RemoveDestroyedObjects();
-
+#ifdef USE_TEST
         weaponTester->Update(); // relevant in dev mode only
+#endif
     }
     UpdateLaunch();
 
@@ -859,7 +862,7 @@ void tcSimState::Update()
 * that can be hit. This saves time by not looking for nearby accidental 
 * targets.
 */
-void tcSimState::EvaluateGuidedMissileHit(tcMissileObject* missile, tcGameObject* target)
+void tcSimState::EvaluateGuidedMissileHit(std::shared_ptr<tcMissileObject> missile, std::shared_ptr<tcGameObject> target)
 {
     //float range_m = 1000.0f*missile->mcKin.RangeToKmAlt(target->mcKin);
     //float fFactor = 0.01f*(missile->mcKin.mfSpeed_kts + target->mcKin.mfSpeed_kts + 2000.0f);
@@ -934,7 +937,7 @@ void tcSimState::EvaluateGuidedMissileHit(tcMissileObject* missile, tcGameObject
 * that can be hit. This saves time by not looking for nearby accidental 
 * targets.
 */
-void tcSimState::EvaluateTorpedoHit(tcTorpedoObject* torp, tcGameObject* target)
+void tcSimState::EvaluateTorpedoHit(std::shared_ptr<tcTorpedoObject> torp, std::shared_ptr<tcGameObject> target)
 {
     float range_m = 1000.0f * torp->mcKin.RangeToKmAlt(target->mcKin);
 
@@ -1010,7 +1013,7 @@ void tcSimState::EvaluateTorpedoHit(tcTorpedoObject* torp, tcGameObject* target)
 * the collision point is searched for nearby targets. Damage is applied
 * to all targets that are close enough.
 */
-void tcSimState::EvaluateImpactWeaponHit(tcWeaponObject* weapon)
+void tcSimState::EvaluateImpactWeaponHit(std::shared_ptr<tcWeaponObject> weapon)
 {
     assert(weapon);
 
@@ -1054,7 +1057,7 @@ void tcSimState::EvaluateImpactWeaponHit(tcWeaponObject* weapon)
 
     for (int idx = 0; idx < nPlats; idx++)
     {
-        tcGameObject* target = GetObject(blastPlats[idx]);
+        std::shared_ptr<tcGameObject> target = GetObject(blastPlats[idx]);
         
         bool eligible = target && (target->mnID != weapon->mnID) && (target->mcKin.mfAlt_m >= -5.0f);
 
@@ -1127,11 +1130,11 @@ void tcSimState::EvaluateImpactWeaponHit(tcWeaponObject* weapon)
 /**
 * Temporary special case for point defense ballistic weaps
 */
-void tcSimState::EvaluatePointDefenseWeaponHit(tcWeaponObject* weapon)
+void tcSimState::EvaluatePointDefenseWeaponHit(std::shared_ptr<tcWeaponObject> weapon)
 {
     assert(weapon);
 
-    tcGameObject* target = GetObject(weapon->GetIntendedTarget());
+    std::shared_ptr<tcGameObject> target = GetObject(weapon->GetIntendedTarget());
     if (target == 0) return;
 
 
@@ -1236,37 +1239,37 @@ void tcSimState::UpdateWeaponHits()
     nCount = GetAllWeaponObjects(aKeyList,512);
     for(int k=0;k<nCount;k++)
     {
-        tcGameObject* obj = GetObject(aKeyList[k]);
+        std::shared_ptr<tcGameObject> obj = GetObject(aKeyList[k]);
 
-        if (tcMissileObject* missileObj = dynamic_cast<tcMissileObject*>(obj))
+        if (std::shared_ptr<tcMissileObject> missileObj =  std::dynamic_pointer_cast<tcMissileObject>(obj))
         {
             bool bTerminal = (missileObj->GetGuidanceParameters(gp) != 0);
             if (bTerminal && (gp.mnTargetID != -1))
             {
                 if ((gp.mfInterceptTime < 10.0))
                 {
-                    if (tcGameObject* target = GetObject(gp.mnTargetID))
+                    if (std::shared_ptr<tcGameObject> target = GetObject(gp.mnTargetID))
                     {
                         EvaluateGuidedMissileHit(missileObj, target);
                     }
                 }
             }
         }
-        else if (tcTorpedoObject* torp = dynamic_cast<tcTorpedoObject*>(obj))
+        else if (std::shared_ptr<tcTorpedoObject> torp = std::dynamic_pointer_cast<tcTorpedoObject>(obj))
         {
             bool bTerminal = (torp->GetGuidanceParameters(gp) != 0);
             if (bTerminal && (gp.mnTargetID != -1))
             {
                 if (gp.mfInterceptTime < 10.0)
                 {
-                    if (tcGameObject* target = GetObject(gp.mnTargetID))
+                    if (std::shared_ptr<tcGameObject> target = GetObject(gp.mnTargetID))
                     {
                         EvaluateTorpedoHit(torp, target);
                     }
                 }
             }
         }
-        else if (tcWeaponObject* weapon = dynamic_cast<tcWeaponObject*>(obj))
+        else if (std::shared_ptr<tcWeaponObject> weapon =  std::dynamic_pointer_cast<tcWeaponObject>(obj))
         {
             if (weapon->IsGroundFused())
             {
@@ -1299,23 +1302,23 @@ void tcSimState::UpdateWeaponHits2()
     nCount = GetAllWeaponObjects(aKeyList,512);
     for(int k=0; k<nCount; k++)
     {
-        tcGameObject* obj = GetObject(aKeyList[k]);
+        std::shared_ptr<tcGameObject> obj = GetObject(aKeyList[k]);
 
-        if (tcWeaponObject* weapon = dynamic_cast<tcWeaponObject*>(obj))
+        if (std::shared_ptr<tcWeaponObject> weapon =  std::dynamic_pointer_cast<tcWeaponObject>(obj))
         {
             if (weapon->IsDetonated() && (weapon->GetDetonationDelay() < maxDetonationDelay_s))//武器爆炸了
             {
                 weapon->ApplyGeneralDamage(1.0f, 0); // weapon destroys itself
 
-                if (tcMissileObject* missileObj = dynamic_cast<tcMissileObject*>(obj))
+                if (std::shared_ptr<tcMissileObject> missileObj =  std::dynamic_pointer_cast<tcMissileObject>(obj))
                 {
                     EvaluateMissileDamage(missileObj);
                 }
-                else if (tcTorpedoObject* torp = dynamic_cast<tcTorpedoObject*>(obj))
+                else if (std::shared_ptr<tcTorpedoObject> torp = std::dynamic_pointer_cast<tcTorpedoObject>(obj))
                 {
                     EvaluateTorpedoDamage(torp);
                 }
-                else if (tcBallisticWeapon* ballistic = dynamic_cast<tcBallisticWeapon*>(obj))
+                else if (std::shared_ptr<tcBallisticWeapon> ballistic =  std::dynamic_pointer_cast<tcBallisticWeapon>(obj))
                 {
                     EvaluateBallisticDamage(ballistic);
                 }
@@ -1342,7 +1345,7 @@ void tcSimState::UpdateWeaponHits2()
 * normalize to toughness if a platform obj, otherwise return afDamage.
 * This effectively sets all missile toughness to 1.0
 */
-float tcSimState::GetFractionalDamage(float afDamage, tcGameObject *apGameObj) 
+float tcSimState::GetFractionalDamage(float afDamage, std::shared_ptr<tcGameObject>apGameObj)
 {
     float damageEffectiveness = randf(1.0f);
 
@@ -1357,7 +1360,7 @@ float tcSimState::GetFractionalDamage(float afDamage, tcGameObject *apGameObj)
     }
 
 
-    tcPlatformObject *pPlatformObj = dynamic_cast<tcPlatformObject*>(apGameObj);
+    std::shared_ptr<tcPlatformObject>pPlatformObj = std::dynamic_pointer_cast<tcPlatformObject>(apGameObj);
     if (pPlatformObj != NULL)
     {
         return afDamage / pPlatformObj->mpDBObject->mfToughness;
@@ -1377,7 +1380,7 @@ double tcSimState::GetMultiplayerTimeLag() const
 */
 void tcSimState::UpdateObjTerrainInfo() 
 {
-    tcGameObject *pobj;
+    std::shared_ptr<tcGameObject>pobj;
     long cmappos = maPlatformState.GetStartPosition();
     long nSize = maPlatformState.GetCount();
     long nKey;
@@ -1424,14 +1427,14 @@ void tcSimState::UpdateObjTerrainInfo()
 bool tcSimState::IsLauncherReady(long anKey, unsigned anLauncher) 
 {
     int bFound;
-    tcGameObject *po;
+    std::shared_ptr<tcGameObject>po;
 
     bFound = maPlatformState.Lookup(anKey,po);
     if (!bFound) {WTL("Err - IsLauncherReady - 1");return false;}
     return IsLauncherReady(po, anLauncher);
 }
 
-bool tcSimState::IsLauncherReady(tcGameObject *apGameObj, unsigned anLauncher) 
+bool tcSimState::IsLauncherReady(std::shared_ptr<tcGameObject>apGameObj, unsigned anLauncher)
 {
     tcLauncherState *pLauncherState;
     
@@ -1442,7 +1445,7 @@ bool tcSimState::IsLauncherReady(tcGameObject *apGameObj, unsigned anLauncher)
     apGameObj->GetLauncherState(pLauncherState);
     if (pLauncherState == NULL) {return false;}
 
-    const tcLauncher* pLauncher = pLauncherState->GetLauncher(anLauncher);
+    std::shared_ptr<const tcLauncher> pLauncher = pLauncherState->GetLauncher(anLauncher);
     if (pLauncher == 0) return false;
 
     int nLaunchCount = pLauncher->mnUncommitted;
@@ -1497,7 +1500,7 @@ bool tcSimState::IsMultiplayerServer() const
 * In single player mode, play sound effect if entity is owned by user.
 * In multiplayer server mode, send sound effect message to player
 */
-//void tcSimState::PlayEntitySoundEffect(tcGameObject* obj, const std::string& effect)
+//void tcSimState::PlayEntitySoundEffect(std::shared_ptr<tcGameObject> obj, const std::string& effect)
 //{
 //    assert(obj != 0);
 //	using network::tcMultiplayerInterface;
@@ -1534,31 +1537,31 @@ void tcSimState::PreloadScenarioDatabase()
 
     for (int i=0;i<nSize;i++)
     {
-        tcGameObject* obj = 0;
+        std::shared_ptr<tcGameObject> obj = 0;
         long nKey = -1;
 
         maPlatformState.GetNextAssoc(cmappos, nKey, obj);
 
-        if (tcPlatformObject* platform = dynamic_cast<tcPlatformObject*>(obj))
+        if (std::shared_ptr<tcPlatformObject> platform = std::dynamic_pointer_cast<tcPlatformObject>(obj))
         {
             size_t nLaunchers = platform->GetLauncherCount();
             for (size_t n=0; n<nLaunchers; n++)
             {
-                tcLauncher* launcher = platform->GetLauncher(n);
+                std::shared_ptr<tcLauncher> launcher = platform->GetLauncher(n);
                 assert(launcher != 0);
-                tcDatabaseObject* data = launcher->GetChildDatabaseObject();
+                std::shared_ptr<tcDatabaseObject> data = launcher->GetChildDatabaseObject();
                 PreloadAssociatedRecords(data);
             }
 
             size_t nMagazines = platform->GetMagazineCount();
             for (size_t n=0; n<nMagazines; n++)
             {
-                tcStores* stores = platform->GetMagazine(n);
+                std::shared_ptr<tcStores> stores = platform->GetMagazine(n);
                 size_t nItems = stores->GetNumberItemTypes();
                 for (size_t k=0; k<nItems; k++)
                 {
                     std::string itemName = stores->GetItemName(k);
-                    tcDatabaseObject* data = mpDatabase->GetObject(itemName);
+                    std::shared_ptr<tcDatabaseObject> data = mpDatabase->GetObject(itemName);
                     PreloadAssociatedRecords(data);
                 }
             }
@@ -1567,22 +1570,22 @@ void tcSimState::PreloadScenarioDatabase()
     }
 }
 
-void tcSimState::PreloadAssociatedRecords(tcDatabaseObject* obj)
+void tcSimState::PreloadAssociatedRecords(std::shared_ptr<tcDatabaseObject> obj)
 {
-    if (tcMissileDBObject* missileData = dynamic_cast<tcMissileDBObject*>(obj))
+    if (std::shared_ptr<tcMissileDBObject> missileData =  std::dynamic_pointer_cast<tcMissileDBObject>(obj))
     {
-        tcDatabaseObject* payloadData = mpDatabase->GetObject(missileData->payloadClass);
+        std::shared_ptr<tcDatabaseObject> payloadData = mpDatabase->GetObject(missileData->payloadClass);
         PreloadAssociatedRecords(payloadData);
 
-        tcDatabaseObject* sensorData =  mpDatabase->GetObject(missileData->maSensorClass.c_str());
+        std::shared_ptr<tcDatabaseObject> sensorData =  mpDatabase->GetObject(missileData->maSensorClass.c_str());
     }
-    else if (tcTorpedoDBObject* torpedoData = dynamic_cast<tcTorpedoDBObject*>(obj))
+    else if (std::shared_ptr<tcTorpedoDBObject> torpedoData =  std::dynamic_pointer_cast<tcTorpedoDBObject>(obj))
     {
-        tcDatabaseObject* sensorData =  mpDatabase->GetObject(torpedoData->sonarClass);
+        std::shared_ptr<tcDatabaseObject> sensorData =  mpDatabase->GetObject(torpedoData->sonarClass);
     }
-    else if (tcBallisticDBObject* ballisticData = dynamic_cast<tcBallisticDBObject*>(obj))
+    else if (std::shared_ptr<tcBallisticDBObject> ballisticData =  std::dynamic_pointer_cast<tcBallisticDBObject>(obj))
     {
-        tcDatabaseObject* sensorData =  mpDatabase->GetObject(ballisticData->sensorClass);
+        std::shared_ptr<tcDatabaseObject> sensorData =  mpDatabase->GetObject(ballisticData->sensorClass);
     }
 }
 
@@ -1594,7 +1597,7 @@ void tcSimState::PreloadAssociatedRecords(tcDatabaseObject* obj)
 */
 int tcSimState::GetAllWeaponObjects(long *apKeyList,int anMaxLength) 
 {
-    tcGameObject *pobj;
+    std::shared_ptr<tcGameObject>pobj;
     long cmappos = maPlatformState.GetStartPosition();
     long nSize = maPlatformState.GetCount();
     long nKey;
@@ -1603,7 +1606,7 @@ int tcSimState::GetAllWeaponObjects(long *apKeyList,int anMaxLength)
     for (long i=0;(i<nSize)&&(nListIndex<anMaxLength);i++)
     {
         maPlatformState.GetNextAssoc(cmappos,nKey,pobj);
-        if (dynamic_cast<tcWeaponObject*>(pobj))
+        if ( std::dynamic_pointer_cast<tcWeaponObject>(pobj))
         {
             apKeyList[nListIndex++] = nKey;
         }
@@ -1627,7 +1630,7 @@ const tcDateTime& tcSimState::GetDateTime() const
 */
 void tcSimState::RemoveDestroyedObjects() 
 {
-    tcGameObject *obj;
+    std::shared_ptr<tcGameObject>obj;
     long cmappos = maPlatformState.GetStartPosition();
     long nSize = maPlatformState.GetCount();
     long nKey;
@@ -1645,7 +1648,7 @@ void tcSimState::RemoveDestroyedObjects()
 /**
 * Use this method to rename without corrupting name-based registry
 */
-void tcSimState::RenameObject(tcGameObject* obj, const std::string& s)
+void tcSimState::RenameObject(std::shared_ptr<tcGameObject> obj, const std::string& s)
 {
     assert(obj);
     if (obj == 0) return;
@@ -1664,9 +1667,9 @@ void tcSimState::RenameObject(tcGameObject* obj, const std::string& s)
 /**
 * Writes out damage report message
 */
-void tcSimState::ReportDamage(tcGameObject* obj)
+void tcSimState::ReportDamage(std::shared_ptr<tcGameObject> obj)
 {
-    if (tcWeaponObject* weapon = dynamic_cast<tcWeaponObject*>(obj))
+    if (std::shared_ptr<tcWeaponObject> weapon =  std::dynamic_pointer_cast<tcWeaponObject>(obj))
     {
         return;
     }
@@ -1694,7 +1697,7 @@ void tcSimState::ReportDamage(tcGameObject* obj)
 /**
 * Report nuclear detonation to players (instantaneous report, very efficient intel!)
 */
-void tcSimState::ReportHighYieldDetonation(tcWeaponObject* weapon)
+void tcSimState::ReportHighYieldDetonation(std::shared_ptr<tcWeaponObject> weapon)
 {
     std::string s;
 
@@ -1707,7 +1710,7 @@ void tcSimState::ReportHighYieldDetonation(tcWeaponObject* weapon)
 /**
 *
 */
-void tcSimState::ProcessRadarDetection(tcGameObject *apRadarPlat,tcGameObject *apTarget,
+void tcSimState::ProcessRadarDetection(std::shared_ptr<tcGameObject>apRadarPlat,std::shared_ptr<tcGameObject>apTarget,
                                        tcRadar *apRadarSS)
 {
     assert(false); // obsolete
@@ -1721,7 +1724,7 @@ void tcSimState::ProcessRadarDetection(tcGameObject *apRadarPlat,tcGameObject *a
     if (!bDetected) {return;}
 
     tcSensorReport *pReport;
-    tcSensorMapTrack *pSMTrack;
+    std::shared_ptr<tcSensorMapTrack> psmtrack;
     bool bAccept = mcSensorMap.UpdateActiveReport(pReport,apRadarPlat->mnID,apTarget->mnID,
                                                   pSMTrack,apRadarPlat->GetAlliance());
 
@@ -1749,7 +1752,7 @@ void tcSimState::ProcessRadarDetection(tcGameObject *apRadarPlat,tcGameObject *a
         }
         if ((!pReport->mbClassified)&&(fTrackLife > 10.0))
         {
-            tcDatabaseObject *pTargetData;
+            std::shared_ptr<tcDatabaseObject>pTargetData;
             mpDatabase->GetObject(apTarget->mnDBKey,pTargetData); // watch out for bad call here
             UINT16 nClassification = pTargetData->mnType;
             tcAllianceInfo::Affiliation eAffil = tcAllianceInfo::UNKNOWN;
@@ -1782,14 +1785,14 @@ void tcSimState::ProcessRadarDetection(tcGameObject *apRadarPlat,tcGameObject *a
 /**
 * Deprecated method
 */
-void tcSimState::UpdateSurveillance(tcGameObject *applat, tcSensorState *apSensorState)
+void tcSimState::UpdateSurveillance(std::shared_ptr<tcGameObject>applat, std::shared_ptr<tcSensorState>apSensorState)
 {
 #if 0
     long aTargetKeys[100];
     long nTargetID;
     int nCount;
     tcRect region;
-    tcGameObject *pTarget;
+    std::shared_ptr<tcGameObject>pTarget;
 
     assert(false); // deprecated
 
@@ -1803,12 +1806,12 @@ void tcSimState::UpdateSurveillance(tcGameObject *applat, tcSensorState *apSenso
         if (nTargetID != applat->mnID) // no self detection
         {
             pTarget = GetObject(nTargetID);
-            tcRadar *pRadarSS = dynamic_cast<tcRadar*>(apSensorState);
+            tcRadar *pRadarSS =  std::dynamic_pointer_cast<tcRadar>>(apSensorState);
             if (pRadarSS)
             {
                 ProcessRadarDetection(applat,pTarget,pRadarSS);
             }
-            else if (tcESMSensor *pESMSS = dynamic_cast<tcESMSensor*>(apSensorState))
+            else if (tcESMSensor *pESMSS = std::dynamic_pointer_cast<tcESMSensor>>(apSensorState))
             {
                 ProcessESMDetection(applat,pTarget,pESMSS);
             }
@@ -1820,7 +1823,7 @@ void tcSimState::UpdateSurveillance(tcGameObject *applat, tcSensorState *apSenso
 
 #define N_TARGET_KEYS 100
 #define N_FC_KEYS 32
-void tcSimState::UpdateFireControl(tcGameObject *apGameObj, tcRadar *apRadarSS) 
+void tcSimState::UpdateFireControl(std::shared_ptr<tcGameObject>apGameObj, tcRadar *apRadarSS)
 {
     assert(false); // deprecated?
 #if 0
@@ -1831,8 +1834,8 @@ void tcSimState::UpdateFireControl(tcGameObject *apGameObj, tcRadar *apRadarSS)
     int nCount,nFCCount;
     tcRect region;
     GeoPoint currentpos;
-    //   tcDatabaseObject *pTargetDBObj;
-    tcGameObject *pTargetObj;
+    //   std::shared_ptr<tcDatabaseObject>pTargetDBObj;
+    std::shared_ptr<tcGameObject>pTargetObj;
 
     currentpos.Set((float)apGameObj->mcKin.mfLon_rad,(float)apGameObj->mcKin.mfLat_rad,
                    apGameObj->mcKin.mfAlt_m);
@@ -1860,7 +1863,7 @@ void tcSimState::UpdateFireControl(tcGameObject *apGameObj, tcRadar *apRadarSS)
         }
     }
     // update engagement handler object if apGameObj is a tcSurfaceObj*
-    tcSurfaceObject *pSurfaceObj = dynamic_cast<tcSurfaceObject*>(apGameObj);
+    std::shared_ptr<tcSurfaceObject>pSurfaceObj = std::dynamic_pointer_cast<tcSurfaceObject>>(apGameObj);
     if (pSurfaceObj != NULL) {
         if ((nFCCount > 0)||(pSurfaceObj->mcEngagementData.mnCount > 0)) {
             pSurfaceObj->mcEngagementData.Update(aFCKeys,afRanges,nFCCount);
@@ -1884,12 +1887,12 @@ void tcSimState::UpdateLandings(double afSimTime)
     int air_count = (int)landingPlatforms.size();
     for (int n=0;n<receiving_count;n++)
     {
-        tcGameObject *receiver = GetObject(flightportPlatforms.at(n));
+        std::shared_ptr<tcGameObject>receiver = GetObject(flightportPlatforms.at(n));
         if (receiver)
         {
             for (int m=0;m<air_count;m++)
             {
-                tcGameObject *landing_unit = GetObject(landingPlatforms.at(m));
+                std::shared_ptr<tcGameObject>landing_unit = GetObject(landingPlatforms.at(m));
                 ProcessLanding(receiver, landing_unit);
             }
         }
@@ -1917,14 +1920,14 @@ void tcSimState::UpdateLandingState(double afSimTime)
 
     for (int i=0;i<nSize;i++)
     {
-        tcGameObject *gameObj;
+        std::shared_ptr<tcGameObject>gameObj;
         long nKey;
         maPlatformState.GetNextAssoc(pos,nKey,gameObj);
-        if (dynamic_cast<tcFlightOpsObject*>(gameObj))
+        if ( std::dynamic_pointer_cast<tcFlightOpsObject>(gameObj))
         {
             flightportPlatforms.push_back(gameObj->mnID);
         }
-        else if (dynamic_cast<tcAirObject*>(gameObj))
+        else if (std::dynamic_pointer_cast<tcAirObject>(gameObj))
         {
             float terrainHeight_m = std::max(gameObj->mcTerrain.mfHeight_m, 0.0f);
             if ((gameObj->mcKin.mfAlt_m - terrainHeight_m) <= 1000.0f)
@@ -1947,23 +1950,23 @@ void tcSimState::UpdateLaunch()
 
     for (int i=0;i<nSize;i++)
     {
-        tcGameObject *gameObj;
+        std::shared_ptr<tcGameObject>gameObj;
         long nKey;
         maPlatformState.GetNextAssoc(pos,nKey,gameObj);
         int launch_count = (int)gameObj->toLaunch.size();
         for(int n=0;n<(int)launch_count;n++)
         {
-            tcGameObject *child = gameObj->toLaunch.at(n);
+            std::shared_ptr<tcGameObject>child = gameObj->toLaunch.at(n);
             child->parent = NULL;
 
             AddPlatform(child);
 
-            if (dynamic_cast<tcHeloObject*>(child))
+            if ( std::dynamic_pointer_cast<tcHeloObject>(child))
             {
                 //PlayEntitySoundEffect(gameObj, "helolaunch");
 
             }
-            else if (dynamic_cast<tcAirObject*>(child))
+            else if (std::dynamic_pointer_cast<tcAirObject>(child))
             {
                 //PlayEntitySoundEffect(gameObj, "jetlaunch");
 
@@ -1979,7 +1982,7 @@ void tcSimState::UpdateLaunch()
 /**
 * Deprecated?
 */
-void tcSimState::UpdateSeeker(tcGameObject *applat, tcRadar *apRadarSS) 
+void tcSimState::UpdateSeeker(std::shared_ptr<tcGameObject>applat, tcRadar *apRadarSS)
 {
     assert(false);
     
@@ -1987,7 +1990,7 @@ void tcSimState::UpdateSeeker(tcGameObject *applat, tcRadar *apRadarSS)
     long nTargetID;
     GeoPoint currentpos;
     tcTrack *pTrack;
-    tcGameObject *ptarget;
+    std::shared_ptr<tcGameObject>ptarget;
     long aTargetKeys[100];
     int nCount;
     tcRect region;
@@ -2094,7 +2097,7 @@ void tcSimState::UpdateSeeker(tcGameObject *applat, tcRadar *apRadarSS)
 /**
 *
 */
-void tcSimState::AddPlatform(tcGameObject *pplat) 
+void tcSimState::AddPlatform(std::shared_ptr<tcGameObject>pplat)
 {
     long newkey;
     maPlatformState.AddElement(pplat, newkey);
@@ -2106,7 +2109,7 @@ void tcSimState::AddPlatform(tcGameObject *pplat)
 /**
 * Used to force key for particular platform when restoring scenario from file
 */
-void tcSimState::AddPlatformWithKey(tcGameObject *pplat, long key)
+void tcSimState::AddPlatformWithKey(std::shared_ptr<tcGameObject>pplat, long key)
 {
     maPlatformState.AddElementForceKey(pplat,key);
     pplat->mnID = key;
@@ -2117,7 +2120,7 @@ void tcSimState::AddPlatformWithKey(tcGameObject *pplat, long key)
 /**
 * Adds unit name to objectNameMap for quick lookup by name
 */
-void tcSimState::RegisterPlatform(tcGameObject* obj)
+void tcSimState::RegisterPlatform(std::shared_ptr<tcGameObject> obj)
 {
     assert(obj);
     std::string unitName(obj->mzUnit.c_str());
@@ -2136,7 +2139,7 @@ void tcSimState::RegisterPlatform(tcGameObject* obj)
     }
 }
 
-void tcSimState::UnregisterPlatform(tcGameObject* obj)
+void tcSimState::UnregisterPlatform(std::shared_ptr<tcGameObject> obj)
 {
     assert(obj);
     if (obj == 0) return;
@@ -2161,20 +2164,20 @@ void tcSimState::UnregisterPlatform(tcGameObject* obj)
 /**
 *
 */
-void tcSimState::AddLaunchedPlatform(long newKey, tcGameObject* launchingPlatform, 
+void tcSimState::AddLaunchedPlatform(long newKey, std::shared_ptr<tcGameObject> launchingPlatform,
                                      unsigned nLauncher)
 {
-    tcDatabaseObject *pDBObject;
+    std::shared_ptr<tcDatabaseObject>pDBObject;
 
     pDBObject = mpDatabase->GetObject(newKey);
     if (pDBObject == NULL) {return;}
 
     ///msg:武器发射
-    tcGameObject* launched = CreateGameObject(pDBObject);
+    std::shared_ptr<tcGameObject> launched = CreateGameObject(pDBObject);
 
     // why isn't this done with virtual methods vs big if/else-if network?
 
-    if (tcMissileObject* missile = dynamic_cast<tcMissileObject*>(launched))
+    if (std::shared_ptr<tcMissileObject> missile = std::dynamic_pointer_cast<tcMissileObject>(launched))
     {
         missile->LaunchFrom(launchingPlatform, nLauncher);
 
@@ -2188,7 +2191,7 @@ void tcSimState::AddLaunchedPlatform(long newKey, tcGameObject* launchingPlatfor
         }
         tcEventManager::Get()->WeaponLaunched(launchingPlatform->GetAlliance());
     }
-    else if (tcTorpedoObject* torp = dynamic_cast<tcTorpedoObject*>(launched))
+    else if (std::shared_ptr<tcTorpedoObject> torp = std::dynamic_pointer_cast<tcTorpedoObject>(launched))
     {
         torp->LaunchFrom(launchingPlatform, nLauncher);
 
@@ -2198,12 +2201,12 @@ void tcSimState::AddLaunchedPlatform(long newKey, tcGameObject* launchingPlatfor
         }
         tcEventManager::Get()->WeaponLaunched(launchingPlatform->GetAlliance());
     }
-    else if (tcGuidedBomb* guided = dynamic_cast<tcGuidedBomb*>(launched))
+    else if (std::shared_ptr<tcGuidedBomb> guided = std::dynamic_pointer_cast<tcGuidedBomb>(launched))
     {
         guided->LaunchFrom(launchingPlatform, nLauncher);
         tcEventManager::Get()->WeaponLaunched(launchingPlatform->GetAlliance());
     }
-    else if (tcBallisticWeapon* ballistic = dynamic_cast<tcBallisticWeapon*>(launched))
+    else if (std::shared_ptr<tcBallisticWeapon> ballistic = std::dynamic_pointer_cast<tcBallisticWeapon>(launched))
     {
         ballistic->LaunchFrom(launchingPlatform, nLauncher);
 
@@ -2221,19 +2224,19 @@ void tcSimState::AddLaunchedPlatform(long newKey, tcGameObject* launchingPlatfor
         }
         tcEventManager::Get()->WeaponLaunched(launchingPlatform->GetAlliance());
     }
-    else if (tcSonobuoy* sonobuoy = dynamic_cast<tcSonobuoy*>(launched))
+    else if (std::shared_ptr<tcSonobuoy> sonobuoy = std::dynamic_pointer_cast<tcSonobuoy>(launched))
     {
         sonobuoy->LaunchFrom(launchingPlatform, nLauncher);
     }
-    else if (tcAirCM* cm = dynamic_cast<tcAirCM*>(launched))
+    else if (std::shared_ptr<tcAirCM> cm = std::dynamic_pointer_cast<tcAirCM>(launched))
     {
         cm->LaunchFrom(launchingPlatform, nLauncher);
     }
-    else if (tcWaterCM* cm = dynamic_cast<tcWaterCM*>(launched))
+    else if (std::shared_ptr<tcWaterCM> cm = std::dynamic_pointer_cast<tcWaterCM>(launched))
     {
         cm->LaunchFrom(launchingPlatform, nLauncher);
     }
-    else if (tcBallisticMissile* bm = dynamic_cast<tcBallisticMissile*>(launched))
+    else if (std::shared_ptr<tcBallisticMissile> bm = std::dynamic_pointer_cast<tcBallisticMissile>(launched))
     {
         bm->LaunchFrom(launchingPlatform, nLauncher);
         tcEventManager::Get()->WeaponLaunched(launchingPlatform->GetAlliance());
@@ -2252,25 +2255,25 @@ void tcSimState::AddLaunchedPlatform(long newKey, tcGameObject* launchingPlatfor
 * Factory method to create new objects from a database object.
 * Recently reworked this so that game objects initialize themselves.
 */
-tcGameObject* tcSimState::CreateGameObject(tcDatabaseObject *apDBObject)
+std::shared_ptr<tcGameObject> tcSimState::CreateGameObject(std::shared_ptr<tcDatabaseObject>apDBObject)
 {
-    apDBObject->CreateGameObject();
+    return apDBObject->CreateGameObject();
 }
-// tcGameObject* tcSimState::CreateGameObject(tcDatabaseObject *apDBObject)
+// std::shared_ptr<tcGameObject> tcSimState::CreateGameObject(std::shared_ptr<tcDatabaseObject>apDBObject)
 // {
 //     if (apDBObject == 0) {return 0;}
 
 //     // make sure more specialized classes are tested first to avoid
 //     // accidental upcast
-//     if (tcJetDBObject *pAirData = dynamic_cast<tcJetDBObject*>(apDBObject))
+//     if (std::shared_ptr<tcJetDBObject>pAirData =  std::dynamic_pointer_cast<tcJetDBObject>>(apDBObject))
 //     {
 //         return new tcAeroAirObject(pAirData);
 //     }
-//     else if (tcSubDBObject* subData = dynamic_cast<tcSubDBObject*>(apDBObject))
+//     else if (std::shared_ptr<tcSubDBObject> subData =  std::dynamic_pointer_cast<tcSubDBObject>>(apDBObject))
 //     {
 //         return new tcSubObject(subData);
 //     }
-//     else if (tcShipDBObject* shipData = dynamic_cast<tcShipDBObject*>(apDBObject))
+//     else if (std::shared_ptr<tcShipDBObject> shipData =  std::dynamic_pointer_cast<tcShipDBObject>>(apDBObject))
 //     {
 //         /* these types are defined in tcDatabase.h */
 //         switch (apDBObject->mnModelType)
@@ -2320,7 +2323,7 @@ tcGameObject* tcSimState::CreateGameObject(tcDatabaseObject *apDBObject)
 //             return NULL;
 //         }
 //     }
-//     else if (tcGroundDBObject* groundData = dynamic_cast<tcGroundDBObject*>(apDBObject))
+//     else if (std::shared_ptr<tcGroundDBObject> groundData =  std::dynamic_pointer_cast<tcGroundDBObject>>(apDBObject))
 //     {
 //         /* these types are defined in tcDatabase.h */
 //         switch (apDBObject->mnModelType)
@@ -2341,15 +2344,15 @@ tcGameObject* tcSimState::CreateGameObject(tcDatabaseObject *apDBObject)
 //             return NULL;
 //         }
 //     }
-//     else if (tcMissileDBObject *pMissileData = dynamic_cast<tcMissileDBObject*>(apDBObject))
+//     else if (std::shared_ptr<tcMissileDBObject>pMissileData =  std::dynamic_pointer_cast<tcMissileDBObject>>(apDBObject))
 //     {
 //         return new tcMissileObject(pMissileData);
 //     }
-//     else if (tcTorpedoDBObject *torpData = dynamic_cast<tcTorpedoDBObject*>(apDBObject))
+//     else if (std::shared_ptr<tcTorpedoDBObject>torpData =  std::dynamic_pointer_cast<tcTorpedoDBObject>>(apDBObject))
 //     {
 //         return new tcTorpedoObject(torpData);
 //     }
-//     else if (tcBallisticDBObject* ballisticData = dynamic_cast<tcBallisticDBObject*>(apDBObject))
+//     else if (std::shared_ptr<tcBallisticDBObject> ballisticData =  std::dynamic_pointer_cast<tcBallisticDBObject>>(apDBObject))
 //     {
 //         switch (apDBObject->mnModelType)
 //         {
@@ -2370,11 +2373,11 @@ tcGameObject* tcSimState::CreateGameObject(tcDatabaseObject *apDBObject)
 //             break;
 //         }
 //     }
-//     else if (tcSonobuoyDBObject* sonobuoyData = dynamic_cast<tcSonobuoyDBObject*>(apDBObject))
+//     else if (std::shared_ptr<tcSonobuoyDBObject> sonobuoyData =  std::dynamic_pointer_cast<tcSonobuoyDBObject>>(apDBObject))
 //     {
 //         return new tcSonobuoy(sonobuoyData);
 //     }
-//     else if (tcCounterMeasureDBObject* cmData = dynamic_cast<tcCounterMeasureDBObject*>(apDBObject))
+//     else if (std::shared_ptr<tcCounterMeasureDBObject> cmData =  std::dynamic_pointer_cast<tcCounterMeasureDBObject>>(apDBObject))
 //     {
 //         if (apDBObject->mnModelType == MTYPE_AIRCM)
 //         {
@@ -2386,11 +2389,11 @@ tcGameObject* tcSimState::CreateGameObject(tcDatabaseObject *apDBObject)
 //             return new tcWaterCM(cmData);
 //         }
 //     }
-//     else if (tcBallisticMissileDBObject* bmData = dynamic_cast<tcBallisticMissileDBObject*>(apDBObject))
+//     else if (std::shared_ptr<tcBallisticMissileDBObject> bmData =  std::dynamic_pointer_cast<tcBallisticMissileDBObject>>(apDBObject))
 //     {
 //         return new tcBallisticMissile(bmData);
 //     }
-//     else if(tcSpaceDBObject *spData=dynamic_cast<tcSpaceDBObject*>(apDBObject))
+//     else if(std::shared_ptr<tcSpaceDBObject>spData=dynamic_cast<tcSpaceDBObject*>(apDBObject))
 //     {
 //         return new tcSpaceObject(spData);
 //     }
@@ -2408,7 +2411,7 @@ tcGameObject* tcSimState::CreateGameObject(tcDatabaseObject *apDBObject)
 */
 void tcSimState::DeleteObject(long key) 
 {
-    tcGameObject* obj = GetObject(key);
+    std::shared_ptr<tcGameObject> obj = GetObject(key);
 
     if (!obj)
     {
@@ -2420,8 +2423,8 @@ void tcSimState::DeleteObject(long key)
 
     UnregisterPlatform(obj);
 
-    if ((dynamic_cast<tcWeaponObject*>(obj) == 0) && (dynamic_cast<tcAirCM*>(obj) == 0) &&
-            (dynamic_cast<tcSonobuoy*>(obj) == 0) && (!IsMultiplayerClient()))
+    if (( std::dynamic_pointer_cast<tcWeaponObject>(obj) == 0) && ( std::dynamic_pointer_cast<tcAirCM>(obj) == 0) &&
+            (std::dynamic_pointer_cast<tcSonobuoy>(obj) == 0) && (!IsMultiplayerClient()))
     {
         tcString s;
         s.Format("%s (%s) destroyed\n", obj->mzUnit.c_str(), obj->mzClass.c_str());
@@ -2458,7 +2461,7 @@ void tcSimState::ClearSensorMaps()
 * Call when adding child object, e.g. aircraft to flightdeck.
 * This allows child object to be looked up by name (but not id) during scenario creation 
 */
-void tcSimState::RegisterChildObject(const std::string& name, tcGameObject* parent)
+void tcSimState::RegisterChildObject(const std::string& name, std::shared_ptr<tcGameObject> parent)
 {
     assert(parent != 0);
 
@@ -2550,12 +2553,12 @@ void tcSimState::UnregisterChildObject(const std::string& name)
 /**
 *
 */
-tcGameObject* tcSimState::CreateRandomPlatform(UINT platform_type) 
+std::shared_ptr<tcGameObject> tcSimState::CreateRandomPlatform(UINT platform_type)
 {
     bool bSearching = true;
     bool bFound = false;
     int nTries = 0;
-    tcDatabaseObject *pdata = 0;
+    std::shared_ptr<tcDatabaseObject>pdata = 0;
 
     while ((bSearching)&&(nTries++ < 128))
     {
@@ -2584,7 +2587,7 @@ void tcSimState::AttachDB(tcDatabase *pDatabase)
 void tcSimState::PrintToFile(tcString sFileName) 
 {
     tcFile file;
-    tcGameObject *pplat;
+    std::shared_ptr<tcGameObject>pplat;
     char buff[256];
 
     file.Open(sFileName.GetBuffer(),tcFile::modeCreate|tcFile::modeWrite|tcFile::modeText);
@@ -2633,18 +2636,18 @@ void tcSimState::PrintToFile(tcString sFileName)
 * Call CheckLanding for receiver. If landing is accepted, remove the object
 * from the maPlatformState container.
 */
-void tcSimState::ProcessLanding(tcGameObject *receiver, tcGameObject *landing_unit)
+void tcSimState::ProcessLanding(std::shared_ptr<tcGameObject>receiver, std::shared_ptr<tcGameObject>landing_unit)
 {
     if ((landing_unit==NULL)||(receiver==NULL)) return;
 
-    tcAirObject *air = dynamic_cast<tcAirObject*>(landing_unit);
+    std::shared_ptr<tcAirObject>air = std::dynamic_pointer_cast<tcAirObject>(landing_unit);
     if (air == NULL) return; // only AirObject are supported currently
     float range = landing_unit->mcKin.RangeToKmAlt(receiver->mcKin);
     bool notClimbing = landing_unit->mcKin.mfClimbAngle_rad < 0.01f;
 
     if ((range < 0.8f)&&(notClimbing)&&(air->readyForLanding))
     {
-        if (tcFlightOpsObject* flightOps = dynamic_cast<tcFlightOpsObject*>(receiver))
+        if (std::shared_ptr<tcFlightOpsObject> flightOps =  std::dynamic_pointer_cast<tcFlightOpsObject>(receiver))
         {
             // save key since AddChild can be called from CheckLanding, replaces mnID
             long key = landing_unit->mnID;
@@ -2669,7 +2672,7 @@ void tcSimState::ProcessLanding(tcGameObject *receiver, tcGameObject *landing_un
 */
 int tcSimState::GetPlatformAlliance(long anKey, UINT& rnAlliance) 
 {
-    tcGameObject *pplat;
+    std::shared_ptr<tcGameObject>pplat;
     int bFound;
     bFound = GetPlatformState(anKey, pplat);
     if (bFound)
@@ -2686,7 +2689,7 @@ int tcSimState::GetPlatformAlliance(long anKey, UINT& rnAlliance)
 /**
 *
 */
-int tcSimState::GetPlatformState(long anKey, tcGameObject*& pplat) 
+int tcSimState::GetPlatformState(long anKey, std::shared_ptr<tcGameObject> &pplat)
 {
     int bFound;
     bFound = maPlatformState.Lookup(anKey,pplat);
@@ -2696,7 +2699,7 @@ int tcSimState::GetPlatformState(long anKey, tcGameObject*& pplat)
 /**
 *
 */
-tcGameObject* tcSimState::GetObject(long anKey) 
+std::shared_ptr<tcGameObject> tcSimState::GetObject(long anKey)
 {
 #ifdef _DEBUG
     if (anKey == -99) // hack to get non-maPlatformState obj for WeaponTester returned
@@ -2704,12 +2707,12 @@ tcGameObject* tcSimState::GetObject(long anKey)
         return tcWeaponTester::Get()->GetPlatform();
     }
 #endif
-    tcGameObject *pGameObj;
+    std::shared_ptr<tcGameObject>pGameObj;
     maPlatformState.Lookup(anKey,pGameObj);
     return pGameObj; // tcPool sets pGameObj NULL if not found
 }
 
-const tcGameObject* tcSimState::GetObjectConst(long id) const
+std::shared_ptr<const tcGameObject> tcSimState::GetObjectConst(long id) const
 {
     return maPlatformState.LookupConst(id);
 }
@@ -2717,13 +2720,13 @@ const tcGameObject* tcSimState::GetObjectConst(long id) const
 /**
 * @return game object matching unitName or 0 if not found.
 */
-tcGameObject* tcSimState::GetObjectByName(const std::string& unitName)
+std::shared_ptr<tcGameObject> tcSimState::GetObjectByName(const std::string& unitName)
 {
     // first try to lookup in map
     std::map<std::string, long>::iterator iter = objectNameMap.find(unitName);
     if (iter != objectNameMap.end())
     {
-        if (tcGameObject *obj = GetObject(iter->second))
+        if (std::shared_ptr<tcGameObject>obj = GetObject(iter->second))
         {
             return obj;
         }
@@ -2739,7 +2742,7 @@ tcGameObject* tcSimState::GetObjectByName(const std::string& unitName)
         std::map<std::string, long>::iterator iter = captiveObjectMap.find(unitName);
         if (iter != captiveObjectMap.end())
         {
-            tcGameObject* parent = GetObject(iter->second);
+            std::shared_ptr<tcGameObject> parent = GetObject(iter->second);
             if (parent != 0)
             {
                 return parent->GetChildByName(unitName);
@@ -2774,7 +2777,7 @@ tcSensorMap* tcSimState::GetSensorMap()
 void tcSimState::GetDescription(long anKey, tcString& s) 
 {
     int bFound;
-    tcGameObject *pplat;
+    std::shared_ptr<tcGameObject>pplat;
     bFound = maPlatformState.Lookup(anKey, pplat);
     if (bFound)
     {
@@ -2792,7 +2795,7 @@ void tcSimState::GetDescription(long anKey, tcString& s)
 */
 void tcSimState::GetPlatformsWithinRegion(std::vector<long>& keyList, tcRect *apRegion) 
 {
-    tcGameObject *pplat;
+    std::shared_ptr<tcGameObject>pplat;
     long cmappos = maPlatformState.GetStartPosition();
     long nSize = maPlatformState.GetCount();
     long nKey;
@@ -2813,7 +2816,7 @@ void tcSimState::GetPlatformsWithinRegion(std::vector<long>& keyList, tcRect *ap
         // narrow down to just platforms in requested region
         for (size_t n=0; n<temp.size(); n++)
         {
-            if (tcGameObject* obj = GetObject(temp[n]))
+            if (std::shared_ptr<tcGameObject> obj = GetObject(temp[n]))
             {
                 pKin = &obj->mcKin;
                 p.Set((float)pKin->mfLon_rad,(float)pKin->mfLat_rad);
@@ -2844,7 +2847,7 @@ void tcSimState::GetPlatformsWithinRegion(std::vector<long>& keyList, tcRect *ap
 */
 long tcSimState::GetRandomPlatform() 
 {
-    tcGameObject *pplat;
+    std::shared_ptr<tcGameObject>pplat;
     long cmappos = maPlatformState.GetStartPosition();
     long nSize = maPlatformState.GetCount();
     long nKey;
@@ -2866,7 +2869,7 @@ long tcSimState::GetRandomPlatform()
 void tcSimState::GenerateRandomGoals()
 {
     long key;
-    tcGameObject *obj;
+    std::shared_ptr<tcGameObject>obj;
 
     GetAlliancePlatforms(&key,1,1);
     obj = GetObject(key);
@@ -2887,22 +2890,22 @@ void tcSimState::GenerateRandomGoals()
 */
 int tcSimState::GetAllSensorPlatforms(long *apKeyList, int anMaxLength) 
 {
-    tcGameObject *pplat;
+    std::shared_ptr<tcGameObject>pplat;
     long cmappos = maPlatformState.GetStartPosition();
     long nSize = maPlatformState.GetCount();
     long nKey;
     int nListIndex=0;
-    tcSensorState *pSensorState;
+    std::shared_ptr<tcSensorState>pSensorState;
 
     for (long i=0;(i<nSize)&&(nListIndex<anMaxLength);i++)
     {
         maPlatformState.GetNextAssoc(cmappos,nKey,pplat);
         bool bActiveFound = false;
-        if (tcPlatformObject *pPlatformObj = dynamic_cast<tcPlatformObject*>(pplat))
+        if (std::shared_ptr<tcPlatformObject>pPlatformObj = std::dynamic_pointer_cast<tcPlatformObject>(pplat))
         {
             bActiveFound = pPlatformObj->HasActivatedSensor();
         }
-        else if (tcMissileObject *pMissileObj = dynamic_cast<tcMissileObject*>(pplat))
+        else if (std::shared_ptr<tcMissileObject>pMissileObj =  std::dynamic_pointer_cast<tcMissileObject>(pplat))
         {
             pSensorState = pMissileObj->GetSeekerSensor();
             bActiveFound = pSensorState->IsActive();
@@ -2921,7 +2924,7 @@ int tcSimState::GetAllSensorPlatforms(long *apKeyList, int anMaxLength)
 */
 unsigned tcSimState::GetAlliancePlatforms(long *aaKeyList, unsigned anMaxLength, int anAlliance) 
 {
-    tcGameObject *pGameObj;
+    std::shared_ptr<tcGameObject>pGameObj;
     long cmappos = maPlatformState.GetStartPosition();
     long nSize = maPlatformState.GetCount();
     long nKey;
@@ -2957,7 +2960,7 @@ long tcSimState::GetTimeAcceleration() const
 */
 bool tcSimState::GetTrack(long id, unsigned alliance, tcSensorMapTrack& track)
 {
-    tcGameObject* obj = GetObject(id);
+    std::shared_ptr<tcGameObject> obj = GetObject(id);
 
     // return truth data if own alliance or we're in edit mode
     //如果是自己一方或编辑模式返回真值
@@ -2978,7 +2981,7 @@ bool tcSimState::GetTrack(long id, unsigned alliance, tcSensorMapTrack& track)
     }
     else
     {
-        tcSensorMapTrack *pTrack =
+        std::shared_ptr<tcSensorMapTrack>pTrack =
                 mcSensorMap.GetSensorMapTrack(id, alliance);
         if (pTrack) track = *pTrack;
         else return false; // track not found
@@ -2994,7 +2997,7 @@ bool tcSimState::GetTrack(long id, unsigned alliance, tcSensorMapTrack& track)
 */
 bool tcSimState::GetTruthTrack(long id, tcTrack& track)
 {
-    tcGameObject* obj = GetObject(id);
+    std::shared_ptr<tcGameObject> obj = GetObject(id);
     if (obj == 0) return false; // target not found
 
     tcKinematics *kin = &obj->mcKin;
@@ -3071,7 +3074,7 @@ void tcSimState::LoadTimeFromStream(tcStream& stream)
 }
 
 
-void tcSimState::LogWeaponDamage(tcGameObject* target, tcWeaponObject* weapon, const Damage& damage, float damageFraction)
+void tcSimState::LogWeaponDamage(std::shared_ptr<tcGameObject> target, std::shared_ptr<tcWeaponObject> weapon, const Damage& damage, float damageFraction)
 {
     if (!damageLog.IsOpen())
     {
@@ -3165,7 +3168,7 @@ int tcSimState::Serialize(tcString scenname, bool mbLoad)
         file.Read(&mfLastTileAgeOut,sizeof(mfLastTileAgeOut));
 
         // load game objects
-        tcGameObject *pGameObj;
+        std::shared_ptr<tcGameObject>pGameObj;
         long nSize;
 
         file.Read(&nSize,sizeof(nSize));
@@ -3173,7 +3176,7 @@ int tcSimState::Serialize(tcString scenname, bool mbLoad)
         {
             long nDBKey;
             file.Read(&nDBKey,sizeof(nDBKey));
-            tcDatabaseObject* pDatabaseObj = mpDatabase->GetObject(nDBKey);
+            std::shared_ptr<tcDatabaseObject> pDatabaseObj = mpDatabase->GetObject(nDBKey);
             pGameObj = CreateGameObject(pDatabaseObj);
             if (pGameObj == NULL)
             {
@@ -3208,7 +3211,7 @@ int tcSimState::Serialize(tcString scenname, bool mbLoad)
         file.Write(&mfLastTileAgeOut,sizeof(mfLastTileAgeOut));
 
         // save game objects
-        tcGameObject *pGameObj;
+        std::shared_ptr<tcGameObject>pGameObj;
         long cmappos = maPlatformState.GetStartPosition();
         long nSize = maPlatformState.GetCount();
         long nKey;
@@ -3427,15 +3430,18 @@ void tcSimState::Clear()
 *
 */
 tcSimState::tcSimState() 
-    : dateTime(2000,4,10,5,0,0),
+    : lastLandingStateUpdate(0),
+      dateTime(2000,4,10,5,0,0),
       multiplayerMode(MM_OFF),
       timeAcceleration(0),
       positionRegistry(0),
       clientPause(false),
-      lastLandingStateUpdate(0),
       multiplayerTimeLag_s(0),
       logDamage(false),
-      weaponTester(0),
+#ifdef USE_TEST
+   weaponTester(0),// relevant in dev mode only
+#endif
+
       isMultiplayerGameStarted(false)
 { 
     const std::chrono::system_clock::time_point t =  std::chrono::system_clock::now();

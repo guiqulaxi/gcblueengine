@@ -56,7 +56,7 @@ void tcGameObjIterator::First()
     Next();
 }
 
-tcGameObject* tcGameObjIterator::Get()
+std::shared_ptr<tcGameObject> tcGameObjIterator::Get()
 {
     return currentObj;
 }
@@ -107,7 +107,7 @@ void tcGameObjIterator::SetAllianceFilter(unsigned alliance)
 * to iterate through a filtered set of objects.
 * @return true if current obj meets filtering criteria, false otherwise
 */
-bool tcGameObjIterator::PassesFilter(const tcGameObject *obj)
+bool tcGameObjIterator::PassesFilter(std::shared_ptr<const tcGameObject>obj)
 {
     if (obj == NULL) return false;
 	if ((allianceFilter != 0) && (obj->GetAlliance() != allianceFilter)) return false;

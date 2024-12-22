@@ -256,8 +256,8 @@ void tcScenarioLogger::SaveEntities(const std::vector<unsigned>& alliances)
         // save the platforms that aren't followers in formation (or not platform objs)
         for (iter.First();iter.NotDone();iter.Next())
         {
-            tcGameObject *obj = iter.Get();
-            tcPlatformObject* platform = dynamic_cast<tcPlatformObject*>(obj);
+            std::shared_ptr<tcGameObject>obj = iter.Get();
+            std::shared_ptr<tcPlatformObject> platform = std::dynamic_pointer_cast<tcPlatformObject>(obj);
 
             if ((platform==0) || (!platform->formation.IsFollower()))
             {
@@ -282,8 +282,8 @@ void tcScenarioLogger::SaveEntities(const std::vector<unsigned>& alliances)
         // leader doesnt exist
         for (iter.First();iter.NotDone();iter.Next())
         {
-            tcGameObject *obj = iter.Get();
-            tcPlatformObject* platform = dynamic_cast<tcPlatformObject*>(obj);
+            std::shared_ptr<tcGameObject>obj = iter.Get();
+            std::shared_ptr<tcPlatformObject> platform = std::dynamic_pointer_cast<tcPlatformObject>(obj);
 
             if ((platform != 0) && (platform->formation.IsFollower()))
             {

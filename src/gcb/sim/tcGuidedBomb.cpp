@@ -81,11 +81,11 @@ tcGameStream& tcGuidedBomb::operator>>(tcGameStream& stream)
 * @param obj launching game object
 * @param launcher index of launcher
 */
-void tcGuidedBomb::LaunchFrom(tcGameObject* obj, unsigned nLauncher)
+void tcGuidedBomb::LaunchFrom(std::shared_ptr<tcGameObject> obj, unsigned nLauncher)
 {
-    const tcLauncher* pLauncher = obj->GetLauncher(nLauncher);
+    std::shared_ptr<const tcLauncher> pLauncher = obj->GetLauncher(nLauncher);
 
-    if (tcPlatformObject* platObj = dynamic_cast<tcPlatformObject*>(obj))
+    if (std::shared_ptr<tcPlatformObject> platObj = std::dynamic_pointer_cast<tcPlatformObject>(obj))
 	{
 		tc3DPoint launcherPos = platObj->mpDBObject->GetLauncherPosition(nLauncher);
 		GeoPoint pos = obj->RelPosToLatLonAlt(launcherPos.x, launcherPos.y,
@@ -137,13 +137,13 @@ void tcGuidedBomb::LaunchFrom(tcGameObject* obj, unsigned nLauncher)
     }
 
     // if bomb has a semiactive sensor, then set the fire control info
-    tcSensorState* sensor = GetSensorMutable(0);
-    tcOpticalSensor* optical = dynamic_cast<tcOpticalSensor*>(sensor);
+    std::shared_ptr<tcSensorState> sensor = GetSensorMutable(0);
+    std::shared_ptr<tcOpticalSensor> optical = std::dynamic_pointer_cast<tcOpticalSensor>(sensor);
     if ((optical != 0) && (optical->IsSemiactive()))
     {
         if (pLauncher->fireControlSensor != 0)
 		{
-            assert(dynamic_cast<tcOpticalSensor*>(pLauncher->fireControlSensor) != 0);
+            assert(std::dynamic_pointer_cast<tcOpticalSensor>(pLauncher->fireControlSensor) != 0);
 			sensor->SetFireControlSensor(
 				obj->mnID, pLauncher->fireControlSensorIdx);
 			pLauncher->fireControlSensor->RequestTrack(pLauncher->mnTargetID);
@@ -189,7 +189,7 @@ void tcGuidedBomb::LaunchFrom(tcGameObject* obj, unsigned nLauncher)
 	SetAlliance(obj->GetAlliance());     
 
 
-	simState->AddPlatform(static_cast<tcGameObject*>(this));
+	simState->AddPlatform(static_cast<std::shared_ptr<tcGameObject>>(this));
 
 	// Set intended target (has to be done after alliance and id is set).
 	// This is a tcWeaponObject method
@@ -222,7 +222,7 @@ void tcGuidedBomb::Update(double afStatusTime)
 
     // check for a current seeker track, and update targetPos
     bool trackIsGood = false;
-    tcSensorState* sensor = GetSensorMutable(0);
+    std::shared_ptr<tcSensorState> sensor = GetSensorMutable(0);
     if (sensor != 0)
     {
         UpdateSensor(sensor, afStatusTime);
@@ -304,7 +304,7 @@ void tcGuidedBomb::Update(double afStatusTime)
 }
 
 
-void tcGuidedBomb::UpdateSensor(tcSensorState* sensor, double t)
+void tcGuidedBomb::UpdateSensor(std::shared_ptr<tcSensorState> sensor, double t)
 {
     const float maximumSearchDistance_km = 2.0f; // only lock on targets within this distance of targetPos
 
@@ -340,7 +340,7 @@ void tcGuidedBomb::UpdateSensor(tcSensorState* sensor, double t)
         // find closest detectable target to targetPos
         for (iter.First();iter.NotDone();iter.Next())
         {
-            tcGameObject *target = iter.Get();
+            std::shared_ptr<tcGameObject>target = iter.Get();
             if (target != parent) // no self detection
             {
                 float range_km;
@@ -392,7 +392,7 @@ void tcGuidedBomb::UpdateTargetPos(float lon_rad, float lat_rad)
     targetPos.mfLat_rad += latError_rad;
     targetPos.mfLon_rad += lonError_rad;
 
-    tcSensorState* sensor = GetSensorMutable(0);
+    std::shared_ptr<tcSensorState> sensor = GetSensorMutable(0);
     if ((sensor != 0) && sensor->IsActive() && (sensor->mnMode == SSMODE_SEEKERTRACK))
     {
         sensor->mnMode = SSMODE_SEEKERSEARCH;
@@ -424,14 +424,14 @@ tcGuidedBomb::tcGuidedBomb(const tcGuidedBomb& obj)
 /**
 * Constructor that initializes using info from database entry.
 */
-tcGuidedBomb::tcGuidedBomb(tcBallisticDBObject* obj)
+tcGuidedBomb::tcGuidedBomb(std::shared_ptr<tcBallisticDBObject> obj)
 : tcBallisticWeapon(obj),
   latError_rad(0.002f),
   lonError_rad(0.002f)
 {
 	mnModelType = MTYPE_LASERGUIDEDBOMB;
 
-    tcSensorPlatform::Init(obj->sensorClass.c_str(), this); // to avoid using this in initializer
+    tcSensorPlatform::Init(obj->sensorClass.c_str(), tcGameObject::shared_from_this()); // to avoid using this in initializer
 
     mpDBObject = obj;
 }

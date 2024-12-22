@@ -285,7 +285,7 @@ void tcGameSerializer::SaveSimObjects(tcSimState* simState, tcGameStream& stream
     tcGameObjIterator iter;
     for (iter.First();iter.NotDone();iter.Next())
     {
-        tcGameObject* obj = iter.Get();
+        std::shared_ptr<tcGameObject> obj = iter.Get();
 
         std::string databaseClass = obj->mpDBObject->mzClass.c_str();
         stream << databaseClass;
@@ -316,7 +316,7 @@ bool tcGameSerializer::LoadSimObjects(tcSimState* simState, tcGameStream& stream
         long id;
         stream >> id;
 
-        tcDatabaseObject* dataObj = database->GetObject(databaseClass);
+        std::shared_ptr<tcDatabaseObject> dataObj = database->GetObject(databaseClass);
         if (dataObj == 0)
         {
             std::string errorMessage = 
@@ -328,7 +328,7 @@ bool tcGameSerializer::LoadSimObjects(tcSimState* simState, tcGameStream& stream
             return false;
         }
 
-        tcGameObject* obj = simState->CreateGameObject(dataObj);
+        std::shared_ptr<tcGameObject> obj = simState->CreateGameObject(dataObj);
         if (obj == 0)
         {
             fprintf(stderr, "Error while loading binary save file. Game obj creation error\n");
@@ -494,7 +494,7 @@ bool tcGameSerializer::LoadSimOther(tcSimState* simState, tcGameStream& stream)
 //    tcGameObjIterator iter;
 //    for (iter.First();iter.NotDone();iter.Next())
 //    {
-//        tcGameObject* obj = iter.Get();
+//        std::shared_ptr<tcGameObject> obj = iter.Get();
 
 //        wxXmlNode* objUpdate = new wxXmlNode(update, wxXML_ELEMENT_NODE, "Object", "");
 
@@ -532,7 +532,7 @@ void tcGameSerializer::SaveToXml(tinyxml2::XMLDocument &doc)
     tcGameObjIterator iter;
     for (iter.First();iter.NotDone();iter.Next())
     {
-        tcGameObject* obj = iter.Get();
+        std::shared_ptr<tcGameObject> obj = iter.Get();
 tinyxml2::XMLElement* objUpdate=doc.NewElement("Object");
 //        wxXmlNode* objUpdate = new wxXmlNode(update, wxXML_ELEMENT_NODE, "Object", "");
 

@@ -106,7 +106,7 @@ tcUpdateStream& tcESMSensor::operator>>(tcUpdateStream& stream)
 *
 * TODO: 与ProcessESMDetection方法合并，查看使用最大接收功率与距离进行搜索的方法（是否作弊？）
 */
-bool tcESMSensor::CanDetectTarget(const tcGameObject* target, float& range_km, bool useRandom)
+bool tcESMSensor::CanDetectTarget( std::shared_ptr<const tcGameObject> target, float& range_km, bool useRandom)
 {
     float fAz_rad = 0; // 方位角（弧度），初始化为0
     range_km = 0; // 目标距离（千米），初始化为0
@@ -114,10 +114,10 @@ bool tcESMSensor::CanDetectTarget(const tcGameObject* target, float& range_km, b
     last_ERP_dBW = -99.0f; ///< 上次调用IsDetected时得到的等效辐射功率（分贝瓦），初始化为-99.0分贝瓦
 
     // 尝试将目标对象转换为导弹对象
-    if (const tcMissileObject *pMissileObj = dynamic_cast<const tcMissileObject*>(target))
+    if ( std::shared_ptr<const tcMissileObject>pMissileObj = std::dynamic_pointer_cast<const tcMissileObject>(target))
     {
         // 如果导弹对象有寻的雷达（一些空对地导弹没有传感器）
-        if (tcRadar* emitter = pMissileObj->GetSeekerRadar())
+        if (std::shared_ptr<tcRadar> emitter = pMissileObj->GetSeekerRadar())
         {
             // 调用IsDetectedRadar方法检测雷达
             bool bDetected = IsDetectedRadar(emitter, fAz_rad);
@@ -130,7 +130,7 @@ bool tcESMSensor::CanDetectTarget(const tcGameObject* target, float& range_km, b
         }
     }
     // 尝试将目标对象转换为平台对象（如飞机、舰船等）
-    else if (const tcPlatformObject *pPlatformObj = dynamic_cast<const tcPlatformObject*>(target))
+    else if ( std::shared_ptr<const tcPlatformObject>pPlatformObj = std::dynamic_pointer_cast<const tcPlatformObject>(target))
     {
         // 如果平台对象没有辐射（不是雷达或电子战设备的工作状态），则返回未检测到
         if (!pPlatformObj->IsRadiating()) return false;
@@ -139,16 +139,16 @@ bool tcESMSensor::CanDetectTarget(const tcGameObject* target, float& range_km, b
         unsigned nSensors = pPlatformObj->GetSensorCount(); // 获取平台对象的传感器数量
         for (unsigned n=0; (n<nSensors) && (!bDetected); n++) // 遍历所有传感器，直到检测到或遍历完所有传感器
         {
-            const tcSensorState* sensor = pPlatformObj->GetSensor(n); // 获取当前传感器状态
+             std::shared_ptr<const tcSensorState> sensor = pPlatformObj->GetSensor(n); // 获取当前传感器状态
             // 尝试将传感器转换为雷达对象
-            if (const tcRadar* emitter = dynamic_cast<const tcRadar*>(sensor))
+            if ( std::shared_ptr<const tcRadar> emitter = std::dynamic_pointer_cast<const tcRadar>(sensor))
             {
                 // 检测雷达，并更新检测状态和距离
                 bDetected = bDetected || IsDetectedRadar(emitter, fAz_rad);
                 range_km = targetRange_km;
             }
             // 尝试将传感器转换为电子战（ECM）设备对象
-            else if (const tcECM* emitter = dynamic_cast<const tcECM*>(sensor))
+            else if ( std::shared_ptr<const tcECM> emitter = std::dynamic_pointer_cast<const tcECM>(sensor))
             {
                 // 检测电子战设备，并更新检测状态和距离
                 bDetected = bDetected || IsDetectedECM(emitter, fAz_rad);
@@ -170,7 +170,7 @@ bool tcESMSensor::InitFromDatabase(long key)
 
     tcSensorState::InitFromDatabase(key);
 
-    mpDBObj = dynamic_cast<tcESMDBObject*>(database->GetObject(key));
+    mpDBObj = std::dynamic_pointer_cast<tcESMDBObject>(database->GetObject(key));
     if (mpDBObj == NULL) 
     {
         fprintf(stderr, "Error - tcESMSensor::InitFromDatabase - Not found in db or bad class for key\n");
@@ -185,7 +185,7 @@ bool tcESMSensor::InitFromDatabase(long key)
 }
 
 
-bool tcESMSensor::IsDetectedECM(const tcECM* emitter, float& az_rad)
+bool tcESMSensor::IsDetectedECM(std::shared_ptr<const tcECM> emitter, float& az_rad)
 {
     assert(emitter);
     if (emitter == 0) return false;
@@ -196,7 +196,7 @@ bool tcESMSensor::IsDetectedECM(const tcECM* emitter, float& az_rad)
 
 }
 
-bool tcESMSensor::IsDetectedRadar(const tcRadar* emitter, float& az_rad)
+bool tcESMSensor::IsDetectedRadar( std::shared_ptr<const tcRadar> emitter, float& az_rad)
 {
     assert(emitter);
     if (emitter == 0) return false;
@@ -210,7 +210,7 @@ bool tcESMSensor::IsDetectedRadar(const tcRadar* emitter, float& az_rad)
 /**
  *
  */
-bool tcESMSensor::IsDetected(const tcSensorState* emitter, float ERP_dBW, float& az_rad)
+bool tcESMSensor::IsDetected( std::shared_ptr<const tcSensorState> emitter, float ERP_dBW, float& az_rad)
 {
     // 断言确保emitter指针不为空
     assert(emitter);
@@ -390,7 +390,7 @@ void tcESMSensor::UpdateSeeker(double t)
     // 目标ID
     long nTargetID;
     // 目标对象指针
-    tcGameObject *ptarget = 0;
+    std::shared_ptr<tcGameObject>ptarget = 0;
     // 是否找到目标的标志
     int bFound;
 
@@ -464,7 +464,7 @@ void tcESMSensor::UpdateSeeker(double t)
         // 查找可检测到的最近目标
         for (iter.First(); iter.NotDone(); iter.Next())
         {
-            tcGameObject *target = iter.Get();
+            std::shared_ptr<tcGameObject>target = iter.Get();
             // 如果目标不是自己（自检测）
             if (target != parent)
             {
@@ -505,7 +505,7 @@ void tcESMSensor::UpdateSurveillance(double t)
 
     for (iter.First();iter.NotDone();iter.Next())
     {
-        tcGameObject *target = iter.Get();
+        std::shared_ptr<tcGameObject>target = iter.Get();
 
 		ProcessESMDetection(target, t);
     }
@@ -524,7 +524,7 @@ void tcESMSensor::UpdateSurveillanceRWR(double t)
     for (size_t n=0; n<nTargeters; n++)
     {
         long targeterId = parent->targeters[n];
-        if (tcGameObject* target = simState->GetObject(targeterId))
+        if (std::shared_ptr<tcGameObject> target = simState->GetObject(targeterId))
         {
             float range_km = parent->RangeTo(*target);
             if (range_km < mpDBObj->mfMaxRange_km)
@@ -551,7 +551,7 @@ void tcESMSensor::UpdateSurveillanceRWR(double t)
 * missile seekers.
 * This version cheats since passive sensor can't directly measure range.
 */
-void tcESMSensor::UpdateTrack(const tcGameObject* target, double t)
+void tcESMSensor::UpdateTrack(std::shared_ptr<const tcGameObject> target, double t)
 {
     mcTrack.mfLat_rad = (float)target->mcKin.mfLat_rad;
     mcTrack.mfLon_rad = (float)target->mcKin.mfLon_rad;
@@ -582,7 +582,7 @@ void tcESMSensor::UpdateTrack(const tcGameObject* target, double t)
 
 
 // 定义tcESMSensor类的ProcessESMDetection成员函数，用于处理ESM（电子支援措施）检测
-void tcESMSensor::ProcessESMDetection(tcGameObject* target, double t)
+void tcESMSensor::ProcessESMDetection(std::shared_ptr<tcGameObject> target, double t)
 {
     // 定义一个枚举常量，表示最大发射器数量
     enum {MAX_EMITTERS=4};
@@ -603,10 +603,10 @@ void tcESMSensor::ProcessESMDetection(tcGameObject* target, double t)
     int nEmitters = 0;
 
     // 尝试将目标动态转换为tcMissileObject类型
-    if (tcMissileObject *pMissileObj = dynamic_cast<tcMissileObject*>(target))
+    if (std::shared_ptr<tcMissileObject>pMissileObj = std::dynamic_pointer_cast<tcMissileObject>(target))
     {
         // 如果导弹对象搜寻雷达
-        if (tcRadar* emitter = pMissileObj->GetSeekerRadar()) // 有些空对地导弹没有传感器
+        if (std::shared_ptr<tcRadar> emitter = pMissileObj->GetSeekerRadar()) // 有些空对地导弹没有传感器
         {
             // 检测是否检测到雷达
             bDetected = IsDetectedRadar(emitter, fAz_rad);
@@ -621,7 +621,7 @@ void tcESMSensor::ProcessESMDetection(tcGameObject* target, double t)
         }
     }
     // 尝试将目标动态转换为tcPlatformObject类型（平台对象，如飞机、舰船等）
-    else if (tcPlatformObject *pPlatformObj = dynamic_cast<tcPlatformObject*>(target))
+    else if (std::shared_ptr<tcPlatformObject>pPlatformObj = std::dynamic_pointer_cast<tcPlatformObject>(target))
     {
         // 如果平台对象没有辐射电磁波，则返回
         if (!pPlatformObj->IsRadiating()) return;
@@ -632,9 +632,9 @@ void tcESMSensor::ProcessESMDetection(tcGameObject* target, double t)
         for (unsigned n=0; n<nSensors; n++)
         {
             // 获取当前传感器
-            const tcSensorState* sensor = pPlatformObj->GetSensor(n);
+             std::shared_ptr<const tcSensorState> sensor = pPlatformObj->GetSensor(n);
             // 尝试将传感器动态转换为tcRadar类型
-            if (const tcRadar* emitter = dynamic_cast<const tcRadar*>(sensor))
+            if ( std::shared_ptr<const tcRadar> emitter = std::dynamic_pointer_cast<const tcRadar>(sensor))
             {
                 // 如果检测到雷达
                 if (IsDetectedRadar(emitter, fAz_rad))
@@ -651,7 +651,7 @@ void tcESMSensor::ProcessESMDetection(tcGameObject* target, double t)
                 }
             }
             // 尝试将传感器动态转换为tcECM类型（电子对抗设备）
-            else if (const tcECM* emitter = dynamic_cast<const tcECM*>(sensor))
+            else if ( std::shared_ptr<const tcECM> emitter = std::dynamic_pointer_cast<const tcECM>(sensor))
             {
                 // 如果检测到ECM
                 if (IsDetectedECM(emitter, fAz_rad))
@@ -677,10 +677,10 @@ void tcESMSensor::ProcessESMDetection(tcGameObject* target, double t)
 /**
 * 在ESM检测后调用以更新传感器地图
 */
-void tcESMSensor::UpdateSensorMap(const tcGameObject* target, long* emitters, unsigned int nEmitters,
+void tcESMSensor::UpdateSensorMap(std::shared_ptr<const tcGameObject> target, long* emitters, unsigned int nEmitters,
                                   float az_rad, double t)
 {
-    tcSensorMapTrack *pSMTrack = 0; // 初始化传感器地图跟踪指针为0
+    std::shared_ptr<tcSensorMapTrack> pSMTrack = nullptr; // 初始化传感器地图跟踪指针为0
 
     assert(simState); // 断言模拟状态不为空
     assert(emitters); // 断言发射器数组不为空
@@ -815,9 +815,12 @@ tcStream& tcESMSensor::operator>>(tcStream& stream)
 /**
  *
  */
-tcESMSensor* tcESMSensor::Clone(void) 
+std::shared_ptr<tcESMSensor> tcESMSensor::Clone(void)
 {
-    tcESMSensor *pNew = new tcESMSensor();
+    // tcESMSensor *pNew = new tcESMSensor();
+    // *pNew = *this;
+    // return pNew;
+    std::shared_ptr<tcESMSensor> pNew=std::make_shared<tcESMSensor>();
     *pNew = *this;
     return pNew;
 }
@@ -838,7 +841,7 @@ tcESMSensor::tcESMSensor()
     mpDBObj = NULL;
 }
 
-tcESMSensor::tcESMSensor(tcESMDBObject* dbObj)
+tcESMSensor::tcESMSensor(std::shared_ptr<tcESMDBObject> dbObj)
 : tcSensorState(dbObj),
   mpDBObj(dbObj),
   lastRWRupdate(0),

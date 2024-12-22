@@ -392,13 +392,13 @@ float tcFormation::GetLazyInterceptHeadingClosingSpeed(float tgt_east_m, float t
 }
 
 
-const tcPlatformObject* tcFormation::GetLeader(const tcPlatformObject* platform) const
+ std::shared_ptr< const tcPlatformObject> tcFormation::GetLeader(std::shared_ptr<const tcPlatformObject> platform) const
 {
     assert(platform != 0);
 
     if (platform != 0)
     {
-        return dynamic_cast<const tcPlatformObject*>(platform->simState->GetObject(leaderId));
+        return std::dynamic_pointer_cast<const tcPlatformObject>(platform->simState->GetObject(leaderId));
     }
     else
     {
@@ -407,12 +407,12 @@ const tcPlatformObject* tcFormation::GetLeader(const tcPlatformObject* platform)
 }
 
 // tcFormation类的成员函数，用于计算当前平台与领队之间的位置误差
-void tcFormation::GetPositionError(tcPlatformObject* platform,
+void tcFormation::GetPositionError(std::shared_ptr<tcPlatformObject> platform,
                                    float& drange_km, float& dbearing_rad, float& deast_km, float& dnorth_km,
                                    tcKinematics& leaderKin)
 {
     // 通过领队ID从模拟状态中获取领队对象
-    tcGameObject* leader = platform->simState->GetObject(leaderId);
+    std::shared_ptr<tcGameObject> leader = platform->simState->GetObject(leaderId);
     // 如果领队对象不存在，则断言失败（这里假设leaderId是有效的）
     if (leader == 0)
     {
@@ -473,9 +473,9 @@ bool tcFormation::IsFollower() const
 }
 
 
-bool tcFormation::IsInPosition(tcPlatformObject* platform, float bearing_rad, float range_km) const
+bool tcFormation::IsInPosition(std::shared_ptr<tcPlatformObject> platform, float bearing_rad, float range_km) const
 {
-    const tcPlatformObject* leader = GetLeader(platform);
+     std::shared_ptr<const tcPlatformObject> leader = GetLeader(platform);
     assert(leader != 0);
     if (leader == 0) return false;
 
@@ -499,9 +499,9 @@ bool tcFormation::IsInPosition(tcPlatformObject* platform, float bearing_rad, fl
 /**
 * Version to allow a little slop for mouse clicking
 */
-bool tcFormation::IsInPositionLoose(tcPlatformObject* platform, float bearing_rad, float range_km) const
+bool tcFormation::IsInPositionLoose(std::shared_ptr<tcPlatformObject> platform, float bearing_rad, float range_km) const
 {
-    const tcPlatformObject* leader = GetLeader(platform);
+     std::shared_ptr<const tcPlatformObject> leader = GetLeader(platform);
     assert(leader != 0);
     if (leader == 0) return false;
 
@@ -526,13 +526,13 @@ bool tcFormation::IsInPositionLoose(tcPlatformObject* platform, float bearing_ra
 * Version to allow a little slop for mouse clicking
 * On triggers near edges
 */
-bool tcFormation::IsInPositionLoose2(tcPlatformObject* platform, float bearing_rad, float range_km, 
+bool tcFormation::IsInPositionLoose2(std::shared_ptr<tcPlatformObject> platform, float bearing_rad, float range_km, 
                                      float& deltaBearing_rad, float& deltaRange_km) const
 {
     deltaBearing_rad = 0;
     deltaRange_km = 0;
 
-    const tcPlatformObject* leader = GetLeader(platform);
+     std::shared_ptr<const tcPlatformObject> leader = GetLeader(platform);
     assert(leader != 0);
     if (leader == 0) return false;
 
@@ -581,7 +581,7 @@ void tcFormation::LeaveFormation()
         assert(platformId != -1);
 
         tcSimState* simState = tcSimState::Get();
-        if (tcPlatformObject* leader = dynamic_cast<tcPlatformObject*>(simState->GetObject(leaderId)))
+        if (std::shared_ptr<tcPlatformObject> leader = std::dynamic_pointer_cast<tcPlatformObject>(simState->GetObject(leaderId)))
         {
             leader->formation.RemoveFollower(platformId);
         }
@@ -603,8 +603,8 @@ void tcFormation::RemoveAllFollowers()
 
     for (size_t k=0;k<followers.size();k++)
     {
-        tcPlatformObject* follower = 
-            dynamic_cast<tcPlatformObject*>(simState->GetObject(followers[k]));
+        std::shared_ptr<tcPlatformObject> follower = 
+            std::dynamic_pointer_cast<tcPlatformObject>(simState->GetObject(followers[k]));
         if (follower != 0)
         {
             follower->formation.Clear();
@@ -631,8 +631,8 @@ void tcFormation::RemoveFollower(long id)
 
 #ifdef _DEBUG
     tcSimState* simState = tcSimState::Get();
-    tcPlatformObject* follower = dynamic_cast<tcPlatformObject*>(simState->GetObject(id));
-    tcPlatformObject* platform = dynamic_cast<tcPlatformObject*>(simState->GetObject(platformId));
+    std::shared_ptr<tcPlatformObject> follower = std::dynamic_pointer_cast<tcPlatformObject>(simState->GetObject(id));
+    std::shared_ptr<tcPlatformObject> platform = std::dynamic_pointer_cast<tcPlatformObject>(simState->GetObject(platformId));
     // in "hostile formation" for intercept, leader doesn't have information about followers
     if ((follower != 0) && (platform != 0) && (follower->GetAlliance() == platform->GetAlliance()))
     {
@@ -663,7 +663,7 @@ void tcFormation::SaveToPython(scriptinterface::tcScenarioLogger& logger)
     if (!IsFollower()) return;
 
     tcSimState* simState = tcSimState::Get();
-    tcPlatformObject* leader = dynamic_cast<tcPlatformObject*>(simState->GetObject(leaderId));
+    std::shared_ptr<tcPlatformObject> leader = std::dynamic_pointer_cast<tcPlatformObject>(simState->GetObject(leaderId));
 
     if (leader == 0) return;
 
@@ -740,7 +740,7 @@ void tcFormation::SetPlatformId(long id)
 
 
 
-void tcFormation::Update(tcPlatformObject* platform)
+void tcFormation::Update(std::shared_ptr<tcPlatformObject> platform)
 {
     if (!isActive || IsLeader()) 
     {
@@ -750,7 +750,7 @@ void tcFormation::Update(tcPlatformObject* platform)
     if (platform->mfStatusTime - lastUpdateTime < 0.5) return;
     lastUpdateTime = platform->mfStatusTime;
 
-	tcGameObject* leader = platform->simState->GetObject(leaderId);
+	std::shared_ptr<tcGameObject> leader = platform->simState->GetObject(leaderId);
     if ((leader == 0) || (leader->GetDamageLevel() >= 1.0f))
     {
         LeaveFormation();
@@ -777,21 +777,21 @@ void tcFormation::Update(tcPlatformObject* platform)
 * This version for close formation flying for air-to-air refueling. Should
 * work for general air formations too
 */
-void tcFormation::Update(tcAirObject* air)
+void tcFormation::Update( std::shared_ptr<tcAirObject> air)
 {
     if (!IsFollower()) return;
 
     if (air->mfStatusTime - lastUpdateTime < 0.5) return;
     lastUpdateTime = air->mfStatusTime;
 
-    tcAirObject* leader = dynamic_cast<tcAirObject*>(air->simState->GetObject(leaderId));
+    std::shared_ptr<tcAirObject> leader = std::dynamic_pointer_cast<tcAirObject>(air->simState->GetObject(leaderId));
     if ((leader == 0) || (leader->GetDamageLevel() >= 1.0f))
     {
         LeaveFormation();
         return;
     }
 
-    tcAeroAirObject* aero = dynamic_cast<tcAeroAirObject*>(air);
+    std::shared_ptr<tcAeroAirObject> aero = std::dynamic_pointer_cast<tcAeroAirObject>(air);
 
     bool isAeroModel = aero != 0;
 
@@ -987,10 +987,10 @@ void tcFormation::Update(tcAirObject* air)
 }
 
 
-void tcFormation::UpdateFollow(tcPlatformObject* platform)
+void tcFormation::UpdateFollow(std::shared_ptr<tcPlatformObject> platform)
 {
     // 从平台对象的仿真状态中获取领导对象
-    tcGameObject* leader = platform->simState->GetObject(leaderId);
+    std::shared_ptr<tcGameObject> leader = platform->simState->GetObject(leaderId);
     // 如果领导对象为空，则断言失败并返回
     if (leader == 0)
     {
@@ -1110,7 +1110,7 @@ void tcFormation::UpdateFollow(tcPlatformObject* platform)
 }
 
 // tcFormation类的成员函数，用于更新平台在冲刺和漂移机动中的行为
-void tcFormation::UpdateSprintDrift(tcPlatformObject* platform)
+void tcFormation::UpdateSprintDrift(std::shared_ptr<tcPlatformObject> platform)
 {
     // 初始化位置误差变量
     float drange_km = 0; // 距离误差（千米）

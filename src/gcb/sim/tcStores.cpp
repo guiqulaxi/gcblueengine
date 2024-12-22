@@ -55,12 +55,12 @@
 #define new DEBUG_NEW
 #endif
 
-tcDatabaseObject* tcStores::StoreItem::GetDatabaseObject() const
+std::shared_ptr<tcDatabaseObject> tcStores::StoreItem::GetDatabaseObject() const
 {
     return databaseObj;
 }
 
-tcDatabaseObject* tcStores::StoreItem::GetOrLoadDatabaseObject()
+std::shared_ptr<tcDatabaseObject> tcStores::StoreItem::GetOrLoadDatabaseObject()
 {
     if (databaseObj != 0)
     {
@@ -73,7 +73,7 @@ tcDatabaseObject* tcStores::StoreItem::GetOrLoadDatabaseObject()
     }
 }
 
-void tcStores::StoreItem::SetDatabaseObject(tcDatabaseObject* obj)
+void tcStores::StoreItem::SetDatabaseObject(std::shared_ptr<tcDatabaseObject> obj)
 {
 	databaseObj = obj;
 }
@@ -118,9 +118,9 @@ tcStores::StoreItem::StoreItem(const std::string& name, unsigned long qty, unsig
 }
 
 
-tcGameObject* tcStores::StoreOperation::GetObj()
+std::shared_ptr<tcGameObject> tcStores::StoreOperation::GetObj()
 {   
-    if (tcGameObject* obj = tcSimState::Get()->GetObject(platformId))
+    if (std::shared_ptr<tcGameObject> obj = tcSimState::Get()->GetObject(platformId))
     {
         if (childId == -1)
         {
@@ -184,7 +184,7 @@ tcUpdateStream& tcStores::operator<<(tcUpdateStream& stream)
         unsigned int itemId;
         stream >> itemId;
 
-		tcDatabaseObject* databaseObj = database->GetObject(id);
+		std::shared_ptr<tcDatabaseObject> databaseObj = database->GetObject(id);
 		
 		if (databaseObj == 0)
 		{
@@ -209,7 +209,7 @@ tcUpdateStream& tcStores::operator>>(tcUpdateStream& stream)
 	stream << nItems;
 	for (unsigned char n=0; n<nItems; n++)
 	{
-		tcDatabaseObject* databaseObj = stores[n].GetDatabaseObject();
+		std::shared_ptr<tcDatabaseObject> databaseObj = stores[n].GetDatabaseObject();
 		long databaseId = databaseObj->mnKey;
 		unsigned long quantity = stores[n].quantity;
         unsigned int itemId = stores[n].itemId;
@@ -258,7 +258,7 @@ tcCommandStream& tcStores::operator<<(tcCommandStream& stream)
 		}
 		
 		bool ok = true;
-		tcGameObject* obj = 0;
+		std::shared_ptr<tcGameObject> obj = 0;
 		if (id != -1)
 		{
             obj = parent->GetChildById(id);
@@ -274,7 +274,7 @@ tcCommandStream& tcStores::operator<<(tcCommandStream& stream)
         std::string item;
 		if ((op != StoreOperation::UNLOAD) && (op != StoreOperation::AUTOMATION))
         {
-            tcDatabaseObject* databaseObj = tcDatabase::Get()->GetObject(itemId);
+            std::shared_ptr<tcDatabaseObject> databaseObj = tcDatabase::Get()->GetObject(itemId);
             if (databaseObj == 0)
             {
                 ok = false;
@@ -367,7 +367,7 @@ tcGameStream& tcStores::operator<<(tcGameStream& stream)
 		unsigned long quantity;
 		stream >> quantity;
 
-		tcDatabaseObject* databaseObj = database->GetObject(itemName);
+		std::shared_ptr<tcDatabaseObject> databaseObj = database->GetObject(itemName);
 		
 		if (databaseObj == 0)
 		{
@@ -470,7 +470,7 @@ tcGameStream& tcStores::operator>>(tcGameStream& stream)
 	stream << nItems;
 	for (unsigned char n=0; n<nItems; n++)
 	{
-		//tcDatabaseObject* databaseObj = stores[n].GetDatabaseObject();
+		//std::shared_ptr<tcDatabaseObject> databaseObj = stores[n].GetDatabaseObject();
         std::string itemName = stores[n].className;
 		unsigned long quantity = stores[n].quantity;
 		
@@ -546,7 +546,7 @@ bool tcStores::HasNewCommand() const
 * configurations.
 * @param type "Empty" empty all launchers, "AAW" anti-air warfare, "ASuW" antisurface warfare, "ASW" antisubmarine warfare, "Strike" ground strike
 */
-void tcStores::AddAutomationOp(const std::string& type, tcGameObject* child)
+void tcStores::AddAutomationOp(const std::string& type, std::shared_ptr<tcGameObject> child)
 {
 	if (type == "Error")
 	{
@@ -608,7 +608,7 @@ void tcStores::AddAutomationOp(const std::string& type, tcGameObject* child)
 */
 bool tcStores::AddItems(const std::string& item, unsigned long quantity)
 {
-    tcDatabaseObject* databaseObject = tcDatabase::Get()->GetObject(item);
+    std::shared_ptr<tcDatabaseObject> databaseObject = tcDatabase::Get()->GetObject(item);
 
     if (databaseObject == 0)
     {
@@ -647,7 +647,7 @@ bool tcStores::AddItems(const std::string& item, unsigned long quantity)
 
 bool tcStores::AddItemsForceId(const std::string& item, unsigned long quantity, unsigned int itemId)
 {
-    tcDatabaseObject* databaseObject = tcDatabase::Get()->GetObject(item);
+    std::shared_ptr<tcDatabaseObject> databaseObject = tcDatabase::Get()->GetObject(item);
 
     if (databaseObject == 0)
     {
@@ -722,7 +722,7 @@ bool tcStores::RemoveItems(const std::string& item, unsigned long quantity)
 
 
 bool tcStores::AddOperation(const std::string& itemName, unsigned int launcherIdx, unsigned long quantity, float transferTime_s,
-							int opType, tcGameObject* obj)
+							int opType, std::shared_ptr<tcGameObject> obj)
 {
 	/* Search for existing op with launcher (or platform for REFUEL)
 	** opType 
@@ -743,7 +743,7 @@ bool tcStores::AddOperation(const std::string& itemName, unsigned int launcherId
 	{
 		CommandInfo cmd;
 
-		tcDatabaseObject* databaseObj = tcDatabase::Get()->GetObject(itemName);
+		std::shared_ptr<tcDatabaseObject> databaseObj = tcDatabase::Get()->GetObject(itemName);
 		if (databaseObj == 0)
 		{
 			assert(false);
@@ -901,7 +901,7 @@ bool tcStores::CancelOperation(unsigned char id)
 */
 void tcStores::CompleteOperation(tcStores::StoreOperation& op)
 {
-    tcGameObject* obj = op.GetObj();
+    std::shared_ptr<tcGameObject> obj = op.GetObj();
     
 
     if (obj == 0) // object left or destroyed
@@ -916,7 +916,7 @@ void tcStores::CompleteOperation(tcStores::StoreOperation& op)
         return;
     }
      
-    tcLauncher* launcher = obj->GetLauncher(op.launcherIdx);
+    std::shared_ptr<tcLauncher> launcher = obj->GetLauncher(op.launcherIdx);
     assert(launcher || (op.transferType == StoreOperation::REFUEL));
     if (!launcher && (op.transferType != StoreOperation::REFUEL)) return;
 
@@ -926,7 +926,7 @@ void tcStores::CompleteOperation(tcStores::StoreOperation& op)
     }
 	else if (op.transferType == StoreOperation::REFUEL)
 	{
-		if (tcPlatformObject* platform = dynamic_cast<tcPlatformObject*>(obj))
+		if (std::shared_ptr<tcPlatformObject> platform = std::dynamic_pointer_cast<tcPlatformObject>(obj))
 		{
 			platform->fuel_kg += float(op.quantity);
 			float fuelCapacity_kg = platform->GetFuelCapacity();
@@ -939,7 +939,7 @@ void tcStores::CompleteOperation(tcStores::StoreOperation& op)
 	}
     else if (op.transferType == StoreOperation::DEFUEL)
     {
-		if (tcPlatformObject* platform = dynamic_cast<tcPlatformObject*>(obj))
+		if (std::shared_ptr<tcPlatformObject> platform = std::dynamic_pointer_cast<tcPlatformObject>(obj))
 		{
 			platform->fuel_kg -= float(op.quantity);
 			if (platform->fuel_kg < 0)
@@ -962,9 +962,9 @@ void tcStores::CompleteOperation(tcStores::StoreOperation& op)
 
 }
 
-void tcStores::CompleteMoveOperation(tcStores::StoreOperation& op, tcGameObject* obj)
+void tcStores::CompleteMoveOperation(tcStores::StoreOperation& op, std::shared_ptr<tcGameObject> obj)
 {
-    tcPlatformObject* platform = dynamic_cast<tcPlatformObject*>(obj);
+    std::shared_ptr<tcPlatformObject> platform = std::dynamic_pointer_cast<tcPlatformObject>(obj);
     if (platform == 0)
     {
         assert(false);
@@ -972,7 +972,7 @@ void tcStores::CompleteMoveOperation(tcStores::StoreOperation& op, tcGameObject*
         return;
     }
 
-    tcStores* stores = platform->GetMagazine(op.launcherIdx);
+    std::shared_ptr<tcStores> stores = platform->GetMagazine(op.launcherIdx);
 
     if (stores == 0)
     {
@@ -1036,7 +1036,7 @@ unsigned long tcStores::CurrentQuantity() const
 * child object of parent. 
 * @return host parent (of stores) if child is 0, child if child is valid (if e.g. this is flightport stores and child is an aircraft in the flightport), 0 otherwise
 */
-tcGameObject* tcStores::GetChildOrParent(tcGameObject* child)
+std::shared_ptr<tcGameObject> tcStores::GetChildOrParent(std::shared_ptr<tcGameObject> child)
 {
     assert(parent);
     
@@ -1058,7 +1058,7 @@ tcGameObject* tcStores::GetChildOrParent(tcGameObject* child)
 /**
 * @return true if stores operation is allowed between this stores obj and destination obj 
 */
-bool tcStores::StoresOperationAllowed(tcPlatformObject* destination) const
+bool tcStores::StoresOperationAllowed(std::shared_ptr<tcPlatformObject> destination) const
 {
     assert(parent != 0);
 
@@ -1066,7 +1066,7 @@ bool tcStores::StoresOperationAllowed(tcPlatformObject* destination) const
         ((destination != 0) && (destination->IsChild(parent) || parent->IsChild(destination)));
 }
 
-tcStoresDBObject* tcStores::GetDatabaseObject() const
+std::shared_ptr<tcStoresDBObject> tcStores::GetDatabaseObject() const
 {
 	return storesDBObj;
 }
@@ -1075,7 +1075,7 @@ tcStoresDBObject* tcStores::GetDatabaseObject() const
 * Uses linear search
 * @return database object for item or 0 if not found
 */
-tcDatabaseObject* tcStores::GetDatabaseObjectForItem(const std::string& item) const
+std::shared_ptr<tcDatabaseObject> tcStores::GetDatabaseObjectForItem(const std::string& item) const
 {
     for (size_t n=0; n<stores.size(); n++)
     {
@@ -1216,7 +1216,7 @@ size_t tcStores::GetMyStoresIndex() const
     size_t nStores = parent->GetMagazineCount();
     for (size_t n=0; n<nStores; n++)
     {
-        if (parent->GetMagazine(n) == this)
+        if (parent->GetMagazine(n) == shared_from_this())
         {
             return n;
         }
@@ -1233,7 +1233,7 @@ unsigned int tcStores::GetNumberItemTypes() const
 }
 
 
-tcGameObject* tcStores::GetParent() const
+std::shared_ptr<tcGameObject> tcStores::GetParent() const
 {
     return parent;
 }
@@ -1292,16 +1292,16 @@ bool tcStores::IsFull() const
 * Loads exactly one item into launcher
 */
 bool tcStores::LoadLauncher(unsigned int idx, const std::string& item, 
-        tcGameObject* child, unsigned int maxToLoad)
+        std::shared_ptr<tcGameObject> child, unsigned int maxToLoad)
 {
     if (item.size() == 0) return false;
 
-    if (tcAirObject* air = dynamic_cast<tcAirObject*>(child))
+    if ( std::shared_ptr<tcAirObject> air = std::dynamic_pointer_cast<tcAirObject>(child))
     {
         if (air->MaintenanceHold()) return false;
     }
 
-    tcGameObject* obj = GetChildOrParent(child);
+    std::shared_ptr<tcGameObject> obj = GetChildOrParent(child);
     
     if (obj == 0)
 	{
@@ -1313,7 +1313,7 @@ bool tcStores::LoadLauncher(unsigned int idx, const std::string& item,
 	}
 
 
-    tcLauncher* launcher = obj->GetLauncher(idx);
+    std::shared_ptr<tcLauncher> launcher = obj->GetLauncher(idx);
     assert(launcher);
     if (!launcher) return false;
 
@@ -1432,7 +1432,7 @@ bool tcStores::LoadLauncher(unsigned int idx, const std::string& item,
 * @return quantity to move
 * Used to transfer items from one stores to another
 */
-unsigned int tcStores::MoveStores(const std::string& item, unsigned int quantity, tcPlatformObject* destination, unsigned int storesIdx)
+unsigned int tcStores::MoveStores(const std::string& item, unsigned int quantity, std::shared_ptr<tcPlatformObject> destination, unsigned int storesIdx)
 {
     bool moveAllowed = StoresOperationAllowed(destination);
     
@@ -1445,7 +1445,7 @@ unsigned int tcStores::MoveStores(const std::string& item, unsigned int quantity
 	}
 
     assert(destination != 0); // checked by StoresOperationsAllowed
-    tcStores* destStores = destination->GetMagazine(storesIdx);
+    std::shared_ptr<tcStores> destStores = destination->GetMagazine(storesIdx);
     if (destStores == 0)
     {
         assert(false);
@@ -1457,7 +1457,7 @@ unsigned int tcStores::MoveStores(const std::string& item, unsigned int quantity
 
     if (destStores->IsCompatible(item))
     {
-        tcDatabaseObject* itemData = tcDatabase::Get()->GetObject(item);
+        std::shared_ptr<tcDatabaseObject> itemData = tcDatabase::Get()->GetObject(item);
 
         if (itemData == 0)
         {
@@ -1490,16 +1490,16 @@ unsigned int tcStores::MoveStores(const std::string& item, unsigned int quantity
 /**
 * Used to load a non-launcher item (e.g. fuel) from stores to platform
 */
-bool tcStores::LoadOther(const std::string& item, unsigned long quantity, tcGameObject* child)
+bool tcStores::LoadOther(const std::string& item, unsigned long quantity, std::shared_ptr<tcGameObject> child)
 {
     long maxWeightFuel_kg = 9999999;
-    if (tcAirObject* air = dynamic_cast<tcAirObject*>(child))
+    if ( std::shared_ptr<tcAirObject> air = std::dynamic_pointer_cast<tcAirObject>(child))
     {
         if (air->MaintenanceHold()) return false;
         maxWeightFuel_kg = long(air->mpDBObject->maxTakeoffWeight_kg - air->GetTotalWeight());
     }
 
-    tcGameObject* obj = GetChildOrParent(child);
+    std::shared_ptr<tcGameObject> obj = GetChildOrParent(child);
     
     if (obj == 0)
 	{
@@ -1510,7 +1510,7 @@ bool tcStores::LoadOther(const std::string& item, unsigned long quantity, tcGame
 		return false;
 	}
 	
-	tcPlatformObject* platform = dynamic_cast<tcPlatformObject*>(obj);
+	std::shared_ptr<tcPlatformObject> platform = std::dynamic_pointer_cast<tcPlatformObject>(obj);
 	if (platform == 0)
 	{
         std::string s = strutil::format("%s (%s) - Cannot load item, not platform object\n",
@@ -1606,9 +1606,9 @@ bool tcStores::LoadOther(const std::string& item, unsigned long quantity, tcGame
 /**
 * Used to unload a non-launcher item (e.g. fuel) from platform to stores
 */
-bool tcStores::UnloadOther(const std::string& item, unsigned long quantity, tcGameObject* child)
+bool tcStores::UnloadOther(const std::string& item, unsigned long quantity, std::shared_ptr<tcGameObject> child)
 {
-    tcGameObject* obj = GetChildOrParent(child);
+    std::shared_ptr<tcGameObject> obj = GetChildOrParent(child);
     
     if (obj == 0)
 	{
@@ -1618,7 +1618,7 @@ bool tcStores::UnloadOther(const std::string& item, unsigned long quantity, tcGa
 		return false;
 	}
 	
-	tcPlatformObject* platform = dynamic_cast<tcPlatformObject*>(obj);
+	std::shared_ptr<tcPlatformObject> platform = std::dynamic_pointer_cast<tcPlatformObject>(obj);
 	if (platform == 0)
 	{
         std::string s = strutil::format("%s (%s) - Cannot unload item, not platform object\n",
@@ -1672,7 +1672,7 @@ void tcStores::SaveToPython(scriptinterface::tcScenarioLogger& logger)
 /**
 *
 */
-void tcStores::SetParent(tcPlatformObject* obj)
+void tcStores::SetParent(std::shared_ptr<tcPlatformObject> obj)
 {
     parent = obj;
 }
@@ -1680,9 +1680,9 @@ void tcStores::SetParent(tcPlatformObject* obj)
 /**
 * Unloads all items from launcher
 */
-bool tcStores::UnloadLauncher(unsigned int idx, tcGameObject* child, unsigned long maxToUnload)
+bool tcStores::UnloadLauncher(unsigned int idx, std::shared_ptr<tcGameObject> child, unsigned long maxToUnload)
 {
-    tcGameObject* obj = GetChildOrParent(child);
+    std::shared_ptr<tcGameObject> obj = GetChildOrParent(child);
     
     if (obj == 0)
 	{
@@ -1693,7 +1693,7 @@ bool tcStores::UnloadLauncher(unsigned int idx, tcGameObject* child, unsigned lo
 		return false;
 	}
 
-    tcLauncher* launcher = obj->GetLauncher(idx);    
+    std::shared_ptr<tcLauncher> launcher = obj->GetLauncher(idx);    
     assert(launcher);
     if (!launcher) return false;
 
@@ -1789,7 +1789,7 @@ void tcStores::UpdateAutomation()
     for (size_t n=0; n<automationOps.size(); n++) // 遍历所有的自动化操作
     {
         AutomationOperation& op = automationOps[n]; // 获取当前操作的引用
-        tcGameObject* obj = GetChildOrParent(op.obj); // 获取操作目标对象
+        std::shared_ptr<tcGameObject> obj = GetChildOrParent(op.obj); // 获取操作目标对象
         if (obj == 0) op.stage = finishOp; // 如果对象无效，将操作阶段设置为完成
     }
 
@@ -1876,7 +1876,7 @@ void tcStores::UpdateAutomation()
  * @param bestForLauncher 存储每个发射器的最佳武器信息的向量
  * @return 如果成功获取配置，则返回true；否则返回false
  */
-bool tcStores::GetBestGenericLoadout(tcPlatformObject* obj, const std::string& type, std::vector<WeaponInfo>& bestForLauncher)
+bool tcStores::GetBestGenericLoadout(std::shared_ptr<tcPlatformObject> obj, const std::string& type, std::vector<WeaponInfo>& bestForLauncher)
 {
     // 断言确保对象不为空，若为空则直接返回false
     assert(obj != 0);
@@ -1908,7 +1908,7 @@ bool tcStores::GetBestGenericLoadout(tcPlatformObject* obj, const std::string& t
     // 遍历每个发射器
     for (size_t n=0; n<nLaunchers; n++)
     {
-        tcLauncher* launcher = obj->GetLauncher(n); // 获取当前发射器
+        std::shared_ptr<tcLauncher> launcher = obj->GetLauncher(n); // 获取当前发射器
         size_t nTypes = launcher->GetCompatibleCount(); // 获取当前发射器兼容的武器类型数量
         assert(nTypes > 0); // 断言确保至少有一种兼容的武器类型
 
@@ -1974,7 +1974,7 @@ bool tcStores::GetBestGenericLoadout(tcPlatformObject* obj, const std::string& t
     }
 
     // 如果对象是飞行器，则进行起飞重量检查
-    if (tcAirObject* air = dynamic_cast<tcAirObject*>(obj))
+    if ( std::shared_ptr<tcAirObject> air = std::dynamic_pointer_cast<tcAirObject>(obj))
     {
         // 计算最大起飞重量（假设已加满燃油）
         float maxLoadWeight_kg = air->mpDBObject->maxTakeoffWeight_kg - air->mpDBObject->weight_kg -
@@ -1995,7 +1995,7 @@ bool tcStores::GetBestGenericLoadout(tcPlatformObject* obj, const std::string& t
             // 遍历每个发射器的最佳武器信息，计算总重量并找出最佳移除项
             for (size_t n=0; n<nLaunchers; n++)
             {
-                // tcLauncher* launcher = obj->GetLauncher(n); // 已在外部循环中获取，此处省略
+                // std::shared_ptr<tcLauncher> launcher = obj->GetLauncher(n); // 已在外部循环中获取，此处省略
 
                 size_t capacity = bestForLauncher[n].capacity; // 当前武器的容量
                 float weight_kg = bestForLauncher[n].weight_kg; // 当前武器的单重
@@ -2042,9 +2042,9 @@ bool tcStores::GetBestGenericLoadout(tcPlatformObject* obj, const std::string& t
 * @param type is either an auto-setup name like Empty, AAW, etc.; or a reference to
 * a SetupName in the platform_setup table
 */
-bool tcStores::LoadPlatform(tcGameObject* child, const std::string& type)
+bool tcStores::LoadPlatform(std::shared_ptr<tcGameObject> child, const std::string& type)
 {
-    tcPlatformObject* obj = dynamic_cast<tcPlatformObject*>(GetChildOrParent(child));
+    std::shared_ptr<tcPlatformObject> obj = std::dynamic_pointer_cast<tcPlatformObject>(GetChildOrParent(child));
 
     // check that magazine is accessible (child hasn't taken off yet)
     if (obj == 0)
@@ -2068,7 +2068,7 @@ bool tcStores::LoadPlatform(tcGameObject* child, const std::string& type)
     size_t nLaunchers = obj->GetLauncherCount();
     for (size_t n=0; n<nLaunchers; n++)
     {
-        tcLauncher* launcher = obj->GetLauncher(n);    
+        std::shared_ptr<tcLauncher> launcher = obj->GetLauncher(n);    
         assert(launcher);
 
         if (launcher == 0)
@@ -2119,9 +2119,9 @@ bool tcStores::LoadPlatform(tcGameObject* child, const std::string& type)
 * Intended to be called in edit mode, mirroring behavior of LoadPlatform, except with no
 * limits on "stores" quantity of items available
 */
-bool tcStores::LoadPlatformEditMode(tcGameObject* child, const std::string& type)
+bool tcStores::LoadPlatformEditMode(std::shared_ptr<tcGameObject> child, const std::string& type)
 {
-	tcPlatformObject* obj = dynamic_cast<tcPlatformObject*>(child);
+	std::shared_ptr<tcPlatformObject> obj = std::dynamic_pointer_cast<tcPlatformObject>(child);
 	
     if (!tcGameObject::IsEditMode()) return false;
 
@@ -2129,7 +2129,7 @@ bool tcStores::LoadPlatformEditMode(tcGameObject* child, const std::string& type
 	size_t nLaunchers = obj->GetLauncherCount();
 	for (size_t n=0; n<nLaunchers; n++)
 	{
-		tcLauncher* launcher = obj->GetLauncher(n);    
+		std::shared_ptr<tcLauncher> launcher = obj->GetLauncher(n);    
 		assert(launcher);
 		if (launcher == 0) return false;
 	}
@@ -2163,7 +2163,7 @@ bool tcStores::LoadPlatformEditMode(tcGameObject* child, const std::string& type
 
 	for (size_t n=0; n<nLaunchers; n++)
 	{
-		tcLauncher* launcher = obj->GetLauncher(n);   
+		std::shared_ptr<tcLauncher> launcher = obj->GetLauncher(n);   
 		size_t nTypes = launcher->GetCompatibleCount();
 		assert(nTypes > 0);
 
@@ -2224,7 +2224,7 @@ bool tcStores::LoadPlatformEditMode(tcGameObject* child, const std::string& type
         bestForLauncher.push_back(best);
 	}
 
-    if (tcAirObject* air = dynamic_cast<tcAirObject*>(obj))
+    if ( std::shared_ptr<tcAirObject> air = std::dynamic_pointer_cast<tcAirObject>(obj))
     {
         // check if overweight for takeoff (assuming fully fueled)
         float maxLoadWeight_kg = air->mpDBObject->maxTakeoffWeight_kg - air->mpDBObject->weight_kg -
@@ -2244,7 +2244,7 @@ bool tcStores::LoadPlatformEditMode(tcGameObject* child, const std::string& type
 
             for (size_t n=0; n<nLaunchers; n++)
             {
-//                tcLauncher* launcher = obj->GetLauncher(n);   
+//                std::shared_ptr<tcLauncher> launcher = obj->GetLauncher(n);   
 
                 size_t capacity = bestForLauncher[n].capacity;
                 float weight_kg = bestForLauncher[n].weight_kg;
@@ -2283,7 +2283,7 @@ bool tcStores::LoadPlatformEditMode(tcGameObject* child, const std::string& type
     // load launcher with best results
     for (size_t n=0; n<nLaunchers; n++)
 	{
-        tcLauncher* launcher = obj->GetLauncher(n);
+        std::shared_ptr<tcLauncher> launcher = obj->GetLauncher(n);
         assert(launcher != 0);
 
 		// load launcher with best results
@@ -2301,7 +2301,7 @@ bool tcStores::LoadPlatformEditMode(tcGameObject* child, const std::string& type
 * @param groupSize multiplier to ensure that quantity is available for all platforms in group
 * @return true if loadout found, false if no loadout satisfying weight restriction
 */
-bool tcStores::GetBestLoadout(tcAirObject* obj, const std::vector<LauncherLoadout>& launcherLoadout,
+bool tcStores::GetBestLoadout(std::shared_ptr<tcAirObject> obj, const std::vector<LauncherLoadout>& launcherLoadout,
                               std::vector<WeaponInfo>& bestForLauncher, unsigned int groupSize)
 {
     bestForLauncher.clear();
@@ -2316,7 +2316,7 @@ bool tcStores::GetBestLoadout(tcAirObject* obj, const std::vector<LauncherLoadou
 	{
         unsigned int launcherId = obj->mpDBObject->launcherId[n]; // launcher id for this launcher
         WeaponInfo weaponInfo;
-//		tcLauncher* launcher = obj->GetLauncher(n);   
+//		std::shared_ptr<tcLauncher> launcher = obj->GetLauncher(n);   
 		
         // search through each entry in the launcherLoadout list, checking for multiple entries for alternate loads
         bool searching = true;
@@ -2356,7 +2356,7 @@ bool tcStores::GetBestLoadout(tcAirObject* obj, const std::vector<LauncherLoadou
 
     for (size_t n=0; n<nLaunchers; n++)
     {
-//        tcLauncher* launcher = obj->GetLauncher(n);   
+//        std::shared_ptr<tcLauncher> launcher = obj->GetLauncher(n);   
 
         size_t capacity = bestForLauncher[n].capacity;
         float weight_kg = bestForLauncher[n].weight_kg;
@@ -2381,9 +2381,9 @@ bool tcStores::GetBestLoadout(tcAirObject* obj, const std::vector<LauncherLoadou
 * Loads an air loadout according to database data
 * Only applies to air platforms
 */
-bool tcStores::LoadAirLoadout(tcGameObject* child, const std::string& type)
+bool tcStores::LoadAirLoadout(std::shared_ptr<tcGameObject> child, const std::string& type)
 {
-	tcAirObject* obj = dynamic_cast<tcAirObject*>(GetChildOrParent(child));
+	std::shared_ptr<tcAirObject> obj = std::dynamic_pointer_cast<tcAirObject>(GetChildOrParent(child));
     if (obj == 0) return false;
 
     // assume that we've already done checks for magazine accessible, launcher empty, launchers valid
@@ -2412,7 +2412,7 @@ bool tcStores::LoadAirLoadout(tcGameObject* child, const std::string& type)
     // load launcher with best results
     for (size_t n=0; n<nLaunchers; n++)
 	{
-//		tcLauncher* launcher = obj->GetLauncher(n);   
+//		std::shared_ptr<tcLauncher> launcher = obj->GetLauncher(n);   
 
 		// load launcher with best results
         LoadLauncher(n, bestForLauncher[n].name, child, bestForLauncher[n].capacity);
@@ -2428,9 +2428,9 @@ bool tcStores::LoadAirLoadout(tcGameObject* child, const std::string& type)
 * Only applies to air platforms
 * Edit mode version that doesn't check stores availability
 */
-bool tcStores::LoadAirLoadoutEditMode(tcGameObject* child, const std::string& type)
+bool tcStores::LoadAirLoadoutEditMode(std::shared_ptr<tcGameObject> child, const std::string& type)
 {
-    tcAirObject* obj = dynamic_cast<tcAirObject*>(child);
+    std::shared_ptr<tcAirObject> obj = std::dynamic_pointer_cast<tcAirObject>(child);
     if (obj == 0) return false;
 
     if (!tcGameObject::IsEditMode()) return false;
@@ -2456,7 +2456,7 @@ bool tcStores::LoadAirLoadoutEditMode(tcGameObject* child, const std::string& ty
 	{
         unsigned int launcherId = obj->mpDBObject->launcherId[n]; // launcher id for this launcher
         WeaponInfo weaponInfo;
-//		tcLauncher* launcher = obj->GetLauncher(n);   
+//		std::shared_ptr<tcLauncher> launcher = obj->GetLauncher(n);   
 		
         // search through each entry in the launcherLoadout list, checking for multiple entries for alternate loads
         bool searching = true;
@@ -2493,7 +2493,7 @@ bool tcStores::LoadAirLoadoutEditMode(tcGameObject* child, const std::string& ty
     // load launcher with best results
     for (size_t n=0; n<nLaunchers; n++)
 	{
-        tcLauncher* launcher = obj->GetLauncher(n);
+        std::shared_ptr<tcLauncher> launcher = obj->GetLauncher(n);
         assert(launcher != 0);
 
 		// load launcher with best results
@@ -2517,12 +2517,12 @@ void tcStores::GetWeaponInfo(WeaponInfo& info)
     info.weight_kg = 0;
 
     tcDatabase* database = tcDatabase::Get();
-	tcDatabaseObject* databaseObj = database->GetObject(info.name);
+	std::shared_ptr<tcDatabaseObject> databaseObj = database->GetObject(info.name);
 	if (databaseObj == 0) return;
 
     info.weight_kg = databaseObj->weight_kg;
 
-	if (tcWeaponDBObject* weaponObj = dynamic_cast<tcWeaponDBObject*>(databaseObj))
+    if (std::shared_ptr<tcWeaponDBObject> weaponObj =  std::dynamic_pointer_cast<tcWeaponDBObject>(databaseObj))
 	{
 		info.targetFlags = weaponObj->targetFlags;
         info.range_km = weaponObj->maxRange_km;
@@ -2530,11 +2530,11 @@ void tcStores::GetWeaponInfo(WeaponInfo& info)
         // check if this is nuclear based on weapon energy
         info.isNuclear = weaponObj->IsNuclear();
 	}
-    else if (tcFuelTankDBObject* fuelTank = dynamic_cast<tcFuelTankDBObject*>(databaseObj))
+    else if (std::shared_ptr<tcFuelTankDBObject> fuelTank =  std::dynamic_pointer_cast<tcFuelTankDBObject>(databaseObj))
     {
         info.weight_kg += fuelTank->fuelCapacity_kg; // assume will be fully fueled
     }
-    else if (tcCounterMeasureDBObject* cm = dynamic_cast<tcCounterMeasureDBObject*>(databaseObj))
+    else if (std::shared_ptr<tcCounterMeasureDBObject> cm =  std::dynamic_pointer_cast<tcCounterMeasureDBObject>(databaseObj))
     {
         info.miscType = cm->subType;
     }
@@ -2548,9 +2548,9 @@ float tcStores::GetWeightKg() const
 }
 
 
-bool tcStores::UnloadPlatform(tcGameObject* child)
+bool tcStores::UnloadPlatform(std::shared_ptr<tcGameObject> child)
 {
-	tcPlatformObject* obj = dynamic_cast<tcPlatformObject*>(GetChildOrParent(child));
+	std::shared_ptr<tcPlatformObject> obj = std::dynamic_pointer_cast<tcPlatformObject>(GetChildOrParent(child));
     
     if (obj == 0)
     {
@@ -2563,7 +2563,7 @@ bool tcStores::UnloadPlatform(tcGameObject* child)
 	size_t nLaunchers = obj->GetLauncherCount();
 	for (size_t n=0; n<nLaunchers; n++)
 	{
-		tcLauncher* launcher = obj->GetLauncher(n);    
+		std::shared_ptr<tcLauncher> launcher = obj->GetLauncher(n);    
 		assert(launcher);
 
 		if ((launcher != 0) && (launcher->mnCurrent > 0))
@@ -2580,7 +2580,7 @@ bool tcStores::UnloadPlatform(tcGameObject* child)
 /**
 * @return true if any ops for child are active
 */
-bool tcStores::HasActiveOp(tcGameObject* child) const
+bool tcStores::HasActiveOp(std::shared_ptr<tcGameObject> child) const
 {
 	std::vector<AutomationOperation>::const_iterator opIter;
     for (opIter = automationOps.begin(); opIter != automationOps.end(); ++opIter)
@@ -2597,9 +2597,9 @@ bool tcStores::HasActiveOp(tcGameObject* child) const
 /**
 * @return true if all launchers of child are empty
 */
-bool tcStores::AllLaunchersEmpty(tcGameObject* child)
+bool tcStores::AllLaunchersEmpty(std::shared_ptr<tcGameObject> child)
 {
-	tcPlatformObject* obj = dynamic_cast<tcPlatformObject*>(GetChildOrParent(child));
+	std::shared_ptr<tcPlatformObject> obj = std::dynamic_pointer_cast<tcPlatformObject>(GetChildOrParent(child));
     if (obj == 0)
     {
         return false;
@@ -2608,7 +2608,7 @@ bool tcStores::AllLaunchersEmpty(tcGameObject* child)
 	size_t nLaunchers = obj->GetLauncherCount();
 	for (size_t n=0; n<nLaunchers; n++)
 	{
-		tcLauncher* launcher = obj->GetLauncher(n);    
+		std::shared_ptr<tcLauncher> launcher = obj->GetLauncher(n);    
 		assert(launcher);
 
 		if ((launcher != 0) && (launcher->mnCurrent > 0))
@@ -2623,9 +2623,9 @@ bool tcStores::AllLaunchersEmpty(tcGameObject* child)
 /**
 * @return true if all launchers of child are full and ready
 */
-bool tcStores::AllLaunchersReady(tcGameObject* child)
+bool tcStores::AllLaunchersReady(std::shared_ptr<tcGameObject> child)
 {
-	tcPlatformObject* obj = dynamic_cast<tcPlatformObject*>(GetChildOrParent(child));
+	std::shared_ptr<tcPlatformObject> obj = std::dynamic_pointer_cast<tcPlatformObject>(GetChildOrParent(child));
     if (obj == 0)
     {
         return false;
@@ -2634,7 +2634,7 @@ bool tcStores::AllLaunchersReady(tcGameObject* child)
 	size_t nLaunchers = obj->GetLauncherCount();
 	for (size_t n=0; n<nLaunchers; n++)
 	{
-		tcLauncher* launcher = obj->GetLauncher(n);    
+		std::shared_ptr<tcLauncher> launcher = obj->GetLauncher(n);    
 		assert(launcher);
 
 		if ((launcher != 0) && ((launcher->mnCurrent == 0) || (launcher->IsLoading())))
@@ -2649,7 +2649,7 @@ bool tcStores::AllLaunchersReady(tcGameObject* child)
 /**
 * @return true if op found
 */
-bool tcStores::FindLauncherOp(tcGameObject* obj, unsigned int launcherIdx, unsigned int& opId)
+bool tcStores::FindLauncherOp(std::shared_ptr<tcGameObject> obj, unsigned int launcherIdx, unsigned int& opId)
 {
     for (size_t n=0; n<ops.size(); n++)
     {
@@ -2681,9 +2681,9 @@ const tcStores::StoreOperation* tcStores::FindOpById(unsigned int opId) const
 * @return bitwise OR of all target flags from weapons available in stores that
 * are compatible with child's launchers
 */
-int tcStores::GetAvailableTargetFlags(tcGameObject* child, bool nuclear)
+int tcStores::GetAvailableTargetFlags(std::shared_ptr<tcGameObject> child, bool nuclear)
 {
-	tcPlatformObject* obj = dynamic_cast<tcPlatformObject*>(GetChildOrParent(child));
+	std::shared_ptr<tcPlatformObject> obj = std::dynamic_pointer_cast<tcPlatformObject>(GetChildOrParent(child));
     
 	// check that magazine is accessible (child hasn't taken off yet)
     if (obj == 0) return 0;
@@ -2694,7 +2694,7 @@ int tcStores::GetAvailableTargetFlags(tcGameObject* child, bool nuclear)
 
 	for (size_t n=0; n<nLaunchers; n++)
 	{
-		tcLauncher* launcher = obj->GetLauncher(n);   
+		std::shared_ptr<tcLauncher> launcher = obj->GetLauncher(n);   
 
 		size_t nTypes = launcher->GetCompatibleCount();
 		for (size_t k=0; k<nTypes; k++)
@@ -2724,9 +2724,9 @@ bool tcStores::HasNuclearWeapons()
 {
     for (size_t n=0; n<stores.size(); n++)
     {
-        tcDatabaseObject* databaseObj = stores[n].GetOrLoadDatabaseObject();
+        std::shared_ptr<tcDatabaseObject> databaseObj = stores[n].GetOrLoadDatabaseObject();
         
-	    if (tcWeaponDBObject* weaponObj = dynamic_cast<tcWeaponDBObject*>(databaseObj))
+        if (std::shared_ptr<tcWeaponDBObject> weaponObj =  std::dynamic_pointer_cast<tcWeaponDBObject>(databaseObj))
 	    {
             if (weaponObj->IsNuclear()) return true;
         }
@@ -2741,9 +2741,9 @@ bool tcStores::HasNuclearWeapons()
 * for obj.
 * @return true if stores has any items that are compatible with obj
 */
-bool tcStores::HasStoresForThisObject(tcGameObject* obj)
+bool tcStores::HasStoresForThisObject(std::shared_ptr<tcGameObject> obj)
 {
-	tcPlatformObject* platform = dynamic_cast<tcPlatformObject*>(GetChildOrParent(obj));
+	std::shared_ptr<tcPlatformObject> platform = std::dynamic_pointer_cast<tcPlatformObject>(GetChildOrParent(obj));
 	if (platform == 0)
 	{
 		assert(false);
@@ -2754,7 +2754,7 @@ bool tcStores::HasStoresForThisObject(tcGameObject* obj)
 	size_t nLaunchers = platform->GetLauncherCount();
 	for (size_t n=0; n<nLaunchers; n++)
 	{
-		tcLauncher* launcher = platform->GetLauncher(n);    
+		std::shared_ptr<tcLauncher> launcher = platform->GetLauncher(n);    
 		assert(launcher);
 		
 		size_t nCompatible = launcher->GetCompatibleCount();
@@ -2773,9 +2773,9 @@ bool tcStores::HasStoresForThisObject(tcGameObject* obj)
 /**
 * @return true if any of obj items are compatible with stores
 */
-bool tcStores::CanUnloadThisObject(tcGameObject* obj)
+bool tcStores::CanUnloadThisObject(std::shared_ptr<tcGameObject> obj)
 {
-	tcPlatformObject* platform = dynamic_cast<tcPlatformObject*>(GetChildOrParent(obj));
+	std::shared_ptr<tcPlatformObject> platform = std::dynamic_pointer_cast<tcPlatformObject>(GetChildOrParent(obj));
 	if (platform == 0)
 	{
 		assert(false);
@@ -2786,7 +2786,7 @@ bool tcStores::CanUnloadThisObject(tcGameObject* obj)
 	size_t nLaunchers = platform->GetLauncherCount();
 	for (size_t n=0; n<nLaunchers; n++)
 	{
-		tcLauncher* launcher = platform->GetLauncher(n);    
+		std::shared_ptr<tcLauncher> launcher = platform->GetLauncher(n);    
 		assert(launcher);
 
         if ((launcher->mnCurrent > 0) && IsCompatible(launcher->GetChildClassName()))
@@ -2850,7 +2850,7 @@ void tcStores::UpdateWeightAndVolume()
 
     for (size_t n=0; n<stores.size(); n++)
     {
-        tcDatabaseObject* databaseObj = stores[n].GetOrLoadDatabaseObject();
+        std::shared_ptr<tcDatabaseObject> databaseObj = stores[n].GetOrLoadDatabaseObject();
 
 	    if (databaseObj != 0)
         {
@@ -2866,14 +2866,14 @@ void tcStores::UpdateWeightAndVolume()
 * (partially a bandwidth issue vs. realism)
 * @returns true if op is allowed
 */
-bool tcStores::ValidateOpObject(tcGameObject* obj)
+bool tcStores::ValidateOpObject(std::shared_ptr<tcGameObject> obj)
 {
 	if (obj == 0) return true;
 
 	/* if parent of this stores has a flightport, and obj is a child of parent,
     ** then return true if child is in a ALERT15 position, otherwise return true always
 	*/
-	tcFlightOpsObject* flightOps = dynamic_cast<tcFlightOpsObject*>(parent);
+    std::shared_ptr<tcFlightOpsObject> flightOps =  std::dynamic_pointer_cast<tcFlightOpsObject>(parent);
 	if (flightOps == 0) return true;
 
 	tcFlightPort* flightPort = flightOps->GetFlightPort();
@@ -2897,7 +2897,7 @@ bool tcStores::ValidateOpObject(tcGameObject* obj)
 /**
 *
 */
-tcStores::tcStores(tcStoresDBObject* dbObj)
+tcStores::tcStores(std::shared_ptr<tcStoresDBObject> dbObj)
 : storesDBObj(dbObj), lastUpdate(0), parent(0),
   volume_m3(0), weight_kg(0), nextItemId(1)
 {

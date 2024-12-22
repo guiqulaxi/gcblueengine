@@ -159,18 +159,18 @@ const GeoPoint& tcBallisticWeapon::CalculateGunSolution(long targetId)
 * @param obj launching game object
 * @param launcher index of launcher
 */
-void tcBallisticWeapon::LaunchFrom(tcGameObject* obj, unsigned nLauncher)
+void tcBallisticWeapon::LaunchFrom(std::shared_ptr<tcGameObject> obj, unsigned nLauncher)
 {
-	tcLauncher virtualLauncher; // for ballistic missile deployment
-	virtualLauncher.mnTargetID = -1;
-	virtualLauncher.pointingAngle = 0;
-	virtualLauncher.pointingElevation = 0;
-	virtualLauncher.firingArc_deg = 0;
-	virtualLauncher.mfTimeToReady = 0;
+    std::shared_ptr<tcLauncher> pLauncher =std::make_shared<tcLauncher>();
+    pLauncher->mnTargetID = -1;
+    pLauncher->pointingAngle = 0;
+    pLauncher->pointingElevation = 0;
+    pLauncher->firingArc_deg = 0;
+    pLauncher->mfTimeToReady = 0;
 
-	tcLauncher* pLauncher = &virtualLauncher;
 
-    if (tcPlatformObject* platObj = dynamic_cast<tcPlatformObject*>(obj))
+
+    if (std::shared_ptr<tcPlatformObject> platObj = std::dynamic_pointer_cast<tcPlatformObject>(obj))
 	{
 		tc3DPoint launcherPos = platObj->mpDBObject->GetLauncherPosition(nLauncher);
 		GeoPoint pos = obj->RelPosToLatLonAlt(launcherPos.x, launcherPos.y,
@@ -181,27 +181,27 @@ void tcBallisticWeapon::LaunchFrom(tcGameObject* obj, unsigned nLauncher)
         
         pLauncher = obj->GetLauncher(nLauncher);
 	}
-	else if (tcBallisticMissile* bmissile = dynamic_cast<tcBallisticMissile*>(obj))
+    else if (std::shared_ptr<tcBallisticMissile> bmissile = std::dynamic_pointer_cast<tcBallisticMissile>(obj))
 	{
 		mcKin.mfLon_rad = obj->mcKin.mfLon_rad;
 		mcKin.mfLat_rad = obj->mcKin.mfLat_rad;
 		mcKin.mfAlt_m = obj->mcKin.mfAlt_m;
 
-        virtualLauncher.msDatum = bmissile->GetTargetDatum();
-        virtualLauncher.mnTargetID = bmissile->GetIntendedTarget();
-        virtualLauncher.pointingAngle = 0;
-	    virtualLauncher.pointingElevation = 0;
+        pLauncher->msDatum = bmissile->GetTargetDatum();
+        pLauncher->mnTargetID = bmissile->GetIntendedTarget();
+        pLauncher->pointingAngle = 0;
+        pLauncher->pointingElevation = 0;
 	}
-	else if (tcBallisticWeapon* ballistic = dynamic_cast<tcBallisticWeapon*>(obj))
+    else if (std::shared_ptr<tcBallisticWeapon> ballistic = std::dynamic_pointer_cast<tcBallisticWeapon>(obj))
 	{
 		mcKin.mfLon_rad = obj->mcKin.mfLon_rad;
 		mcKin.mfLat_rad = obj->mcKin.mfLat_rad;
 		mcKin.mfAlt_m = obj->mcKin.mfAlt_m;
 
-        virtualLauncher.msDatum = targetPos;
-        virtualLauncher.mnTargetID = ballistic->GetIntendedTarget();
-        virtualLauncher.pointingAngle = 0;
-	    virtualLauncher.pointingElevation = 0;
+        pLauncher->msDatum = targetPos;
+        pLauncher->mnTargetID = ballistic->GetIntendedTarget();
+        pLauncher->pointingAngle = 0;
+        pLauncher->pointingElevation = 0;
 	}
 	else
 	{
@@ -354,7 +354,7 @@ void tcBallisticWeapon::LaunchFrom(tcGameObject* obj, unsigned nLauncher)
 
 
 
-	simState->AddPlatform(static_cast<tcGameObject*>(this));
+	simState->AddPlatform(static_cast<std::shared_ptr<tcGameObject>>(this));
 
 	// Set intended target (has to be done after alliance and id is set).
 	// This is a tcWeaponObject method
@@ -612,7 +612,7 @@ void tcBallisticWeapon::UpdateAutocannon()
     const float checkInterceptRange = 0.5f;
     const float tminDet_s = 0.05f;
 
-    if (tcGameObject* target = simState->GetObject(intendedTarget))
+    if (std::shared_ptr<tcGameObject> target = simState->GetObject(intendedTarget))
     {
         float range_km = mcKin.RangeToKmAlt(target->mcKin);
 
@@ -775,7 +775,7 @@ void tcBallisticWeapon::UpdateTargetFuse()
     }
 
     // 尝试获取意图中的目标对象
-    tcGameObject* target = simState->GetObject(intendedTarget);
+    std::shared_ptr<tcGameObject> target = simState->GetObject(intendedTarget);
     // 如果没有找到目标，则退出函数
     if (target == 0)
     {
@@ -802,7 +802,7 @@ void tcBallisticWeapon::UpdateTargetFuse()
         Vector3d collisionPoint;
         float collisionRange_m;
         // 如果能够计算出碰撞点
-        if (target->CalculateCollisionPoint(this, collisionPoint, dt, collisionRange_m))
+        if (target->CalculateCollisionPoint(tcGameObject::shared_from_this(), collisionPoint, dt, collisionRange_m))
         {
             // 如果碰撞时间不合理（太早或太晚），则退出函数
             if ((dt < -0.1f) || (dt > tminDet_s)) return; // 延迟到未来的时间步
@@ -1002,7 +1002,7 @@ tcBallisticWeapon::tcBallisticWeapon(const tcBallisticWeapon& o)
 /**
 * Constructor that initializes using info from database entry.
 */
-tcBallisticWeapon::tcBallisticWeapon(tcBallisticDBObject* obj)
+tcBallisticWeapon::tcBallisticWeapon(std::shared_ptr<tcBallisticDBObject> obj)
 : tcWeaponObject(obj),
 	vz_mps(0),
 	vxy_mps(0),

@@ -145,7 +145,7 @@ tcUpdateStream& tcSensorMapTrack::operator<<(tcUpdateStream& stream)
             EmitterInfo info;
             std::string emitterClass;
             stream >> emitterClass;
-            tcDatabaseObject* data = (emitterClass.size() > 0) ? database->GetObject(emitterClass) : 0;
+            std::shared_ptr<tcDatabaseObject> data = (emitterClass.size() > 0) ? database->GetObject(emitterClass) : 0;
             if (data != 0)
             {
                 info.mfTimestamp = 0;
@@ -159,7 +159,7 @@ tcUpdateStream& tcSensorMapTrack::operator<<(tcUpdateStream& stream)
 
     std::string databaseClass;
 	stream >> databaseClass;
-    tcDatabaseObject* data = (databaseClass.size() > 0) ? database->GetObject(databaseClass) : 0;
+    std::shared_ptr<tcDatabaseObject> data = (databaseClass.size() > 0) ? database->GetObject(databaseClass) : 0;
 	
     if (data != 0)
     {
@@ -381,7 +381,7 @@ tcGameStream& tcSensorMapTrack::operator>>(tcGameStream& stream)
 
         //stream << emitterInfo[k].mnEmitterID;
         std::string emitterClass;
-        if (tcDatabaseObject* data = database->GetObject(emitterInfo[k].mnEmitterID))
+        if (std::shared_ptr<tcDatabaseObject> data = database->GetObject(emitterInfo[k].mnEmitterID))
         {
             emitterClass = data->mzClass.c_str();
         }
@@ -411,7 +411,7 @@ tcGameStream& tcSensorMapTrack::operator>>(tcGameStream& stream)
     for (unsigned int k=0; k<nAmbiguity; k++)
     {
         std::string ambiguityClass;
-        if (tcDatabaseObject* data = database->GetObject(ambiguityList[k]))
+        if (std::shared_ptr<tcDatabaseObject> data = database->GetObject(ambiguityList[k]))
         {
             ambiguityClass = data->mzClass.c_str();
         }
@@ -422,7 +422,7 @@ tcGameStream& tcSensorMapTrack::operator>>(tcGameStream& stream)
     stream << sensorFlags;
 
     std::string idClass;
-    if (tcDatabaseObject* data = database->GetObject(mnDatabaseID))
+    if (std::shared_ptr<tcDatabaseObject> data = database->GetObject(mnDatabaseID))
     {
         idClass = data->mzClass.c_str();
     }
@@ -649,7 +649,7 @@ const char* tcSensorMapTrack::GetContributorName(unsigned idx) const
     if (idx >= (unsigned)maSensorReport.size()) return emptyString.c_str();
 
     long contributorId = maSensorReport[idx].platformID;
-    if (tcGameObject* obj = simState->GetObject(contributorId))
+    if (std::shared_ptr<tcGameObject> obj = simState->GetObject(contributorId))
     {
         return obj->mzUnit.c_str();
     }
@@ -871,7 +871,7 @@ void tcSensorMapTrack::UpdateEngagements()
     for (int n=nEngaged-1;n>=0;n--)
     {
         long id = engaged[n];
-        tcWeaponObject *weapon = dynamic_cast<tcWeaponObject*>(simState->GetObject(id));
+        std::shared_ptr<tcWeaponObject>weapon =  std::dynamic_pointer_cast<tcWeaponObject>(simState->GetObject(id));
         if (weapon)
         {
             if (!weapon->IsIntendedTarget(tcTrack::mnID))
@@ -899,7 +899,7 @@ void tcSensorMapTrack::UpdateIntercepts()
     for (int n=nIntercepts-1;n>=0;n--)
     {
         long id = intercepts[n];
-        tcPlatformObject *platform = dynamic_cast<tcPlatformObject*>(simState->GetObject(id));
+        std::shared_ptr<tcPlatformObject>platform = std::dynamic_pointer_cast<tcPlatformObject>(simState->GetObject(id));
         if (platform)
         {
             if (!platform->IsInterceptingTrack(tcTrack::mnID))
@@ -954,7 +954,7 @@ void tcSensorMapTrack::UpdateEmitters()
 {
     if (emitterInfo.size() == 0) return;
 
-    tcSensorPlatform* sensorPlatform = dynamic_cast<tcSensorPlatform*>(GetAssociated());
+    std::shared_ptr<tcSensorPlatform> sensorPlatform = std::dynamic_pointer_cast<tcSensorPlatform>(GetAssociated());
 
     if (sensorPlatform == 0) // associated obj is either destroyed (possible) or was not a sensor platform (error)
     {
@@ -970,7 +970,7 @@ void tcSensorMapTrack::UpdateEmitters()
     for (size_t n=0; n<nEmitters; n++)
     {
         long emitterID = emitterInfo[n].mnEmitterID; // database id of emitter sensor
-        const tcSensorState* sensor = sensorPlatform->GetSensorByDatabaseID(emitterID);
+        std::shared_ptr<const tcSensorState> sensor = sensorPlatform->GetSensorByDatabaseID(emitterID);
         if ((sensor != 0) && sensor->IsActive())
         {
             temp.push_back(emitterInfo[n]);
@@ -1035,13 +1035,13 @@ void tcSensorMapTrack::UpdateAmbiguityList()
 	for (iter.First(); !iter.IsDone(); iter.Next())
 	{
 		bool platformMatches = false;
-		tcDatabaseObject* obj = iter.Get();
+		std::shared_ptr<tcDatabaseObject> obj = iter.Get();
         assert(obj);
-		if (tcPlatformDBObject* generic = dynamic_cast<tcPlatformDBObject*>(obj))
+        if (std::shared_ptr<tcPlatformDBObject> generic = std::dynamic_pointer_cast<tcPlatformDBObject>(obj))
 		{
 			if (generic->HasAllEmitters(emitterList)) platformMatches = true;
 		}
-		else if (tcMissileDBObject* missile = dynamic_cast<tcMissileDBObject*>(obj))
+        else if (std::shared_ptr<tcMissileDBObject> missile = std::dynamic_pointer_cast<tcMissileDBObject>(obj))
 		{
 			if (missile->HasAllEmitters(emitterList)) platformMatches = true;
 		}
@@ -1143,7 +1143,7 @@ bool tcSensorMapTrack::AddReport(const tcSensorReport& report)
 */
 void tcSensorMapTrack::KillAssess()
 {
-    tcGameObject* obj = simState->GetObject(mnID);
+    std::shared_ptr<tcGameObject> obj = simState->GetObject(mnID);
     if (obj == 0)
     {
         MarkDestroyed();
@@ -1543,7 +1543,7 @@ void tcSensorMapTrack::UpdateTrack(double tCoast_s)
 
 			if ((tcTrack::mnAffiliation == tcAllianceInfo::UNKNOWN) && (report->alliance != 0))
 			{
-				tcGameObject* reporter = simState->GetObject(report->platformID);
+                std::shared_ptr<tcGameObject> reporter = simState->GetObject(report->platformID);
 				if (reporter != 0)
 				{
 					tcTrack::mnAffiliation = reporter->GetAffiliationWith(report->alliance);
@@ -2072,9 +2072,9 @@ void tcSensorMapTrack::RemoveReport(size_t n)
 * @return tcGameObject that is associated with this track
 * Currently this relies on track id matching game obj id
 */
-tcGameObject* tcSensorMapTrack::GetAssociated()
+std::shared_ptr<tcGameObject> tcSensorMapTrack::GetAssociated()
 {
-    tcGameObject* obj = simState->GetObject(tcTrack::mnID);
+    std::shared_ptr<tcGameObject> obj = simState->GetObject(tcTrack::mnID);
 
     return obj;
 }
@@ -2083,9 +2083,9 @@ tcGameObject* tcSensorMapTrack::GetAssociated()
 * @return tcGameObject that is associated with this track
 * Currently this relies on track id matching game obj id
 */
-const tcGameObject* tcSensorMapTrack::GetAssociatedConst() const
+std::shared_ptr<const tcGameObject> tcSensorMapTrack::GetAssociatedConst() const
 {
-    const tcGameObject* obj = simState->GetObjectConst(tcTrack::mnID);
+    std::shared_ptr<const tcGameObject> obj = simState->GetObjectConst(tcTrack::mnID);
 
     return obj;
 }
@@ -2126,8 +2126,8 @@ EmitterInfo tcSensorMapTrack::GetEmitterInfo(unsigned idx)
 
 	if (idx < emitterInfo.size())
     {
-		tcDatabaseObject* objData = tcDatabase::Get()->GetObject(emitterInfo[idx].mnEmitterID);
-		tcRadarDBObject* radarData = dynamic_cast<tcRadarDBObject*>(objData);
+		std::shared_ptr<tcDatabaseObject> objData = tcDatabase::Get()->GetObject(emitterInfo[idx].mnEmitterID);
+        std::shared_ptr<tcRadarDBObject> radarData =  std::dynamic_pointer_cast<tcRadarDBObject>(objData);
 		if (radarData != 0)
 		{
 			if (radarData->maxFireControlTracks > 0)
@@ -2154,7 +2154,7 @@ void tcSensorMapTrack::IdentifyTrack(long id)
 	mnDatabaseID = id;
 
 	// load new 3D model
-//	tcDatabaseObject* objData = tcDatabase::Get()->GetObject(id);
+//	std::shared_ptr<tcDatabaseObject> objData = tcDatabase::Get()->GetObject(id);
 //    if (objData != 0) SetModel(objData->Copy3DModel());
 }
 

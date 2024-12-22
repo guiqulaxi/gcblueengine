@@ -76,7 +76,7 @@ void tcSensorTrackIterator::First()
 /**
 *
 */
-tcSensorMapTrack* tcSensorTrackIterator::Get()
+std::shared_ptr<tcSensorMapTrack> tcSensorTrackIterator::Get()
 {
     return currentObj;
 }
@@ -130,7 +130,7 @@ bool tcSensorTrackIterator::NotDone()
 * to iterate through a filtered set of objects.
 * @return true if current obj meets filtering criteria, false otherwise
 */
-bool tcSensorTrackIterator::PassesFilter(const tcSensorMapTrack* track) const
+bool tcSensorTrackIterator::PassesFilter(std::shared_ptr<const tcSensorMapTrack> track) const
 {
     if (!track) return false;
 
@@ -155,7 +155,7 @@ unsigned int tcSensorTrackIterator::Size() const
     int n = 0;
     while(n++ < nTotal)  
     {    
-        tcSensorMapTrack* track;
+        std::shared_ptr<tcSensorMapTrack> track;
         map->GetNextTrack(poolpos, track);
 
         if (PassesFilter(track)) result++;

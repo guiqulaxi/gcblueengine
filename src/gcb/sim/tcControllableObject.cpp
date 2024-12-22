@@ -70,11 +70,11 @@ tcAllianceInfo::Affiliation tcControllableObject::GetAffiliationWith(unsigned ch
     return allianceInfo->GetAffiliation(alliance, otherAlliance);
 }
 
-tcAllianceInfo::Affiliation tcControllableObject::GetAffiliationWith(const tcControllableObject* other) const
-{
-    assert(other != 0);
-    return allianceInfo->GetAffiliation(alliance, other->GetAlliance());
-}
+// tcAllianceInfo::Affiliation tcControllableObject::GetAffiliationWith(const tcControllableObject* other) const
+// {
+//     assert(other != 0);
+//     return allianceInfo->GetAffiliation(alliance, other->GetAlliance());
+// }
 
 void tcControllableObject::SetBypassControlCheck(bool state)
 {

@@ -246,9 +246,9 @@ namespace scriptinterface {
 	{
 	}
 
-	tcSubInterface::tcSubInterface(tcPlatformObject* obj)
+	tcSubInterface::tcSubInterface(std::shared_ptr<tcPlatformObject> obj)
 	{
-		subObj = dynamic_cast<tcSubObject*>(obj);
+        subObj =  std::dynamic_pointer_cast<tcSubObject>(obj);
 
 //		if (!sound)
 //		{

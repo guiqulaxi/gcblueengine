@@ -76,7 +76,7 @@ tcUpdateStream& tcOpticalSensor::operator>>(tcUpdateStream& stream)
     return stream;
 }
 
-float tcOpticalSensor::CalculateNightPenalty(const tcGameObject* target) const
+float tcOpticalSensor::CalculateNightPenalty(std::shared_ptr<const tcGameObject> target) const
 {
     // 定义一个静态的日期时间对象
     static tcDateTime dt;
@@ -108,7 +108,7 @@ float tcOpticalSensor::CalculateNightPenalty(const tcGameObject* target) const
 /**
  * @returns 根据传感器类型，返回目标的红外特征（以分贝[dB]为单位）或电光特征（以分贝平方米[dBsm]为单位）
  */
-float tcOpticalSensor::CalculateTargetSignature(const tcGameObject* target, float& targetAz_rad, float& targetAlt_m) const
+float tcOpticalSensor::CalculateTargetSignature(std::shared_ptr<const tcGameObject> target, float& targetAz_rad, float& targetAlt_m) const
 {
     // 获取雷达父对象的运动状态
     const tcKinematics *parent_kin = &parent->mcKin;
@@ -116,7 +116,7 @@ float tcOpticalSensor::CalculateTargetSignature(const tcGameObject* target, floa
     const tcKinematics *tgt_kin = &target->mcKin;
 
     // 尝试将目标的数据对象转换为空气探测数据对象
-    tcAirDetectionDBObject* detectionData = dynamic_cast<tcAirDetectionDBObject*>(target->mpDBObject);
+    std::shared_ptr<tcAirDetectionDBObject> detectionData = std::dynamic_pointer_cast<tcAirDetectionDBObject>(target->mpDBObject);
     // 如果转换失败（即目标不是空气探测对象），则返回-999.0f表示无效特征
     if (detectionData == nullptr) return -999.0f;
 
@@ -163,7 +163,7 @@ float tcOpticalSensor::CalculateTargetSignature(const tcGameObject* target, floa
 /**
  * 判断光学传感器是否能够检测到目标。
  */
-bool tcOpticalSensor::CanDetectTarget(const tcGameObject* target, float& range_km, bool useRandom)
+bool tcOpticalSensor::CanDetectTarget(std::shared_ptr<const tcGameObject> target, float& range_km, bool useRandom)
 {
     // 初始化变量
     float targetRange_km;           // 目标距离
@@ -187,7 +187,7 @@ bool tcOpticalSensor::CanDetectTarget(const tcGameObject* target, float& range_k
     if (isSemiactive)
     {
         float designatorRange_km = 0; // 激光指示器的距离
-        tcOpticalSensor* designator = GetLaserDesignator(); // 获取激光指示器
+        std::shared_ptr<tcOpticalSensor> designator = GetLaserDesignator(); // 获取激光指示器
         // 如果没有指示器或指示器无法检测到目标，则无法检测目标
         if (designator == nullptr || !designator->CanDetectTarget(target, designatorRange_km)) return false;
     }
@@ -305,7 +305,7 @@ bool tcOpticalSensor::InitFromDatabase(long key)
 
     tcSensorState::InitFromDatabase(key);
 
-    mpDBObj = dynamic_cast<tcOpticalDBObject*>(database->GetObject(key));
+    mpDBObj =  std::dynamic_pointer_cast<tcOpticalDBObject>(database->GetObject(key));
     if (mpDBObj == NULL) 
     {
         fprintf(stderr, "Error - tcOpticalSensor::InitFromDatabase - Not found in db or bad class for key\n");
@@ -356,9 +356,9 @@ tcOpticalSensor& tcOpticalSensor::operator=(tcOpticalSensor& ss)
 /**
 *
 */
-tcOpticalSensor* tcOpticalSensor::Clone(void) 
+std::shared_ptr<tcOpticalSensor> tcOpticalSensor::Clone(void) 
 {
-    tcOpticalSensor *pNew = new tcOpticalSensor();
+    std::shared_ptr<tcOpticalSensor>pNew = std::make_shared<tcOpticalSensor>();
     *pNew = *this;
     return pNew;
 }
@@ -376,7 +376,7 @@ void tcOpticalSensor::CounterMeasureTest(double t)
 
     lastCounterMeasureTime = t; // 记录上次对抗措施测试的时间
 
-    tcGameObject* target = simState->GetObject(mcTrack.mnID); // 获取当前跟踪的目标对象
+    std::shared_ptr<tcGameObject> target = simState->GetObject(mcTrack.mnID); // 获取当前跟踪的目标对象
     if (target == 0)
     {
         assert(false); // 如果没有目标，则断言失败
@@ -384,7 +384,7 @@ void tcOpticalSensor::CounterMeasureTest(double t)
     }
 
     // 如果已经在跟踪一个对抗措施目标，则现在不要检查切换回原目标
-    if (tcAirCM* cm = dynamic_cast<tcAirCM*>(target))
+    if (std::shared_ptr<tcAirCM> cm =  std::dynamic_pointer_cast<tcAirCM>(target))
     {
         return;
     }
@@ -410,10 +410,10 @@ void tcOpticalSensor::CounterMeasureTest(double t)
     // 遍历区域内的所有游戏对象
     for (iter.First();iter.NotDone();iter.Next())
     {
-        tcGameObject* obj = iter.Get(); // 获取当前遍历到的游戏对象
+        std::shared_ptr<tcGameObject> obj = iter.Get(); // 获取当前遍历到的游戏对象
 
         assert(obj != 0); // 确保对象不为空
-        tcCounterMeasureDBObject* cmData = dynamic_cast<tcCounterMeasureDBObject*>(obj->mpDBObject); // 尝试将对象的数据库对象转换为对抗措施数据库对象
+        std::shared_ptr<tcCounterMeasureDBObject> cmData =  std::dynamic_pointer_cast<tcCounterMeasureDBObject>(obj->mpDBObject); // 尝试将对象的数据库对象转换为对抗措施数据库对象
 
         // 检查对象是否是对抗措施（flare）且类型为空中对抗措施（PTYPE_AIRCM）
         bool isEligible = (cmData != 0) && cmData->IsFlare() &&
@@ -523,9 +523,9 @@ bool tcOpticalSensor::ReleaseTrack(long targetId)
 void tcOpticalSensor::UpdateSeeker(double t)
 {
     long nTargetID; // 目标ID
-    tcGameObject *ptarget = 0; // 目标对象指针，初始化为0（空）
+    std::shared_ptr<tcGameObject>ptarget = 0; // 目标对象指针，初始化为0（空）
     int bFound; // 是否找到目标的标志
-    tcMissileObject* missile = 0; // 导弹对象指针，初始化为0（空）
+    std::shared_ptr<tcMissileObject> missile = 0; // 导弹对象指针，初始化为0（空）
 
     // 根据当前模式执行不同操作
     switch (mnMode)
@@ -545,7 +545,7 @@ void tcOpticalSensor::UpdateSeeker(double t)
         }
 
         // 将父对象转换为导弹对象
-        missile = dynamic_cast<tcMissileObject*>(parent);
+        missile =  std::dynamic_pointer_cast<tcMissileObject>(parent);
         // 如果导弹存在，找到了目标，导弹的拦截时间小于5秒，并且最后一次反制措施的时间超过1秒前
         if ((missile != 0) && bFound && (missile->mfInterceptTime < 5.0f) &&
             (lastCounterMeasureTime < (t - 1.0)))
@@ -600,7 +600,7 @@ void tcOpticalSensor::UpdateSeeker(double t)
         // 查找可检测到的最近目标
         for (iter.First();iter.NotDone();iter.Next())
         {
-            tcGameObject *target = iter.Get(); // 获取当前对象
+            std::shared_ptr<tcGameObject>target = iter.Get(); // 获取当前对象
             if (target != parent) // 不进行自我检测
             {
                 float range_km; // 当前目标距离（千米）
@@ -621,7 +621,7 @@ void tcOpticalSensor::UpdateSeeker(double t)
         if (minID==NULL_INDEX) return;
 
         // 如果寻的器锁定了反制措施，则根据反制措施的有效性和系数进行概率判断
-        if (tcAirCM* airCM = dynamic_cast<tcAirCM*>(simState->GetObject(minID)))
+        if (std::shared_ptr<tcAirCM> airCM =  std::dynamic_pointer_cast<tcAirCM>(simState->GetObject(minID)))
         {
             float prob_success = mpDBObj->counterMeasureFactor * airCM->mpDBObject->effectiveness; // 计算成功概率
             if (randf() > prob_success) // 如果随机数大于成功概率
@@ -640,13 +640,13 @@ void tcOpticalSensor::UpdateSeeker(double t)
 /**
 * 监控检测后调用，以更新相应联盟的传感器地图。
 */
-void tcOpticalSensor::UpdateSensorMap(double t, const tcGameObject* target, float range_km, float az_rad)
+void tcOpticalSensor::UpdateSensorMap(double t, std::shared_ptr<const tcGameObject> target, float range_km, float az_rad)
 {
     // 断言检测候选对象与目标对象的ID匹配
     assert(detectionCandidate == target->mnID);
 
     // 初始化传感器地图跟踪指针为0
-    tcSensorMapTrack* pSMTrack = 0;
+    std::shared_ptr<tcSensorMapTrack> pSMTrack = 0;
     // 获取或创建传感器报告
     tcSensorReport* report = simState->mcSensorMap.GetOrCreateReport(parent->mnID, mpDBObj->mnKey, target->mnID,
                                                                      pSMTrack, parent->GetAlliance());
@@ -729,7 +729,7 @@ void tcOpticalSensor::UpdateSurveillance(double t)
 
     for (iter.First();iter.NotDone();iter.Next())
     {
-        tcGameObject *target = iter.Get();
+        std::shared_ptr<tcGameObject>target = iter.Get();
         if (target != parent) // no self detection
         {
             float range_km = 0;
@@ -745,7 +745,7 @@ void tcOpticalSensor::UpdateSurveillance(double t)
 * Update sensor track with target state. Normally used with
 * missile seekers.
 */
-void tcOpticalSensor::UpdateTrack(const tcGameObject* target, double t)
+void tcOpticalSensor::UpdateTrack(std::shared_ptr<const tcGameObject> target, double t)
 {
 
     mcTrack.mfLat_rad = (float)target->mcKin.mfLat_rad;
@@ -804,7 +804,7 @@ tcOpticalSensor::tcOpticalSensor()
     mpDBObj = NULL;
 }
 
-tcOpticalSensor::tcOpticalSensor(tcOpticalDBObject* dbObj)
+tcOpticalSensor::tcOpticalSensor(std::shared_ptr<tcOpticalDBObject> dbObj)
     : tcSensorState(dbObj),
     mpDBObj(dbObj),
     last_margin_dB(0),

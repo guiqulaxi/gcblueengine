@@ -53,7 +53,7 @@ tcWeaponTester* tcWeaponTester::Get()
     return &instance;
 }
 
-tcGameObject* tcWeaponTester::GetPlatform()
+std::shared_ptr<tcGameObject> tcWeaponTester::GetPlatform()
 {
     return ghost;
 }
@@ -62,14 +62,14 @@ void tcWeaponTester::InitializePlatform()
 {    
     if (ghost != 0)
     {
-        delete ghost;
+        //delete ghost;
     }
 
-    tcPlatformDBObject* ghostData = dynamic_cast<tcPlatformDBObject*>(tcDatabase::Get()->GetObject("F-16C"));
-    ghost = new tcPlatformObject(ghostData);
+    std::shared_ptr<tcPlatformDBObject> ghostData = std::dynamic_pointer_cast<tcPlatformDBObject>(tcDatabase::Get()->GetObject("F-15C"));
+    ghost = std::make_shared<tcPlatformObject>(ghostData);
     ghost->mnID = -99; // hack, use this ID as code to simstate to return weapontester platform (debug build only)
 
-	tcSensorDBObject* sensorData = dynamic_cast<tcSensorDBObject*>(
+    std::shared_ptr<tcSensorDBObject> sensorData =  std::dynamic_pointer_cast<tcSensorDBObject>(
 		tcDatabase::Get()->GetObject("Test Radar"));
 
 	if (sensorData == 0)
@@ -79,7 +79,7 @@ void tcWeaponTester::InitializePlatform()
 		return;
 	}
 
-	tcSensorState* sensor = sensorData->CreateSensor(ghost); // factory method
+	std::shared_ptr<tcSensorState> sensor = sensorData->CreateSensor(ghost); // factory method
 	assert(sensor);
 
 	sensor->mfSensorHeight_m = 20.0f; //< guess sensor height is 80% of zmax
@@ -87,7 +87,7 @@ void tcWeaponTester::InitializePlatform()
     sensor->SetActive(true);
 	ghost->sensorState.push_back(sensor);
 
-    tcLauncher* launcher = ghost->GetLauncher(0);
+    std::shared_ptr<tcLauncher> launcher = ghost->GetLauncher(0);
     if (launcher == 0)
     {
         assert(false);
@@ -147,8 +147,8 @@ void tcWeaponTester::Update()
 
     if ((t - lastLaunch_s) < launchInterval_s) return;
 
-    tcGameObject* target = simState->GetObjectByName(targetName);
-    tcWeaponDBObject* weaponData = dynamic_cast<tcWeaponDBObject*>(tcDatabase::Get()->GetObject(weaponClass));
+    std::shared_ptr<tcGameObject> target = simState->GetObjectByName(targetName);
+    std::shared_ptr<tcWeaponDBObject> weaponData =  std::dynamic_pointer_cast<tcWeaponDBObject>(tcDatabase::Get()->GetObject(weaponClass));
     if ((target == 0) || (weaponData == 0)) return;
 
     float launchBearing_rad = C_PI*randfc(2.0f);
@@ -165,7 +165,7 @@ void tcWeaponTester::Update()
     ghost->mfStatusTime = t;
 
     // for dumb gravity bomb, just drop with no horizontal velocity
-    if (tcBallisticDBObject* ballistic = dynamic_cast<tcBallisticDBObject*>(weaponData))
+    if (std::shared_ptr<tcBallisticDBObject> ballistic =  std::dynamic_pointer_cast<tcBallisticDBObject>(weaponData))
     {
         if (ballistic->IsGravityBomb())
         {
@@ -173,7 +173,7 @@ void tcWeaponTester::Update()
         }
     }
 
-    tcLauncher* launcher = ghost->GetLauncher(0);
+    std::shared_ptr<tcLauncher> launcher = ghost->GetLauncher(0);
     if (launcher == 0)
     {
         assert(false);
@@ -205,9 +205,9 @@ tcWeaponTester::tcWeaponTester()
   launchInterval_s(1.0f),
   launchRange_km(5.0f),
   launchAltitude_m(0),
-  ghost(0),
   lastLaunch_s(0),
-  lastUpdate_s(0)
+  lastUpdate_s(0),
+  ghost(nullptr)
 {
     InitializePlatform();
 
@@ -218,9 +218,9 @@ tcWeaponTester::tcWeaponTester()
 
 tcWeaponTester::~tcWeaponTester()
 {
-    if (ghost != 0)
+    if (ghost != nullptr)
     {
-        delete ghost;
-        ghost = 0;
+        //delete ghost;
+        ghost = nullptr;
     }
 }

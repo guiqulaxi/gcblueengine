@@ -86,7 +86,7 @@ tcCreateStream& tcFlightOpsObject::operator<<(tcCreateStream& stream)
 		long key;
 		stream >> key;
 
-		tcDatabaseObject* databaseObj = database->GetObject(key);
+		std::shared_ptr<tcDatabaseObject> databaseObj = database->GetObject(key);
 
 		short int localId;
 		stream >> localId;
@@ -103,16 +103,16 @@ tcCreateStream& tcFlightOpsObject::operator<<(tcCreateStream& stream)
         int idx = flight_deck.GetAirStateIdx(localId);
         if (idx == -1)
         {
-            tcGameObject* child = AddChildToFlightDeck(databaseObj, unitName, teLocation(loc), pos);
+            std::shared_ptr<tcGameObject> child = AddChildToFlightDeck(databaseObj, unitName, teLocation(loc), pos);
             child->mnID = long(localId); // override default localId assigned by flightport
 
             // initialize launchers to empty, since this info isn't updated for hangar aircraft
-            if (tcPlatformObject* platform = dynamic_cast<tcPlatformObject*>(child))
+            if (std::shared_ptr<tcPlatformObject> platform = std::dynamic_pointer_cast<tcPlatformObject>(child))
             {
                 size_t nLaunchers = platform->GetLauncherCount();
                 for (size_t n=0; n<nLaunchers; n++)
                 {
-                    tcLauncher* launcher = platform->GetLauncher(n);
+                    std::shared_ptr<tcLauncher> launcher = platform->GetLauncher(n);
                     launcher->SetChildClass("");
                 }
             }
@@ -120,12 +120,12 @@ tcCreateStream& tcFlightOpsObject::operator<<(tcCreateStream& stream)
         }
 
 		// load launcher create from stream
-		//if (tcPlatformObject* platform = dynamic_cast<tcPlatformObject*>(child))
+		//if (std::shared_ptr<tcPlatformObject> platform = std::dynamic_pointer_cast<tcPlatformObject>(child))
 		//{
 		//	size_t nLaunchers = platform->GetLauncherCount();
 		//	for (size_t n=0; n<nLaunchers; n++)
 		//	{
-		//		tcLauncher* launcher = platform->GetLauncher(n);
+		//		std::shared_ptr<tcLauncher> launcher = platform->GetLauncher(n);
 		//		launcher->operator<<(stream);
 		//	}
 		//}
@@ -156,7 +156,7 @@ tcCreateStream& tcFlightOpsObject::operator>>(tcCreateStream& stream)
         tempStream1.clear();
 
 		tcAirState* airState = flight_deck.GetAirState(nextUpdateIdx);
-		tcGameObject* obj = airState->obj;
+		std::shared_ptr<tcGameObject> obj = airState->obj;
 		assert(obj);
 
 		tempStream1 << obj->mnDBKey;
@@ -186,12 +186,12 @@ tcCreateStream& tcFlightOpsObject::operator>>(tcCreateStream& stream)
         }
 
 		// add launcher create to tempStream1
-		//if (tcPlatformObject* platform = dynamic_cast<tcPlatformObject*>(obj))
+		//if (std::shared_ptr<tcPlatformObject> platform = std::dynamic_pointer_cast<tcPlatformObject>(obj))
 		//{
 		//	size_t nLaunchers = platform->GetLauncherCount();
 		//	for (size_t n=0; n<nLaunchers; n++)
 		//	{
-		//		tcLauncher* launcher = platform->GetLauncher(n);
+		//		std::shared_ptr<tcLauncher> launcher = platform->GetLauncher(n);
 		//		launcher->operator>>(tempStream1);
 		//	}
 		//}
@@ -282,10 +282,10 @@ bool tcFlightOpsObject::HasNewCommand() const
 }
 
 
-tcGameObject* tcFlightOpsObject::AddChildToFlightDeck(const std::string& className, std::string unitName, 
+std::shared_ptr<tcGameObject> tcFlightOpsObject::AddChildToFlightDeck(const std::string& className, std::string unitName, 
                                            teLocation loc, unsigned int position)
 {
-	tcDatabaseObject* objData = database->GetObject(className);
+	std::shared_ptr<tcDatabaseObject> objData = database->GetObject(className);
 	if (objData)
 	{
 		return AddChildToFlightDeck(objData, unitName, loc, position);
@@ -306,28 +306,28 @@ tcGameObject* tcFlightOpsObject::AddChildToFlightDeck(const std::string& classNa
 * @param position preferred spot position, use 0 for any
 * @return true if successful, false otherwise
 */
-tcGameObject* tcFlightOpsObject::AddChildToFlightDeck(tcDatabaseObject* databaseObject, std::string unitName, 
+std::shared_ptr<tcGameObject> tcFlightOpsObject::AddChildToFlightDeck(std::shared_ptr<tcDatabaseObject> databaseObject, std::string unitName, 
                                            teLocation loc, unsigned int position)
 {
     assert(databaseObject);
 
-	tcAirObject* child = 0; // object to add to flight_deck
+	std::shared_ptr<tcAirObject> child = 0; // object to add to flight_deck
 	
 	std::string className = databaseObject->mzClass.c_str();
 
-	if (tcJetDBObject *airDBObj = dynamic_cast<tcJetDBObject*>(databaseObject))
+    if (std::shared_ptr<tcJetDBObject>airDBObj = std::dynamic_pointer_cast<tcJetDBObject>(databaseObject))
 	{
-		child = new tcAeroAirObject(airDBObj);
+        child =std::make_shared< tcAeroAirObject>(airDBObj);
 	}
-	else if (tcAirDBObject *air2DBObj = dynamic_cast<tcAirDBObject*>(databaseObject))
+    else if (std::shared_ptr<tcAirDBObject>air2DBObj = std::dynamic_pointer_cast<tcAirDBObject>(databaseObject))
 	{
 		if (air2DBObj->mnModelType == MTYPE_FIXEDWING)
 		{
-			child = new tcAirObject(air2DBObj);
+            child = std::make_shared<tcAirObject>(air2DBObj);
         }
 		else if (air2DBObj->mnModelType == MTYPE_HELO)
 		{
-			child = new tcHeloObject(air2DBObj);
+            child = std::make_shared< tcHeloObject>(air2DBObj);
 		}
         else
         {
@@ -354,8 +354,8 @@ tcGameObject* tcFlightOpsObject::AddChildToFlightDeck(tcDatabaseObject* database
 	}
 	else
 	{
-		delete child;
-		child = 0;
+        //delete child;
+        child = nullptr;
 		std::cerr << "Failed to add child to flight_deck: " <<
                 className << "\n";
 	}
@@ -372,7 +372,7 @@ void tcFlightOpsObject::AutoConfigureAirComplement(const std::vector<database::A
     // flightOps->AddChildToFlightDeck(className, unitName, loc, 0);
     for (size_t n=0; n<airComplement.size(); n++)
     {
-        tcDatabaseObject* databaseObject = database->GetObject(airComplement[n].airClass);
+        std::shared_ptr<tcDatabaseObject> databaseObject = database->GetObject(airComplement[n].airClass);
         if (databaseObject != 0)
         {
             std::string prefix = airComplement[n].prefix;
@@ -394,7 +394,7 @@ void tcFlightOpsObject::AutoConfigureAirComplement(const std::vector<database::A
 /**
 * @return true if any aircraft were damaged
 */
-bool tcFlightOpsObject::ApplyAdvancedDamage(const Damage& damage, tcGameObject* damager, float generalDamage)
+bool tcFlightOpsObject::ApplyAdvancedDamage(const Damage& damage, std::shared_ptr<tcGameObject> damager, float generalDamage)
 {   
     Damage exposedAircraftDamage;
     exposedAircraftDamage.Clear();
@@ -416,7 +416,7 @@ bool tcFlightOpsObject::ApplyAdvancedDamage(const Damage& damage, tcGameObject* 
         for (unsigned short k=0; k < nChildren; k++)
         {
             tcAirState* airState = flight_deck.GetAirState(k);
-            tcGameObject* obj = airState->obj;
+            std::shared_ptr<tcGameObject> obj = airState->obj;
             assert(obj);
 
             if (airState->current_location != HANGAR)
@@ -440,7 +440,7 @@ bool tcFlightOpsObject::ApplyAdvancedDamage(const Damage& damage, tcGameObject* 
     for (unsigned short k=0; k < nChildren; k++)
 	{
 		tcAirState* airState = flight_deck.GetAirState(k);
-		tcGameObject* obj = airState->obj;
+		std::shared_ptr<tcGameObject> obj = airState->obj;
 
         if (randf() < damageProbability)
         {
@@ -461,7 +461,7 @@ bool tcFlightOpsObject::ApplyAdvancedDamage(const Damage& damage, tcGameObject* 
 * @return -1 if crash, 0 if not close enough for landing, 1 if landed
 * @see tcFlightPort::CheckLanding
 */
-int tcFlightOpsObject::CheckLanding(tcAirObject *obj)
+int tcFlightOpsObject::CheckLanding(std::shared_ptr<tcAirObject>obj)
 {
     gameObj->GetRelPosOf(obj, obj->rel_pos); // set update rel_pos field of landing candidate
     int result = flight_deck.CheckLanding(obj);
@@ -605,18 +605,18 @@ void tcFlightOpsObject::RandInitNear(float afLon_deg, float afLat_deg)
    for(int i=0; i<nAircraft; i++) 
    {
        // add FW air child for test
-       tcDatabaseObject* dbObj = database->GetRandomOfType(modelType); 
-//       tcJetDBObject* airDBObj = dynamic_cast<tcJetDBObject*>(dbObj);
+       std::shared_ptr<tcDatabaseObject> dbObj = database->GetRandomOfType(modelType); 
+//       std::shared_ptr<tcJetDBObject> airDBObj =  std::dynamic_pointer_cast<tcJetDBObject>>(dbObj);
 
-	   tcAirObject* child = 0;
+	   std::shared_ptr<tcAirObject> child = 0;
 		
 	   if (heloOnly)
 	   {
-		   child = new tcHeloObject(dynamic_cast<tcAirDBObject*>(dbObj));
+           child = std::make_shared<tcHeloObject>(std::dynamic_pointer_cast<tcAirDBObject>(dbObj));
 	   }
 	   else
 	   {
-		   child = new tcAeroAirObject(dynamic_cast<tcJetDBObject*>(dbObj));
+           child = std::make_shared< tcAeroAirObject>(std::dynamic_pointer_cast<tcJetDBObject>(dbObj));
 	   }
 
 	   /* This ASSERT can happen if bad model ids are in a database table (e.g. 
@@ -656,7 +656,7 @@ void tcFlightOpsObject::SaveToPython(scriptinterface::tcScenarioLogger& logger)
 	for (unsigned short k=0; k < nChildren; k++)
 	{
 		tcAirState* airState = flight_deck.GetAirState(k);
-        tcPlatformObject* platform = dynamic_cast<tcPlatformObject*>(airState->obj);
+        std::shared_ptr<tcPlatformObject> platform = std::dynamic_pointer_cast<tcPlatformObject>(airState->obj);
         assert(platform != 0);
         if (platform != 0)
         {
@@ -682,14 +682,14 @@ void tcFlightOpsObject::SaveToPython(scriptinterface::tcScenarioLogger& logger)
 * Call before ::Clear() to update damage level of all children and 
 * adjust game score for destroying all child objects
 */
-void tcFlightOpsObject::DestroyAllChildrenAndUpdateScore(tcGameObject* damager)
+void tcFlightOpsObject::DestroyAllChildrenAndUpdateScore(std::shared_ptr<tcGameObject> damager)
 {
     unsigned nChildren = flight_deck.GetCount();
 
 	for (unsigned short k=0; k < nChildren; k++)
 	{
 		tcAirState* airState = flight_deck.GetAirState(k);
-		tcGameObject* obj = airState->obj;
+		std::shared_ptr<tcGameObject> obj = airState->obj;
 		assert(obj);
 
         obj->ApplyGeneralDamage(1.0, damager);
@@ -736,7 +736,7 @@ void tcFlightOpsObject::UpdateLaunch()
     if (nLaunch==0) return;
     for(int n=0; n < nLaunch; n++)
     {
-        tcGameObject *object_to_launch = flight_deck.toLaunch[n];
+        std::shared_ptr<tcGameObject>object_to_launch = flight_deck.toLaunch[n];
         gameObj->toLaunch.push_back(object_to_launch);
         gameObj->RemoveChild(object_to_launch);
     }
@@ -765,7 +765,7 @@ tcFlightOpsObject::tcFlightOpsObject(tcFlightOpsObject& o)
 * DB object will have info on number and types of aircraft the carrier
 * can hold.
 */
-tcFlightOpsObject::tcFlightOpsObject(tcFlightportDBObject* dbObject, tcGameObject* gameObject)
+tcFlightOpsObject::tcFlightOpsObject(std::shared_ptr<tcFlightportDBObject> dbObject, std::shared_ptr<tcGameObject> gameObject)
 : gameObj(gameObject),
   nextUpdateIdx(0)
 {

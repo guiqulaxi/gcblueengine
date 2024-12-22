@@ -330,7 +330,7 @@ tcGroundVehicleObject::tcGroundVehicleObject(tcGroundVehicleObject& o) : tcPlatf
     vehicleMode = READY;
 }
 
-tcGroundVehicleObject::tcGroundVehicleObject(tcGroundDBObject *obj)
+tcGroundVehicleObject::tcGroundVehicleObject(std::shared_ptr<tcGroundDBObject>obj)
 : tcPlatformObject(obj),
   doneDestroyed(false),
   vehicleMode(READY),

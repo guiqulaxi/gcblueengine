@@ -166,15 +166,15 @@ tcGameStream& tcTorpedoObject::operator>>(tcGameStream& stream)
 * @param obj launching game object
 * @param launcher index of launcher
 */
-void tcTorpedoObject::LaunchFrom(tcGameObject* obj, unsigned nLauncher)
+void tcTorpedoObject::LaunchFrom(std::shared_ptr<tcGameObject> obj, unsigned nLauncher)
 {
     isWireActive = false;
     autoWireUpdates = true;
 
-    tcLauncher virtualLauncher; // for missile deployment
-    tcLauncher* pLauncher = &virtualLauncher;
-
-    if (tcPlatformObject* platObj = dynamic_cast<tcPlatformObject*>(obj))
+    // tcLauncher virtualLauncher; // for missile deployment
+    // std::shared_ptr<tcLauncher> pLauncher = &virtualLauncher;
+    std::shared_ptr<tcLauncher> pLauncher = std::make_shared<tcLauncher>();
+    if (std::shared_ptr<tcPlatformObject> platObj = std::dynamic_pointer_cast<tcPlatformObject>(obj))
     {
         tc3DPoint launcherPos = platObj->mpDBObject->GetLauncherPosition(nLauncher);
         GeoPoint pos = obj->RelPosToLatLonAlt(launcherPos.x, launcherPos.y,
@@ -187,7 +187,7 @@ void tcTorpedoObject::LaunchFrom(tcGameObject* obj, unsigned nLauncher)
 
         if (mcKin.mfAlt_m <= 0)
         {
-            tcSonarDBObject* sonar = mpDBObject->GetSeekerDBObj();
+             std::shared_ptr<tcSonarDBObject> sonar = mpDBObject->GetSeekerDBObj();
             
             mcKin.mfSpeed_kts = obj->mcKin.mfSpeed_kts + C_MPSTOKTS * mpDBObject->launchSpeed_mps;
 
@@ -207,69 +207,69 @@ void tcTorpedoObject::LaunchFrom(tcGameObject* obj, unsigned nLauncher)
             searchMode = randbool() ? SEARCH_LEFTCIRCLE : SEARCH_RIGHTCIRCLE;
         }
     }
-    else if (tcMissileObject* missile = dynamic_cast<tcMissileObject*>(obj))
+    else if (std::shared_ptr<tcMissileObject> missile =  std::dynamic_pointer_cast<tcMissileObject>(obj))
     {
         mcKin.mfLon_rad = obj->mcKin.mfLon_rad;
         mcKin.mfLat_rad = obj->mcKin.mfLat_rad;
         mcKin.mfAlt_m = obj->mcKin.mfAlt_m;
 
-        virtualLauncher.pointingAngle = 0;
-        virtualLauncher.pointingElevation = 0;
-        virtualLauncher.firingArc_deg = 0;
-        virtualLauncher.runToEnable_m = 0;
-        virtualLauncher.msDatum = missile->msWaypoint;
-        virtualLauncher.runDepth_m = 0;
-        virtualLauncher.preEnableSpeed_kts = 35.0f;
-        virtualLauncher.ceiling_m = 0;
-        virtualLauncher.floor_m = 0;
-        virtualLauncher.usePassive = false;
-        virtualLauncher.mnTargetID = missile->GetIntendedTarget();
+        pLauncher->pointingAngle = 0;
+        pLauncher->pointingElevation = 0;
+        pLauncher->firingArc_deg = 0;
+        pLauncher->runToEnable_m = 0;
+        pLauncher->msDatum = missile->msWaypoint;
+        pLauncher->runDepth_m = 0;
+        pLauncher->preEnableSpeed_kts = 35.0f;
+        pLauncher->ceiling_m = 0;
+        pLauncher->floor_m = 0;
+        pLauncher->usePassive = false;
+        pLauncher->mnTargetID = missile->GetIntendedTarget();
 
         mcKin.mfSpeed_kts = obj->mcKin.mfSpeed_kts;
         searchMode = randbool() ? SEARCH_LEFTCIRCLE : SEARCH_RIGHTCIRCLE;
     }
-    else if (tcTorpedoObject* torpedo = dynamic_cast<tcTorpedoObject*>(obj))
+    else if (std::shared_ptr<tcTorpedoObject> torpedo = std::dynamic_pointer_cast<tcTorpedoObject>(obj))
     {
         mcKin.mfLon_rad = obj->mcKin.mfLon_rad;
         mcKin.mfLat_rad = obj->mcKin.mfLat_rad;
         mcKin.mfAlt_m = obj->mcKin.mfAlt_m;
 
-        virtualLauncher.pointingAngle = 0;
-        virtualLauncher.pointingElevation = 0;
-        virtualLauncher.runToEnable_m = 1.0; // start enabled
-        virtualLauncher.msDatum = torpedo->waypoint;
-        virtualLauncher.runDepth_m = torpedo->goalDepth_m;
-        virtualLauncher.preEnableSpeed_kts = 35.0f;
-        virtualLauncher.ceiling_m = 0;
-        virtualLauncher.floor_m = 0;
-        virtualLauncher.usePassive = false;
-        virtualLauncher.mnTargetID = torpedo->GetIntendedTarget();
+        pLauncher->pointingAngle = 0;
+        pLauncher->pointingElevation = 0;
+        pLauncher->runToEnable_m = 1.0; // start enabled
+        pLauncher->msDatum = torpedo->waypoint;
+        pLauncher->runDepth_m = torpedo->goalDepth_m;
+        pLauncher->preEnableSpeed_kts = 35.0f;
+        pLauncher->ceiling_m = 0;
+        pLauncher->floor_m = 0;
+        pLauncher->usePassive = false;
+        pLauncher->mnTargetID = torpedo->GetIntendedTarget();
 
         mcKin.mfSpeed_kts = obj->mcKin.mfSpeed_kts + C_MPSTOKTS * mpDBObject->launchSpeed_mps;
         searchMode = randbool() ? SEARCH_LEFTCIRCLE : SEARCH_RIGHTCIRCLE;
     }
-    else if (tcBallisticWeapon* ballistic = dynamic_cast<tcBallisticWeapon*>(obj))
+    else if (std::shared_ptr<tcBallisticWeapon> ballistic =  std::dynamic_pointer_cast<tcBallisticWeapon>(obj))
     {
         mcKin.mfLon_rad = obj->mcKin.mfLon_rad;
         mcKin.mfLat_rad = obj->mcKin.mfLat_rad;
         mcKin.mfAlt_m = obj->mcKin.mfAlt_m;
         mcKin.mfSpeed_kts = obj->mcKin.mfSpeed_kts + C_MPSTOKTS * mpDBObject->launchSpeed_mps;
 
-        virtualLauncher.pointingAngle = 0;
-        virtualLauncher.pointingElevation = 0;
-        virtualLauncher.runToEnable_m = 1.0; // start enabled
-        virtualLauncher.msDatum.Set(mcKin.mfLon_rad, mcKin.mfLat_rad, 0);
-        virtualLauncher.runDepth_m = 0;
-        virtualLauncher.preEnableSpeed_kts = 35.0f;
-        virtualLauncher.ceiling_m = 0;
-        virtualLauncher.floor_m = 0;
-        virtualLauncher.usePassive = false;
-        virtualLauncher.mnTargetID = ballistic->GetIntendedTarget();
+        pLauncher->pointingAngle = 0;
+        pLauncher->pointingElevation = 0;
+        pLauncher->runToEnable_m = 1.0; // start enabled
+        pLauncher->msDatum.Set(mcKin.mfLon_rad, mcKin.mfLat_rad, 0);
+        pLauncher->runDepth_m = 0;
+        pLauncher->preEnableSpeed_kts = 35.0f;
+        pLauncher->ceiling_m = 0;
+        pLauncher->floor_m = 0;
+        pLauncher->usePassive = false;
+        pLauncher->mnTargetID = ballistic->GetIntendedTarget();
 
         if (ballistic->mpDBObject->payloadQuantity > 1) // assume this is a RBU type
         {
-            virtualLauncher.pointingAngle += randfc(1.0f);
-            virtualLauncher.pointingElevation += randfc(0.1f);
+            pLauncher->pointingAngle += randfc(1.0f);
+            pLauncher->pointingElevation += randfc(0.1f);
         }
     }
     else
@@ -421,7 +421,7 @@ void tcTorpedoObject::LaunchFrom(tcGameObject* obj, unsigned nLauncher)
 
     SetAlliance(obj->GetAlliance());
 
-    simState->AddPlatform(static_cast<tcGameObject*>(this));
+    simState->AddPlatform(shared_from_this());
 
     // Set intended target (has to be done after alliance and id is set).
     // This is a tcWeaponObject method
@@ -478,7 +478,7 @@ void tcTorpedoObject::SetSpeed(float newSpeed)
 /**
 *
 */
-tcSonar* tcTorpedoObject::GetSensorState() 
+std::shared_ptr<tcSonar> tcTorpedoObject::GetSensorState()
 {
     return seeker;
 }
@@ -728,9 +728,9 @@ void tcTorpedoObject::UpdateDepthChargeDetonation()
     // 遍历搜索区域内的所有对象
     for (iter.First();iter.NotDone();iter.Next())
     {
-        tcGameObject *target = iter.Get(); // 获取当前遍历到的对象
+        std::shared_ptr<tcGameObject>target = iter.Get(); // 获取当前遍历到的对象
         // 忽略自己和其他同类型的深度炸弹
-        if ((target != this) && (target->mpDBObject != mpDBObject))
+        if ((target != shared_from_this()) && (target->mpDBObject != mpDBObject))
         {
             // 用于存储碰撞点的坐标和时间差的变量
             float dx, dy, dz, dt;
@@ -738,7 +738,7 @@ void tcTorpedoObject::UpdateDepthChargeDetonation()
             float collisionRange_m; // 碰撞时的实际距离
 
             // 首先检查是否会发生碰撞
-            if (target->CalculateCollisionPoint(this, collisionPoint, dt, collisionRange_m))
+            if (target->CalculateCollisionPoint(shared_from_this(), collisionPoint, dt, collisionRange_m))
             {
                 // 如果这不是一个直接命中的武器，检查尽管即将发生碰撞，但我们是否足够接近引爆点
                 if (detRange_m > 0)
@@ -790,7 +790,7 @@ void tcTorpedoObject::UpdateDepthChargeDetonation()
                     float damageRange_m = sqrtf(dx*dx + dy*dy + dz*dz);
 
                     // 检查向上的射线是否更接近
-                    if (target->CalculateCollisionPointDir(this, Vector3d(0, 1, 0), collisionPoint, collisionRange_m))
+                    if (target->CalculateCollisionPointDir(shared_from_this(), Vector3d(0, 1, 0), collisionPoint, collisionRange_m))
                     {
                         // 更新损伤范围为射线碰撞范围和初始损伤范围中的较小值
                         damageRange_m = std::min(collisionRange_m, damageRange_m);
@@ -817,7 +817,7 @@ void tcTorpedoObject::UpdateDetonation()
     // 如果我们距离爆炸点这么近，则爆炸，否则延迟到未来的时间步
     const float tminDet_s = 0.05f; // 最小爆炸延迟时间，单位秒
 
-    tcSensorState* sensor = GetSensorMutable(0); // 获取第一个可变传感器状态
+    std::shared_ptr<tcSensorState> sensor = GetSensorMutable(0); // 获取第一个可变传感器状态
     if (sensor == 0)
     {
         UpdateDetonationUnguided(); // 如果没有传感器，则更新非制导爆炸逻辑
@@ -829,7 +829,7 @@ void tcTorpedoObject::UpdateDetonation()
 
     if ((interceptTime > 3.0f) || (sensor->mcTrack.mnID == -1)) return; // 如果拦截时间超过3秒或追踪目标ID为-1，则返回
 
-    tcGameObject* target = simState->GetObject(sensor->mcTrack.mnID); // 从模拟状态中获取追踪的目标对象
+    std::shared_ptr<tcGameObject> target = simState->GetObject(sensor->mcTrack.mnID); // 从模拟状态中获取追踪的目标对象
 
     if (target != 0)
     {
@@ -849,7 +849,7 @@ void tcTorpedoObject::UpdateDetonation()
     float detRange_m = mpDBObject->detonationRange_m; // 获取爆炸范围，单位米
 
     // 首先检查是否碰撞
-    if (target->CalculateCollisionPoint(this, collisionPoint, dt, collisionRange_m))
+    if (target->CalculateCollisionPoint(shared_from_this(), collisionPoint, dt, collisionRange_m))
     {
         // 如果这不是直接命中武器，检查是否尽管即将碰撞但仍足够接近
         if (detRange_m > 0)
@@ -891,7 +891,7 @@ void tcTorpedoObject::UpdateDetonation()
     float damageRange_m = sqrtf(dx*dx + dy*dy + dz*dz); // 计算到模型原点的距离作为初始损伤范围
 
     // 检查“向上”射线是否更近
-    if (target->CalculateCollisionPointDir(this, Vector3d(0, 0, 1), collisionPoint, collisionRange_m))
+    if (target->CalculateCollisionPointDir(shared_from_this(), Vector3d(0, 0, 1), collisionPoint, collisionRange_m))
     {
         damageRange_m = std::min(collisionRange_m, damageRange_m); // 更新损伤范围为最小碰撞范围
     }
@@ -927,10 +927,10 @@ void tcTorpedoObject::UpdateDetonationUnguided()
     // 遍历搜索区域内的所有游戏对象
     for (iter.First(); iter.NotDone(); iter.Next())
     {
-        tcGameObject* target = iter.Get(); // 获取当前遍历到的游戏对象
+        std::shared_ptr<tcGameObject> target = iter.Get(); // 获取当前遍历到的游戏对象
 
         // 如果当前对象不是鱼雷本身且不是空指针
-        if ((target != this) && (target != 0))
+        if ((target != shared_from_this()) && (target != 0))
         {
             // 定义最小爆炸延迟时间，用于避免过于频繁的爆炸计算
             const float tminDet_s = 0.05f;
@@ -944,7 +944,7 @@ void tcTorpedoObject::UpdateDetonationUnguided()
             float detRange_m = mpDBObject->detonationRange_m;
 
             // 首先检查是否与目标发生碰撞
-            if (target->CalculateCollisionPoint(this, collisionPoint, dt, collisionRange_m))
+            if (target->CalculateCollisionPoint(shared_from_this(), collisionPoint, dt, collisionRange_m))
             {
                 // 如果这不是直接命中的武器，检查尽管即将发生碰撞，但我们是否足够接近
                 if (detRange_m > 0)
@@ -995,7 +995,7 @@ void tcTorpedoObject::UpdateDetonationUnguided()
             float damageRange_m = sqrtf(dx*dx + dy*dy + dz*dz);
 
             // 检查向上的射线是否更近
-            if (target->CalculateCollisionPointDir(this, Vector3d(0, 1, 0), collisionPoint, collisionRange_m))
+            if (target->CalculateCollisionPointDir(shared_from_this(), Vector3d(0, 1, 0), collisionPoint, collisionRange_m))
             {
                 // 更新损伤范围为向上射线碰撞范围和当前损伤范围中的较小值
                 damageRange_m = std::min(collisionRange_m, damageRange_m);
@@ -1425,15 +1425,15 @@ void tcTorpedoObject::UpdateBottomMineTrigger(double t) // 更新底部水雷触
 
         tcGameObjIterator iter(region); // 创建一个迭代器来遍历区域内的对象
         float closestRange_km = 999.0f; // 初始化最近距离为一个很大的值
-        tcGameObject* closestTarget = 0; // 初始化最近目标为nullptr
+        std::shared_ptr<tcGameObject> closestTarget = 0; // 初始化最近目标为nullptr
         for (iter.First(); iter.NotDone(); iter.Next()) // 遍历区域内的所有对象
         {
-            tcGameObject* target = iter.Get(); // 获取当前对象
+            std::shared_ptr<tcGameObject> target = iter.Get(); // 获取当前对象
 
             // 检查对象是否为水面或潜艇类型，并且不是自身
             bool isEligible = ((target->mpDBObject->mnType & PTYPE_SURFACE) != 0) ||
                               (target->mpDBObject->mnType == PTYPE_SUBMARINE);
-            isEligible = isEligible && (target != this); // 排除自身检测
+            isEligible = isEligible && (target != shared_from_this()); // 排除自身检测
             if (isEligible) // 如果对象符合条件
             {
                 float range_km = this->mcKin.RangeToKmAlt(target->mcKin); // 计算与当前对象的距离
@@ -1681,7 +1681,7 @@ tcTorpedoObject::tcTorpedoObject(tcTorpedoObject& o)
 /**
 * Constructor that initializes using info from database entry.
 */
-tcTorpedoObject::tcTorpedoObject(tcTorpedoDBObject* obj)
+tcTorpedoObject::tcTorpedoObject(std::shared_ptr<tcTorpedoDBObject> obj)
     : tcWeaponObject(obj),
     guidanceUpdateInterval(1.0f),
     lastGuidanceUpdate(0.0f),
@@ -1696,9 +1696,9 @@ tcTorpedoObject::tcTorpedoObject(tcTorpedoDBObject* obj)
 {
     mnModelType = MTYPE_TORPEDO;
 
-    tcSensorPlatform::Init(obj->sonarClass.c_str(), this); // to avoid using this in initializer
+    tcSensorPlatform::Init(obj->sonarClass.c_str(), shared_from_this()); // to avoid using this in initializer
 
-    seeker = dynamic_cast<tcSonar*>(GetSensorMutable(0));
+    seeker = std::dynamic_pointer_cast<tcSonar>(GetSensorMutable(0));
 }
 
 /**

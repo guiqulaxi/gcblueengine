@@ -122,9 +122,9 @@ void tcSonobuoy::Serialize(tcFile& file, bool mbLoad)
 * @param obj launching game object
 * @param launcher index of launcher
 */
-void tcSonobuoy::LaunchFrom(tcGameObject* obj, unsigned nLauncher)
+void tcSonobuoy::LaunchFrom(std::shared_ptr<tcGameObject> obj, unsigned nLauncher)
 {
-    if (tcPlatformObject* platObj = dynamic_cast<tcPlatformObject*>(obj))
+    if (std::shared_ptr<tcPlatformObject> platObj = std::dynamic_pointer_cast<tcPlatformObject>(obj))
 	{
 		tc3DPoint launcherPos = platObj->mpDBObject->GetLauncherPosition(nLauncher);
 		GeoPoint pos = obj->RelPosToLatLonAlt(launcherPos.x, launcherPos.y,
@@ -145,7 +145,7 @@ void tcSonobuoy::LaunchFrom(tcGameObject* obj, unsigned nLauncher)
     mcKin.mfSpeed_kts = obj->mcKin.mfSpeed_kts;
     parentId = obj->mnID;
 
-	const tcLauncher* pLauncher = obj->GetLauncher(nLauncher);
+	std::shared_ptr<const tcLauncher> pLauncher = obj->GetLauncher(nLauncher);
 
 	mcKin.mfHeading_rad = obj->mcKin.mfHeading_rad + pLauncher->pointingAngle;
 	mcKin.mfPitch_rad = obj->mcKin.mfPitch_rad + pLauncher->pointingElevation;
@@ -157,9 +157,9 @@ void tcSonobuoy::LaunchFrom(tcGameObject* obj, unsigned nLauncher)
 
     std::string s = strutil::format("Sonobuoy %d-%d", obj->mnID, launchedCounter++);
     mzUnit = s.c_str();           
-	SetAlliance(obj->GetAlliance());     
+	SetAlliance(obj->GetAlliance());
 
-	simState->AddPlatform(static_cast<tcGameObject*>(this));
+    simState->AddPlatform(tcGameObject::shared_from_this());
 }
 
 
@@ -284,14 +284,14 @@ tcSonobuoy::tcSonobuoy()
 /**
 * Constructor that initializes using info from database entry.
 */
-tcSonobuoy::tcSonobuoy(tcSonobuoyDBObject *obj)
+tcSonobuoy::tcSonobuoy(std::shared_ptr<tcSonobuoyDBObject>obj)
 :   tcGameObject(obj), tcSensorPlatform(),
     mpDBObject(obj),
     batteryTimeRemaining_s(obj->batteryLife_s),
     parentId(-1),
 	sonobuoyDepth_m(8.0f)
 {
-    tcSensorPlatform::Init(obj, this);
+    tcSensorPlatform::Init(obj, std::dynamic_pointer_cast<tcPlatformObject>(tcGameObject::shared_from_this()));
 
 	mcKin.mfSpeed_kts = 0; 
 	mnModelType = MTYPE_SONOBUOY;

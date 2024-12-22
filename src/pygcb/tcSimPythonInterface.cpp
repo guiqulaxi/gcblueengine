@@ -147,7 +147,7 @@ tcCommandStream& tcSimPythonInterface::operator<<(tcCommandStream& stream)
             bool playerHasControl = true;
             for (unsigned int n=0; (n<idList.size()) && playerHasControl; n++)
             {
-                tcGameObject* obj = mpSimState->GetObject(idList[n]);
+                std::shared_ptr<tcGameObject> obj = mpSimState->GetObject(idList[n]);
                 playerHasControl = (obj != 0) ? obj->IsControlledBy(playerName) : false;
                 if (obj == 0)
                 {
@@ -264,7 +264,7 @@ void tcSimPythonInterface::InitCommandBypass()
 
 
 // write apObj
-void tcSimPythonInterface::SetUnitInfo(tcPlatformObject *apObj) {
+void tcSimPythonInterface::SetUnitInfo(std::shared_ptr<tcPlatformObject>apObj) {
     tcPlatformInterface::SetObj(apObj);
 }
 
@@ -296,14 +296,14 @@ bool tcSimPythonInterface::CallTaskScript(ScriptedTask* task, const char* azComm
     }
 }
 
-tcPlatformObject* tcSimPythonInterface::GetHookedObj() const
+std::shared_ptr<tcPlatformObject> tcSimPythonInterface::GetHookedObj() const
 {
     return mpHookedObj;
 }
 
 tcFlightPort* tcSimPythonInterface::GetHookedObjFlightPort()
 {
-    tcFlightOpsObject* flightOps = dynamic_cast<tcFlightOpsObject*>(mpHookedObj);
+    std::shared_ptr<tcFlightOpsObject> flightOps =  std::dynamic_pointer_cast<tcFlightOpsObject>(mpHookedObj);
     if (flightOps == 0) return 0;
     return flightOps->GetFlightPort();
 }

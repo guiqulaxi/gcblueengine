@@ -291,7 +291,7 @@ float tcSubObject::GetSonarSourceLevel(float az_deg) const
     
 	if (!IsEnsonifying()) return SLp;
 
-	const tcSonar* sonar = GetStrongestActiveSonar();
+	const std::shared_ptr<tcSonar> sonar = GetStrongestActiveSonar();
 	if (sonar && (sonar->mpDBObj->SL > SLp))
 	{
 		return sonar->mpDBObj->SL;
@@ -723,7 +723,7 @@ void tcSubObject::UpdateSensors(double t)
     unsigned nSensors = GetSensorCount();
     for(unsigned n=0; n<nSensors; n++)
     {
-        tcSensorState* sensor = GetSensorMutable(n);
+        std::shared_ptr<tcSensorState> sensor = GetSensorMutable(n);
         assert(sensor);
         if (sensor->IsSonar())
         {
@@ -875,7 +875,7 @@ tcSubObject::tcSubObject()
 /**
 * Constructor that initializes using info from database entry.
 */
-tcSubObject::tcSubObject(tcSubDBObject* obj)
+tcSubObject::tcSubObject(std::shared_ptr<tcSubDBObject> obj)
 : tcPlatformObject(obj),
   maxPitch_rad(0.5),
   periscopeDepth_m(18),

@@ -150,7 +150,7 @@ long tcSensorMap::GetStartTrackPosition(UINT8 anAlliance)
         return -1;
     }
 }
-void tcSensorMap::GetNextTrack(long& pos, tcSensorMapTrack*& pTrack, UINT8 anAlliance) 
+void tcSensorMap::GetNextTrack(long& pos, std::shared_ptr<tcSensorMapTrack>& pTrack, UINT8 anAlliance)
 {
     if (tcAllianceSensorMap *pMap = GetMap(anAlliance))
     {
@@ -182,7 +182,7 @@ void tcSensorMap::AddAlwaysVisibleTrack(const std::string& unitName)
 {
     tcSimState* simState = tcSimState::Get();
 
-    tcGameObject* obj = simState->GetObjectByName(unitName);
+    std::shared_ptr<tcGameObject> obj = simState->GetObjectByName(unitName);
     if (obj == 0)
     {
         fprintf(stderr, "tcSensorMap::AddAlwaysVisibleTrack - %s not found\n", unitName.c_str());
@@ -204,7 +204,7 @@ void tcSensorMap::DropAlwaysVisibleTrack(const std::string& unitName)
 {
     tcSimState* simState = tcSimState::Get();
 
-    tcGameObject* obj = simState->GetObjectByName(unitName);
+    std::shared_ptr<tcGameObject> obj = simState->GetObjectByName(unitName);
     if (obj == 0)
     {
         fprintf(stderr, "tcSensorMap::DropAlwaysVisibleTrack - %s not found\n", unitName.c_str());
@@ -221,7 +221,7 @@ void tcSensorMap::DropAlwaysVisibleTrack(const std::string& unitName)
     }
 }
 
-bool tcSensorMap::GetAlwaysVisibleState(tcGameObject* obj) const
+bool tcSensorMap::GetAlwaysVisibleState(std::shared_ptr<tcGameObject> obj) const
 {
     assert(obj != 0);
 
@@ -230,7 +230,7 @@ bool tcSensorMap::GetAlwaysVisibleState(tcGameObject* obj) const
     {
         if (mapMap[n]->GetAlliance() != unitAlliance)
         {
-            tcSensorMapTrack* track = mapMap[n]->GetSensorMapTrack(obj->mnID);
+            std::shared_ptr<tcSensorMapTrack> track = mapMap[n]->GetSensorMapTrack(obj->mnID);
             if ((track != 0) && (track->alwaysVisible)) return true;
         }
     }
@@ -241,7 +241,7 @@ bool tcSensorMap::GetAlwaysVisibleState(tcGameObject* obj) const
 /**
 * Used to "cheat" and immediately mark track corresponding to tcGameObject as destroyed
 */
-void tcSensorMap::MarkObjectDestroyed(const tcGameObject* obj)
+void tcSensorMap::MarkObjectDestroyed(std::shared_ptr<const tcGameObject> obj)
 {
     for(int n=0;n<mnMaps;n++) 
     {
@@ -249,7 +249,7 @@ void tcSensorMap::MarkObjectDestroyed(const tcGameObject* obj)
     }
 }
 
-tcSensorReport* tcSensorMap::GetOrCreateReport(long platformID, long sensorID, long trackID, tcSensorMapTrack*& pSMTrack, unsigned int alliance)
+tcSensorReport* tcSensorMap::GetOrCreateReport(long platformID, long sensorID, long trackID, std::shared_ptr<tcSensorMapTrack>& pSMTrack, unsigned int alliance)
 {
     tcAllianceSensorMap* pMap = GetMap(alliance);
     assert(pMap != 0);
@@ -290,7 +290,7 @@ bool tcSensorMap::GetTrack(unsigned long anTrackID, tcTrack& track, UINT8 anAlli
     return pMap->GetTrack(anTrackID, track);
 }
 
-tcSensorMapTrack* tcSensorMap::GetSensorMapTrack(long anTrackID, UINT8 anAlliance)
+std::shared_ptr<tcSensorMapTrack> tcSensorMap::GetSensorMapTrack(long anTrackID, UINT8 anAlliance)
 {
     tcAllianceSensorMap *pMap = GetMap(anAlliance);
 	if (pMap != 0)

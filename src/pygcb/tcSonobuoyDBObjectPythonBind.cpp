@@ -6,7 +6,7 @@
 using namespace database;
 void BindSonobuoyDBObject(module &m)
 {
-    py::class_<tcSonobuoyDBObject,tcDatabaseObject,  tcSensorPlatformDBObject,  tcWaterDetectionDBObject>(m, "tcSonobuoyDBObject")
+    py::class_<tcSonobuoyDBObject,std::shared_ptr<tcSonobuoyDBObject>,tcDatabaseObject,  tcSensorPlatformDBObject,  tcWaterDetectionDBObject>(m, "tcSonobuoyDBObject")
     .def(py::init<>())
         .def_readwrite("batteryLife_s", &tcSonobuoyDBObject::batteryLife_s)
         .def_readwrite("commRange_km", &tcSonobuoyDBObject::commRange_km);

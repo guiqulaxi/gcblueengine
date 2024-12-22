@@ -193,7 +193,7 @@ float tcDamageModel::CalculateRadiationIntensity(float range_m, float w_kg) cons
 /**
  * 此版本计算携带多个子弹药的武器的总损伤。每个子弹药都会随机测试是否对目标造成直接命中或近距离损伤。
  */
-void tcDamageModel::CalculateTotalDamageCluster(tcBallisticWeapon* ballistic, tcGameObject* target, Damage& damage)
+void tcDamageModel::CalculateTotalDamageCluster(std::shared_ptr<tcBallisticWeapon> ballistic, std::shared_ptr<tcGameObject> target, Damage& damage)
 {
     // 设置最大命中次数为10次
     const unsigned int maxHits = 10;
@@ -296,7 +296,7 @@ void tcDamageModel::CalculateTotalDamageCluster(tcBallisticWeapon* ballistic, tc
 * Point defense and air cannons should use a different model
 */
 // 定义一个函数，用于计算给定武器对目标造成的总伤害。点防御和防空炮应使用不同的模型。
-void tcDamageModel::CalculateTotalDamage(tcWeaponObject* weapon, tcGameObject* target, Damage& damage)
+void tcDamageModel::CalculateTotalDamage(std::shared_ptr<tcWeaponObject> weapon, std::shared_ptr<tcGameObject> target, Damage& damage)
 {
     // 检查武器和目标是否为空，如果为空则断言失败并返回。
     if ((weapon == 0) || (target == 0))
@@ -349,7 +349,7 @@ void tcDamageModel::CalculateTotalDamage(tcWeaponObject* weapon, tcGameObject* t
     if (weapon->IsDirectHit() || (!goodDetonation)) return;
 
     // 尝试将武器动态转换为弹道武器。
-    tcBallisticWeapon* ballistic = dynamic_cast<tcBallisticWeapon*>(weapon);
+    std::shared_ptr<tcBallisticWeapon> ballistic = std::dynamic_pointer_cast<tcBallisticWeapon>(weapon);
     // 如果转换成功且武器是子母弹。
     if ((ballistic != 0) && ballistic->IsClusterBomb())
     {
@@ -468,7 +468,7 @@ float tcDamageModel::CalculateWaterBlastOverpressure(float range_m, float w_kg) 
 
 
 
-const database::tcWeaponDamage* tcDamageModel::GetWeaponDamageModel(tcWeaponObject* weapon) const
+const database::tcWeaponDamage* tcDamageModel::GetWeaponDamageModel(std::shared_ptr<tcWeaponObject> weapon) const
 {
     assert(weapon != 0);
 

@@ -68,7 +68,7 @@ namespace scriptinterface
             return pyobject;
     }
 
-    tcWeaponObject* tcWeaponInterface::static_weapon = 0;
+    std::shared_ptr<tcWeaponObject> tcWeaponInterface::static_weapon = 0;
 
     bool tcWeaponInterface::IsValid()
     {
@@ -181,11 +181,11 @@ namespace scriptinterface
     {
         if (weapon == 0) return std::string("Error");
 
-        tcTorpedoObject* torpedo = dynamic_cast<tcTorpedoObject*>(weapon);
-        tcMissileObject* missile = dynamic_cast<tcMissileObject*>(weapon);
-        tcBallisticMissile* ballisticMissile = dynamic_cast<tcBallisticMissile*>(weapon);
-        tcBallisticWeapon* ballistic = dynamic_cast<tcBallisticWeapon*>(weapon);
-        tcGuidedBomb* guidedBomb = dynamic_cast<tcGuidedBomb*>(weapon);
+        std::shared_ptr<tcTorpedoObject> torpedo = std::dynamic_pointer_cast<tcTorpedoObject>(weapon);
+        std::shared_ptr<tcMissileObject> missile =  std::dynamic_pointer_cast<tcMissileObject>(weapon);
+        std::shared_ptr<tcBallisticMissile> ballisticMissile =  std::dynamic_pointer_cast<tcBallisticMissile>(weapon);
+        std::shared_ptr<tcBallisticWeapon> ballistic =  std::dynamic_pointer_cast<tcBallisticWeapon>(weapon);
+        std::shared_ptr<tcGuidedBomb> guidedBomb = std::dynamic_pointer_cast<tcGuidedBomb>(weapon);
 
         if (missile != 0) return std::string("Missile");
         if (guidedBomb != 0) return std::string("GuidedBomb");
@@ -194,7 +194,7 @@ namespace scriptinterface
 
         if (torpedo != 0)
         {
-            tcTorpedoDBObject* torpedoData = torpedo->mpDBObject;
+            std::shared_ptr<tcTorpedoDBObject> torpedoData = torpedo->mpDBObject;
             bool isMine = (torpedoData->weaponType == tcTorpedoDBObject::BOTTOM_MINE) ||
                 (torpedoData->weaponType == tcTorpedoDBObject::BOTTOM_MINE_CAPTOR);
             if (!isMine)
@@ -224,11 +224,11 @@ namespace scriptinterface
     {
         if ((weapon == 0) || (!weapon->IsDatalinkActive())) return;
 
-        if (tcGuidedBomb* guidedBomb = dynamic_cast<tcGuidedBomb*>(weapon))
+        if (std::shared_ptr<tcGuidedBomb> guidedBomb = std::dynamic_pointer_cast<tcGuidedBomb>(weapon))
         {
             guidedBomb->UpdateTargetPos(lon_rad, lat_rad);
         }
-        else if (tcMissileObject* missile = dynamic_cast<tcMissileObject*>(weapon))
+        else if (std::shared_ptr<tcMissileObject> missile =  std::dynamic_pointer_cast<tcMissileObject>(weapon))
         {
             missile->UpdateTargetPos(lon_rad, lat_rad);
         }
@@ -344,7 +344,7 @@ namespace scriptinterface
         }
     }
 
-    tcWeaponInterface::tcWeaponInterface(tcWeaponObject* weaponObject)
+    tcWeaponInterface::tcWeaponInterface(std::shared_ptr<tcWeaponObject> weaponObject)
         : weapon(weaponObject)
     {
     }

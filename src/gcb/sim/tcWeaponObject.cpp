@@ -123,7 +123,7 @@ tcGameStream& tcWeaponObject::operator>>(tcGameStream& stream)
 /**
 * @return damage fraction for new damage, 0 means no new damage
 */
-float tcWeaponObject::ApplyAdvancedDamage(const Damage& damage, tcGameObject* damager)
+float tcWeaponObject::ApplyAdvancedDamage(const Damage& damage, std::shared_ptr<tcGameObject> damager)
 {
     // 初始化不同类型的伤害值为0
     float impactDamage = 0; // 冲击伤害
@@ -200,7 +200,7 @@ float tcWeaponObject::ApplyAdvancedDamage(const Damage& damage, tcGameObject* da
     // 如果损伤等级达到或超过1，标记对象被摧毁
     if (mfDamageLevel >= 1.0f)
     {
-        simState->mcSensorMap.MarkObjectDestroyed(this);
+        simState->mcSensorMap.MarkObjectDestroyed(tcGameObject::shared_from_this());
     }
 
     // 返回新造成的伤害值
@@ -213,7 +213,7 @@ float tcWeaponObject::ApplyAdvancedDamage(const Damage& damage, tcGameObject* da
 */
 void tcWeaponObject::DeployPayload()
 {
-    database::tcDatabaseObject* payloadData = database->GetObject(mpDBObject->payloadClass);
+    std::shared_ptr<tcDatabaseObject> payloadData = database->GetObject(mpDBObject->payloadClass);
     if (payloadData == 0)
     {
         payloadDeployed = true;
@@ -225,7 +225,7 @@ void tcWeaponObject::DeployPayload()
 
 	for (unsigned int n=0; n<mpDBObject->payloadQuantity; n++)
 	{
-		tcGameObject* payload = simState->CreateGameObject(payloadData);
+		std::shared_ptr<tcGameObject> payload = simState->CreateGameObject(payloadData);
 		if (payload == 0)
 		{
 			fprintf(stderr, "tcWeaponObject::DeployPayload - Failed to create payload (%s)\n",
@@ -256,17 +256,17 @@ void tcWeaponObject::Detonate(float delay_s)
     //???
 	if (goodDetonation)
 	{
-        if (tcBallisticWeapon* ballistic = dynamic_cast<tcBallisticWeapon*>(this))
+        if (std::shared_ptr<tcBallisticWeapon> ballistic =  std::dynamic_pointer_cast<tcBallisticWeapon>(tcGameObject::shared_from_this()))
         {
             if (ballistic->IsAutocannon()) return;
         }
 
-		tcGameObject* target = simState->GetObject(intendedTarget);
+		std::shared_ptr<tcGameObject> target = simState->GetObject(intendedTarget);
 		if (target != 0)
 		{
             Vector3d pos;
             Vector3d vel;
-			target->GetRelativeStateWorld(this, pos, vel);
+            target->GetRelativeStateWorld(tcGameObject::shared_from_this(), pos, vel);
             //target->GetModel()->AddExplosion(pos);
 		}
 	}
@@ -296,7 +296,7 @@ const database::tcWeaponDamage* tcWeaponObject::GetDamageModel() const
     return weaponDamageData;
 }
 
-const tcWeaponDBObject* tcWeaponObject::GetDBObject() const
+std::shared_ptr<const tcWeaponDBObject> tcWeaponObject::GetDBObject() const
 {
     return mpDBObject;
        
@@ -436,25 +436,25 @@ bool tcWeaponObject::IsIntendedTarget(long id)
 *
 * @see tcSimState::AddLaunchedPlatform
 */
-void tcWeaponObject::LaunchPayload(tcGameObject* payload)
+void tcWeaponObject::LaunchPayload(std::shared_ptr<tcGameObject> payload)
 {
     assert(payload != 0);
 
-	payload->LaunchFrom(this, 0);
+    payload->LaunchFrom(tcGameObject::shared_from_this(), 0);
 
- //   if (tcTorpedoObject* torpedo = dynamic_cast<tcTorpedoObject*>(payload))
+ //   if (std::shared_ptr<tcTorpedoObject> torpedo = std::dynamic_pointer_cast<tcTorpedoObject>>(payload))
 	//{
 	//	torpedo->LaunchFrom(this, 0);
 	//}
-	//else if (tcMissileObject* missile = dynamic_cast<tcMissileObject*>(payload))
+	//else if (std::shared_ptr<tcMissileObject> missile =  std::dynamic_pointer_cast<tcMissileObject>>(payload))
  //   {
  //       missile->LaunchFrom(this, 0);
  //   }
- //   else if (tcBallisticWeapon* ballistic = dynamic_cast<tcBallisticWeapon*>(payload))
+ //   else if (std::shared_ptr<tcBallisticWeapon> ballistic =  std::dynamic_pointer_cast<tcBallisticWeapon>>(payload))
  //   {
  //       ballistic->LaunchFrom(this, 0);
  //   }
- //   else if (tcAirCM* airCM = dynamic_cast<tcAirCM*>(payload))
+ //   else if (std::shared_ptr<tcAirCM> airCM =  std::dynamic_pointer_cast<tcAirCM>>(payload))
  //   {
  //       airCM->LaunchFrom(this, 0);
  //   }
@@ -531,7 +531,7 @@ void tcWeaponObject::SetIntendedTarget(long targetId)
 
     intendedTarget = targetId;
     if (targetId == -1) return;
-    tcSensorMapTrack *smtrack = 
+    std::shared_ptr<tcSensorMapTrack>smtrack = 
         simState->mcSensorMap.GetSensorMapTrack(targetId, GetAlliance());
     if (smtrack != 0)
     {
@@ -540,7 +540,7 @@ void tcWeaponObject::SetIntendedTarget(long targetId)
 	else
 	{
         // check if this is a friendly
-        if (tcGameObject* target = simState->GetObject(targetId))
+        if (std::shared_ptr<tcGameObject> target = simState->GetObject(targetId))
         { 
             if (target->GetAlliance() != GetAlliance())
             {
@@ -586,7 +586,7 @@ void tcWeaponObject::UpdateDatalinkStatus()
         return;
     }
 
-    if (tcGameObject* source = simState->GetObject(launchingPlatform))
+    if (std::shared_ptr<tcGameObject> source = simState->GetObject(launchingPlatform))
     {
         assert(source != 0);
         float range_km = mcKin.RangeToKmAlt(source->mcKin);
@@ -638,7 +638,7 @@ tcWeaponObject::tcWeaponObject(const tcWeaponObject& o)
 /**
 * Constructor that initializes using info from database entry.
 */
-tcWeaponObject::tcWeaponObject(tcWeaponDBObject* obj)
+tcWeaponObject::tcWeaponObject(std::shared_ptr<tcWeaponDBObject> obj)
 : tcGameObject(obj), 
   fuseHasTriggered(false), fuseDelay(0), intendedTarget(-1),
   mpDBObject(obj),
