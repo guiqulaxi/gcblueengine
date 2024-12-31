@@ -107,8 +107,10 @@ public:
     virtual void ClearNewCommand();
     virtual bool HasNewCommand() const;
 
-    tcFlightOpsObject(std::shared_ptr<tcFlightportDBObject> dbObject, std::shared_ptr<tcGameObject> gameObject);
+    tcFlightOpsObject(std::shared_ptr<tcFlightportDBObject> dbObject);
     virtual ~tcFlightOpsObject();
+protected:
+    void SetGameObject(std::shared_ptr<tcGameObject> obj);
 private:
 	static database::tcDatabase* database;
     tcFlightPort flight_deck;

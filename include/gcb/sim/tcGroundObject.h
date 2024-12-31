@@ -62,7 +62,7 @@ public:
     tcGroundObject(tcGroundObject&);
     tcGroundObject(std::shared_ptr<tcGroundDBObject> obj);
     virtual ~tcGroundObject();
-
+    virtual void Construct() override;
 private:
 	std::shared_ptr<tcGroundDBObject> mpDBObject;
 };

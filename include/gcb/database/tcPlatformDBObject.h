@@ -51,7 +51,7 @@ namespace database
     * sensors and basic movement restrictions. This can be used
     * for a simple surface ship or aircraft model.
     */
-    class tcPlatformDBObject : public tcDatabaseObject, public tcSensorPlatformDBObject
+    class tcPlatformDBObject : public tcDatabaseObject
     {
     public:
         enum 
@@ -115,6 +115,7 @@ namespace database
         tcPlatformDBObject(const tcPlatformDBObject& obj); ///< copy constructor
         virtual ~tcPlatformDBObject();
         void CalculateParams();
+
 	protected:
 		float fuelConsumptionConstant; ///< = (fuel rate / max speed)
 		float invMaxSpeed; ///< 1/max_speed

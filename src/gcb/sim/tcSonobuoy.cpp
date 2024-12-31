@@ -291,7 +291,8 @@ tcSonobuoy::tcSonobuoy(std::shared_ptr<tcSonobuoyDBObject>obj)
     parentId(-1),
 	sonobuoyDepth_m(8.0f)
 {
-    tcSensorPlatform::Init(obj, std::dynamic_pointer_cast<tcPlatformObject>(tcGameObject::shared_from_this()));
+    tcSensorPlatform::Init(obj->GetComponent<tcSensorPlatformDBObject>()[0],
+                           std::dynamic_pointer_cast<tcPlatformObject>(tcGameObject::shared_from_this()));
 
 	mcKin.mfSpeed_kts = 0; 
 	mnModelType = MTYPE_SONOBUOY;

@@ -38,6 +38,7 @@
 #include "gctypes.h"
 #include <memory>
 #include <vector>
+#include "tcComponentDBObject.h"
 class tcGameObject;
 //#include <wx/string.h>
 
@@ -181,14 +182,35 @@ void ClassificationToString(UINT16 anType, char *azString);
         virtual ~tcDatabaseObject();
         virtual std::shared_ptr<tcGameObject> CreateGameObject();///<创建平台
         virtual void CalculateParams();
+        template <typename T>
+        std::vector<std::shared_ptr<T>> GetComponent() const;
+        void AddComponent(std::shared_ptr<tcComponentDBObject> com)
+        {
+            components.push_back(com);
+        }
     protected:
         static tcDatabase *database; ///< allows db objects to query for other db objects
 //        tc3DModel *model;
         std::shared_ptr<tcGeometry> icon; ///< icon for drag/drop container gui
         std::vector<std::string> parsedImageList;
-
+        std::vector<std::shared_ptr<tcComponentDBObject>>  components;///组件
 		void LoadFileDescription();
     };
+
+    template <typename T>
+    std::vector<std::shared_ptr<T>> tcDatabaseObject::GetComponent() const
+    {
+        std::vector<std::shared_ptr<T>> coms;
+        for (int i = 0; i < components.size(); ++i) {
+            auto com=std::dynamic_pointer_cast<T>(components[i]);
+            if(com)
+            {
+                coms.push_back(com);
+            }
+        }
+        return coms;
+    }
+
     
 }
 

@@ -103,7 +103,7 @@ public:
 
     //int mnSensors;
     tcGuidanceState mcGS;///<目标 运动状态
-    Brain* brain;
+    std::shared_ptr<Brain> brain;
     tcLaunchRequest mcLaunchRequest;
     GeoPoint msTargetDatum;
     tcFormation formation;
@@ -119,8 +119,8 @@ public:
     virtual void DesignateDatum(tcPoint p); 
     virtual void DesignateLauncherDatum(GeoPoint p, unsigned int anLauncher);  
     virtual bool DesignateLauncherTarget(long anID, unsigned anLauncher);
-    virtual void DesignateTarget(long anID); 
-    Brain* GetBrain();
+    virtual void DesignateTarget(long anID);
+    std::shared_ptr<Brain> GetBrain();
     virtual void GetDatum(GeoPoint& p) {p=msTargetDatum;}
 	virtual std::shared_ptr<tcLauncher> GetLauncher(unsigned idx);
     virtual std::shared_ptr<const tcLauncher> GetLauncher(unsigned idx) const;
@@ -237,6 +237,7 @@ public:
     tcPlatformObject(tcPlatformObject&);
     tcPlatformObject(std::shared_ptr<tcPlatformDBObject>obj);
     virtual ~tcPlatformObject();
+    virtual void Construct() override;
 
 protected:
     float lastHeadingDelta; // a workaround to smooth heading rate changes

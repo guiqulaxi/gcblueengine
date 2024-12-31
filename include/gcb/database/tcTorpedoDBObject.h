@@ -45,7 +45,7 @@ namespace database
     /**
     *
     */
-    class tcTorpedoDBObject : public tcWeaponDBObject, public tcWaterDetectionDBObject
+    class tcTorpedoDBObject : public tcWeaponDBObject
     {
     public:
         enum {
@@ -96,7 +96,17 @@ namespace database
         virtual ~tcTorpedoDBObject();
         virtual std::shared_ptr<tcGameObject>CreateGameObject() override;
         void CalculateParams();
+
+        void setWaterDetectionDBObject(std::shared_ptr<tcWaterDetectionDBObject> obj )
+        {
+            waterDetectionDBObject=obj;
+        }
+        virtual std::shared_ptr<tcWaterDetectionDBObject> GetWaterDetectionDBObject( )const
+        {
+            return waterDetectionDBObject;
+        }
     private:
+        std::shared_ptr<tcWaterDetectionDBObject> waterDetectionDBObject;
 
     };
 

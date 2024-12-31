@@ -148,7 +148,7 @@ float tcSurfaceObject::GetOpticalCrossSection(float view_alt_m, float view_dist_
 	int SeaState = tcSonarEnvironment::Get()->GetSeaState();
 	float SeaStateHullFactor = 10*log10f(std::max(4, SeaState)-3);
 	float SeaStateWakeFactor = 10*log10(pow(std::max(2,SeaState)-1,2));
-	float opticalCrossSection = mpDBObject->opticalCrossSection_dBsm;
+    float opticalCrossSection = mpDBObject->GetComponent<tcAirDetectionDBObject>()[0]->opticalCrossSection_dBsm;
 	float opticalCrossSection_m2 = pow(10,0.1*(opticalCrossSection - SeaStateHullFactor));
 	float viewable_wake_m2 = pow(10,0.1*(viewable_wake_dbsm - SeaStateWakeFactor));
 	float total_cross_section = 10*log10f(opticalCrossSection_m2 + viewable_wake_m2);
@@ -163,7 +163,7 @@ const std::deque<tcPoint>& tcSurfaceObject::GetPositionHistory() const
 
 float tcSurfaceObject::GetIRSignature(float az_deg) const
 {
-    return mpDBObject->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELA);
+    return mpDBObject->GetComponent<tcAirDetectionDBObject>()[0]->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELA);
 }
 
 
@@ -328,7 +328,7 @@ void tcSurfaceObject::Clear()
 */
 float tcSurfaceObject::GetSonarSourceLevel(float az_deg) const
 {
-    float SLp = mpDBObject->GetSourceLevel(C_KTSTOMPS*mcKin.mfSpeed_kts, 0, az_deg);
+    float SLp = mpDBObject->GetComponent<tcWaterDetectionDBObject>()[0]->GetSourceLevel(C_KTSTOMPS*mcKin.mfSpeed_kts, 0, az_deg);
 
 	if (!IsEnsonifying()) return SLp;
 
@@ -505,11 +505,18 @@ tcSurfaceObject::tcSurfaceObject(std::shared_ptr<tcShipDBObject>obj)
 
     lastHistoryUpdate = 3.0f*randf();
 
-    if (addTasksOnCreate) brain->AddTaskDirectly("MissileWarning", 3.0, ai::Task::HIDDEN | ai::Task::PERMANENT);
-    if (addTasksOnCreate) brain->AddTaskDirectly("PointDefense", 3.0, ai::Task::HIDDEN | ai::Task::PERMANENT);
+
 }
 
 /******************************************************************************/
 tcSurfaceObject::~tcSurfaceObject() 
 {
+}
+
+void tcSurfaceObject::Construct()
+{
+    tcPlatformObject::Construct();
+    if (addTasksOnCreate) brain->AddTaskDirectly("MissileWarning", 3.0, ai::Task::HIDDEN | ai::Task::PERMANENT);
+    if (addTasksOnCreate) brain->AddTaskDirectly("PointDefense", 3.0, ai::Task::HIDDEN | ai::Task::PERMANENT);
+
 }

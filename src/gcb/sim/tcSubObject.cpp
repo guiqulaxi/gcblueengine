@@ -281,11 +281,12 @@ float tcSubObject::GetSonarSourceLevel(float az_deg) const
 {
     float speed_mps = C_KTSTOMPS * mcKin.mfSpeed_kts;
 
-    float SLp = mpDBObject->GetSourceLevel(speed_mps, -mcKin.mfAlt_m, az_deg);
+    float SLp = mpDBObject->GetComponent<tcWaterDetectionDBObject>()[0]->GetSourceLevel(speed_mps, -mcKin.mfAlt_m, az_deg);
 
     if (mpDBObject->IsCavitatingMps(speed_mps, -mcKin.mfAlt_m) || isSnorkeling)
     {
-		float SL_special = isSnorkeling ? mpDBObject->GetSnorkelingSourceLevel() : mpDBObject->GetCavitatingSourceLevel();
+        float SL_special = isSnorkeling ? mpDBObject->GetComponent<tcWaterDetectionDBObject>()[0]->GetSnorkelingSourceLevel() :
+                               mpDBObject->GetComponent<tcWaterDetectionDBObject>()[0]->GetCavitatingSourceLevel();
 		SLp = std::max(SLp, SL_special);
     }
     
@@ -449,7 +450,7 @@ float tcSubObject::GetMaxQuietSpeedKts() const
     //float goalDepth_m = -mcGS.mfGoalAltitude_m;
     //float currentSpeed_kts = mcKin.mfSpeed_kts;
 
-    float maxQuietSpeed_kts = mpDBObject->GetCavitationSpeedKts(depth_m) - 0.25f;
+    float maxQuietSpeed_kts = mpDBObject->GetComponent<tcWaterDetectionDBObject>()[0]->GetCavitationSpeedKts(depth_m) - 0.25f;
 
     return maxQuietSpeed_kts;
 }
@@ -476,7 +477,7 @@ float tcSubObject::GetOpticalCrossSection() const
 
     if (mcKin.mfAlt_m >= 0)
     {
-        return mpDBObject->opticalCrossSection_dBsm;
+        return mpDBObject->GetComponent<tcAirDetectionDBObject>()[0]->opticalCrossSection_dBsm;
     }
 
     // periscope depth < depth < 0
@@ -485,13 +486,13 @@ float tcSubObject::GetOpticalCrossSection() const
     if (mcKin.mfAlt_m >= -mpDBObject->draft_m)
     {
         float alpha = mpDBObject->GetInvDraft() * mcKin.mfAlt_m; // 0 to -1, more negative with depth
-        body_factor = mpDBObject->opticalCrossSection_dBsm + alpha * 12.0f;
+        body_factor = mpDBObject->GetComponent<tcAirDetectionDBObject>()[0]->opticalCrossSection_dBsm + alpha * 12.0f;
     }
 
     if (periscopeRaised)
     {
         float speed_factor = std::min(0.5f*mcKin.mfSpeed_kts, 10.0f);
-        float periscope_factor = mpDBObject->opticalCrossSection_dBsm - 15.0f + speed_factor;
+        float periscope_factor = mpDBObject->GetComponent<tcAirDetectionDBObject>()[0]->opticalCrossSection_dBsm - 15.0f + speed_factor;
         return std::max(body_factor, periscope_factor);
     }
     else
@@ -515,12 +516,12 @@ float tcSubObject::GetIRSignature(float az_deg) const
     {
         float alpha = mpDBObject->GetInvDraft() * mcKin.mfAlt_m; // 0 to -1, more negative with depth
 
-        signature = mpDBObject->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELA) + alpha * 12.0f;
+        signature = mpDBObject->GetComponent<tcAirDetectionDBObject>()[0]->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELA) + alpha * 12.0f;
     }
 
     if (isSnorkeling)
     {
-        signature = std::max(signature, mpDBObject->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELB));
+        signature = std::max(signature, mpDBObject->GetComponent<tcAirDetectionDBObject>()[0]->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELB));
     }
 
 
@@ -888,12 +889,7 @@ tcSubObject::tcSubObject(std::shared_ptr<tcSubDBObject> obj)
     
     invPeriscopeDepth = 1.0f / periscopeDepth_m;
 
-    if (addTasksOnCreate)
-    {
-        brain->AddTaskDirectly("SubEvade", 3.0, ai::Task::HIDDEN | ai::Task::PERMANENT);
-        brain->AddTaskDirectly("AvoidCav", 3.0, ai::Task::HIDDEN | ai::Task::PERMANENT);
-        brain->AddTaskDirectly("SubBattery", 4.0, ai::Task::HIDDEN | ai::Task::PERMANENT);
-    }
+
 }
 
 /**
@@ -901,4 +897,15 @@ tcSubObject::tcSubObject(std::shared_ptr<tcSubDBObject> obj)
 */
 tcSubObject::~tcSubObject()
 {
+}
+
+void tcSubObject::Construct()
+{
+    tcPlatformObject::Construct();
+    if (addTasksOnCreate)
+    {
+        brain->AddTaskDirectly("SubEvade", 3.0, ai::Task::HIDDEN | ai::Task::PERMANENT);
+        brain->AddTaskDirectly("AvoidCav", 3.0, ai::Task::HIDDEN | ai::Task::PERMANENT);
+        brain->AddTaskDirectly("SubBattery", 4.0, ai::Task::HIDDEN | ai::Task::PERMANENT);
+    }
 }

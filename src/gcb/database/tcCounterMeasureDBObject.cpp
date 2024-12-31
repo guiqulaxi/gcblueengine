@@ -116,8 +116,12 @@ namespace database
         effectiveness = entry.GetDouble("Effectiveness");
         maxSpeed_mps = entry.GetDouble("MaxSpeed_mps");
 
-        tcAirDetectionDBObject::ReadSql(entry);
-        tcWaterDetectionDBObject::ReadSql(entry);
+        auto airDetectionDBObject =std::make_shared<tcAirDetectionDBObject>();
+        airDetectionDBObject->ReadSql(entry);
+        components.push_back(airDetectionDBObject);
+        auto waterDetectionDBObject =std::make_shared<tcWaterDetectionDBObject>();
+        waterDetectionDBObject->ReadSql(entry);
+        components.push_back(waterDetectionDBObject);
 
         CalculateParams();
     }
@@ -136,16 +140,15 @@ namespace database
         s << maxSpeed_mps << ",";
 
         valueString += s.str();
-
-        tcAirDetectionDBObject::WriteSql(valueString);
-        tcWaterDetectionDBObject::WriteSql(valueString);
+        GetComponent<tcAirDetectionDBObject>()[0]->WriteSql(valueString);
+        GetComponent<tcWaterDetectionDBObject>()[0]->WriteSql(valueString);
     }
 
     void tcCounterMeasureDBObject::WritePythonValue(std::string &valueString) const
     {
         tcDatabaseObject::WritePythonValue(valueString);
-        tcAirDetectionDBObject::WritePythonValue(mzClass,valueString);
-        tcWaterDetectionDBObject::WritePythonValue(mzClass,valueString);
+        GetComponent<tcAirDetectionDBObject>()[0]->WritePythonValue(mzClass,valueString);
+        GetComponent<tcWaterDetectionDBObject>()[0]->WritePythonValue(mzClass,valueString);
 
         valueString+="    dbObj.subType="+strutil::to_python_value(subType)+"\n";
         valueString+="    dbObj.lifeSpan_s="+strutil::to_python_value(lifeSpan_s)+"\n";
@@ -165,8 +168,6 @@ namespace database
 
 
     tcCounterMeasureDBObject::tcCounterMeasureDBObject() : tcDatabaseObject(),
-        tcAirDetectionDBObject(),
-        tcWaterDetectionDBObject(),
         subType(""),
         lifeSpan_s(0),
         effectiveness(0),
@@ -179,8 +180,8 @@ namespace database
 
     tcCounterMeasureDBObject::tcCounterMeasureDBObject(const tcCounterMeasureDBObject& obj) 
       : tcDatabaseObject(obj),
-        tcAirDetectionDBObject(obj),
-        tcWaterDetectionDBObject(obj),
+
+
         subType(obj.subType),
         lifeSpan_s(obj.lifeSpan_s),
         effectiveness(obj.effectiveness),
@@ -199,12 +200,16 @@ namespace database
     {
         if (this->mnModelType == MTYPE_AIRCM)
         {
-            return std::make_shared< tcAirCM>(std::dynamic_pointer_cast<tcCounterMeasureDBObject>(tcDatabaseObject::shared_from_this()));
+            auto obj= std::make_shared< tcAirCM>(std::dynamic_pointer_cast<tcCounterMeasureDBObject>(tcDatabaseObject::shared_from_this()));
+            obj->Construct();
+            return obj;
         }
         else
         {
             assert(this->mnModelType == MTYPE_WATERCM);
-            return std::make_shared<  tcWaterCM>(std::dynamic_pointer_cast<tcCounterMeasureDBObject>(tcDatabaseObject::shared_from_this()));
+            auto obj= std::make_shared<  tcWaterCM>(std::dynamic_pointer_cast<tcCounterMeasureDBObject>(tcDatabaseObject::shared_from_this()));
+            obj->Construct();
+            return obj;
         }
     }
 

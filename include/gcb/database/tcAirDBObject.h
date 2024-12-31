@@ -45,7 +45,7 @@ namespace database
     *
     * Added tcWaterDetectionDBObject parent to support dipping sonar
     */
-    class tcAirDBObject :  public tcPlatformDBObject, public tcAirDetectionDBObject, public tcWaterDetectionDBObject
+    class tcAirDBObject :  public tcPlatformDBObject
     {
     public:
         // float maxTakeoffWeight_kg;          ///< [kg] maximum weight at takeoff
@@ -103,8 +103,26 @@ namespace database
         tcAirDBObject(const tcAirDBObject& obj); ///< copy constructor
         virtual ~tcAirDBObject();
         void CalculateParams();
-	private:
+    //     virtual void SetAirDetectionDBObject(std::shared_ptr<tcAirDetectionDBObject> obj)
+    //     {
+    //         airDetectionDBObject=obj;
+    //     }
+    //     virtual void setWaterDetectionDBObject(std::shared_ptr<tcWaterDetectionDBObject> obj )
+    //     {
+    //         waterDetectionDBObject=obj;
+    //     }
 
+    //     virtual std::shared_ptr<tcAirDetectionDBObject> GetAirDetectionDBObject() const
+    //     {
+    //         return airDetectionDBObject;
+    //     }
+    //     virtual std::shared_ptr<tcWaterDetectionDBObject> GetWaterDetectionDBObject( ) const
+    //     {
+    //        return waterDetectionDBObject;
+    //     }
+    // protected:
+    //     std::shared_ptr<tcAirDetectionDBObject> airDetectionDBObject;
+    //     std::shared_ptr<tcWaterDetectionDBObject> waterDetectionDBObject;
 
 
     };

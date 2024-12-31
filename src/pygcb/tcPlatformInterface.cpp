@@ -2387,7 +2387,7 @@ namespace scriptinterface {
     {
         if (mpPlatformObj == 0) return;
 
-        ai::Brain* brain = mpPlatformObj->GetBrain();
+        std::shared_ptr<Brain>  brain = mpPlatformObj->GetBrain();
         assert(brain);
         
         brain->AddTask(taskName, priority, attributes);
@@ -2399,7 +2399,7 @@ namespace scriptinterface {
 
 		if (mpPlatformObj->IsClientMode()) return;
 
-        ai::Brain* brain = mpPlatformObj->GetBrain();
+        std::shared_ptr<Brain>  brain = mpPlatformObj->GetBrain();
         assert(brain);
 
         ai::Nav* nav = brain->GetNavTask();
@@ -2420,7 +2420,7 @@ namespace scriptinterface {
 
 		if (mpPlatformObj->IsClientMode()) return;
 
-        ai::Brain* brain = mpPlatformObj->GetBrain();
+        std::shared_ptr<Brain>  brain = mpPlatformObj->GetBrain();
         assert(brain);
 
         ai::Nav* nav = brain->GetNavTask();
@@ -2443,7 +2443,7 @@ namespace scriptinterface {
 
 		if (mpPlatformObj->IsClientMode()) return 0;
 
-        ai::Brain* brain = mpPlatformObj->GetBrain();
+        std::shared_ptr<Brain>  brain = mpPlatformObj->GetBrain();
         assert(brain);
 
         ai::Nav* nav = brain->GetNavTask();
@@ -2456,7 +2456,7 @@ namespace scriptinterface {
 
 		if (mpPlatformObj->IsClientMode()) return 0;
 
-        ai::Brain* brain = mpPlatformObj->GetBrain();
+        std::shared_ptr<Brain>  brain = mpPlatformObj->GetBrain();
         assert(brain);
 
         ai::Nav* nav = brain->GetNavTask();
@@ -2610,7 +2610,7 @@ namespace scriptinterface {
 
 		if (mpPlatformObj->IsClientMode()) return;
 
-        ai::Brain* brain = mpPlatformObj->GetBrain();
+        std::shared_ptr<Brain>  brain = mpPlatformObj->GetBrain();
         assert(brain);
 
         brain->RemoveAllTasks();
@@ -2625,7 +2625,7 @@ namespace scriptinterface {
 
 		//if (mpPlatformObj->IsClientMode()) return; // changed to send remove requests to server
 
-        ai::Brain* brain = mpPlatformObj->GetBrain();
+        std::shared_ptr<Brain>  brain = mpPlatformObj->GetBrain();
         assert(brain);
                 
         brain->RemoveTask(taskName);
@@ -2637,7 +2637,7 @@ namespace scriptinterface {
 
 		if (mpPlatformObj->IsClientMode()) return;
 
-        ai::Brain* brain = mpPlatformObj->GetBrain();
+        std::shared_ptr<Brain>  brain = mpPlatformObj->GetBrain();
         assert(brain);
                 
         if (ai::Task* task = brain->GetTask(taskName))
@@ -2656,7 +2656,7 @@ namespace scriptinterface {
 
         if (mpPlatformObj == 0) return errorInterface;
 
-        ai::Brain* brain = mpPlatformObj->GetBrain();
+        std::shared_ptr<Brain>  brain = mpPlatformObj->GetBrain();
         assert(brain);
                 
         return brain->GetBlackboardInterface();   
@@ -2666,7 +2666,7 @@ namespace scriptinterface {
 	{
         if (mpPlatformObj == 0) return false;
 
-        ai::Brain* brain = mpPlatformObj->GetBrain();
+        std::shared_ptr<Brain>  brain = mpPlatformObj->GetBrain();
         assert(brain);
                 
         return brain->TaskExists(taskName); 
@@ -2678,7 +2678,7 @@ namespace scriptinterface {
 
         if (mpPlatformObj == 0) return result;
 
-        ai::Brain* brain = mpPlatformObj->GetBrain();
+        std::shared_ptr<Brain>  brain = mpPlatformObj->GetBrain();
         assert(brain);
 
         std::vector<std::string> taskList = brain->GetTaskList();

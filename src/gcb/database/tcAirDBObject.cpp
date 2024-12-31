@@ -135,10 +135,18 @@ void tcAirDBObject::AddSqlColumns(std::string& columnString)
 
 void tcAirDBObject::ReadSql(tcSqlReader& entry)
 {
+    components.clear();
 	tcPlatformDBObject::ReadSql(entry);
 
-	tcAirDetectionDBObject::ReadSql(entry);
-	tcWaterDetectionDBObject::ReadSql(entry);
+    // tcAirDetectionDBObject::ReadSql(entry);
+    // tcWaterDetectionDBObject::ReadSql(entry);
+    auto airDetectionDBObject =std::make_shared<tcAirDetectionDBObject>();
+    airDetectionDBObject->ReadSql(entry);
+    components.push_back(airDetectionDBObject);
+    auto waterDetectionDBObject =std::make_shared<tcWaterDetectionDBObject>();
+    waterDetectionDBObject->ReadSql(entry);
+    components.push_back(waterDetectionDBObject);
+
 
 	maxTakeoffWeight_kg = entry.GetDouble("MaxTakeoffWeight_kg");
 	maxAltitude_m = entry.GetDouble("MaxAltitude_m");
@@ -160,8 +168,8 @@ void tcAirDBObject::WriteSql(std::string& valueString) const
 {
 	tcPlatformDBObject::WriteSql(valueString);
 
-	tcAirDetectionDBObject::WriteSql(valueString);
-	tcWaterDetectionDBObject::WriteSql(valueString);
+    GetComponent<tcAirDetectionDBObject>()[0]->WriteSql(valueString);
+    GetComponent<tcWaterDetectionDBObject>()[0]->WriteSql(valueString);
 
 	std::stringstream s;
 
@@ -186,8 +194,8 @@ void tcAirDBObject::WritePythonValue(std::string &valueString) const
 {
     tcPlatformDBObject::WritePythonValue(valueString);
 
-    tcAirDetectionDBObject::WritePythonValue(mzClass,valueString);
-    tcWaterDetectionDBObject::WritePythonValue(mzClass,valueString);
+    GetComponent<tcAirDetectionDBObject>()[0]->WritePythonValue(mzClass,valueString);
+    GetComponent<tcWaterDetectionDBObject>()[0]->WritePythonValue(mzClass,valueString);
     valueString+="    dbObj.maxTakeoffWeight_kg="+strutil::to_python_value(maxTakeoffWeight_kg)+"\n";
     valueString+="    dbObj.maxAltitude_m="+strutil::to_python_value(maxAltitude_m)+"\n";
     valueString+="    dbObj.climbRate_mps="+strutil::to_python_value(climbRate_mps)+"\n";
@@ -214,8 +222,6 @@ void tcAirDBObject::WritePython(std::string &valueString) const
 
 tcAirDBObject::tcAirDBObject() : 
   tcPlatformDBObject(),
-  tcAirDetectionDBObject(),
-  tcWaterDetectionDBObject(),
   maxTakeoffWeight_kg(0),     
   maxAltitude_m(0),
   climbRate_mps(0),
@@ -233,8 +239,8 @@ tcAirDBObject::tcAirDBObject() :
 
 tcAirDBObject::tcAirDBObject(const tcAirDBObject& obj)
 : tcPlatformDBObject(obj), 
-  tcAirDetectionDBObject(obj),
-  tcWaterDetectionDBObject(obj),
+
+
   maxTakeoffWeight_kg(obj.maxTakeoffWeight_kg),     
   maxAltitude_m(obj.maxAltitude_m),
   climbRate_mps(obj.climbRate_mps),

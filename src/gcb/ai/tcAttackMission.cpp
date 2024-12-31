@@ -443,7 +443,7 @@ void tcAttackMission::UpdateActiveAircraft(unsigned int& nActive)
             // 如果飞机在空中但任务中包含“降落”任务，则将其标记为非活动
             if (inAir)
             {
-                ai::Brain* brain = air->GetBrain(); // 获取飞机的AI大脑
+                std::shared_ptr<Brain>  brain = air->GetBrain(); // 获取飞机的AI大脑
                 if (brain->TaskExists("Land")) // 检查是否存在“降落”任务
                 {
                     missionAircraft[n].active = false; // 标记为非活动
@@ -1421,7 +1421,7 @@ void tcAttackMission::UploadUnitMissionInfo( std::shared_ptr<tcAirObject> air)
 {
     assert(air != 0);
 
-    ai::Brain* brain = air->GetBrain();
+    std::shared_ptr<Brain>  brain = air->GetBrain();
 
     if (brain->GetNavTask() == 0)
     {

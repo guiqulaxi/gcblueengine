@@ -78,7 +78,7 @@ public:
 	tcSurfaceObject(tcSurfaceObject&);
 	tcSurfaceObject(std::shared_ptr<tcShipDBObject> obj);
 	~tcSurfaceObject();
-
+   virtual void Construct() override;
 protected:
     enum {MAX_HISTORY = 64};
 	bool doneSinking;

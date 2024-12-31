@@ -95,7 +95,7 @@ namespace database
 #define MAX_MISSILE_FLIGHT_SEGMENTS 8
 
 
-   class tcMissileDBObject : public tcWeaponDBObject, public tcAirDetectionDBObject
+   class tcMissileDBObject : public tcWeaponDBObject
    {
    public:
       // flight model parameters
@@ -163,7 +163,14 @@ namespace database
   private:
       std::string teAltitudeModeToString(teAltitudeMode data) const;
       std::string teGuidanceModeToString(teGuidanceMode data) const;
+  //     void SetAirDetectionDBObject(std::shared_ptr<tcAirDetectionDBObject> obj)
+  //     {
+  //         airDetectionDBObject=obj;
+  //     }
 
+  // private:
+
+  //     std::shared_ptr<tcAirDetectionDBObject> airDetectionDBObject;
 
    };
 

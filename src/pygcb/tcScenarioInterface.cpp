@@ -449,7 +449,7 @@ bool tcScenarioInterface::AddUnitToAlliance(scriptinterface::tcScenarioUnit unit
         }
 
         airObj->SetAltitude(airObj->mcKin.mfAlt_m);
-        ai::Brain* brain = airObj->GetBrain();
+        std::shared_ptr<Brain>  brain = airObj->GetBrain();
         brain->AddTask("RTB", 2.0f, ai::Task::PERMANENT | ai::Task::HIDDEN);
     }
     if (std::shared_ptr<tcSubObject> sub =  std::dynamic_pointer_cast<tcSubObject>(gameObj))
@@ -657,7 +657,7 @@ void tcScenarioInterface::AddUnitTask(const std::string& unitName, const std::st
     std::shared_ptr<tcGameObject> parentObj = simState->GetObjectByName(unitName);
     if (std::shared_ptr<tcPlatformObject> platform = std::dynamic_pointer_cast<tcPlatformObject>(parentObj))
     {
-        ai::Brain* brain = platform->GetBrain();
+        std::shared_ptr<Brain>  brain = platform->GetBrain();
         assert(brain);
         brain->AddTask(taskName, priority, attributes);
     }

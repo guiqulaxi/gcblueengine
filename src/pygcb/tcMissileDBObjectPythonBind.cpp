@@ -5,7 +5,7 @@
 using namespace database;
 void BindMissileDBObject(module &m)
 {
-    py::class_<tcMissileDBObject, std::shared_ptr<tcMissileDBObject>,tcWeaponDBObject, tcAirDetectionDBObject>(m, "tcMissileDBObject")
+    py::class_<tcMissileDBObject, std::shared_ptr<tcMissileDBObject>,tcWeaponDBObject>(m, "tcMissileDBObject")
     .def(py::init<>())
         .def_readwrite("mfDragArea_sm", &tcMissileDBObject::mfDragArea_sm)
         .def_readwrite("mfGmax", &tcMissileDBObject::mfGmax)

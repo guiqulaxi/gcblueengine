@@ -96,6 +96,7 @@ public:
     tcAirfieldObject();
     tcAirfieldObject(std::shared_ptr<tcGroundDBObject> obj);
     virtual ~tcAirfieldObject();
+    void Construct() override;
 };
 
 #endif

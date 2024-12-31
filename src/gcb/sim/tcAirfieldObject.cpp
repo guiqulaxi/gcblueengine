@@ -195,14 +195,14 @@ void tcAirfieldObject::Clear()
 
 float tcAirfieldObject::GetOpticalCrossSection() const
 {
-    return mpDBObject->opticalCrossSection_dBsm;
+    return mpDBObject->GetComponent<tcAirDetectionDBObject>()[0]->opticalCrossSection_dBsm;
 }
 
 
 
 float tcAirfieldObject::GetIRSignature(float az_deg) const
 {
-    return mpDBObject->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELA);
+    return mpDBObject->GetComponent<tcAirDetectionDBObject>()[0]->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELA);
 }
 
 
@@ -305,7 +305,7 @@ void tcAirfieldObject::Update(double afStatusTime)
 *
 */
 tcAirfieldObject::tcAirfieldObject()
-: tcFlightOpsObject(0, tcGameObject::shared_from_this())
+: tcFlightOpsObject(0)
 {
    Clear();
 
@@ -321,7 +321,7 @@ tcAirfieldObject::tcAirfieldObject()
 * can hold.
 */
 tcAirfieldObject::tcAirfieldObject(std::shared_ptr<tcGroundDBObject>obj)
-: tcPlatformObject(std::dynamic_pointer_cast<tcPlatformDBObject>(obj)), tcFlightOpsObject(obj->GetFlightport(), tcGameObject::shared_from_this()),
+: tcPlatformObject(std::dynamic_pointer_cast<tcPlatformDBObject>(obj)), tcFlightOpsObject(obj->GetFlightport()),
   mpDBObject(obj)
 {
 	mcKin.mfSpeed_kts = 0; // make sure this doesn't move (shouldn't be necessary)
@@ -333,4 +333,9 @@ tcAirfieldObject::tcAirfieldObject(std::shared_ptr<tcGroundDBObject>obj)
 
 tcAirfieldObject::~tcAirfieldObject() 
 {
+}
+
+void tcAirfieldObject::Construct()
+{
+    SetGameObject(shared_from_this());
 }

@@ -1037,13 +1037,15 @@ void tcSensorMapTrack::UpdateAmbiguityList()
 		bool platformMatches = false;
 		std::shared_ptr<tcDatabaseObject> obj = iter.Get();
         assert(obj);
-        if (std::shared_ptr<tcPlatformDBObject> generic = std::dynamic_pointer_cast<tcPlatformDBObject>(obj))
+        if (obj->GetComponent<tcSensorPlatformDBObject>().size()>0)
 		{
-			if (generic->HasAllEmitters(emitterList)) platformMatches = true;
+            if (obj->GetComponent<tcSensorPlatformDBObject>()[0]-> HasAllEmitters(emitterList))
+                platformMatches = true;
 		}
         else if (std::shared_ptr<tcMissileDBObject> missile = std::dynamic_pointer_cast<tcMissileDBObject>(obj))
 		{
-			if (missile->HasAllEmitters(emitterList)) platformMatches = true;
+            if (missile->HasAllEmitters(emitterList))
+                platformMatches = true;
 		}
 
 		if (platformMatches)

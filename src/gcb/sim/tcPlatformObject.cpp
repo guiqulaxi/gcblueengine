@@ -402,7 +402,7 @@ void tcPlatformObject::Update(double afStatusTime)
 /**
 * @return pointer to platform's "brain" (AI)
 */
-Brain* tcPlatformObject::GetBrain()
+std::shared_ptr<Brain>  tcPlatformObject::GetBrain()
 {
     return brain;
 }
@@ -2411,7 +2411,7 @@ tcPlatformObject::tcPlatformObject()
 {
     assert(false);
     Clear();
-    brain = new Brain(std::dynamic_pointer_cast<tcPlatformObject>(tcGameObject::shared_from_this()));
+    brain = std::make_shared<Brain>();
     mcLauncherState.mnCount = 0;
     mnModelType = MTYPE_PLATFORM;
 }
@@ -2419,81 +2419,22 @@ tcPlatformObject::tcPlatformObject()
 
 tcPlatformObject::tcPlatformObject(std::shared_ptr<tcPlatformDBObject>obj)
 : tcGameObject(obj), tcSensorPlatform(),
+  externalFuelCapacity_kg(0),
   isRefueling(false),
   loadoutTag(""),
-  reducedTurnRate_degps(360.0f),
-  externalFuelCapacity_kg(0)
+  reducedTurnRate_degps(360.0f)
 {
     using namespace database;
-    auto sss=tcGameObject::shared_from_this();
-    tcSensorPlatform::Init(obj, std::dynamic_pointer_cast<tcPlatformObject>(tcGameObject::shared_from_this()));
+    // tcSensorPlatform::Init(obj, std::dynamic_pointer_cast<tcPlatformObject>(tcGameObject::shared_from_this()));
 
-    brain = new Brain(std::dynamic_pointer_cast<tcPlatformObject>(tcGameObject::shared_from_this()));
-
+    // brain = new Brain(std::dynamic_pointer_cast<tcPlatformObject>(tcGameObject::shared_from_this()));
+    brain=std::make_shared<Brain>();
     mpDBObject = obj;
     mnModelType = MTYPE_PLATFORM;
 
 //    mcAI.ClearOrders();
 
-	fuel_kg = mpDBObject->GetInternalFuelCapacity(); // max internal fuel
 
-
-    // add magazines
-    if (mpDBObject->mnNumMagazines > tcPlatformDBObject::MAXMAGAZINES) 
-    {
-        mpDBObject->mnNumMagazines = tcPlatformDBObject::MAXMAGAZINES;
-        fprintf(stderr, "tcPlatformObject::tcPlatformObject - Warning - "
-            "DB magazine count exceeded limit\n");
-    }
-
-    magazines.clear();
-    for (int i=0; i<mpDBObject->mnNumMagazines; i++) 
-    {
-        std::shared_ptr<tcDatabaseObject> pDBObj = database->GetObject(mpDBObject->maMagazineClass[i].c_str());
-
-        if (std::shared_ptr<tcStoresDBObject> storesDBObj = std::dynamic_pointer_cast<tcStoresDBObject>(pDBObj))
-		{
-            std::shared_ptr<tcStores> mag = std::make_shared< tcStores>(storesDBObj);
-            mag->SetParent(std::dynamic_pointer_cast<tcPlatformObject>(tcGameObject::shared_from_this()));
-            magazines.push_back(mag);
-		}
-		else
-		{
-			fprintf(stderr, "Error - tcPlatformObject::tcPlatformObject(std::shared_ptr<tcPlatformDBObject>obj)"
-				" - Stores obj not found\n");
-		}
-        
-    }
-
-    // add launchers
-    mcLauncherState.SetParent(std::dynamic_pointer_cast<tcPlatformObject>(tcGameObject::shared_from_this()));
-    mcLauncherState.mnCount = 0;
-
-    for (int nLauncher=0; nLauncher<mpDBObject->mnNumLaunchers; nLauncher++) 
-    {
-        long nLauncherKey = database->GetKey(mpDBObject->maLauncherClass[nLauncher].c_str());
-		if (nLauncherKey != -1)
-		{
-            Vector2d attitude = mpDBObject->GetLauncherAttitude(nLauncher);
-            float FOV_deg = mpDBObject->GetLauncherFOV_deg(nLauncher);
-            bool isReloadable = mpDBObject->launcherIsReloadable[nLauncher];
-
-            mcLauncherState.AddFullLauncher(nLauncherKey, C_PIOVER180*attitude.x(),
-                C_PIOVER180*attitude.y(), FOV_deg, mpDBObject->launcherName[nLauncher], isReloadable);
-		}
-		else
-		{
-            assert(false);
-			fprintf(stderr, "tcPlatformObject::tcPlatformObject - Launcher not in database (%s)\n",
-				mpDBObject->maLauncherClass[nLauncher].c_str());
-		}
-    }
-
-    SetFireControlSensors();
-
-    //model->SetupAnimation(this);
-
-    lastHeadingDelta = 0;
 }
 
 
@@ -2503,20 +2444,19 @@ tcPlatformObject::tcPlatformObject(std::shared_ptr<tcPlatformDBObject>obj)
 tcPlatformObject::tcPlatformObject(tcPlatformObject& o) : 
     tcGameObject(o),
     tcSensorPlatform(o),
+    externalFuelCapacity_kg(o.externalFuelCapacity_kg),
+    formation(o.formation),
     commandObj(o.commandObj),
-	isRefueling(o.isRefueling),
-	loadoutTag(o.loadoutTag),
-    reducedTurnRate_degps(o.reducedTurnRate_degps),
-	externalFuelCapacity_kg(o.externalFuelCapacity_kg),
-    formation(o.formation)
+    isRefueling(o.isRefueling),
+    loadoutTag(o.loadoutTag),
+    reducedTurnRate_degps(o.reducedTurnRate_degps)
 {
-    brain = new Brain(std::dynamic_pointer_cast<tcPlatformObject>(tcGameObject::shared_from_this())); // need copy constructor for this
+    brain = std::make_shared<Brain>();
 
     fuel_kg = o.fuel_kg;
 //    mcAI = o.mcAI;
     mcGS = o.mcGS;
     mcLauncherState = o.mcLauncherState;
-    mcLauncherState.SetParent(std::dynamic_pointer_cast<tcPlatformObject>(tcGameObject::shared_from_this()));
     mcLaunchRequest = o.mcLaunchRequest;
     mpDBObject = o.mpDBObject;
     msTargetDatum = o.msTargetDatum;
@@ -2538,12 +2478,83 @@ tcPlatformObject::~tcPlatformObject()
 {
     DestroyFormation();
 
-    if (brain) delete brain;
+    // if (brain) delete brain;
 
     for (size_t n=0; n<magazines.size(); n++)
     {
         //delete magazines[n];
     }
+
+}
+
+void tcPlatformObject::Construct()
+{
+
+    tcSensorPlatform::Init(mpDBObject->GetComponent<tcSensorPlatformDBObject>()[0],
+                           std::dynamic_pointer_cast<tcPlatformObject>(tcGameObject::shared_from_this()));
+    mcLauncherState.SetParent(std::dynamic_pointer_cast<tcPlatformObject>(tcGameObject::shared_from_this()));
+
+    brain->SetPaltformObject( std::dynamic_pointer_cast<tcPlatformObject>(tcGameObject::shared_from_this()));
+
+    fuel_kg = mpDBObject->GetInternalFuelCapacity(); // max internal fuel
+
+
+    // add magazines
+    if (mpDBObject->mnNumMagazines > tcPlatformDBObject::MAXMAGAZINES)
+    {
+        mpDBObject->mnNumMagazines = tcPlatformDBObject::MAXMAGAZINES;
+        fprintf(stderr, "tcPlatformObject::tcPlatformObject - Warning - "
+                        "DB magazine count exceeded limit\n");
+    }
+
+    magazines.clear();
+    for (int i=0; i<mpDBObject->mnNumMagazines; i++)
+    {
+        std::shared_ptr<tcDatabaseObject> pDBObj = database->GetObject(mpDBObject->maMagazineClass[i].c_str());
+
+        if (std::shared_ptr<tcStoresDBObject> storesDBObj = std::dynamic_pointer_cast<tcStoresDBObject>(pDBObj))
+        {
+            std::shared_ptr<tcStores> mag = std::make_shared< tcStores>(storesDBObj);
+            mag->SetParent(std::dynamic_pointer_cast<tcPlatformObject>(tcGameObject::shared_from_this()));
+            magazines.push_back(mag);
+        }
+        else
+        {
+            fprintf(stderr, "Error - tcPlatformObject::tcPlatformObject(std::shared_ptr<tcPlatformDBObject>obj)"
+                            " - Stores obj not found\n");
+        }
+
+    }
+
+    // add launchers
+    mcLauncherState.SetParent(std::dynamic_pointer_cast<tcPlatformObject>(tcGameObject::shared_from_this()));
+    mcLauncherState.mnCount = 0;
+
+    for (int nLauncher=0; nLauncher<mpDBObject->mnNumLaunchers; nLauncher++)
+    {
+        long nLauncherKey = database->GetKey(mpDBObject->maLauncherClass[nLauncher].c_str());
+        if (nLauncherKey != -1)
+        {
+            Vector2d attitude = mpDBObject->GetLauncherAttitude(nLauncher);
+            float FOV_deg = mpDBObject->GetLauncherFOV_deg(nLauncher);
+            bool isReloadable = mpDBObject->launcherIsReloadable[nLauncher];
+
+            mcLauncherState.AddFullLauncher(nLauncherKey, C_PIOVER180*attitude.x(),
+                                            C_PIOVER180*attitude.y(), FOV_deg, mpDBObject->launcherName[nLauncher], isReloadable);
+        }
+        else
+        {
+            assert(false);
+            fprintf(stderr, "tcPlatformObject::tcPlatformObject - Launcher not in database (%s)\n",
+                    mpDBObject->maLauncherClass[nLauncher].c_str());
+        }
+    }
+
+    SetFireControlSensors();
+
+    //model->SetupAnimation(this);
+
+    lastHeadingDelta = 0;
 
 }
 

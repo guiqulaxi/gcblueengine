@@ -1774,7 +1774,7 @@ void tcFlightPort::UpdateUnitKin(tcAirState *airstate)
 
 
 	// write base name to unit blackboard to allow it to RTB when mission complete
-    ai::Brain* brain = air_unit->GetBrain();
+    std::shared_ptr<Brain>  brain = air_unit->GetBrain();
     assert(brain);
     ai::BlackboardInterface bb = brain->GetBlackboardInterface();
 

@@ -305,7 +305,7 @@ void tcPlatformDBObject::PrintToFile(tcFile& file)
         file.WriteString(s.GetBuffer());
     }
 
-    tcSensorPlatformDBObject::PrintToFile(file);
+    GetComponent<tcSensorPlatformDBObject>()[0]->PrintToFile(file);
 
     for(int i=0; i<mnNumMagazines; i++)
     {
@@ -439,8 +439,10 @@ void tcPlatformDBObject::ReadSql(tcSqlReader& entry)
 
 
 
-    tcSensorPlatformDBObject::ReadSql(entry);
-     CalculateParams();
+    auto sensorPlatformDBObject=std::make_shared<tcSensorPlatformDBObject>();
+    sensorPlatformDBObject->ReadSql(entry);
+    components.push_back(sensorPlatformDBObject);
+    CalculateParams();
 
 }
 
@@ -503,7 +505,7 @@ void tcPlatformDBObject::WriteSql(std::string& valueString) const
 void tcPlatformDBObject::WritePythonValue(std::string &valueString) const
 {
     tcDatabaseObject::WritePythonValue(valueString);
-    tcSensorPlatformDBObject::WritePythonValue(mzClass,valueString);
+    GetComponent<tcSensorPlatformDBObject>()[0]->WritePythonValue(mzClass,valueString);
     valueString+="    dbObj.mfMaxSpeed_kts="+strutil::to_python_value(mfMaxSpeed_kts)+"\n";
     valueString+="    dbObj.mfAccel_ktsps="+strutil::to_python_value(mfAccel_ktsps)+"\n";
     valueString+="    dbObj.mfTurnRate_degps="+strutil::to_python_value(mfTurnRate_degps)+"\n";
@@ -539,9 +541,6 @@ void tcPlatformDBObject::WritePython(std::string &valueString) const
 
 
 tcPlatformDBObject::tcPlatformDBObject() : tcDatabaseObject(),
-    tcSensorPlatformDBObject(),
-    fuelConsumptionConstant(0),
-    invMaxSpeed(0),
     mfMaxSpeed_kts(0),
     mfAccel_ktsps(0),
     mfTurnRate_degps(0),
@@ -550,14 +549,15 @@ tcPlatformDBObject::tcPlatformDBObject() : tcDatabaseObject(),
     mfToughness(1.0f),
     damageEffect(""),
     mnNumLaunchers(0),
-    mnNumMagazines(0)
+    mnNumMagazines(0),
+    fuelConsumptionConstant(0),
+    invMaxSpeed(0)
 {
     mnModelType = MTYPE_SURFACE;
 }
 
 tcPlatformDBObject::tcPlatformDBObject(const tcPlatformDBObject& obj)
     :   tcDatabaseObject(obj),
-    tcSensorPlatformDBObject(obj),
     mfMaxSpeed_kts(obj.mfMaxSpeed_kts),
     mfAccel_ktsps(obj.mfAccel_ktsps),
     mfTurnRate_degps(obj.mfTurnRate_degps),

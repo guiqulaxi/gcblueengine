@@ -197,8 +197,10 @@ void tcSensorPlatformDBObject::WriteSql(std::string& valueString) const
 
 void tcSensorPlatformDBObject::WritePythonValue(const std::string &mzClass, std::string& valueString) const
 {
-  valueString+="    dbObj.sensorClass="+strutil::to_python_value(sensorClass)+"\n";
-  valueString+="    dbObj.sensorAz="+strutil::to_python_value(sensorAz)+"\n";
+  valueString+="    sensorPlatformDBObject=pygcb.tcSensorPlatformDBObject()\n";
+  valueString+="    sensorPlatformDBObject.sensorClass="+strutil::to_python_value(sensorClass)+"\n";
+  valueString+="    sensorPlatformDBObject.sensorAz="+strutil::to_python_value(sensorAz)+"\n";
+  valueString+="    dbObj.AddComponent(sensorPlatformDBObject)\n";
 
 }
 

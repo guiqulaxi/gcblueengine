@@ -97,6 +97,7 @@ public:
     tcSubObject(tcSubObject&);
     tcSubObject(std::shared_ptr<tcSubDBObject> obj);
     virtual ~tcSubObject();
+    virtual void Construct() override;
 protected:
 	enum
 	{

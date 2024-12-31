@@ -7,7 +7,7 @@ using namespace database;
 void BindShipDBObject(module &m)
 {
 
-    py::class_<tcShipDBObject,std::shared_ptr<tcShipDBObject>,tcPlatformDBObject,tcAirDetectionDBObject,tcWaterDetectionDBObject>(m, "tcShipDBObject")
+    py::class_<tcShipDBObject,std::shared_ptr<tcShipDBObject>,tcPlatformDBObject>(m, "tcShipDBObject")
     .def(py::init<>())
         .def_readwrite("draft_m", &tcShipDBObject::draft_m)
         .def_readwrite("length_m", &tcShipDBObject::length_m)

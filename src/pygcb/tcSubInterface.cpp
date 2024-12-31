@@ -82,7 +82,7 @@ namespace scriptinterface {
     {
         if (!subObj) return 999.0f;
 
-        return subObj->mpDBObject->GetCavitationSpeedKts(depth_m);
+        return subObj->mpDBObject->GetComponent<tcWaterDetectionDBObject>()[0]->GetCavitationSpeedKts(depth_m);
     }
 
 	/**

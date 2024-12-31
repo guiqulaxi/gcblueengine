@@ -70,7 +70,7 @@ float tcSubDBObject::GetInvDraft() const
     */
 float tcSubDBObject::GetMaxNonCavitatingSpeed(float depth_m) const
 {
-    return tcWaterDetectionDBObject::GetCavitationSpeedKts(depth_m);
+    return GetComponent<tcWaterDetectionDBObject>()[0]->GetCavitationSpeedKts(depth_m);
 }
 
 bool tcSubDBObject::IsCavitatingMps(float speed_mps, float depth_m) const
@@ -115,9 +115,12 @@ void tcSubDBObject::ReadSql(tcSqlReader& entry)
     draft_m = (float)entry.GetDouble("Draft_m");
     surfaceSpeed_kts = (float)entry.GetDouble("SurfaceSpeed_kts");
 
-    tcAirDetectionDBObject::ReadSql(entry);
-    tcWaterDetectionDBObject::ReadSql(entry);
-
+    auto airDetectionDBObject =std::make_shared<tcAirDetectionDBObject>();
+    airDetectionDBObject->ReadSql(entry);
+    components.push_back(airDetectionDBObject);
+    auto waterDetectionDBObject =std::make_shared<tcWaterDetectionDBObject>();
+    waterDetectionDBObject->ReadSql(entry);
+    components.push_back(waterDetectionDBObject);
     mfMaxDepth_m = entry.GetDouble("MaxDepth_m");
 
     isDieselElectric = entry.GetInt("IsDieselElectric") != 0;
@@ -138,8 +141,8 @@ void tcSubDBObject::WriteSql(std::string& valueString) const
     s2 << surfaceSpeed_kts;
     valueString += s2.str();
 
-    tcAirDetectionDBObject::WriteSql(valueString);
-    tcWaterDetectionDBObject::WriteSql(valueString);
+    GetComponent<tcAirDetectionDBObject>()[0]->WriteSql(valueString);
+    GetComponent<tcWaterDetectionDBObject>()[0]->WriteSql(valueString);
 
     std::stringstream s;
     s << ",";
@@ -157,8 +160,8 @@ void tcSubDBObject::WriteSql(std::string& valueString) const
 void tcSubDBObject::WritePythonValue(std::string &valueString) const
 {
     tcPlatformDBObject::WritePythonValue(valueString);
-    tcAirDetectionDBObject::WritePythonValue(mzClass,valueString);
-    tcWaterDetectionDBObject::WritePythonValue(mzClass,valueString);
+    GetComponent<tcAirDetectionDBObject>()[0]->WritePythonValue(mzClass,valueString);
+    GetComponent<tcWaterDetectionDBObject>()[0]->WritePythonValue(mzClass,valueString);
     valueString+="    dbObj.draft_m="+strutil::to_python_value(draft_m)+"\n";
     valueString+="    dbObj.surfaceSpeed_kts="+strutil::to_python_value(surfaceSpeed_kts)+"\n";
     valueString+="    dbObj.mfMaxDepth_m="+strutil::to_python_value(mfMaxDepth_m)+"\n";
@@ -210,7 +213,9 @@ tcSubDBObject::~tcSubDBObject()
 
 std::shared_ptr<tcGameObject>tcSubDBObject::CreateGameObject()
 {
-    return std::make_shared< tcSubObject>(std::dynamic_pointer_cast<tcSubDBObject>(tcDatabaseObject::shared_from_this()));
+    auto obj= std::make_shared< tcSubObject>(std::dynamic_pointer_cast<tcSubDBObject>(tcDatabaseObject::shared_from_this()));
+    obj->Construct();
+    return obj;
 }
 
 

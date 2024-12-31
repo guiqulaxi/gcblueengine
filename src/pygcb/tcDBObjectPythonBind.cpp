@@ -81,8 +81,10 @@ void BindDBObject(module &m)
         .def_readwrite("mz3DModelFileName", &tcDatabaseObject::mz3DModelFileName) // 同上
         .def_readwrite("mzDescription", &tcDatabaseObject::mzDescription)
         .def_readwrite("notes", &tcDatabaseObject::notes)
-        .def("CalculateParams", &tcDatabaseObject::CalculateParams);
-
+        .def("CalculateParams", &tcDatabaseObject::CalculateParams)
+        .def("AddComponent", &tcDatabaseObject::AddComponent);
+    py::class_<tcComponentDBObject,std::shared_ptr<tcComponentDBObject>>(m, "tcComponentDBObject")
+        .def(pybind11::init<>()); // 绑定默认构造函数
     pybind11::class_<tcAcousticModel>(m, "tcAcousticModel")
         .def(pybind11::init<>()) // 绑定默认构造函数
         .def_readwrite("databaseClass", &tcAcousticModel::databaseClass)
@@ -104,7 +106,7 @@ void BindDBObject(module &m)
         .def_readwrite("topModifier_dB", &tcSignatureModel::topModifier_dB)
         .def_readwrite("bottomModifier_dB", &tcSignatureModel::bottomModifier_dB)
         .def("GetModifier", &tcSignatureModel::GetModifier, "az_deg"_a, "el_deg"_a);
-    pybind11::class_<tcSensorPlatformDBObject,std::shared_ptr<tcSensorPlatformDBObject>>(m, "tcSensorPlatformDBObject")
+    pybind11::class_<tcSensorPlatformDBObject,std::shared_ptr<tcSensorPlatformDBObject>,tcComponentDBObject>(m, "tcSensorPlatformDBObject")
         .def(pybind11::init<>()) // 绑定默认构造函数
         .def_readwrite("sensorClass", &tcSensorPlatformDBObject::sensorClass)
         .def_readwrite("sensorId", &tcSensorPlatformDBObject::sensorId)
@@ -112,7 +114,7 @@ void BindDBObject(module &m)
     // .def_static("MAXSENSORS", (int)tcSensorPlatformDBObject::MAXSENSORS, "Maximum number of sensor entries supported in database");
     BindPlatformDBObject(m);
 
-    pybind11::class_<tcAirDetectionDBObject,std::shared_ptr<tcAirDetectionDBObject>>(m, "tcAirDetectionDBObject")
+    pybind11::class_<tcAirDetectionDBObject,std::shared_ptr<tcAirDetectionDBObject>,tcComponentDBObject>(m, "tcAirDetectionDBObject")
         .def(pybind11::init<>())
         .def_readwrite("RCS_dBsm", &tcAirDetectionDBObject::RCS_dBsm)
         .def_readwrite("RCS_Model", &tcAirDetectionDBObject::RCS_Model)
@@ -165,7 +167,7 @@ void BindDBObject(module &m)
 
 
 
-    py::class_<tcWaterDetectionDBObject,std::shared_ptr<tcWaterDetectionDBObject>>(m, "tcWaterDetectionDBObject")
+    py::class_<tcWaterDetectionDBObject ,std::shared_ptr<tcWaterDetectionDBObject>,tcComponentDBObject>(m, "tcWaterDetectionDBObject")
         .def(py::init<>())
         .def_readwrite("TS", &tcWaterDetectionDBObject::TS)
         .def_readwrite("TS_Model", &tcWaterDetectionDBObject::TS_Model)
@@ -173,8 +175,7 @@ void BindDBObject(module &m)
         .def_readwrite("SL_Model", &tcWaterDetectionDBObject::SL_Model)
         .def("BindSignatureModels",&tcWaterDetectionDBObject::BindSignatureModels);
     py::class_<tcCounterMeasureDBObject,std::shared_ptr<tcCounterMeasureDBObject>,
-               tcDatabaseObject, tcAirDetectionDBObject,
-               tcWaterDetectionDBObject>(m, "tcCounterMeasureDBObject")
+               tcDatabaseObject>(m, "tcCounterMeasureDBObject")
         .def(py::init<>()) // 假设有一个默认构造函数
         .def_readwrite("subType", &tcCounterMeasureDBObject::subType)
         .def_readwrite("lifeSpan_s", &tcCounterMeasureDBObject::lifeSpan_s)
@@ -208,11 +209,11 @@ void BindDBObject(module &m)
         .def_readwrite("fuelCapacity_kg", &tcFuelTankDBObject::fuelCapacity_kg)
         .def("CalculateParams",&tcFuelTankDBObject::CalculateParams);
 
-    py::class_<tcGroundDBObject,std::shared_ptr<tcGroundDBObject>,tcPlatformDBObject,tcAirDetectionDBObject>(m, "tcGroundDBObject")
+    py::class_<tcGroundDBObject,std::shared_ptr<tcGroundDBObject>,tcPlatformDBObject>(m, "tcGroundDBObject")
         .def(py::init<>())
         .def_readwrite("flightportClass", &tcGroundDBObject::flightportClass)
         .def("CalculateParams",&tcFuelTankDBObject::CalculateParams);
-    py::class_<tcAirDBObject,std::shared_ptr<tcAirDBObject>,tcPlatformDBObject, tcAirDetectionDBObject, tcWaterDetectionDBObject>(m, "tcAirDBObject")
+    py::class_<tcAirDBObject,std::shared_ptr<tcAirDBObject>,tcPlatformDBObject>(m, "tcAirDBObject")
         .def(py::init<>())
         .def_readwrite("maxTakeoffWeight_kg", &tcAirDBObject::maxTakeoffWeight_kg)
         .def_readwrite("maxAltitude_m", &tcAirDBObject::maxAltitude_m)

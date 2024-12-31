@@ -7,7 +7,7 @@ using namespace database;
 
 void BindTorpedoDBObject(module &m)
 {
-    py::class_<tcTorpedoDBObject,std::shared_ptr<tcTorpedoDBObject>, tcWeaponDBObject, tcWaterDetectionDBObject>(m, "tcTorpedoDBObject")
+    py::class_<tcTorpedoDBObject,std::shared_ptr<tcTorpedoDBObject>, tcWeaponDBObject>(m, "tcTorpedoDBObject")
     .def(py::init<>())
         .def_readwrite("maxTurnRate_degps", &tcTorpedoDBObject::maxTurnRate_degps)
         .def_readwrite("maxDepth_m", &tcTorpedoDBObject::maxDepth_m)

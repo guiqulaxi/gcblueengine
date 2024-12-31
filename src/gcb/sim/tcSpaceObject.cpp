@@ -257,8 +257,7 @@ tcSpaceObject::tcSpaceObject(std::shared_ptr<tcSpaceDBObject>obj)
     m_mu=398600.4415;
     lastHistoryUpdate = 3.0f*randf();
 
-    if (addTasksOnCreate) brain->AddTaskDirectly("MissileWarning", 3.0, ai::Task::HIDDEN | ai::Task::PERMANENT);
-    if (addTasksOnCreate) brain->AddTaskDirectly("PointDefense", 3.0, ai::Task::HIDDEN | ai::Task::PERMANENT);
+
 }
 
 /******************************************************************************/
@@ -347,6 +346,14 @@ double tcSpaceObject::GetOrbitalVelocity() const {
 
     double total_speed = sqrt(vx * vx + vy * vy + vz * vz);
 
+}
+
+void tcSpaceObject::Construct()
+{
+    tcPlatformObject::Construct();
+
+    if (addTasksOnCreate) brain->AddTaskDirectly("MissileWarning", 3.0, ai::Task::HIDDEN | ai::Task::PERMANENT);
+    if (addTasksOnCreate) brain->AddTaskDirectly("PointDefense", 3.0, ai::Task::HIDDEN | ai::Task::PERMANENT);
 }
 // tcSpaceObject类的成员函数，用于根据给定的平近点角M计算天体的三维空间位置
 GeoPoint tcSpaceObject::GetPointAt(double M) const

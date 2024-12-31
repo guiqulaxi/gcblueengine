@@ -4,7 +4,7 @@
 using namespace database;
 void BindPlatformDBObject(module &m)
 {
-    pybind11::class_<tcPlatformDBObject,std::shared_ptr<tcPlatformDBObject>, tcDatabaseObject, tcSensorPlatformDBObject>(m, "PlatformDBObject")
+    pybind11::class_<tcPlatformDBObject,std::shared_ptr<tcPlatformDBObject>, tcDatabaseObject>(m, "PlatformDBObject")
     .def(pybind11::init<>())
         .def_readwrite("mfMaxSpeed_kts", &tcPlatformDBObject::mfMaxSpeed_kts)
         .def_readwrite("mfAccel_ktsps", &tcPlatformDBObject::mfAccel_ktsps)

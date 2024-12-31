@@ -765,11 +765,10 @@ tcFlightOpsObject::tcFlightOpsObject(tcFlightOpsObject& o)
 * DB object will have info on number and types of aircraft the carrier
 * can hold.
 */
-tcFlightOpsObject::tcFlightOpsObject(std::shared_ptr<tcFlightportDBObject> dbObject, std::shared_ptr<tcGameObject> gameObject)
-: gameObj(gameObject),
+tcFlightOpsObject::tcFlightOpsObject(std::shared_ptr<tcFlightportDBObject> dbObject)
+:
   nextUpdateIdx(0)
 {
-	assert(gameObj);
 	if (database == 0)
 	{
 		database = tcDatabase::Get();
@@ -784,9 +783,16 @@ tcFlightOpsObject::tcFlightOpsObject(std::shared_ptr<tcFlightportDBObject> dbObj
     }
 
     flight_deck.InitFromDatabase(dbObject);
-	flight_deck.SetParent(gameObj);
 }
 /******************************************************************************/
 tcFlightOpsObject::~tcFlightOpsObject() 
 {
+}
+
+void tcFlightOpsObject::SetGameObject(std::shared_ptr<tcGameObject> obj)
+{
+    gameObj=obj;
+    assert(gameObj);
+    flight_deck.SetParent(gameObj);
+
 }

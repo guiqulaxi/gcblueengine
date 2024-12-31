@@ -84,11 +84,14 @@ void tcWaterDetectionDBObject::WriteSql(std::string& valueString) const
 
 void tcWaterDetectionDBObject::WritePythonValue(const std::string &mzClass, std::string &valueString) const
 {
-    valueString+="    dbObj.TS="+strutil::to_python_value(TS)+"\n";
-    valueString+="    dbObj.TS_Model="+strutil::to_python_value(TS_Model)+"\n";
-    valueString+="    dbObj.acousticModel="+strutil::to_python_value(acousticModel)+"\n";
-    valueString+="    dbObj.SL_Model="+strutil::to_python_value(SL_Model)+"\n";
-    valueString+="    dbObj.BindSignatureModels()\n";
+    valueString+="    waterDetectionDBObject=pygcb.tcWaterDetectionDBObject()\n";
+    valueString+="    waterDetectionDBObject.TS="+strutil::to_python_value(TS)+"\n";
+    valueString+="    waterDetectionDBObject.TS_Model="+strutil::to_python_value(TS_Model)+"\n";
+    valueString+="    waterDetectionDBObject.acousticModel="+strutil::to_python_value(acousticModel)+"\n";
+    valueString+="    waterDetectionDBObject.SL_Model="+strutil::to_python_value(SL_Model)+"\n";
+    valueString+="    waterDetectionDBObject.BindSignatureModels()\n";
+    valueString+="    dbObj.AddComponent(waterDetectionDBObject)\n";
+
 
 }
 

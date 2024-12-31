@@ -111,8 +111,9 @@ namespace database
     void tcTorpedoDBObject::ReadSql(tcSqlReader& entry)
     {
         tcWeaponDBObject::ReadSql(entry);
-        tcWaterDetectionDBObject::ReadSql(entry);
-
+        waterDetectionDBObject =std::make_shared<tcWaterDetectionDBObject>();
+        waterDetectionDBObject->ReadSql(entry);
+        components.push_back(waterDetectionDBObject);
         maxTurnRate_degps = entry.GetDouble("maxTurnRate_degps");
         maxDepth_m = entry.GetDouble("maxDepth_m");
         battery_kJ = entry.GetDouble("battery_kJ");
@@ -130,7 +131,7 @@ namespace database
     void tcTorpedoDBObject::WriteSql(std::string& valueString) const
     {
         tcWeaponDBObject::WriteSql(valueString);
-        tcWaterDetectionDBObject::WriteSql(valueString);
+        waterDetectionDBObject->WriteSql(valueString);
 
         std::stringstream s;
 
@@ -155,7 +156,7 @@ namespace database
     void tcTorpedoDBObject::WritePythonValue(std::string &valueString) const
     {
         tcWeaponDBObject::WritePythonValue(valueString);
-        tcWaterDetectionDBObject::WritePythonValue(mzClass,valueString);
+        waterDetectionDBObject->WritePythonValue(mzClass,valueString);
         valueString+="    dbObj.maxTurnRate_degps="+strutil::to_python_value(maxTurnRate_degps)+"\n";
         valueString+="    dbObj.maxDepth_m="+strutil::to_python_value(maxDepth_m)+"\n";
         valueString+="    dbObj.battery_kJ="+strutil::to_python_value(battery_kJ)+"\n";
@@ -223,7 +224,9 @@ namespace database
 
     std::shared_ptr<tcGameObject>tcTorpedoDBObject::CreateGameObject()
     {
-        return std::make_shared< tcTorpedoObject>(std::dynamic_pointer_cast<tcTorpedoDBObject>(tcDatabaseObject::shared_from_this()));
+        auto obj= std::make_shared< tcTorpedoObject>(std::dynamic_pointer_cast<tcTorpedoDBObject>(tcDatabaseObject::shared_from_this()));
+        obj->Construct();
+        return obj;
     }
 
 } // namespace database

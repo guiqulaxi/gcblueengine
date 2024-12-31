@@ -46,7 +46,7 @@ namespace database
     /**
     * Models a surface ship platform. Specialization of old tcGenericDBObject
     */
-    class tcShipDBObject :  public tcPlatformDBObject, public tcAirDetectionDBObject, public tcWaterDetectionDBObject
+    class tcShipDBObject :  public tcPlatformDBObject
     {
     public:
         float draft_m; ///< max navigational draft 最大航行吃水深度
@@ -78,9 +78,27 @@ namespace database
         tcShipDBObject(const tcShipDBObject& obj); ///< copy constructor
         virtual ~tcShipDBObject();
         virtual std::shared_ptr<tcGameObject> CreateGameObject() override;
-         void CalculateParams();
-	private:
+        void CalculateParams();
 
+        // void SetAirDetectionDBObject(std::shared_ptr<tcAirDetectionDBObject> obj)
+        // {
+        //     airDetectionDBObject=obj;
+        // }
+        // void setWaterDetectionDBObject(std::shared_ptr<tcWaterDetectionDBObject> obj )
+        // {
+        //      waterDetectionDBObject=obj;
+        // }
+ //        virtual std::shared_ptr<tcAirDetectionDBObject> GetAirDetectionDBObject()const
+ //        {
+ //            return airDetectionDBObject;
+ //        }
+ //        virtual std::shared_ptr<tcWaterDetectionDBObject> GetWaterDetectionDBObject( )const
+ //        {
+ //            return waterDetectionDBObject;
+ //        }
+    // private:
+ //         std::shared_ptr<tcAirDetectionDBObject> airDetectionDBObject;
+ //         std::shared_ptr<tcWaterDetectionDBObject> waterDetectionDBObject;
 
     };
 

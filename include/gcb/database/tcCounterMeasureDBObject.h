@@ -44,7 +44,7 @@ namespace database
     * Database object to support simple countermeasure model for chaff and flares
     * doesn't model subsurface CM like noisemakers
     */
-	class tcCounterMeasureDBObject : public tcDatabaseObject, public tcAirDetectionDBObject, public tcWaterDetectionDBObject
+    class tcCounterMeasureDBObject : public tcDatabaseObject
 	{
 	public:
         std::string subType; ///< type of countermeasure, "Chaff", "Flare"
@@ -69,11 +69,31 @@ namespace database
 		virtual ~tcCounterMeasureDBObject();
         virtual std::shared_ptr<tcGameObject>CreateGameObject() override;
          void CalculateParams();
+        // virtual void SetAirDetectionDBObject(std::shared_ptr<tcAirDetectionDBObject> obj)
+        // {
+        //     airDetectionDBObject=obj;
+        // }
+        // virtual void setWaterDetectionDBObject(std::shared_ptr<tcWaterDetectionDBObject> obj )
+        // {
+        //     waterDetectionDBObject=obj;
+        // }
+        // virtual std::shared_ptr<tcAirDetectionDBObject> GetAirDetectionDBObject()const
+        // {
+        //     return airDetectionDBObject;
+        // }
+        // virtual std::shared_ptr<tcWaterDetectionDBObject> GetWaterDetectionDBObject( )const
+        // {
+        //     return waterDetectionDBObject;
+        // }
     private:
         // calculated parameters
         float airDragFactor; ///< accel [m/s^2] = dragFactor * v_mps^2
 		bool isFlare;
 
+    // protected:
+
+    //     std::shared_ptr<tcAirDetectionDBObject> airDetectionDBObject;
+    //     std::shared_ptr<tcWaterDetectionDBObject> waterDetectionDBObject;
 
 	};
 

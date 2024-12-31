@@ -46,7 +46,7 @@ namespace database
     /**
     * 
     */
-    class tcSubDBObject : public tcPlatformDBObject, public tcAirDetectionDBObject, public tcWaterDetectionDBObject
+    class tcSubDBObject : public tcPlatformDBObject
     {
     public:
         float draft_m;                    ///< max navigational draft on surface
@@ -82,12 +82,30 @@ namespace database
         virtual ~tcSubDBObject();
         virtual std::shared_ptr<tcGameObject> CreateGameObject() override;
         void CalculateParams();
+        // virtual void SetAirDetectionDBObject(std::shared_ptr<tcAirDetectionDBObject> obj)
+        // {
+        //     airDetectionDBObject=obj;
+        // }
+        // virtual void setWaterDetectionDBObject(std::shared_ptr<tcWaterDetectionDBObject> obj )
+        // {
+        //     waterDetectionDBObject=obj;
+        // }
+        // virtual std::shared_ptr<tcAirDetectionDBObject> GetAirDetectionDBObject() const
+        // {
+        //     return airDetectionDBObject;
+        // }
+        // virtual std::shared_ptr<tcWaterDetectionDBObject> GetWaterDetectionDBObject( ) const
+        // {
+        //     return waterDetectionDBObject;
+        // }
     private:
         // calculated parameters               
         float invMaxSpeed_mps;
         float invDraft_m; ///< 1/draft_m
         float batteryDrainConstant; ///< [kW/mps]
-
+    // protected:
+    //     std::shared_ptr<tcAirDetectionDBObject> airDetectionDBObject;
+    //     std::shared_ptr<tcWaterDetectionDBObject> waterDetectionDBObject;
 
 
     };

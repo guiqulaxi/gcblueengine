@@ -120,8 +120,11 @@ public:
     virtual void SaveToPython(scriptinterface::tcScenarioLogger& logger);
     static void InitTaskNameLookup(); // call once at startup
 
-	Brain(std::shared_ptr<tcPlatformObject> platform_);
+
+    Brain();
+    void SetPaltformObject(std::shared_ptr<tcPlatformObject> platform_);
 	~Brain();
+
 private:
 	struct TaskCommand
 	{
@@ -131,7 +134,7 @@ private:
 		int attributes;
 	};
 
-    std::shared_ptr<tcPlatformObject> const platform;
+    std::shared_ptr< tcPlatformObject>  platform;
     const float updateInterval;
     long nextId; ///< id assigned to next task
     double lastUpdateTime; ///< last time tasks were updated

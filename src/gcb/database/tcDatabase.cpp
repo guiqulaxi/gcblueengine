@@ -1547,7 +1547,7 @@ void tcDatabase::ReadWriteSql(sqlite3x::sqlite3_connection* sqlConnectionNew, bo
         ReportProgress("DB load complete", 0.95f);
     }
 
-    if (useDynamicLoad) return; // load records when needed, return
+    //if (useDynamicLoad) return; // load records when needed, return
 
     // tcShipDBObject
     {
@@ -2033,7 +2033,7 @@ void tcDatabase::ClearForNewScenario()
     }
 
     //mcObjectData.RemoveAll();
-    ClearDictionaries();
+    //ClearDictionaries();
 
     fprintf(stdout, "Clearing database for new scenario\n");
 }

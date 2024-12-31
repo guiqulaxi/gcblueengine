@@ -5,7 +5,7 @@
 using namespace database;
 void BindBallisticMissileDBObject( module&m ){
 
-        py::class_<tcBallisticMissileDBObject,std::shared_ptr<tcBallisticMissileDBObject>, tcWeaponDBObject, tcAirDetectionDBObject>(m, "tcBallisticMissileDBObject")
+        py::class_<tcBallisticMissileDBObject,std::shared_ptr<tcBallisticMissileDBObject>,tcWeaponDBObject>(m, "tcBallisticMissileDBObject")
             .def(py::init<>()) // 假设有一个默认构造函数
             .def_readwrite("gmax", &tcBallisticMissileDBObject::gmax)
             .def_readwrite("timeStage1_s", &tcBallisticMissileDBObject::timeStage1_s)

@@ -94,6 +94,8 @@ public:
     tcCarrierObject(tcCarrierObject&);
     tcCarrierObject(std::shared_ptr<tcShipDBObject> obj);
     virtual ~tcCarrierObject();
+
+    virtual void Construct() override;
 };
 
 #endif

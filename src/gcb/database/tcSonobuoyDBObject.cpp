@@ -46,7 +46,7 @@ namespace database
 void tcSonobuoyDBObject::PrintToFile(tcFile& file)
 {
     tcDatabaseObject::PrintToFile(file);
-    tcSensorPlatformDBObject::PrintToFile(file);
+    GetComponent<tcSensorPlatformDBObject>()[0]->PrintToFile(file);
 }
 
 
@@ -70,8 +70,12 @@ void tcSonobuoyDBObject::AddSqlColumns(std::string& columnString)
 void tcSonobuoyDBObject::ReadSql(tcSqlReader& entry)
 {
     tcDatabaseObject::ReadSql(entry);
-    tcSensorPlatformDBObject::ReadSql(entry);
-    tcWaterDetectionDBObject::ReadSql(entry);
+    auto sensorPlatformDBObject=std::make_shared<tcSensorPlatformDBObject>();
+    sensorPlatformDBObject->ReadSql(entry);
+    components.push_back(sensorPlatformDBObject);
+    auto waterDetectionDBObject =std::make_shared<tcWaterDetectionDBObject>();
+    waterDetectionDBObject->ReadSql(entry);
+    components.push_back(waterDetectionDBObject);
 
     batteryLife_s = entry.GetDouble("BatteryLife_s");
     commRange_km = entry.GetDouble("CommRange_km");
@@ -80,8 +84,8 @@ void tcSonobuoyDBObject::ReadSql(tcSqlReader& entry)
 void tcSonobuoyDBObject::WriteSql(std::string& valueString) const
 {
     tcDatabaseObject::WriteSql(valueString);
-    tcSensorPlatformDBObject::WriteSql(valueString);
-    tcWaterDetectionDBObject::WriteSql(valueString);
+    GetComponent<tcSensorPlatformDBObject>()[0]->WriteSql(valueString);
+    GetComponent<tcWaterDetectionDBObject>()[0]->WriteSql(valueString);
 
     std::stringstream s;
 
@@ -96,8 +100,8 @@ void tcSonobuoyDBObject::WriteSql(std::string& valueString) const
 void tcSonobuoyDBObject::WritePythonValue(std::string &valueString) const
 {
     tcDatabaseObject::WritePythonValue(valueString);
-    tcSensorPlatformDBObject::WritePythonValue(mzClass,valueString);
-    tcWaterDetectionDBObject::WritePythonValue(mzClass,valueString);
+    GetComponent<tcSensorPlatformDBObject>()[0]->WritePythonValue(mzClass,valueString);
+    GetComponent<tcWaterDetectionDBObject>()[0]->WritePythonValue(mzClass,valueString);
     valueString+="    dbObj.batteryLife_s="+strutil::to_python_value(batteryLife_s)+"\n";
     valueString+="    dbObj.commRange_km="+strutil::to_python_value(commRange_km)+"\n";
 
@@ -116,16 +120,13 @@ void tcSonobuoyDBObject::WritePython(std::string &valueString) const
 
 
 
-tcSonobuoyDBObject::tcSonobuoyDBObject() : tcDatabaseObject(),
-    tcSensorPlatformDBObject(),
-    tcWaterDetectionDBObject()
+tcSonobuoyDBObject::tcSonobuoyDBObject() : tcDatabaseObject()
 {
     mzClass = "Default Sonobuoy";
 }
 
 tcSonobuoyDBObject::tcSonobuoyDBObject(tcSonobuoyDBObject& obj)
-    : tcDatabaseObject(obj), tcSensorPlatformDBObject(obj),
-    tcWaterDetectionDBObject(obj),
+    : tcDatabaseObject(obj),
     batteryLife_s(obj.batteryLife_s),
     commRange_km(obj.commRange_km)
 {
@@ -138,8 +139,9 @@ tcSonobuoyDBObject::~tcSonobuoyDBObject()
 
 std::shared_ptr<tcGameObject>tcSonobuoyDBObject::CreateGameObject()
 {
-    return std::make_shared< tcSonobuoy>(std::dynamic_pointer_cast<tcSonobuoyDBObject>(tcDatabaseObject::tcDatabaseObject::shared_from_this()));
-
+    auto obj= std::make_shared< tcSonobuoy>(std::dynamic_pointer_cast<tcSonobuoyDBObject>(tcDatabaseObject::tcDatabaseObject::shared_from_this()));
+    obj->Construct();
+    return obj;
 }
 
 }

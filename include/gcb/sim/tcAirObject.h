@@ -116,6 +116,7 @@ public:
     tcAirObject(tcAirObject&);
     tcAirObject(std::shared_ptr<tcAirDBObject> obj);
     virtual ~tcAirObject();
+    virtual void Construct() override;
 protected:
     tcCommandObject commandObj;
 

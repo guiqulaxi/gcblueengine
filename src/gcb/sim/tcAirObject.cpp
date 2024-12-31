@@ -373,7 +373,7 @@ float tcAirObject::GetStallSpeedForAltitude(float alt_m) const
 
 float tcAirObject::GetOpticalCrossSection() const
 {
-    return mpDBObject->opticalCrossSection_dBsm;
+    return mpDBObject->GetComponent<tcAirDetectionDBObject>()[0]->opticalCrossSection_dBsm;
 }
 
 
@@ -384,18 +384,18 @@ float tcAirObject::GetIRSignature(float az_deg) const
 
     if (!isSupersonic)
     {
-        return mpDBObject->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELA);
+        return mpDBObject->GetComponent<tcAirDetectionDBObject>()[0]->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELA);
     }
     else
     {
-        return mpDBObject->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELC);
+        return mpDBObject->GetComponent<tcAirDetectionDBObject>()[0]->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELC);
     }
 
     //std::shared_ptr<const tcAeroAirObject> jet =  std::dynamic_pointer_cast<const tcAeroAirObject>>(target);
     //bool afterburnersOn = (jet == 0) ? false : (jet->GetThrottleFraction() > 1.0f);
 
 
-    //return mpDBObject->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELA);
+    //return mpDBObject->GetAirDetectionDBObject()->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELA);
 }
 
 
@@ -1127,18 +1127,24 @@ tcAirObject::tcAirObject()
 */
 tcAirObject::tcAirObject(std::shared_ptr<tcAirDBObject> obj)
 : tcPlatformObject(obj),
-  doneCrashing(false),
+  maxPitch_rad(MAX_PITCH_RAD),
   climbCommand_rad(0),
-  maxPitch_rad(MAX_PITCH_RAD)
+  doneCrashing(false)
 {
     mpDBObject = obj;
     mnModelType = MTYPE_FIXEDWING;
     readyForLanding = 0;
     
-    if (addTasksOnCreate) brain->AddTaskDirectly("AirEvade", 3.0, ai::Task::HIDDEN | ai::Task::PERMANENT);
-    
 }
 
 tcAirObject::~tcAirObject()
 {
+}
+
+void tcAirObject::Construct()
+{
+    tcPlatformObject::Construct();//顺序不能变
+
+    if (addTasksOnCreate)
+        brain->AddTaskDirectly("AirEvade", 3.0, ai::Task::HIDDEN | ai::Task::PERMANENT);
 }

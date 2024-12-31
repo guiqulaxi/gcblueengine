@@ -42,7 +42,7 @@ namespace database
     /**
     * Models a ground (non-airfield) platform. Specialization of old tcGenericDBObject
     */
-    class tcGroundDBObject :  public tcPlatformDBObject, public tcAirDetectionDBObject
+    class tcGroundDBObject :  public tcPlatformDBObject
     {
     public:
         std::string flightportClass; ///< database class name of flightport (or empty if none)
@@ -61,8 +61,16 @@ namespace database
         tcGroundDBObject(const tcGroundDBObject& obj); ///< copy constructor
         virtual ~tcGroundDBObject();
         virtual std::shared_ptr<tcGameObject> CreateGameObject() override;
-
-	private:
+    //     virtual void SetAirDetectionDBObject(std::shared_ptr<tcAirDetectionDBObject> obj)
+    //     {
+    //         airDetectionDBObject=obj;
+    //     }
+    //     virtual std::shared_ptr<tcAirDetectionDBObject> GetAirDetectionDBObject()
+    //     {
+    //         return airDetectionDBObject;
+    //     }
+    // protected:
+    //     std::shared_ptr<tcAirDetectionDBObject> airDetectionDBObject;
 
     };
 

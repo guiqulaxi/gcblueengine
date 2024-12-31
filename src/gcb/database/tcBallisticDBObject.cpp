@@ -521,17 +521,23 @@ namespace database
         case MTYPE_LASERGUIDEDBOMB:
         {
 
-            return std::make_shared<tcGuidedBomb>(dynamic_pointer_cast<tcBallisticDBObject>(tcDatabaseObject::shared_from_this()));
+            auto obj= std::make_shared<tcGuidedBomb>(dynamic_pointer_cast<tcBallisticDBObject>(tcDatabaseObject::shared_from_this()));
+            obj->Construct();
+            return obj;
         }
         break;
         case MTYPE_ROCKET:
         {
-            return std::make_shared<  tcRocket>(dynamic_pointer_cast<tcBallisticDBObject>(tcDatabaseObject::shared_from_this()));
+            auto obj= std::make_shared<  tcRocket>(dynamic_pointer_cast<tcBallisticDBObject>(tcDatabaseObject::shared_from_this()));
+            obj->Construct();
+            return obj;
         }
         break;
         default:
         {
-            return std::make_shared<tcBallisticWeapon>(dynamic_pointer_cast<tcBallisticDBObject>(tcDatabaseObject::shared_from_this()));
+            auto obj= std::make_shared<tcBallisticWeapon>(dynamic_pointer_cast<tcBallisticDBObject>(tcDatabaseObject::shared_from_this()));
+            obj->Construct();
+            return obj;
         }
         break;
         }

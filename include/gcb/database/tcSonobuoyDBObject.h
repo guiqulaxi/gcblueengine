@@ -33,13 +33,13 @@
 #include "tcDatabaseObject.h"
 #include "tcSensorPlatformDBObject.h"
 #include "tcWaterDetectionDBObject.h"
-
+#include "tcComponentDBObject.h"
 
 namespace database
 {
 	class tcSqlReader;
 
-    class tcSonobuoyDBObject : public tcDatabaseObject, public tcSensorPlatformDBObject, public tcWaterDetectionDBObject
+    class tcSonobuoyDBObject : public tcDatabaseObject
 	{
 	public:
         float batteryLife_s; ///< duration that buoy is active
@@ -58,6 +58,8 @@ namespace database
 		tcSonobuoyDBObject();
 		virtual ~tcSonobuoyDBObject();
         virtual std::shared_ptr<tcGameObject>CreateGameObject() override;
+
+
 	};
 
 } // namespace database

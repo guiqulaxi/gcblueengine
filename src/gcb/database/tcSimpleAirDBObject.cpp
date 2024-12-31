@@ -62,15 +62,23 @@ tcSimpleAirDBObject::~tcSimpleAirDBObject()
     {
     case MTYPE_FIXEDWING:
     case MTYPE_AIR:
-        return std::make_shared< tcAirObject>(dynamic_pointer_cast<tcSimpleAirDBObject>(tcDatabaseObject::shared_from_this()));
+    {
+        auto obj= std::make_shared< tcAirObject>(dynamic_pointer_cast<tcSimpleAirDBObject>(tcDatabaseObject::shared_from_this()));
+        obj->Construct();
+        return obj;
+    }
         break;
     case MTYPE_HELO:
-        return std::make_shared<  tcHeloObject>(dynamic_pointer_cast<tcSimpleAirDBObject>(tcDatabaseObject::shared_from_this()));
+    {
+        auto obj= std::make_shared<  tcHeloObject>(dynamic_pointer_cast<tcSimpleAirDBObject>(tcDatabaseObject::shared_from_this()));
+        obj->Construct();
+        return obj;
+    }
         break;
     default:
         fprintf(stderr, "tcSimState::CreateGameObject - "
                         "Invalid model type for Simple Air DB obj (%d)\n", this->mnModelType);
-        return NULL;
+        return nullptr;
     }
 }
 

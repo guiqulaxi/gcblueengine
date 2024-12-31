@@ -86,7 +86,10 @@ void tcGroundDBObject::ReadSql(tcSqlReader& entry)
 
     flightportClass = entry.GetString("FlightportClass").c_str();
 
-    tcAirDetectionDBObject::ReadSql(entry);
+    auto airDetectionDBObject =std::make_shared<tcAirDetectionDBObject>();
+    airDetectionDBObject->ReadSql(entry);
+    components.push_back(airDetectionDBObject);
+
 }
 
 void tcGroundDBObject::WriteSql(std::string& valueString) const
@@ -101,13 +104,13 @@ void tcGroundDBObject::WriteSql(std::string& valueString) const
 
 	valueString += s.str();
 
-    tcAirDetectionDBObject::WriteSql(valueString);
+    GetComponent<tcAirDetectionDBObject>()[0]->WriteSql(valueString);
 }
 
 void tcGroundDBObject::WritePythonValue(std::string &valueString) const
 {
     tcPlatformDBObject::WritePythonValue(valueString);
-    tcAirDetectionDBObject::WritePythonValue(mzClass,valueString);
+    GetComponent<tcAirDetectionDBObject>()[0]->WritePythonValue(mzClass,valueString);
     valueString+="    dbObj.flightportClass="+strutil::to_python_value(flightportClass.c_str())+"\n";
 
 }
@@ -127,15 +130,14 @@ void tcGroundDBObject::CalculateParams()
 {
 }
 tcGroundDBObject::tcGroundDBObject() : 
-    tcPlatformDBObject(),
-    tcAirDetectionDBObject()
+    tcPlatformDBObject()
 {
     mnModelType = MTYPE_OBJECT;
 }
 
 tcGroundDBObject::tcGroundDBObject(const tcGroundDBObject& obj)
 : tcPlatformDBObject(obj), 
-  tcAirDetectionDBObject(obj),
+
   flightportClass(obj.flightportClass)
 {
 }
@@ -150,19 +152,31 @@ std::shared_ptr<tcGameObject>tcGroundDBObject::CreateGameObject()
     switch (this->mnModelType)
     {
     case MTYPE_AIRFIELD:
-        return std::make_shared<tcAirfieldObject>(std::dynamic_pointer_cast<tcGroundDBObject>(tcDatabaseObject::shared_from_this()));
+        {
+        auto obj= std::make_shared<tcAirfieldObject>(std::dynamic_pointer_cast<tcGroundDBObject>(tcDatabaseObject::shared_from_this()));
+        obj->Construct();
+        return obj;
+    }
         break;
     case MTYPE_FIXED:
-        return std::make_shared< tcGroundObject>(std::dynamic_pointer_cast<tcGroundDBObject>(tcDatabaseObject::shared_from_this()));
+    {
+        auto obj= std::make_shared< tcGroundObject>(std::dynamic_pointer_cast<tcGroundDBObject>(tcDatabaseObject::shared_from_this()));
+        obj->Construct();
+        return obj;
+    }
         break;
 
     case MTYPE_GROUNDVEHICLE:
-        return std::make_shared< tcGroundVehicleObject>(std::dynamic_pointer_cast<tcGroundDBObject>(tcDatabaseObject::shared_from_this()));
+    {
+        auto obj= std::make_shared< tcGroundVehicleObject>(std::dynamic_pointer_cast<tcGroundDBObject>(tcDatabaseObject::shared_from_this()));
+        obj->Construct();
+        return obj;
+    }
         break;
     default:
         fprintf(stderr, "tcSimState::CreateGameObject - "
                         "Invalid model type for ground DB obj (%d)\n", this->mnModelType);
-        return NULL;
+        return nullptr;
     }
 }
 

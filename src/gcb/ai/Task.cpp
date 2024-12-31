@@ -73,7 +73,7 @@ void Task::EndTask()
 {
     // GetPlatformInterface().DeleteTask(taskName);
 
-    ai::Brain* brain = platform->GetBrain();
+    std::shared_ptr<Brain> brain = platform->GetBrain();
     assert(brain);
 
     brain->RemoveTask(taskName);
@@ -148,9 +148,9 @@ Task::Task(std::shared_ptr<tcPlatformObject> platform_, Blackboard* bb,
   platform(platform_),
   taskName(taskName_),
   attributes(attributes_),
+  isRunning(true),
   lastUpdateTime(0),
-  updateInterval(4.0f),
-  isRunning(true)
+  updateInterval(4.0f)
 {
     assert(platform);
 }

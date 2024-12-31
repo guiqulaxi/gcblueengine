@@ -74,6 +74,7 @@ public:
     GeoPoint GetPointAt(double M) const;
 
     double GetOrbitalVelocity() const;
+    virtual void Construct() override;
 protected:
     enum {MAX_HISTORY = 64};
     double lastHistoryUpdate; ///< time that positionHistory was last updated
@@ -102,7 +103,6 @@ protected:
     virtual void UpdateClimb(float dt_s) {} // do nothing for surface objs
     virtual void UpdateDestroyed(double t);
     virtual void UpdateHistory(double t);
-
 };
 
 

@@ -997,8 +997,8 @@ bool Brain::GetAnchorInfo(std::string& anchorUnit, int& anchorMode) const
 }
 
 
-Brain::Brain(std::shared_ptr<tcPlatformObject> platform_)
-: platform(platform_),
+Brain::Brain()
+:
   updateInterval(0.125f),
   nextId(1),
   target(-1),
@@ -1006,11 +1006,17 @@ Brain::Brain(std::shared_ptr<tcPlatformObject> platform_)
   hasNewCommand(false),
   isTasked(false)
 {
-    assert(platform);
+
     
     //InitTaskNameLookup(); // changed to have separate call in app init for this
 
     lastUpdateTime = randf(updateInterval); // randomize update phase
+}
+
+void Brain::SetPaltformObject(std::shared_ptr<tcPlatformObject> platform_)
+{
+    platform=platform_;
+    assert(platform);
 }
 
 Brain::~Brain()

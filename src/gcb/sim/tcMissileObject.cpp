@@ -1657,7 +1657,7 @@ float tcMissileObject::EstimateSeekerDetectionRange(const tcSensorMapTrack& targ
 	}
 
 	std::shared_ptr<tcDatabaseObject> targetData = database->GetObject(target.GetDatabaseId());
-    std::shared_ptr<const tcAirDetectionDBObject> detectionData = std::dynamic_pointer_cast<const tcAirDetectionDBObject>(targetData);
+    std::shared_ptr< tcAirDetectionDBObject> detectionData = targetData->GetComponent<tcAirDetectionDBObject>()[0];
 	const float aspect_deg = 10.0f; // just arbitrarily assume a target aspect for now
 
     if (std::shared_ptr<tcRadarDBObject> radar =  std::dynamic_pointer_cast<tcRadarDBObject>(seekerData))
@@ -1691,7 +1691,7 @@ float tcMissileObject::EstimateSeekerDetectionRange(const tcSensorMapTrack& targ
 		float signature_dB = 20.0f;
 		if (detectionData != 0)
 		{
-			signature_dB = detectionData->GetIRSig_dB(aspect_deg, 0);
+            signature_dB = detectionData->GetIRSig_dB(aspect_deg, 0);
 		}
 		float detectionRange_km = optical->EstimateDetectionRange(signature_dB, false);
 		return std::min(detectionRange_km, optical->mfMaxRange_km);
@@ -1913,14 +1913,14 @@ int tcMissileObject::GetGuidanceParameters(tsGuidanceParameters& gp)
 
 float tcMissileObject::GetOpticalCrossSection() const
 {
-    return mpDBObject->opticalCrossSection_dBsm;
+    return mpDBObject->GetComponent<tcAirDetectionDBObject>()[0]->opticalCrossSection_dBsm;
 }
 
 
 
 float tcMissileObject::GetIRSignature(float az_deg) const
 {
-    return mpDBObject->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELA);
+    return mpDBObject->GetComponent<tcAirDetectionDBObject>()[0]->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELA);
 }
 
 /**

@@ -39,7 +39,7 @@ namespace database
     class tcSqlReader;
 
 
-    class tcBallisticMissileDBObject : public tcWeaponDBObject, public tcAirDetectionDBObject
+    class tcBallisticMissileDBObject : public tcWeaponDBObject
     {
     public:
         float gmax; ///< 最大过载（Gs），表示导弹能承受的最大加速度与重力加速度的比值
@@ -82,6 +82,13 @@ namespace database
         tcBallisticMissileDBObject(const tcBallisticMissileDBObject& obj); ///< copy constructor
         virtual ~tcBallisticMissileDBObject();
         virtual std::shared_ptr<tcGameObject>CreateGameObject() override;
+        virtual void SetAirDetectionDBObject(std::shared_ptr<tcAirDetectionDBObject> obj)
+        {
+            airDetectionDBObject=obj;
+        }
+    protected:
+
+        std::shared_ptr<tcAirDetectionDBObject> airDetectionDBObject;
 
     };
 

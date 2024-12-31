@@ -119,7 +119,7 @@ namespace database
     void tcBallisticMissileDBObject::ReadSql(tcSqlReader& entry)
     {
         tcWeaponDBObject::ReadSql(entry);
-        tcAirDetectionDBObject::ReadSql(entry);
+        airDetectionDBObject =std::make_shared<tcAirDetectionDBObject>();
 
         gmax = entry.GetDouble("Gmax");
 
@@ -145,7 +145,7 @@ namespace database
     void tcBallisticMissileDBObject::WriteSql(std::string& valueString)
     {
         tcWeaponDBObject::WriteSql(valueString);
-        tcAirDetectionDBObject::WriteSql(valueString);
+        airDetectionDBObject->WriteSql(valueString);
 
         std::stringstream s;
 
@@ -176,7 +176,7 @@ namespace database
     {
         tcWeaponDBObject::WritePythonValue(valueString);
 
-        tcAirDetectionDBObject::WritePythonValue(mzClass,valueString);
+        airDetectionDBObject->WritePythonValue(mzClass,valueString);
 
         valueString+="    dbObj.gmax="+strutil::to_python_value(gmax)+"\n";
         valueString+="    dbObj.timeStage1_s="+strutil::to_python_value(timeStage1_s)+"\n";
@@ -206,7 +206,7 @@ namespace database
 
     tcBallisticMissileDBObject::tcBallisticMissileDBObject(const tcBallisticMissileDBObject& obj) 
         : tcWeaponDBObject(obj),
-        tcAirDetectionDBObject(obj),
+
         gmax(obj.gmax),
         timeStage1_s(obj.timeStage1_s),
         accelStage1_mps2(obj.accelStage1_mps2),
@@ -226,7 +226,7 @@ namespace database
         CalculateParams();
     }
 
-    tcBallisticMissileDBObject::tcBallisticMissileDBObject() : tcWeaponDBObject(), tcAirDetectionDBObject(),
+    tcBallisticMissileDBObject::tcBallisticMissileDBObject() : tcWeaponDBObject(),
         gmax(0),
         timeStage1_s(0),
         accelStage1_mps2(0),
@@ -251,7 +251,9 @@ namespace database
 
     std::shared_ptr<tcGameObject>tcBallisticMissileDBObject::CreateGameObject()
     {
-        return std::make_shared< tcBallisticMissile>(dynamic_pointer_cast<tcBallisticMissileDBObject>(tcDatabaseObject::shared_from_this()));
+        auto obj= std::make_shared< tcBallisticMissile>(dynamic_pointer_cast<tcBallisticMissileDBObject>(tcDatabaseObject::shared_from_this()));
+        obj->Construct();
+        return obj;
     }
 
 } // namespace database

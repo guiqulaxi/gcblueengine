@@ -138,10 +138,12 @@ void tcShipDBObject::ReadSql(tcSqlReader& entry)
     CivilianPaintScheme = (float)entry.GetDouble("CivilianPaintScheme");
     FlashyPaintScheme = (float)entry.GetDouble("FlashyPaintScheme");
     flightportClass = entry.GetString("FlightportClass").c_str();
-
-    tcAirDetectionDBObject::ReadSql(entry);
-
-    tcWaterDetectionDBObject::ReadSql(entry);
+    auto airDetectionDBObject =std::make_shared<tcAirDetectionDBObject>();
+    airDetectionDBObject->ReadSql(entry);
+    components.push_back(airDetectionDBObject);
+    auto waterDetectionDBObject =std::make_shared<tcWaterDetectionDBObject>();
+    waterDetectionDBObject->ReadSql(entry);
+    components.push_back(waterDetectionDBObject);
 
     CalculateParams();
 }
@@ -169,16 +171,16 @@ void tcShipDBObject::WriteSql(std::string& valueString) const
 
     valueString += s.str();
 
-    tcAirDetectionDBObject::WriteSql(valueString);
+    GetComponent<tcAirDetectionDBObject>()[0]->WriteSql(valueString);
 
-    tcWaterDetectionDBObject::WriteSql(valueString);
+    GetComponent<tcWaterDetectionDBObject>()[0]->WriteSql(valueString);
 }
 
 void tcShipDBObject::WritePythonValue(std::string &valueString) const
 {
  tcPlatformDBObject::WritePythonValue(valueString);
-    tcAirDetectionDBObject::WritePythonValue(mzClass,valueString);
- tcWaterDetectionDBObject::WritePythonValue(mzClass,valueString);
+    GetComponent<tcAirDetectionDBObject>()[0]->WritePythonValue(mzClass,valueString);
+    GetComponent<tcWaterDetectionDBObject>()[0]->WritePythonValue(mzClass,valueString);
     valueString+="    dbObj.draft_m="+strutil::to_python_value(draft_m)+"\n";
     valueString+="    dbObj.beam_m="+strutil::to_python_value(beam_m)+"\n";
     valueString+="    dbObj.PowerPlantType="+strutil::to_python_value(PowerPlantType)+"\n";
@@ -204,17 +206,15 @@ void tcShipDBObject::WritePython(std::string &valueString) const
 
 
 tcShipDBObject::tcShipDBObject() : 
-    tcPlatformDBObject(),
-    tcAirDetectionDBObject(),
-    tcWaterDetectionDBObject()
+    tcPlatformDBObject()
 {
     mnModelType = MTYPE_SURFACE;
 }
 
 tcShipDBObject::tcShipDBObject(const tcShipDBObject& obj)
     : tcPlatformDBObject(obj),
-    tcAirDetectionDBObject(obj),
-    tcWaterDetectionDBObject(obj),
+
+
     draft_m(obj.draft_m),
     length_m(obj.length_m),
     beam_m(obj.beam_m),
@@ -242,8 +242,11 @@ std::shared_ptr<tcGameObject>tcShipDBObject::CreateGameObject()
     {
         if (mpDatabase->GetObject(this->flightportClass.c_str()) != 0)
         {
+           auto sss= std::dynamic_pointer_cast<tcShipDBObject>(tcDatabaseObject::shared_from_this());
 
-            return std::make_shared< tcCarrierObject>(std::dynamic_pointer_cast<tcShipDBObject>(tcDatabaseObject::shared_from_this()));
+            auto obj= std::make_shared< tcCarrierObject>(std::dynamic_pointer_cast<tcShipDBObject>(tcDatabaseObject::shared_from_this()));
+            obj->Construct();
+            return obj;
         }
         else
         {
@@ -253,7 +256,10 @@ std::shared_ptr<tcGameObject>tcShipDBObject::CreateGameObject()
 #ifdef _DEBUG \
     //wxMessageBox(msg, "Object Create Error");
 #endif
-            return  std::make_shared< tcSurfaceObject>(std::dynamic_pointer_cast<tcShipDBObject>(tcDatabaseObject::shared_from_this()));
+
+            auto obj=  std::make_shared< tcSurfaceObject>(std::dynamic_pointer_cast<tcShipDBObject>(tcDatabaseObject::shared_from_this()));
+            obj->Construct();
+            return obj;
         }
     }
     break;

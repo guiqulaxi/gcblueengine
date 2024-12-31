@@ -221,7 +221,7 @@ void tcCAPMission::Update(double t)
              std::shared_ptr<tcAirObject> aircraft = missionManager->GetAircraft(missionAircraft[n].id);
 			if (aircraft != 0)
 			{
-				ai::Brain* brain = aircraft->GetBrain();
+                std::shared_ptr<Brain>  brain = aircraft->GetBrain();
 				brain->AddTask("CAP", 2.0);
 				brain->AddTask("EngageAll", 3.0);
 				ai::BlackboardInterface bb = brain->GetBlackboardInterface();
@@ -283,7 +283,7 @@ void tcCAPMission::UpdateStation()
         std::shared_ptr<tcPlatformObject> obj = std::dynamic_pointer_cast<tcPlatformObject>(simState->GetObjectByName(missionAircraft[n].name));
         if (obj != 0)
         {
-            ai::Brain* brain = obj->GetBrain();
+            std::shared_ptr<Brain>  brain = obj->GetBrain();
             ai::BlackboardInterface bb = brain->GetBlackboardInterface();
 
             std::string s;

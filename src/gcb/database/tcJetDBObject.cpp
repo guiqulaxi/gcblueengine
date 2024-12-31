@@ -539,7 +539,9 @@ tcJetDBObject::~tcJetDBObject()
 
 std::shared_ptr<tcGameObject> tcJetDBObject::CreateGameObject()
 {
-        return std::make_shared<tcAeroAirObject>(std::dynamic_pointer_cast<tcJetDBObject>(tcDatabaseObject::shared_from_this()));
+    auto obj= std::make_shared<tcAeroAirObject>(std::dynamic_pointer_cast<tcJetDBObject>(tcDatabaseObject::shared_from_this()));
+    obj->Construct();
+    return obj;
 }
 
 

@@ -47,14 +47,14 @@ void tcGroundObject::Clear()
 
 float tcGroundObject::GetOpticalCrossSection() const
 {
-    return mpDBObject->opticalCrossSection_dBsm;
+    return mpDBObject->GetComponent<tcAirDetectionDBObject>()[0]->opticalCrossSection_dBsm;
 }
 
 
 
 float tcGroundObject::GetIRSignature(float az_deg) const
 {
-    return mpDBObject->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELA);
+    return mpDBObject->GetComponent<tcAirDetectionDBObject>()[0]->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELA);
 }
 
 
@@ -169,9 +169,16 @@ tcGroundObject::tcGroundObject(std::shared_ptr<tcGroundDBObject>obj)
 	mcKin.mfSpeed_kts = 0; // make sure this doesn't move (shouldn't be necessary)
 	mnModelType = MTYPE_FIXED;
 
-    if (addTasksOnCreate) brain->AddTaskDirectly("PointDefense", 3.0, ai::Task::HIDDEN | ai::Task::PERMANENT);
 }
 
 tcGroundObject::~tcGroundObject() 
 {
+}
+
+void tcGroundObject::Construct()
+{
+    tcPlatformObject::Construct();
+    if (addTasksOnCreate)
+        brain->AddTaskDirectly("PointDefense", 3.0, ai::Task::HIDDEN | ai::Task::PERMANENT);
+
 }

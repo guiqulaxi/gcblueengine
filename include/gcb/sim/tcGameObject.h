@@ -249,6 +249,8 @@ public:
     tcGameObject(tcGameObject&);
     tcGameObject(std::shared_ptr<tcDatabaseObject>obj); ///< construct using database object
     virtual ~tcGameObject();
+    //在创建后调用
+    virtual void Construct(){};
 protected:
     float mfDamageLevel;       ///< 0 is no damage, 1 is fully damaged
 	bool recreateFlag; ///< workaround, true to resend create request for obj (multiplayer client only)
@@ -266,6 +268,7 @@ protected:
 	static bool addTasksOnCreate; ///< true (default) to automatically add some default AI tasks when obj is created
 
     std::shared_ptr<tcGameObject> CreateObject(const std::string& databaseClass);
+
 //    void Update3D();
     //CTVMesh* GetDatabaseMesh();
 };

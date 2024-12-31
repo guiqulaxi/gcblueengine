@@ -295,7 +295,7 @@ void tcCarrierObject::Update(double afStatusTime)
 *
 */
 tcCarrierObject::tcCarrierObject()
-: tcFlightOpsObject(nullptr, tcGameObject::shared_from_this())
+: tcFlightOpsObject(nullptr)
 {
    Clear();
 
@@ -321,14 +321,21 @@ tcCarrierObject::tcCarrierObject(tcCarrierObject& o)
 * can hold.
 */
 tcCarrierObject::tcCarrierObject(std::shared_ptr<tcShipDBObject> obj)
-: tcSurfaceObject(obj), tcFlightOpsObject(obj->GetFlightport(), tcGameObject::shared_from_this())
+: tcSurfaceObject(obj), tcFlightOpsObject(obj->GetFlightport())
 {
     mpDBObject = obj;
     mnModelType = MTYPE_CARRIER;
 
-    if (addTasksOnCreate) brain->AddTaskDirectly("RefuelAllAircraft", 3.0, ai::Task::PERMANENT | ai::Task::HIDDEN);
 }
 
 tcCarrierObject::~tcCarrierObject() 
 {
+}
+
+void tcCarrierObject::Construct()
+{
+    tcSurfaceObject::Construct();
+    if (addTasksOnCreate)
+        brain->AddTaskDirectly("RefuelAllAircraft", 3.0, ai::Task::PERMANENT | ai::Task::HIDDEN);
+    SetGameObject(shared_from_this());
 }

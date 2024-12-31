@@ -34,6 +34,7 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include "tcComponentDBObject.h"
 class tcFile;
 
 namespace database
@@ -45,7 +46,7 @@ namespace database
     /**
     * Sensor info for platform
     */
-    class tcSensorPlatformDBObject : public std::enable_shared_from_this<tcSensorPlatformDBObject>
+    class tcSensorPlatformDBObject : public tcComponentDBObject
     {
     public:
         enum 

@@ -491,7 +491,7 @@ std::shared_ptr<tcSonar> tcTorpedoObject::GetSensorState()
 */
 float tcTorpedoObject::GetSonarSourceLevel(float az_deg) const
 {
-    float SLp = mpDBObject->GetSourceLevel(C_KTSTOMPS*goalSpeed_kts, -mcKin.mfAlt_m, az_deg);
+    float SLp = mpDBObject->GetComponent<tcWaterDetectionDBObject>()[0]->GetSourceLevel(C_KTSTOMPS*goalSpeed_kts, -mcKin.mfAlt_m, az_deg);
     if (!IsEnsonifying()) return SLp;
 
     if (seeker->mpDBObj->SL > SLp)

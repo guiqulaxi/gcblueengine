@@ -319,8 +319,9 @@ void tcMissileDBObject::AddSqlColumns(std::string& columnString)
 void tcMissileDBObject::ReadSql(tcSqlReader& entry)
 {
     tcWeaponDBObject::ReadSql(entry);
-    tcAirDetectionDBObject::ReadSql(entry);
-
+    auto airDetectionDBObject =std::make_shared<tcAirDetectionDBObject>();
+    airDetectionDBObject->ReadSql(entry);
+    components.push_back(airDetectionDBObject);
     mfDragArea_sm = entry.GetDouble("DragArea_sm");
     mfGmax = entry.GetDouble("Gmax");
     mfMaxTurnRate_degps = entry.GetDouble("MaxTurnRate_degps");
@@ -387,7 +388,7 @@ void tcMissileDBObject::ReadSql(tcSqlReader& entry)
 void tcMissileDBObject::WriteSql(std::string& valueString) const
 {
     tcWeaponDBObject::WriteSql(valueString);
-    tcAirDetectionDBObject::WriteSql(valueString);
+    GetComponent<tcAirDetectionDBObject>()[0]->WriteSql(valueString);
 
     std::stringstream s;
 
@@ -441,7 +442,7 @@ void tcMissileDBObject::WriteSql(std::string& valueString) const
 void tcMissileDBObject::WritePythonValue(std::string &valueString) const
 {
     tcWeaponDBObject::WritePythonValue(valueString);
-    tcAirDetectionDBObject::WritePythonValue(mzClass,valueString);
+    GetComponent<tcAirDetectionDBObject>()[0]->WritePythonValue(mzClass,valueString);
     valueString+="    dbObj.mfDragArea_sm="+strutil::to_python_value(mfDragArea_sm)+"\n";
     valueString+="    dbObj.mfGmax="+strutil::to_python_value(mfGmax)+"\n";
     valueString+="    dbObj.mfMaxTurnRate_degps="+strutil::to_python_value(mfMaxTurnRate_degps)+"\n";
@@ -490,7 +491,7 @@ void tcMissileDBObject::WritePython(std::string &valueString) const
 
 tcMissileDBObject::tcMissileDBObject(const tcMissileDBObject& obj) 
     : tcWeaponDBObject(obj),
-    tcAirDetectionDBObject(obj),
+
     seekerFOV_rad(obj.seekerFOV_rad),
     fireAndForget(obj.fireAndForget),
     isARM(obj.isARM),
@@ -525,10 +526,7 @@ tcMissileDBObject::tcMissileDBObject(const tcMissileDBObject& obj)
     CalculateParams();
 }
 
-tcMissileDBObject::tcMissileDBObject() : tcWeaponDBObject(), tcAirDetectionDBObject(),
-    seekerFOV_rad(-1.0f),
-    fireAndForget(-1),
-    isARM(-1),
+tcMissileDBObject::tcMissileDBObject() : tcWeaponDBObject(),
     mfDragArea_sm(1.0f),
     mfGmax(20.0f),
     mfMaxTurnRate_degps(15.0f),
@@ -543,6 +541,9 @@ tcMissileDBObject::tcMissileDBObject() : tcWeaponDBObject(), tcAirDetectionDBObj
     mfSustTime_s(60.0f),
     needsFireControl(false),
     acceptsWaypoints(false),
+    fireAndForget(-1),
+    isARM(-1),
+    seekerFOV_rad(-1.0f),
     aczConstant_kts(4.0f)
 {
     mnModelType = MTYPE_MISSILE;
@@ -569,8 +570,9 @@ tcMissileDBObject::~tcMissileDBObject()
 
 std::shared_ptr<tcGameObject>tcMissileDBObject::CreateGameObject()
 {
-    return std::make_shared<tcMissileObject>(std::dynamic_pointer_cast<tcMissileDBObject>(tcDatabaseObject::shared_from_this()));
-
+    auto obj = std::make_shared<tcMissileObject>(std::dynamic_pointer_cast<tcMissileDBObject>(tcDatabaseObject::shared_from_this()));
+    obj->Construct();
+    return obj;
 }
 
 std::string tcMissileDBObject::teAltitudeModeToString(teAltitudeMode data)const
