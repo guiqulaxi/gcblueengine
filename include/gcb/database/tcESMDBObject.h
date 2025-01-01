@@ -40,7 +40,7 @@ namespace database
     class tcESMDBObject : public tcSensorDBObject 
     {
     public:
-        bool isRWR; ///< true to use "RWR" feature that does fast update vs radars that are targeting parent platform
+        bool isRWR; ///< true to use "RWR"(Radar Warning Receiver) feature that does fast update vs radars that are targeting parent platform
 
         virtual std::shared_ptr<tcSensorState> CreateSensor(std::shared_ptr<tcGameObject> parent); ///< factory method
         virtual const char* GetClassName() const {return "ESM";} ///< returns class name of database object

@@ -86,4 +86,5 @@
     <LastScenarioExtension>pypypypypypypypypypy</LastScenarioExtension>
     <ScenarioSavePath>scenarios/SinglePlayer/ColdWar/Backfires.py</ScenarioSavePath>
     <UsePositionRegistry/>
+    <CacheFullDatabase/>
 </Options>

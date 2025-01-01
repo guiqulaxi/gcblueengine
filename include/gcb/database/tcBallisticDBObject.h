@@ -56,9 +56,9 @@ namespace database
         };
         int ballisticType;
         //float maxRange_km; ///< maximum effective range (replaced with maxRange_km in tcWeaponDBObject
-        float angleError_rad; ///< angular error for gun rounds and point defense
-        int burstCount; ///< for rapid fire guns, the number of rounds in a burst
-        float burstDuration_s; ///< for rapid fire guns, the duration of the burst
+        float angleError_rad; ///< 角度误差（弧度），用于表示枪炮弹药和点防御武器的角度误差 angular error for gun rounds and point defense
+        int burstCount; ///< 爆发计数，用于快速射击武器，表示一次爆发中的弹药数量。for rapid fire guns, the number of rounds in a burst
+        float burstDuration_s; ///<爆发持续时间（秒），用于快速射击武器，表示一次爆发的持续时间 for rapid fire guns, the duration of the burst
 
 		unsigned int clusterCount;
 		float clusterEffectRadius_m;

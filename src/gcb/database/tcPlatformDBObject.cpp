@@ -59,6 +59,7 @@ namespace database
 */
 void tcPlatformDBObject::CalculateParams()
 {
+    tcDatabaseObject::CalculateParams();
     fuelConsumptionConstant = (mfMaxSpeed_kts > 0) ? (mfFuelRate_kgps / mfMaxSpeed_kts) : 0;
 
     invMaxSpeed = (mfMaxSpeed_kts > 0) ? (1.0f / mfMaxSpeed_kts) : 0;
@@ -442,7 +443,7 @@ void tcPlatformDBObject::ReadSql(tcSqlReader& entry)
     auto sensorPlatformDBObject=std::make_shared<tcSensorPlatformDBObject>();
     sensorPlatformDBObject->ReadSql(entry);
     components.push_back(sensorPlatformDBObject);
-    CalculateParams();
+    //CalculateParams();
 
 }
 

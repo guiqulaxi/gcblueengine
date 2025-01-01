@@ -21,6 +21,7 @@ namespace database
 
 void tcSpaceDBObject::CalculateParams()
 {
+    tcPlatformDBObject::CalculateParams();
 
 }
 
@@ -74,7 +75,7 @@ void tcSpaceDBObject::ReadSql(tcSqlReader& entry)
 {
     tcPlatformDBObject::ReadSql(entry);
 
-    CalculateParams();
+    //CalculateParams();
 }
 
 void tcSpaceDBObject::WriteSql(std::string& valueString) const

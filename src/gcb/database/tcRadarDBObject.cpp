@@ -59,6 +59,7 @@ std::shared_ptr<tcSensorState> tcRadarDBObject::CreateSensor(std::shared_ptr<tcG
 
 void tcRadarDBObject::CalculateParams()
 {
+    tcSensorDBObject::CalculateParams();
     invBlindSpeed_mps = (blindSpeed_mps > 0) ? 1.0f / blindSpeed_mps : 0.0f;
 
     bandwidth_Hz = std::max(bandwidth_Hz, 0.1e6f); // don't allow bandwidth less than 0.1 MHz to avoid divide by zero and neg number problems
@@ -214,7 +215,7 @@ void tcRadarDBObject::ReadSql(tcSqlReader& entry)
 	mbDetectsMissile = entry.GetInt("DetectsMissile") != 0;
 	mbDetectsGround = entry.GetInt("DetectsGround") != 0;
 
-    CalculateParams();
+    //CalculateParams();
 }
 
 void tcRadarDBObject::WriteSql(std::string& valueString) const

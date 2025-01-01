@@ -70,6 +70,7 @@ void tcJetDBObject::InitializeTableAltitudes()
     */
 void tcJetDBObject::CalculateParams()
 {
+    tcAirDBObject::CalculateParams();
     // invMachRange
     if (mfMsupm <= mfMcm) // 如果马赫数上限小于等于临界马赫数
     {
@@ -424,7 +425,7 @@ void tcJetDBObject::ReadSql(tcSqlReader& entry)
     }
 
 
-    CalculateParams();
+    //CalculateParams();
 }
 
 void tcJetDBObject::WriteSql(std::string& valueString) const

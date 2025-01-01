@@ -130,21 +130,27 @@ namespace database
                 std::shared_ptr<T> obj = std::make_shared< T>();
                 // T* obj = new T;
 				obj->ReadSql(sqlReader);
-                
+
+                obj->CalculateParams();
                 // if the obj already exists, delete the old and add the new (update)
                 // (doesn't work for duplicates within database since BuildDictionaries needs to be called)
-                if (database->ObjectExists(obj->GetName()))
-                {
-                    fprintf(stdout, "Updating database class: %s\n", obj->GetName());
-                    std::shared_ptr<tcDatabaseObject>oldObj = database->GetObject(obj->GetName());
-                    // assert(oldObj != nullptr);
+                // if (database->ObjectExists(obj->GetName()))
+                // {
+                //     fprintf(stdout, "Updating database class: %s\n", obj->GetName());
+                //     std::shared_ptr<tcDatabaseObject>oldObj = database->GetObject(obj->GetName());
+                //     // assert(oldObj != nullptr);
                     
-                    database->DeleteObject(oldObj->mnKey);
-                }
-
-				database->mcObjectData.AddElement(obj, key); // add to database, key gets new key val
-				obj->mnKey = key; // set key val of object (may not be necessary anymore)
-			}
+                //     database->DeleteObject(oldObj->mnKey);
+                // }
+                // std::string className = obj->mzClass.c_str();
+                // if(className=="57mm/70 Mks 2-3 Store")
+                // {
+                //     int a=0;
+                // }
+                // database->mcObjectData.AddElement(obj, key); // add to database, key gets new key val
+                // obj->mnKey = key; // set key val of object (may not be necessary anymore)
+                key=database->AddOrUpdateObject(obj);
+            }
 
 			tableInfo.close();
 			tableData.close();
@@ -186,17 +192,22 @@ namespace database
                 
                 // if the obj already exists, delete the old and add the new (update)
                 // (doesn't work for duplicates within database since BuildDictionaries needs to be called)
-                if (database->ObjectExists(obj->GetName()))
-                {
-                    fprintf(stdout, "Updating database class: %s\n", obj->GetName());
-                    std::shared_ptr<tcDatabaseObject> oldObj = database->GetObject(obj->GetName());
-                    assert(oldObj != 0);
+    //             if (database->ObjectExists(obj->GetName()))
+    //             {
+    //                 fprintf(stdout, "Updating database class: %s\n", obj->GetName());
+    //                 std::shared_ptr<tcDatabaseObject> oldObj = database->GetObject(obj->GetName());
+    //                 assert(oldObj != 0);
                     
-                    database->DeleteObject(oldObj->mnKey);
-                }
-
-                database->mcObjectData.AddElementForceKey(obj, key);
-				obj->mnKey = key; // set key val of object (may not be necessary anymore)
+    //                 database->DeleteObject(oldObj->mnKey);
+    //             }
+    //             std::string className = obj->mzClass.c_str();
+    //             if(className=="57mm/70 Mks 2-3 Store")
+    //             {
+    //                 int a=0;
+    //             }
+    //             database->mcObjectData.AddElementForceKey(obj, key);
+                // obj->mnKey = key; // set key val of object (may not be necessary anymore)
+                database->AddOrUpdateObjectForceKey(obj, key);
                 recordKey = key;
 			}
 
@@ -244,18 +255,22 @@ namespace database
                 
                 // if the obj already exists, delete the old and add the new (update)
                 // (doesn't work for duplicates within database since BuildDictionaries needs to be called)
-                if (database->ObjectExists(obj->GetName()))
-                {
-                    fprintf(stdout, "Updating database class: %s\n", obj->GetName());
-                    std::shared_ptr<tcDatabaseObject> oldObj = database->GetObject(obj->GetName());
-                    assert(oldObj != 0);
+                // if (database->ObjectExists(obj->GetName()))
+                // {
+                //     fprintf(stdout, "Updating database class: %s\n", obj->GetName());
+                //     std::shared_ptr<tcDatabaseObject> oldObj = database->GetObject(obj->GetName());
+                //     assert(oldObj != 0);
                     
-                    database->DeleteObject(oldObj->mnKey);
-                }
-
-				database->mcObjectData.AddElement(obj, key); // add to database, key gets new key val
-				obj->mnKey = key; // set key val of object (may not be necessary anymore)
-                recordKey = key;
+                //     database->DeleteObject(oldObj->mnKey);
+                // }
+                // std::string className = obj->mzClass.c_str();
+                // if(className=="57mm/70 Mks 2-3 Store")
+                // {
+                //     int a=0;
+                // }
+                // database->mcObjectData.AddElement(obj, key); // add to database, key gets new key val
+                // obj->mnKey = key; // set key val of object (may not be necessary anymore)
+                recordKey =  database->AddOrUpdateObject(obj);;
 			}
 
 			tableInfo.close();

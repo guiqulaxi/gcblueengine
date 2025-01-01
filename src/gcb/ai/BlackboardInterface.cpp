@@ -166,9 +166,9 @@ bool BlackboardInterface::WriteGlobal(const std::string& key, const std::string&
 * Default constructor should never be used
 */
 BlackboardInterface::BlackboardInterface()
-: board(0),
-  author(-1),
-  priority(0)
+: author(-1),
+  priority(0),
+  board(0)
 {
     assert(false);
     
@@ -187,9 +187,9 @@ BlackboardInterface::BlackboardInterface(const BlackboardInterface& source)
 
 BlackboardInterface::BlackboardInterface(Blackboard* bb, 
         long author_, double priority_)
-: board(bb),
-  author(author_),
-  priority(priority_)
+: author(author_),
+  priority(priority_),
+  board(bb)
 {
     assert(board);
     

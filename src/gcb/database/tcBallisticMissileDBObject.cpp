@@ -45,6 +45,7 @@ namespace database
 
     void tcBallisticMissileDBObject::CalculateParams()
     {
+        tcWeaponDBObject::CalculateParams();
         const float minBC = 0.001f;
         bcStage1 = std::max(bcStage1, minBC);
         bcStage2 = std::max(bcStage2, minBC);
@@ -119,8 +120,9 @@ namespace database
     void tcBallisticMissileDBObject::ReadSql(tcSqlReader& entry)
     {
         tcWeaponDBObject::ReadSql(entry);
-        airDetectionDBObject =std::make_shared<tcAirDetectionDBObject>();
-
+        auto airDetectionDBObject =std::make_shared<tcAirDetectionDBObject>();
+        airDetectionDBObject->ReadSql(entry);
+        components.push_back(airDetectionDBObject);
         gmax = entry.GetDouble("Gmax");
 
         timeStage1_s = entry.GetDouble("TimeStage1_s");
@@ -139,13 +141,13 @@ namespace database
         accelStage4_mps2 = entry.GetDouble("AccelStage4_mps2");
         bcStage4 = entry.GetDouble("BCStage4");
 
-        CalculateParams();
+        //CalculateParams();
     }
 
     void tcBallisticMissileDBObject::WriteSql(std::string& valueString)
     {
         tcWeaponDBObject::WriteSql(valueString);
-        airDetectionDBObject->WriteSql(valueString);
+        GetComponent<tcAirDetectionDBObject>()[0]->WriteSql(valueString);
 
         std::stringstream s;
 
@@ -176,7 +178,7 @@ namespace database
     {
         tcWeaponDBObject::WritePythonValue(valueString);
 
-        airDetectionDBObject->WritePythonValue(mzClass,valueString);
+        GetComponent<tcAirDetectionDBObject>()[0]->WritePythonValue(mzClass,valueString);
 
         valueString+="    dbObj.gmax="+strutil::to_python_value(gmax)+"\n";
         valueString+="    dbObj.timeStage1_s="+strutil::to_python_value(timeStage1_s)+"\n";

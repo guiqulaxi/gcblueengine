@@ -52,6 +52,7 @@ namespace database
 
 void tcSensorDBObject::CalculateParams()
 {
+    tcDatabaseObject::CalculateParams();
     angleError_deg = std::max(angleError_deg, 0.001f);
     elevationError_deg = std::max(elevationError_deg, 0.001f);
 
@@ -153,7 +154,7 @@ void tcSensorDBObject::ReadSql(tcSqlReader& entry)
     counterMeasureFactor = entry.GetDouble("CounterMeasureFactor");
     isSurveillance = entry.GetInt("IsSurveillance") != 0;
 
-	CalculateParams();
+    //CalculateParams();
 }
 
 void tcSensorDBObject::WriteSql(std::string& valueString) const

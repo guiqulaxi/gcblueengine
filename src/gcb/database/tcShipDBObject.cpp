@@ -52,6 +52,8 @@ namespace database
 
 void tcShipDBObject::CalculateParams()
 {
+    tcPlatformDBObject::CalculateParams();
+
 }
 
 std::shared_ptr<tcFlightportDBObject>tcShipDBObject::GetFlightport()
@@ -145,7 +147,7 @@ void tcShipDBObject::ReadSql(tcSqlReader& entry)
     waterDetectionDBObject->ReadSql(entry);
     components.push_back(waterDetectionDBObject);
 
-    CalculateParams();
+    //CalculateParams();
 }
 
 void tcShipDBObject::WriteSql(std::string& valueString) const

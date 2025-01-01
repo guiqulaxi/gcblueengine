@@ -43,6 +43,7 @@ namespace database
     */
 void tcSubDBObject::CalculateParams()
 {
+    tcPlatformDBObject::CalculateParams();
     invMaxSpeed_mps = 1.0f / (C_KTSTOMPS*mfMaxSpeed_kts);
     batteryDrainConstant = batteryRate_kW * invMaxSpeed_mps;
     invDraft_m = 1.0f / std::max(draft_m, 0.1f);
@@ -128,7 +129,7 @@ void tcSubDBObject::ReadSql(tcSqlReader& entry)
     batteryRate_kW = entry.GetDouble("BatteryRate_kW");
     batteryCharge_kW = entry.GetDouble("BatteryCharge_kW");
 
-    CalculateParams();
+    //CalculateParams();
 }
 
 void tcSubDBObject::WriteSql(std::string& valueString) const

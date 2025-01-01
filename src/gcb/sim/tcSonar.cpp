@@ -189,11 +189,11 @@ bool tcSonar::CanDetectTarget(std::shared_ptr<const tcGameObject> target, float&
     const tcKinematics *tgt_kin = &target->mcKin;
 
     // 尝试将目标转换为tcWaterDetectionDBObject类型，以获取目标相关的声纳信息
-    std::shared_ptr<tcWaterDetectionDBObject> targetData = std::dynamic_pointer_cast<tcWaterDetectionDBObject>(target->mpDBObject);
+    std::shared_ptr<tcWaterDetectionDBObject> targetData = target->mpDBObject->GetComponent<tcWaterDetectionDBObject>()[0];
     if (targetData == nullptr) return false; // 如果转换失败，表示目标不是水下检测对象，无法检测
 
     // 尝试将父对象转换为tcWaterDetectionDBObject类型，以获取父对象相关的声纳信息
-    std::shared_ptr<tcWaterDetectionDBObject> parentData = std::dynamic_pointer_cast<tcWaterDetectionDBObject>(parent->mpDBObject);
+    std::shared_ptr<tcWaterDetectionDBObject> parentData = parent->mpDBObject->GetComponent<tcWaterDetectionDBObject>()[0];
     if (parentData == nullptr)
     {
         // 如果父对象不是水下检测数据库对象，则断言失败并打印错误信息

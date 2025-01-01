@@ -82,13 +82,7 @@ namespace database
         tcBallisticMissileDBObject(const tcBallisticMissileDBObject& obj); ///< copy constructor
         virtual ~tcBallisticMissileDBObject();
         virtual std::shared_ptr<tcGameObject>CreateGameObject() override;
-        virtual void SetAirDetectionDBObject(std::shared_ptr<tcAirDetectionDBObject> obj)
-        {
-            airDetectionDBObject=obj;
-        }
-    protected:
 
-        std::shared_ptr<tcAirDetectionDBObject> airDetectionDBObject;
 
     };
 

@@ -444,7 +444,7 @@ void tcGame::Init()
         database->addTable("ballistic_missile");
          database->addTable("space");
 
-        //database->SerializeSql("", true); // moved to top so that db is loaded for db browse panel
+        database->SerializeSql("", true); // moved to top so that db is loaded for db browse panel
         database->SetProgressReporting( 0, 0);
 
 
@@ -631,24 +631,24 @@ bool tcGame::InitSim()
     }
     //加载所有数据
     std::vector<std::string> dataDir= {
-                                        //"stores",
-                                        //"ballistic",
-                                        //"ballistic_missile",
-                                        //"cm",
-                                        //"air",
-                                        //"ecm",
-                                        //"esm",
-                                        //"flightport",
-                                        //"fueltank",
-                                        //"ground",
-                                        //"item",
-                                        //"missile",
-                                        //"optical",
-                                        //"radar",
-                                        //"ship",
-                                        //"simpleair",
-                                        //"sonar",
-                                        //"sonobuoy",
+                                        "stores",
+                                        "ballistic",
+                                        "ballistic_missile",
+                                        "cm",
+                                        "air",
+                                        "ecm",
+                                        "esm",
+                                        "flightport",
+                                        "fueltank",
+                                        "ground",
+                                        "item",
+                                        "missile",
+                                        "optical",
+                                        "radar",
+                                        "ship",
+                                        "simpleair",
+                                        "sonar",
+                                        "sonobuoy",
                                         "space",
                                         "sub",
                                         "torpedo",

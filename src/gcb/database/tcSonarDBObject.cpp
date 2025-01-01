@@ -49,6 +49,8 @@ namespace database
     */
     void tcSonarDBObject::CalculateParams()
     {
+        tcSensorDBObject::CalculateParams();
+
         // Thorp eqn
         //averageFreq_Hz = 0.5 * (minFrequency_Hz + maxFrequency_Hz);
         //if (averageFreq_Hz <= 0) averageFreq_Hz = 2000.0f;
@@ -144,7 +146,7 @@ namespace database
         maxScope_m = entry.GetDouble("maxScope_m");
         isWakeHoming = entry.GetInt("isWakeHoming") != 0;
 
-        CalculateParams();
+        //CalculateParams();
     }
 
     void tcSonarDBObject::WriteSql(std::string& valueString) const

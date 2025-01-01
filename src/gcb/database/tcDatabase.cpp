@@ -210,7 +210,10 @@ void tcDatabase::BuildDictionaries()
         assert(obj->mnKey != -1);
 
         std::string className = obj->mzClass.c_str();
-
+        if(className=="57mm/70 Mks 2-3 Store")
+        {
+            int a=0;
+        }
         mapIter = nameToKey.find(className);
         if (mapIter == nameToKey.end())
         {
@@ -636,7 +639,7 @@ long tcDatabase::LoadLauncherData(const char* databaseClass, long forcedKey)
 
     if (ObjectExists(launcherName))
     {
-        assert(false);
+        //assert(false);
         return -1;
     }
 
@@ -680,7 +683,7 @@ long tcDatabase::LoadLauncherData(const char* databaseClass, long forcedKey)
     }
     else
     {
-        //        wxFprintf(stderr, "LoadLauncherData - %s not found in launcher_configuration table\n", launcherName.c_str());
+        fprintf(stderr, "LoadLauncherData - %s not found in launcher_configuration table\n", launcherName.c_str());
         return -1;
     }
 }
@@ -814,7 +817,7 @@ void tcDatabase::LoadPlatformTables()
             platformData->ReorderMagazines();
         }
 
-        if (std::shared_ptr<tcSensorPlatformDBObject> sensorPlatData = std::dynamic_pointer_cast<tcSensorPlatformDBObject>(obj))
+        if (std::shared_ptr<tcSensorPlatformDBObject> sensorPlatData =obj->GetComponent<tcSensorPlatformDBObject>()[0])
         {
             // clear old info
             sensorPlatData->sensorClass.clear();
@@ -1369,7 +1372,7 @@ void tcDatabase::LoadRecordOtherTables(long key)
 
     } // if (tcPlatformDBObject* platformData =
 
-    if (std::shared_ptr<tcSensorPlatformDBObject> sensorPlatData = std::dynamic_pointer_cast<tcSensorPlatformDBObject>(obj))
+    if (std::shared_ptr<tcSensorPlatformDBObject> sensorPlatData = obj->GetComponent<tcSensorPlatformDBObject>()[0])
     {
         // clear old info
         sensorPlatData->sensorClass.clear();
@@ -1547,7 +1550,7 @@ void tcDatabase::ReadWriteSql(sqlite3x::sqlite3_connection* sqlConnectionNew, bo
         ReportProgress("DB load complete", 0.95f);
     }
 
-    //if (useDynamicLoad) return; // load records when needed, return
+    if (useDynamicLoad) return; // load records when needed, return
 
     // tcShipDBObject
     {
@@ -2213,7 +2216,7 @@ void tcDatabase::ExportPlatformTables()
             }
         }
 
-        if (std::shared_ptr<tcSensorPlatformDBObject> sensorPlatData = std::dynamic_pointer_cast<tcSensorPlatformDBObject>(obj))
+        if (std::shared_ptr<tcSensorPlatformDBObject> sensorPlatData = obj->GetComponent<tcSensorPlatformDBObject>()[0])
         {
             size_t nSensors = sensorPlatData->sensorClass.size();
             if (nSensors > 0)
@@ -2802,11 +2805,31 @@ long tcDatabase::AddOrUpdateObject(std::shared_ptr<tcDatabaseObject>rpobj)
         DeleteObject(oldObj->mnKey);
     }
     long  key;
+    // std::string className = rpobj->mzClass.c_str();
+    // if(className=="57mm/70 Mks 2-3 Store")
+    // {
+    //     int a=0;
+    // }
     mcObjectData.AddElement(rpobj, key); // add to database, key gets new key val
     rpobj->mnKey = key; // set key val of object (may not be necessary anymore)
     nameToKey[rpobj->GetName() ] = key;
 
     return key;
+}
+long tcDatabase::AddOrUpdateObjectForceKey(std::shared_ptr<tcDatabaseObject> rpobj,long forceKey)
+{
+    if (ObjectExists(rpobj->GetName()))
+    {
+        fprintf(stdout, "Updating database class: %s\n", rpobj->GetName());
+        std::shared_ptr<tcDatabaseObject> oldObj = GetObject(rpobj->GetName());
+        assert(oldObj != 0);
+        DeleteObject(oldObj->mnKey);
+    }
+    mcObjectData.AddElementForceKey(rpobj, forceKey); // add to database, key gets new key val
+    rpobj->mnKey = forceKey; // set key val of object (may not be necessary anymore)
+    nameToKey[rpobj->GetName() ] = forceKey;
+
+    return forceKey;
 }
 
 

@@ -146,56 +146,77 @@ void PointDefense::GetPointDefenseTargets(std::vector<tcSensorMapTrack>& targets
     }
 }
 
+/**
+ * 更新点防御任务的状态。
+ * 这个函数负责管理平台的点防御系统，包括获取目标、分配发射器和执行发射操作。
+ *
+ * @param t 当前的时间，用于确定是否需要更新任务状态。
+ */
 void PointDefense::Update(double t)
 {
+    // 如果当前时间还没有到达下一个更新间隔，直接返回
     if (!IsReadyForUpdate(t)) return;
 
-
-    // return if conn is locked by another higher priority task
-    //if (!Write("ConnLock", "")) return; 
-
+    // 检查平台对象是否存在
     if (platform == 0)
     {
         assert(false);
         return;
     }
-   // tcPlatformInterface platformInterface = GetPlatformInterface();
 
+    // 获取点防御目标
     std::vector<tcSensorMapTrack> targets;
     GetPointDefenseTargets(targets);
 
+    // 如果没有目标，设置较长的更新间隔，然后返回
     if (targets.size() == 0)
     {
         SetUpdateInterval(10.0f);
         return;
     }
+    // 如果有目标，设置较短的更新间隔
     else
     {
         SetUpdateInterval(2.0f);
     }
 
+    // 获取可用的发射器
     std::vector<unsigned int> launchers;
     GetPointDefenseLaunchers(launchers);
 
+    // 遍历每个发射器
     for (size_t n=0; n<launchers.size(); n++)
     {
         unsigned int launcher_idx = launchers[n];
 
+        // 获取目标数量
         size_t nTargets = targets.size();
+        // 随机偏移量，用于随机选择目标
         size_t random_offset = rand() % nTargets;
+        // 标记是否正在寻找目标
         bool lookingForTarget = true;
+        // 遍历所有目标
         for (size_t k=0; (k<nTargets) && lookingForTarget; k++)
         {
+            // 计算目标索引
             size_t target_idx = (k + random_offset) % nTargets;
+            // 获取目标ID
             long targetId = targets[target_idx].mnID;
+            // 为发射器指定目标
             platform->DesignateLauncherTarget(targetId, launcher_idx);
 
+            // 获取目标位置
             GeoPoint p(targets[target_idx].mfLon_rad, targets[target_idx].mfLat_rad, targets[target_idx].mfAlt_m);
+            // 为发射器指定目标位置
             platform->DesignateLauncherDatum(p, launcher_idx);
 
+            // 获取发射器对象
             std::shared_ptr<tcLauncher> launcher = platform->GetLauncher(launcher_idx);
+            // 更新发射器状态
             launcher->UpdateStatus();
+            // 获取发射器状态
             unsigned char launcherStatus = launcher->GetStatus();
+            // 如果发射器准备就绪，发射导弹
             if (launcherStatus == tcLauncher::LAUNCHER_READY)
             {
                 lookingForTarget = false;
@@ -204,9 +225,9 @@ void PointDefense::Update(double t)
         }
     }
 
+    // 标记当前时间为最后更新时间
     FinishUpdate(t);
 }
-
 PointDefense::PointDefense(std::shared_ptr<tcPlatformObject> platform_, Blackboard* bb, 
                                    long id_, double priority_, int attributes_, const std::string& taskName_)
 : Task(platform_, bb, id_, priority_, attributes_, taskName_)

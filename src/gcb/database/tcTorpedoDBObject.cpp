@@ -51,6 +51,7 @@ namespace database
     */
     void tcTorpedoDBObject::CalculateParams()
     {
+        tcWeaponDBObject::CalculateParams();
         maxTurnRate_radps = C_PIOVER180 * maxTurnRate_degps;
         batteryRate_kWpkt = batteryRate_kW / maxSpeed_kts;
 
@@ -111,7 +112,7 @@ namespace database
     void tcTorpedoDBObject::ReadSql(tcSqlReader& entry)
     {
         tcWeaponDBObject::ReadSql(entry);
-        waterDetectionDBObject =std::make_shared<tcWaterDetectionDBObject>();
+        auto waterDetectionDBObject =std::make_shared<tcWaterDetectionDBObject>();
         waterDetectionDBObject->ReadSql(entry);
         components.push_back(waterDetectionDBObject);
         maxTurnRate_degps = entry.GetDouble("maxTurnRate_degps");
@@ -125,13 +126,13 @@ namespace database
         preEnableSpeed_kts = entry.GetDouble("preEnableSpeed_kts");
         weaponType = entry.GetInt("WeaponType");
 
-        CalculateParams();
+        // CalculateParams();
     }
 
     void tcTorpedoDBObject::WriteSql(std::string& valueString) const
     {
         tcWeaponDBObject::WriteSql(valueString);
-        waterDetectionDBObject->WriteSql(valueString);
+        GetComponent<tcWaterDetectionDBObject>()[0]->WriteSql(valueString);
 
         std::stringstream s;
 
@@ -156,7 +157,7 @@ namespace database
     void tcTorpedoDBObject::WritePythonValue(std::string &valueString) const
     {
         tcWeaponDBObject::WritePythonValue(valueString);
-        waterDetectionDBObject->WritePythonValue(mzClass,valueString);
+        GetComponent<tcWaterDetectionDBObject>()[0]->WritePythonValue(mzClass,valueString);
         valueString+="    dbObj.maxTurnRate_degps="+strutil::to_python_value(maxTurnRate_degps)+"\n";
         valueString+="    dbObj.maxDepth_m="+strutil::to_python_value(maxDepth_m)+"\n";
         valueString+="    dbObj.battery_kJ="+strutil::to_python_value(battery_kJ)+"\n";

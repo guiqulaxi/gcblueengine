@@ -90,6 +90,8 @@ namespace database
 
     void tcBallisticDBObject::CalculateParams()
     {
+        tcWeaponDBObject::CalculateParams();
+
         if (launchSpeed_mps > 0)
         {
             one_over_launchSpeed = 1.0f / launchSpeed_mps;
@@ -440,7 +442,7 @@ namespace database
 			//assert(false);
         }
 
-        CalculateParams();
+        //CalculateParams();
 	}
 
     void tcBallisticDBObject::WriteSql(std::string& valueString) const

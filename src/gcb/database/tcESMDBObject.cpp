@@ -35,7 +35,6 @@
 //#include "math_constants.h"
 //#include "randfn.h"
 //#include "AError.h"
-#include "CsvTranslator.h"
 #include <sstream>
 
 #ifdef _DEBUG

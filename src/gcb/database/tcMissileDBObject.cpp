@@ -58,6 +58,8 @@ bool tcMissileDBObject::AcceptsWaypoints() const
 
 void tcMissileDBObject::CalculateParams()
 {
+    tcWeaponDBObject::CalculateParams();
+
     aczConstant_kts = C_KTSTOMPS * (50.0f / std::min(mfGmax, 20.0f)); // % smaller is more responsive
 
     invMass_kg = 1.0f / weight_kg;
@@ -381,7 +383,7 @@ void tcMissileDBObject::ReadSql(tcSqlReader& entry)
         needsFireControl = true;
     }
 
-    CalculateParams();
+    //CalculateParams();
 
 }
 

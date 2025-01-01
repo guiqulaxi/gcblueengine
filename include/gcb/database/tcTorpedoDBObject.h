@@ -80,33 +80,26 @@ namespace database
         float maxTurnRate_radps;           ///< CALCULATED
         float batteryRate_kWpkt;            ///< [kW / kt] CALCULATED
 
-        virtual const char* GetClassName() const {return "Torpedo";} ///< returns class name of database object
+        virtual const char* GetClassName() const override {return "Torpedo";} ///< returns class name of database object
          std::shared_ptr<tcSonarDBObject> GetSeekerDBObj() const;
 
-        virtual void PrintToFile(tcFile& file);
+        virtual void PrintToFile(tcFile& file) override;
 
         static void AddSqlColumns(std::string& columnString);
-        void ReadSql(tcSqlReader& entry);
-        void WriteSql(std::string& valueString) const;
-        void WritePythonValue(std::string& valueString) const;
-        void WritePython(std::string& valueString) const;
+        void ReadSql(tcSqlReader& entry) override;
+        void WriteSql(std::string& valueString) const override;
+        void WritePythonValue(std::string& valueString) const override;
+        void WritePython(std::string& valueString) const override;
 
         tcTorpedoDBObject();
         tcTorpedoDBObject(const tcTorpedoDBObject& obj); ///< copy constructor
         virtual ~tcTorpedoDBObject();
         virtual std::shared_ptr<tcGameObject>CreateGameObject() override;
-        void CalculateParams();
+        void CalculateParams()override;
 
-        void setWaterDetectionDBObject(std::shared_ptr<tcWaterDetectionDBObject> obj )
-        {
-            waterDetectionDBObject=obj;
-        }
-        virtual std::shared_ptr<tcWaterDetectionDBObject> GetWaterDetectionDBObject( )const
-        {
-            return waterDetectionDBObject;
-        }
+
     private:
-        std::shared_ptr<tcWaterDetectionDBObject> waterDetectionDBObject;
+
 
     };
 

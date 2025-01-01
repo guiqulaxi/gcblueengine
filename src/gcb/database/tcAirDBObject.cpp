@@ -62,6 +62,7 @@ namespace database
 */
 void tcAirDBObject::CalculateParams()
 {
+    tcPlatformDBObject::CalculateParams();
     if (climbRate_mps <= 0)
     {
         fprintf(stderr, "tcAirDBObject -- %s, ClimbRate (%.1f) <= 0, defaulting to 15 m/s\n",
@@ -160,7 +161,7 @@ void tcAirDBObject::ReadSql(tcSqlReader& entry)
     maintenanceMin_s = entry.GetDouble("MaintenanceMin_s");
     maintenanceMax_s = entry.GetDouble("MaintenanceMax_s");
 
-    CalculateParams();
+    //CalculateParams();
 }
 
 

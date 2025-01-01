@@ -128,8 +128,8 @@ public:
 
     long GetSize() {return mcObjectData.GetCount();}
     bool GetObject(long anKey, std::shared_ptr<tcDatabaseObject> &rpobj);
-    long AddOrUpdateObject( std::shared_ptr<tcDatabaseObject> rpobj);
-
+    long AddOrUpdateObject(std::shared_ptr<tcDatabaseObject> rpobj);
+    long AddOrUpdateObjectForceKey(std::shared_ptr<tcDatabaseObject> rpobj,long forceKey);
 
     void AddOrUpdateSignatureModelData(const tcSignatureModel&data);
     void AddOrUpdateAcousticModelData(const tcAcousticModel& data);

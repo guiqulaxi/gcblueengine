@@ -81,6 +81,7 @@ namespace database
     */
     void tcCounterMeasureDBObject::CalculateParams()
     {
+        tcDatabaseObject::CalculateParams();
         if (maxSpeed_mps > 0)
         {
             airDragFactor = C_G / (maxSpeed_mps * maxSpeed_mps);
@@ -123,7 +124,7 @@ namespace database
         waterDetectionDBObject->ReadSql(entry);
         components.push_back(waterDetectionDBObject);
 
-        CalculateParams();
+        //CalculateParams();
     }
 
     void tcCounterMeasureDBObject::WriteSql(std::string& valueString) const

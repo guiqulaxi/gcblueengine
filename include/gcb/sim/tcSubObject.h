@@ -50,17 +50,17 @@ class tcSubObject : public tcPlatformObject
 public:
     std::shared_ptr<tcSubDBObject> mpDBObject;
 
-    virtual void ApplyRestrictions();
-    virtual void Clear();
-    virtual bool IsDestroyed();
-    virtual void RandInitNear(float afLon_deg, float afLat_deg);
-    virtual void UpdateClimb(float dt_s);
-    virtual void Update(double afStatusTime);
+    virtual void ApplyRestrictions() override;
+    virtual void Clear()override;
+    virtual bool IsDestroyed()override;
+    virtual void RandInitNear(float afLon_deg, float afLat_deg)override;
+    virtual void UpdateClimb(float dt_s)override;
+    virtual void Update(double afStatusTime)override;
 
-    void PrintToFile(tcFile& file);
-    void SaveToFile(tcFile& file);
-    void LoadFromFile(tcFile& file);
-    virtual void Serialize(tcFile& file, bool mbLoad);
+    void PrintToFile(tcFile& file)override;
+    void SaveToFile(tcFile& file)override;
+    void LoadFromFile(tcFile& file)override;
+    virtual void Serialize(tcFile& file, bool mbLoad)override;
 
 	float GetBatteryCharge() const;
     float GetPeriscopeDepth() const;
@@ -76,22 +76,22 @@ public:
     void SetPeriscopeState(bool state);
     void SetRadarMastState(bool state);
 	void SetSnorkelState(bool state);
-    virtual void SetAltitude(float new_altitude_m);
+    virtual void SetAltitude(float new_altitude_m)override;
     float GetMaxQuietSpeedKts() const;
 
-    virtual float GetOpticalCrossSection() const;
-    virtual float GetIRSignature(float az_deg) const;
+    virtual float GetOpticalCrossSection() const override;
+    virtual float GetIRSignature(float az_deg) const override;
 
-    virtual tcCommandStream& operator<<(tcCommandStream& stream);
-    virtual tcUpdateStream& operator<<(tcUpdateStream& stream);
-    virtual tcGameStream& operator<<(tcGameStream& stream);
+    virtual tcCommandStream& operator<<(tcCommandStream& stream)override;
+    virtual tcUpdateStream& operator<<(tcUpdateStream& stream)override;
+    virtual tcGameStream& operator<<(tcGameStream& stream)override;
 
-    virtual tcCommandStream& operator>>(tcCommandStream& stream);
-    virtual tcUpdateStream& operator>>(tcUpdateStream& stream);
-    virtual tcGameStream& operator>>(tcGameStream& stream);
+    virtual tcCommandStream& operator>>(tcCommandStream& stream)override;
+    virtual tcUpdateStream& operator>>(tcUpdateStream& stream)override;
+    virtual tcGameStream& operator>>(tcGameStream& stream)override;
 
-    virtual void ClearNewCommand();
-    virtual bool HasNewCommand() const;
+    virtual void ClearNewCommand()override;
+    virtual bool HasNewCommand() const override;
 
     tcSubObject();
     tcSubObject(tcSubObject&);
@@ -122,10 +122,10 @@ protected:
 
     void UpdateDestroyed(double t);
 //    virtual void UpdateEffects();
-    virtual void UpdateHeading(float dt_s);
+    virtual void UpdateHeading(float dt_s) override;
     virtual void UpdateMessages();
-    virtual void UpdateSensors(double t);
-    virtual void UpdateSpeed(float dt_s);
+    virtual void UpdateSensors(double t) override;
+    virtual void UpdateSpeed(float dt_s) override;
 };
 
 #endif

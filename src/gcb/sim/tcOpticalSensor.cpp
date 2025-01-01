@@ -116,7 +116,7 @@ float tcOpticalSensor::CalculateTargetSignature(std::shared_ptr<const tcGameObje
     const tcKinematics *tgt_kin = &target->mcKin;
 
     // 尝试将目标的数据对象转换为空气探测数据对象
-    std::shared_ptr<tcAirDetectionDBObject> detectionData = std::dynamic_pointer_cast<tcAirDetectionDBObject>(target->mpDBObject);
+    std::shared_ptr<tcAirDetectionDBObject> detectionData = target->mpDBObject->GetComponent<tcAirDetectionDBObject>()[0];
     // 如果转换失败（即目标不是空气探测对象），则返回-999.0f表示无效特征
     if (detectionData == nullptr) return -999.0f;
 

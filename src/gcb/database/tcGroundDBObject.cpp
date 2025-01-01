@@ -128,6 +128,7 @@ void tcGroundDBObject::WritePython(std::string &valueString) const
 
 void tcGroundDBObject::CalculateParams()
 {
+    tcPlatformDBObject::CalculateParams();
 }
 tcGroundDBObject::tcGroundDBObject() : 
     tcPlatformDBObject()
