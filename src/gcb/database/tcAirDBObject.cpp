@@ -169,8 +169,8 @@ void tcAirDBObject::WriteSql(std::string& valueString) const
 {
 	tcPlatformDBObject::WriteSql(valueString);
 
-    GetComponent<tcAirDetectionDBObject>()[0]->WriteSql(valueString);
-    GetComponent<tcWaterDetectionDBObject>()[0]->WriteSql(valueString);
+    GetComponent<tcAirDetectionDBObject>()->WriteSql(valueString);
+    GetComponent<tcWaterDetectionDBObject>()->WriteSql(valueString);
 
 	std::stringstream s;
 
@@ -195,8 +195,8 @@ void tcAirDBObject::WritePythonValue(std::string &valueString) const
 {
     tcPlatformDBObject::WritePythonValue(valueString);
 
-    GetComponent<tcAirDetectionDBObject>()[0]->WritePythonValue(mzClass,valueString);
-    GetComponent<tcWaterDetectionDBObject>()[0]->WritePythonValue(mzClass,valueString);
+    GetComponent<tcAirDetectionDBObject>()->WritePythonValue(mzClass,valueString);
+    GetComponent<tcWaterDetectionDBObject>()->WritePythonValue(mzClass,valueString);
     valueString+="    dbObj.maxTakeoffWeight_kg="+strutil::to_python_value(maxTakeoffWeight_kg)+"\n";
     valueString+="    dbObj.maxAltitude_m="+strutil::to_python_value(maxAltitude_m)+"\n";
     valueString+="    dbObj.climbRate_mps="+strutil::to_python_value(climbRate_mps)+"\n";

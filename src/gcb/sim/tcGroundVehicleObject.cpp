@@ -236,14 +236,14 @@ void tcGroundVehicleObject::Clear()
 
 float tcGroundVehicleObject::GetOpticalCrossSection() const
 {
-    return mpDBObject->GetComponent<tcAirDetectionDBObject>()[0]->opticalCrossSection_dBsm;
+    return mpDBObject->GetComponent<tcAirDetectionDBObject>()->opticalCrossSection_dBsm;
 }
 
 
 
 float tcGroundVehicleObject::GetIRSignature(float az_deg) const
 {
-    return mpDBObject->GetComponent<tcAirDetectionDBObject>()[0]->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELA);
+    return mpDBObject->GetComponent<tcAirDetectionDBObject>()->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELA);
 }
 
 

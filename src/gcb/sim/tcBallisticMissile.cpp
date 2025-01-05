@@ -220,9 +220,9 @@ void tcBallisticMissile::LaunchFrom(std::shared_ptr<tcGameObject> obj, unsigned 
 
     mzUnit = s.c_str();   
 
-	SetAlliance(obj->GetAlliance());     
+	SetAlliance(obj->GetAlliance());
 
-	simState->AddPlatform(static_cast<std::shared_ptr<tcGameObject>>(this));
+    simState->AddPlatform(shared_from_this());
 
 	// Set intended target (has to be done after alliance and id is set).
 	// This is a tcWeaponObject method

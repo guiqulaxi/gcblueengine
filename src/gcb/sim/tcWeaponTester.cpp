@@ -67,6 +67,7 @@ void tcWeaponTester::InitializePlatform()
 
     std::shared_ptr<tcPlatformDBObject> ghostData = std::dynamic_pointer_cast<tcPlatformDBObject>(tcDatabase::Get()->GetObject("F-15C"));
     ghost = std::make_shared<tcPlatformObject>(ghostData);
+    ghost->Construct();
     ghost->mnID = -99; // hack, use this ID as code to simstate to return weapontester platform (debug build only)
 
     std::shared_ptr<tcSensorDBObject> sensorData =  std::dynamic_pointer_cast<tcSensorDBObject>(

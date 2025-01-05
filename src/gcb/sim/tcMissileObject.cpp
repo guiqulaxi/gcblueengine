@@ -391,11 +391,11 @@ void tcMissileObject::LaunchFrom(std::shared_ptr<tcGameObject> obj, unsigned nLa
         s = strutil::format("Missile %d-%d", obj->mnID, launchedCounter++);
 	}
 
-    mzUnit = s.c_str();   
+    mzUnit = s.c_str();
 
-	SetAlliance(obj->GetAlliance());     
+    SetAlliance(obj->GetAlliance());
 
-	simState->AddPlatform(static_cast<std::shared_ptr<tcGameObject>>(this));
+    simState->AddPlatform(shared_from_this());
 
 	// Set intended target (has to be done after alliance and id is set).
 	// This is a tcWeaponObject method
@@ -1657,7 +1657,7 @@ float tcMissileObject::EstimateSeekerDetectionRange(const tcSensorMapTrack& targ
 	}
 
 	std::shared_ptr<tcDatabaseObject> targetData = database->GetObject(target.GetDatabaseId());
-    std::shared_ptr< tcAirDetectionDBObject> detectionData = targetData->GetComponent<tcAirDetectionDBObject>()[0];
+    std::shared_ptr< tcAirDetectionDBObject> detectionData = targetData->GetComponent<tcAirDetectionDBObject>();
 	const float aspect_deg = 10.0f; // just arbitrarily assume a target aspect for now
 
     if (std::shared_ptr<tcRadarDBObject> radar =  std::dynamic_pointer_cast<tcRadarDBObject>(seekerData))
@@ -1913,14 +1913,14 @@ int tcMissileObject::GetGuidanceParameters(tsGuidanceParameters& gp)
 
 float tcMissileObject::GetOpticalCrossSection() const
 {
-    return mpDBObject->GetComponent<tcAirDetectionDBObject>()[0]->opticalCrossSection_dBsm;
+    return mpDBObject->GetComponent<tcAirDetectionDBObject>()->opticalCrossSection_dBsm;
 }
 
 
 
 float tcMissileObject::GetIRSignature(float az_deg) const
 {
-    return mpDBObject->GetComponent<tcAirDetectionDBObject>()[0]->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELA);
+    return mpDBObject->GetComponent<tcAirDetectionDBObject>()->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELA);
 }
 
 /**

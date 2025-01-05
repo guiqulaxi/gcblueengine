@@ -63,14 +63,14 @@ tcSimpleAirDBObject::~tcSimpleAirDBObject()
     case MTYPE_FIXEDWING:
     case MTYPE_AIR:
     {
-        auto obj= std::make_shared< tcAirObject>(dynamic_pointer_cast<tcSimpleAirDBObject>(tcDatabaseObject::shared_from_this()));
+        auto obj= std::make_shared<tcAirObject>(dynamic_pointer_cast<tcSimpleAirDBObject>(tcDatabaseObject::shared_from_this()));
         obj->Construct();
         return obj;
     }
         break;
     case MTYPE_HELO:
     {
-        auto obj= std::make_shared<  tcHeloObject>(dynamic_pointer_cast<tcSimpleAirDBObject>(tcDatabaseObject::shared_from_this()));
+        auto obj= std::make_shared< tcHeloObject>(dynamic_pointer_cast<tcSimpleAirDBObject>(tcDatabaseObject::shared_from_this()));
         obj->Construct();
         return obj;
     }

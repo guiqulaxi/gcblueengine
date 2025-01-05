@@ -76,7 +76,7 @@ void tcLauncherState::AddFullLauncher(long anKey, float azimuth_rad, float eleva
 
     // add new launcher
     assert(parent);
-    std::shared_ptr<tcLauncher> new_launcher = std::make_shared< tcLauncher>(ldata, parent);
+    std::shared_ptr<tcLauncher> new_launcher = std::make_shared<tcLauncher>(ldata, parent);
 
     new_launcher->pointingAngle = azimuth_rad;
 	new_launcher->mountPointingAngle = azimuth_rad;

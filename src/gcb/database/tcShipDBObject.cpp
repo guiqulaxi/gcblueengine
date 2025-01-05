@@ -173,16 +173,16 @@ void tcShipDBObject::WriteSql(std::string& valueString) const
 
     valueString += s.str();
 
-    GetComponent<tcAirDetectionDBObject>()[0]->WriteSql(valueString);
+    GetComponent<tcAirDetectionDBObject>()->WriteSql(valueString);
 
-    GetComponent<tcWaterDetectionDBObject>()[0]->WriteSql(valueString);
+    GetComponent<tcWaterDetectionDBObject>()->WriteSql(valueString);
 }
 
 void tcShipDBObject::WritePythonValue(std::string &valueString) const
 {
  tcPlatformDBObject::WritePythonValue(valueString);
-    GetComponent<tcAirDetectionDBObject>()[0]->WritePythonValue(mzClass,valueString);
-    GetComponent<tcWaterDetectionDBObject>()[0]->WritePythonValue(mzClass,valueString);
+    GetComponent<tcAirDetectionDBObject>()->WritePythonValue(mzClass,valueString);
+    GetComponent<tcWaterDetectionDBObject>()->WritePythonValue(mzClass,valueString);
     valueString+="    dbObj.draft_m="+strutil::to_python_value(draft_m)+"\n";
     valueString+="    dbObj.beam_m="+strutil::to_python_value(beam_m)+"\n";
     valueString+="    dbObj.PowerPlantType="+strutil::to_python_value(PowerPlantType)+"\n";
@@ -246,7 +246,7 @@ std::shared_ptr<tcGameObject>tcShipDBObject::CreateGameObject()
         {
            auto sss= std::dynamic_pointer_cast<tcShipDBObject>(tcDatabaseObject::shared_from_this());
 
-            auto obj= std::make_shared< tcCarrierObject>(std::dynamic_pointer_cast<tcShipDBObject>(tcDatabaseObject::shared_from_this()));
+            auto obj= std::make_shared<tcCarrierObject>(std::dynamic_pointer_cast<tcShipDBObject>(tcDatabaseObject::shared_from_this()));
             obj->Construct();
             return obj;
         }
@@ -259,14 +259,18 @@ std::shared_ptr<tcGameObject>tcShipDBObject::CreateGameObject()
     //wxMessageBox(msg, "Object Create Error");
 #endif
 
-            auto obj=  std::make_shared< tcSurfaceObject>(std::dynamic_pointer_cast<tcShipDBObject>(tcDatabaseObject::shared_from_this()));
+            auto obj=  std::make_shared<tcSurfaceObject>(std::dynamic_pointer_cast<tcShipDBObject>(tcDatabaseObject::shared_from_this()));
             obj->Construct();
             return obj;
         }
     }
     break;
     case MTYPE_SURFACE:
-        return std::make_shared< tcSurfaceObject>(std::dynamic_pointer_cast<tcShipDBObject>(tcDatabaseObject::shared_from_this()));
+    {
+        auto obj=  std::make_shared<tcSurfaceObject>(std::dynamic_pointer_cast<tcShipDBObject>(tcDatabaseObject::shared_from_this()));
+        obj->Construct();
+        return obj;
+    }
         break;
     default:
         fprintf(stderr, "tcSimState::CreateGameObject - "

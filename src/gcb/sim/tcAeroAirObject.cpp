@@ -443,7 +443,7 @@ float tcAeroAirObject::GetCurrentFuelRate() const
 
 float tcAeroAirObject::GetOpticalCrossSection() const
 {
-    return mpDBObject->GetComponent<tcAirDetectionDBObject>()[0]->opticalCrossSection_dBsm;
+    return mpDBObject->GetComponent<tcAirDetectionDBObject>()->opticalCrossSection_dBsm;
 }
 
 
@@ -457,23 +457,23 @@ float tcAeroAirObject::GetIRSignature(float az_deg) const
     {
         if (!afterburnersOn)
         {
-            return mpDBObject->GetComponent<tcAirDetectionDBObject>()[0]->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELA);
+            return mpDBObject->GetComponent<tcAirDetectionDBObject>()->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELA);
         }
         else
         {
-            return mpDBObject->GetComponent<tcAirDetectionDBObject>()[0]->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELB);
+            return mpDBObject->GetComponent<tcAirDetectionDBObject>()->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELB);
         }
     }
     else
     {
         if (!afterburnersOn)
         {
-            return mpDBObject->GetComponent<tcAirDetectionDBObject>()[0]->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELC);
+            return mpDBObject->GetComponent<tcAirDetectionDBObject>()->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELC);
         }
         else
         {
-            return std::max(mpDBObject->GetComponent<tcAirDetectionDBObject>()[0]->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELB),
-                            mpDBObject->GetComponent<tcAirDetectionDBObject>()[0]->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELC));
+            return std::max(mpDBObject->GetComponent<tcAirDetectionDBObject>()->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELB),
+                            mpDBObject->GetComponent<tcAirDetectionDBObject>()->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELC));
         }
     }
 

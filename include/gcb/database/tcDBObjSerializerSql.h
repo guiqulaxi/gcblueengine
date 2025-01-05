@@ -127,7 +127,7 @@ namespace database
 			while (sqlReader.Read())
 			{
 				long key;
-                std::shared_ptr<T> obj = std::make_shared< T>();
+                std::shared_ptr<T> obj = std::make_shared<T>();
                 // T* obj = new T;
 				obj->ReadSql(sqlReader);
 

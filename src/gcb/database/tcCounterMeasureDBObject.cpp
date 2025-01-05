@@ -141,15 +141,15 @@ namespace database
         s << maxSpeed_mps << ",";
 
         valueString += s.str();
-        GetComponent<tcAirDetectionDBObject>()[0]->WriteSql(valueString);
-        GetComponent<tcWaterDetectionDBObject>()[0]->WriteSql(valueString);
+        GetComponent<tcAirDetectionDBObject>()->WriteSql(valueString);
+        GetComponent<tcWaterDetectionDBObject>()->WriteSql(valueString);
     }
 
     void tcCounterMeasureDBObject::WritePythonValue(std::string &valueString) const
     {
         tcDatabaseObject::WritePythonValue(valueString);
-        GetComponent<tcAirDetectionDBObject>()[0]->WritePythonValue(mzClass,valueString);
-        GetComponent<tcWaterDetectionDBObject>()[0]->WritePythonValue(mzClass,valueString);
+        GetComponent<tcAirDetectionDBObject>()->WritePythonValue(mzClass,valueString);
+        GetComponent<tcWaterDetectionDBObject>()->WritePythonValue(mzClass,valueString);
 
         valueString+="    dbObj.subType="+strutil::to_python_value(subType)+"\n";
         valueString+="    dbObj.lifeSpan_s="+strutil::to_python_value(lifeSpan_s)+"\n";
@@ -201,14 +201,14 @@ namespace database
     {
         if (this->mnModelType == MTYPE_AIRCM)
         {
-            auto obj= std::make_shared< tcAirCM>(std::dynamic_pointer_cast<tcCounterMeasureDBObject>(tcDatabaseObject::shared_from_this()));
+            auto obj= std::make_shared<tcAirCM>(std::dynamic_pointer_cast<tcCounterMeasureDBObject>(tcDatabaseObject::shared_from_this()));
             obj->Construct();
             return obj;
         }
         else
         {
             assert(this->mnModelType == MTYPE_WATERCM);
-            auto obj= std::make_shared<  tcWaterCM>(std::dynamic_pointer_cast<tcCounterMeasureDBObject>(tcDatabaseObject::shared_from_this()));
+            auto obj= std::make_shared< tcWaterCM>(std::dynamic_pointer_cast<tcCounterMeasureDBObject>(tcDatabaseObject::shared_from_this()));
             obj->Construct();
             return obj;
         }

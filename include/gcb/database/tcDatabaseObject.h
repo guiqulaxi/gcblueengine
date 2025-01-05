@@ -183,7 +183,9 @@ void ClassificationToString(UINT16 anType, char *azString);
         virtual std::shared_ptr<tcGameObject> CreateGameObject();///<创建平台
         virtual void CalculateParams();
         template <typename T>
-        std::vector<std::shared_ptr<T>> GetComponent() const;
+        std::vector<std::shared_ptr<T>> GetComponents() const;
+        template <typename T>
+        std::shared_ptr<T> GetComponent() const;
         void AddComponent(std::shared_ptr<tcComponentDBObject> com)
         {
             components.push_back(com);
@@ -198,7 +200,7 @@ void ClassificationToString(UINT16 anType, char *azString);
     };
 
     template <typename T>
-    std::vector<std::shared_ptr<T>> tcDatabaseObject::GetComponent() const
+    std::vector<std::shared_ptr<T>> tcDatabaseObject::GetComponents() const
     {
         std::vector<std::shared_ptr<T>> coms;
         for (int i = 0; i < components.size(); ++i) {
@@ -210,8 +212,20 @@ void ClassificationToString(UINT16 anType, char *azString);
         }
         return coms;
     }
+    template <typename T>
+    std::shared_ptr<T> tcDatabaseObject::GetComponent() const
+    {
 
-    
+        for (int i = 0; i < components.size(); ++i) {
+            auto com=std::dynamic_pointer_cast<T>(components[i]);
+            if(com)
+            {
+                return com;
+            }
+        }
+        return nullptr;
+    }
+
 }
 
 #endif

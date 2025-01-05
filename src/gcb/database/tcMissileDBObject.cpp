@@ -390,7 +390,7 @@ void tcMissileDBObject::ReadSql(tcSqlReader& entry)
 void tcMissileDBObject::WriteSql(std::string& valueString) const
 {
     tcWeaponDBObject::WriteSql(valueString);
-    GetComponent<tcAirDetectionDBObject>()[0]->WriteSql(valueString);
+    GetComponent<tcAirDetectionDBObject>()->WriteSql(valueString);
 
     std::stringstream s;
 
@@ -444,7 +444,7 @@ void tcMissileDBObject::WriteSql(std::string& valueString) const
 void tcMissileDBObject::WritePythonValue(std::string &valueString) const
 {
     tcWeaponDBObject::WritePythonValue(valueString);
-    GetComponent<tcAirDetectionDBObject>()[0]->WritePythonValue(mzClass,valueString);
+    GetComponent<tcAirDetectionDBObject>()->WritePythonValue(mzClass,valueString);
     valueString+="    dbObj.mfDragArea_sm="+strutil::to_python_value(mfDragArea_sm)+"\n";
     valueString+="    dbObj.mfGmax="+strutil::to_python_value(mfGmax)+"\n";
     valueString+="    dbObj.mfMaxTurnRate_degps="+strutil::to_python_value(mfMaxTurnRate_degps)+"\n";

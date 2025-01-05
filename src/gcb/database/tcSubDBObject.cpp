@@ -71,7 +71,7 @@ float tcSubDBObject::GetInvDraft() const
     */
 float tcSubDBObject::GetMaxNonCavitatingSpeed(float depth_m) const
 {
-    return GetComponent<tcWaterDetectionDBObject>()[0]->GetCavitationSpeedKts(depth_m);
+    return GetComponent<tcWaterDetectionDBObject>()->GetCavitationSpeedKts(depth_m);
 }
 
 bool tcSubDBObject::IsCavitatingMps(float speed_mps, float depth_m) const
@@ -142,8 +142,8 @@ void tcSubDBObject::WriteSql(std::string& valueString) const
     s2 << surfaceSpeed_kts;
     valueString += s2.str();
 
-    GetComponent<tcAirDetectionDBObject>()[0]->WriteSql(valueString);
-    GetComponent<tcWaterDetectionDBObject>()[0]->WriteSql(valueString);
+    GetComponent<tcAirDetectionDBObject>()->WriteSql(valueString);
+    GetComponent<tcWaterDetectionDBObject>()->WriteSql(valueString);
 
     std::stringstream s;
     s << ",";
@@ -161,8 +161,8 @@ void tcSubDBObject::WriteSql(std::string& valueString) const
 void tcSubDBObject::WritePythonValue(std::string &valueString) const
 {
     tcPlatformDBObject::WritePythonValue(valueString);
-    GetComponent<tcAirDetectionDBObject>()[0]->WritePythonValue(mzClass,valueString);
-    GetComponent<tcWaterDetectionDBObject>()[0]->WritePythonValue(mzClass,valueString);
+    GetComponent<tcAirDetectionDBObject>()->WritePythonValue(mzClass,valueString);
+    GetComponent<tcWaterDetectionDBObject>()->WritePythonValue(mzClass,valueString);
     valueString+="    dbObj.draft_m="+strutil::to_python_value(draft_m)+"\n";
     valueString+="    dbObj.surfaceSpeed_kts="+strutil::to_python_value(surfaceSpeed_kts)+"\n";
     valueString+="    dbObj.mfMaxDepth_m="+strutil::to_python_value(mfMaxDepth_m)+"\n";
@@ -214,7 +214,7 @@ tcSubDBObject::~tcSubDBObject()
 
 std::shared_ptr<tcGameObject>tcSubDBObject::CreateGameObject()
 {
-    auto obj= std::make_shared< tcSubObject>(std::dynamic_pointer_cast<tcSubDBObject>(tcDatabaseObject::shared_from_this()));
+    auto obj= std::make_shared<tcSubObject>(std::dynamic_pointer_cast<tcSubDBObject>(tcDatabaseObject::shared_from_this()));
     obj->Construct();
     return obj;
 }

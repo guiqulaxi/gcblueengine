@@ -104,13 +104,13 @@ void tcGroundDBObject::WriteSql(std::string& valueString) const
 
 	valueString += s.str();
 
-    GetComponent<tcAirDetectionDBObject>()[0]->WriteSql(valueString);
+    GetComponent<tcAirDetectionDBObject>()->WriteSql(valueString);
 }
 
 void tcGroundDBObject::WritePythonValue(std::string &valueString) const
 {
     tcPlatformDBObject::WritePythonValue(valueString);
-    GetComponent<tcAirDetectionDBObject>()[0]->WritePythonValue(mzClass,valueString);
+    GetComponent<tcAirDetectionDBObject>()->WritePythonValue(mzClass,valueString);
     valueString+="    dbObj.flightportClass="+strutil::to_python_value(flightportClass.c_str())+"\n";
 
 }
@@ -161,7 +161,7 @@ std::shared_ptr<tcGameObject>tcGroundDBObject::CreateGameObject()
         break;
     case MTYPE_FIXED:
     {
-        auto obj= std::make_shared< tcGroundObject>(std::dynamic_pointer_cast<tcGroundDBObject>(tcDatabaseObject::shared_from_this()));
+        auto obj= std::make_shared<tcGroundObject>(std::dynamic_pointer_cast<tcGroundDBObject>(tcDatabaseObject::shared_from_this()));
         obj->Construct();
         return obj;
     }
@@ -169,7 +169,7 @@ std::shared_ptr<tcGameObject>tcGroundDBObject::CreateGameObject()
 
     case MTYPE_GROUNDVEHICLE:
     {
-        auto obj= std::make_shared< tcGroundVehicleObject>(std::dynamic_pointer_cast<tcGroundDBObject>(tcDatabaseObject::shared_from_this()));
+        auto obj= std::make_shared<tcGroundVehicleObject>(std::dynamic_pointer_cast<tcGroundDBObject>(tcDatabaseObject::shared_from_this()));
         obj->Construct();
         return obj;
     }

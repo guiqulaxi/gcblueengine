@@ -74,7 +74,7 @@ namespace database
 
     std::shared_ptr<tcSensorState> tcSonarDBObject::CreateSensor(std::shared_ptr<tcGameObject> parent)
     {
-        std::shared_ptr<tcSonar> sonar = std::make_shared< tcSonar>(std::dynamic_pointer_cast<tcSonarDBObject>(tcDatabaseObject::shared_from_this()));
+        std::shared_ptr<tcSonar> sonar = std::make_shared<tcSonar>(std::dynamic_pointer_cast<tcSonarDBObject>(tcDatabaseObject::shared_from_this()));
         sonar->SetParent(parent);
 
         return sonar;

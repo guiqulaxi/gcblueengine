@@ -373,7 +373,7 @@ float tcAirObject::GetStallSpeedForAltitude(float alt_m) const
 
 float tcAirObject::GetOpticalCrossSection() const
 {
-    return mpDBObject->GetComponent<tcAirDetectionDBObject>()[0]->opticalCrossSection_dBsm;
+    return mpDBObject->GetComponent<tcAirDetectionDBObject>()->opticalCrossSection_dBsm;
 }
 
 
@@ -384,11 +384,11 @@ float tcAirObject::GetIRSignature(float az_deg) const
 
     if (!isSupersonic)
     {
-        return mpDBObject->GetComponent<tcAirDetectionDBObject>()[0]->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELA);
+        return mpDBObject->GetComponent<tcAirDetectionDBObject>()->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELA);
     }
     else
     {
-        return mpDBObject->GetComponent<tcAirDetectionDBObject>()[0]->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELC);
+        return mpDBObject->GetComponent<tcAirDetectionDBObject>()->GetIRSig_dB(az_deg, tcAirDetectionDBObject::IRMODELC);
     }
 
     //std::shared_ptr<const tcAeroAirObject> jet =  std::dynamic_pointer_cast<const tcAeroAirObject>>(target);
@@ -1077,7 +1077,8 @@ void tcAirObject::Update(double afStatusTime)
     // if (!IsClientMode() || IsControlled()) // not sure why IsControlled()? supposed to be smoother for controlled obj?
     if (!IsClientMode())
 	{
-        formation.Update((std::shared_ptr<tcAirObject>)this);
+
+        formation.Update(std::dynamic_pointer_cast<tcAirObject>(shared_from_this()));
         
 		UpdateHeading(dt_s);
 

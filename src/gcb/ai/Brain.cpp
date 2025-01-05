@@ -1013,7 +1013,7 @@ Brain::Brain()
     lastUpdateTime = randf(updateInterval); // randomize update phase
 }
 
-void Brain::SetPaltformObject(std::shared_ptr<tcPlatformObject> platform_)
+void Brain::SetPlatformObject(std::shared_ptr<tcPlatformObject> platform_)
 {
     platform=platform_;
     assert(platform);

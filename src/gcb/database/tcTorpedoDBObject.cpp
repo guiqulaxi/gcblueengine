@@ -132,7 +132,7 @@ namespace database
     void tcTorpedoDBObject::WriteSql(std::string& valueString) const
     {
         tcWeaponDBObject::WriteSql(valueString);
-        GetComponent<tcWaterDetectionDBObject>()[0]->WriteSql(valueString);
+        GetComponent<tcWaterDetectionDBObject>()->WriteSql(valueString);
 
         std::stringstream s;
 
@@ -157,7 +157,7 @@ namespace database
     void tcTorpedoDBObject::WritePythonValue(std::string &valueString) const
     {
         tcWeaponDBObject::WritePythonValue(valueString);
-        GetComponent<tcWaterDetectionDBObject>()[0]->WritePythonValue(mzClass,valueString);
+        GetComponent<tcWaterDetectionDBObject>()->WritePythonValue(mzClass,valueString);
         valueString+="    dbObj.maxTurnRate_degps="+strutil::to_python_value(maxTurnRate_degps)+"\n";
         valueString+="    dbObj.maxDepth_m="+strutil::to_python_value(maxDepth_m)+"\n";
         valueString+="    dbObj.battery_kJ="+strutil::to_python_value(battery_kJ)+"\n";
@@ -225,7 +225,7 @@ namespace database
 
     std::shared_ptr<tcGameObject>tcTorpedoDBObject::CreateGameObject()
     {
-        auto obj= std::make_shared< tcTorpedoObject>(std::dynamic_pointer_cast<tcTorpedoDBObject>(tcDatabaseObject::shared_from_this()));
+        auto obj= std::make_shared<tcTorpedoObject>(std::dynamic_pointer_cast<tcTorpedoDBObject>(tcDatabaseObject::shared_from_this()));
         obj->Construct();
         return obj;
     }

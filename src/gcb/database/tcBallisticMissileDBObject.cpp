@@ -147,7 +147,7 @@ namespace database
     void tcBallisticMissileDBObject::WriteSql(std::string& valueString)
     {
         tcWeaponDBObject::WriteSql(valueString);
-        GetComponent<tcAirDetectionDBObject>()[0]->WriteSql(valueString);
+        GetComponent<tcAirDetectionDBObject>()->WriteSql(valueString);
 
         std::stringstream s;
 
@@ -178,7 +178,7 @@ namespace database
     {
         tcWeaponDBObject::WritePythonValue(valueString);
 
-        GetComponent<tcAirDetectionDBObject>()[0]->WritePythonValue(mzClass,valueString);
+        GetComponent<tcAirDetectionDBObject>()->WritePythonValue(mzClass,valueString);
 
         valueString+="    dbObj.gmax="+strutil::to_python_value(gmax)+"\n";
         valueString+="    dbObj.timeStage1_s="+strutil::to_python_value(timeStage1_s)+"\n";
@@ -253,7 +253,7 @@ namespace database
 
     std::shared_ptr<tcGameObject>tcBallisticMissileDBObject::CreateGameObject()
     {
-        auto obj= std::make_shared< tcBallisticMissile>(dynamic_pointer_cast<tcBallisticMissileDBObject>(tcDatabaseObject::shared_from_this()));
+        auto obj= std::make_shared<tcBallisticMissile>(dynamic_pointer_cast<tcBallisticMissileDBObject>(tcDatabaseObject::shared_from_this()));
         obj->Construct();
         return obj;
     }

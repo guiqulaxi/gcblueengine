@@ -88,7 +88,7 @@ bool tcDBObjSerializer<T>::LoadCsv()
     while (csv.GetLine(line) != 0)
     {
         long key;
-        std::shared_ptr<T> obj = std::make_shared< T>();
+        std::shared_ptr<T> obj = std::make_shared<T>();
         obj->SerializeCSV(&csv, true); // load obj data from file
         database->mcObjectData.AddElement(obj, key); // add to database, key gets new key val
         obj->mnKey = key; // set key val of object (may not be necessary anymore)

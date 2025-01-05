@@ -311,23 +311,26 @@ std::shared_ptr<tcGameObject> tcFlightOpsObject::AddChildToFlightDeck(std::share
 {
     assert(databaseObject);
 
-	std::shared_ptr<tcAirObject> child = 0; // object to add to flight_deck
+    std::shared_ptr<tcAirObject> child = nullptr; // object to add to flight_deck
 	
 	std::string className = databaseObject->mzClass.c_str();
 
     if (std::shared_ptr<tcJetDBObject>airDBObj = std::dynamic_pointer_cast<tcJetDBObject>(databaseObject))
 	{
-        child =std::make_shared< tcAeroAirObject>(airDBObj);
+        child =std::make_shared<tcAeroAirObject>(airDBObj);
+         child->Construct();
 	}
     else if (std::shared_ptr<tcAirDBObject>air2DBObj = std::dynamic_pointer_cast<tcAirDBObject>(databaseObject))
 	{
 		if (air2DBObj->mnModelType == MTYPE_FIXEDWING)
 		{
             child = std::make_shared<tcAirObject>(air2DBObj);
+             child->Construct();
         }
 		else if (air2DBObj->mnModelType == MTYPE_HELO)
 		{
-            child = std::make_shared< tcHeloObject>(air2DBObj);
+            child = std::make_shared<tcHeloObject>(air2DBObj);
+             child->Construct();
 		}
         else
         {
@@ -616,7 +619,7 @@ void tcFlightOpsObject::RandInitNear(float afLon_deg, float afLat_deg)
 	   }
 	   else
 	   {
-           child = std::make_shared< tcAeroAirObject>(std::dynamic_pointer_cast<tcJetDBObject>(dbObj));
+           child = std::make_shared<tcAeroAirObject>(std::dynamic_pointer_cast<tcJetDBObject>(dbObj));
 	   }
 
 	   /* This ASSERT can happen if bad model ids are in a database table (e.g. 

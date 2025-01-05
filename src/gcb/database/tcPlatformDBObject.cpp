@@ -306,7 +306,7 @@ void tcPlatformDBObject::PrintToFile(tcFile& file)
         file.WriteString(s.GetBuffer());
     }
 
-    GetComponent<tcSensorPlatformDBObject>()[0]->PrintToFile(file);
+    GetComponent<tcSensorPlatformDBObject>()->PrintToFile(file);
 
     for(int i=0; i<mnNumMagazines; i++)
     {
@@ -506,7 +506,7 @@ void tcPlatformDBObject::WriteSql(std::string& valueString) const
 void tcPlatformDBObject::WritePythonValue(std::string &valueString) const
 {
     tcDatabaseObject::WritePythonValue(valueString);
-    GetComponent<tcSensorPlatformDBObject>()[0]->WritePythonValue(mzClass,valueString);
+    GetComponent<tcSensorPlatformDBObject>()->WritePythonValue(mzClass,valueString);
     valueString+="    dbObj.mfMaxSpeed_kts="+strutil::to_python_value(mfMaxSpeed_kts)+"\n";
     valueString+="    dbObj.mfAccel_ktsps="+strutil::to_python_value(mfAccel_ktsps)+"\n";
     valueString+="    dbObj.mfTurnRate_degps="+strutil::to_python_value(mfTurnRate_degps)+"\n";

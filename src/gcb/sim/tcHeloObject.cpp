@@ -276,8 +276,8 @@ void tcHeloObject::Update(double afStatusTime)
 	** behavior.
 	*/
 	if (!IsClientMode() || IsControlled())
-	{
-        formation.Update((std::shared_ptr<tcAirObject>)this);
+    {
+        formation.Update(std::dynamic_pointer_cast<tcAirObject>( shared_from_this()));
 
 		// don't use air method since we don't care about roll
 		tcPlatformObject::UpdateHeading(dt_s); 

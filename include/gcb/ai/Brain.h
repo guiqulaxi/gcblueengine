@@ -122,7 +122,7 @@ public:
 
 
     Brain();
-    void SetPaltformObject(std::shared_ptr<tcPlatformObject> platform_);
+    void SetPlatformObject(std::shared_ptr<tcPlatformObject> platform_);
 	~Brain();
 
 private:

@@ -289,7 +289,7 @@ bool tcSimState::SensorCanDetect(long sensorKey, std::shared_ptr<const tcGameObj
     }
     else if (std::shared_ptr<tcOpticalDBObject> opticalData =  std::dynamic_pointer_cast<tcOpticalDBObject>(databaseObj))
     {
-        std::shared_ptr<tcOpticalSensor> optical = std::make_shared< tcOpticalSensor>(opticalData);
+        std::shared_ptr<tcOpticalSensor> optical = std::make_shared<tcOpticalSensor>(opticalData);
         if (optical->IsSemiactive())
         {
             optical->SetFireControlSensor(fcID, fcIdx);
@@ -298,7 +298,7 @@ bool tcSimState::SensorCanDetect(long sensorKey, std::shared_ptr<const tcGameObj
     }
     else if (std::shared_ptr<tcESMDBObject> esmData =  std::dynamic_pointer_cast<tcESMDBObject>(databaseObj))
     {
-        sensor = std::make_shared< tcESMSensor>(esmData);
+        sensor = std::make_shared<tcESMSensor>(esmData);
     }
 
     if (sensor != 0)

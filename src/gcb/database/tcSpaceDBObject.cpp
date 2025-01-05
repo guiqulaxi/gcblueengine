@@ -119,8 +119,8 @@ tcSpaceDBObject::~tcSpaceDBObject()
 
 std::shared_ptr<tcGameObject>tcSpaceDBObject::CreateGameObject()
 {
-    return std::make_shared< tcSpaceObject>(std::dynamic_pointer_cast<tcSpaceDBObject>(tcDatabaseObject::shared_from_this()));
-
+    auto obj= std::make_shared<tcSpaceObject>(std::dynamic_pointer_cast<tcSpaceDBObject>(tcDatabaseObject::shared_from_this()));
+    obj->Construct();
 }
 
 }

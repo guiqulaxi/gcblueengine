@@ -644,7 +644,7 @@ long tcDatabase::LoadLauncherData(const char* databaseClass, long forcedKey)
     }
 
     // create launcher db obj
-    std::shared_ptr<tcLauncherDBObject> launcherData = std::make_shared< tcLauncherDBObject>(std::string(launcherName.c_str()));
+    std::shared_ptr<tcLauncherDBObject> launcherData = std::make_shared<tcLauncherDBObject>(std::string(launcherName.c_str()));
 
     // add launcher configurations
     std::string command2 =
@@ -817,7 +817,7 @@ void tcDatabase::LoadPlatformTables()
             platformData->ReorderMagazines();
         }
 
-        if (std::shared_ptr<tcSensorPlatformDBObject> sensorPlatData =obj->GetComponent<tcSensorPlatformDBObject>()[0])
+        if (std::shared_ptr<tcSensorPlatformDBObject> sensorPlatData =obj->GetComponent<tcSensorPlatformDBObject>())
         {
             // clear old info
             sensorPlatData->sensorClass.clear();
@@ -1372,7 +1372,7 @@ void tcDatabase::LoadRecordOtherTables(long key)
 
     } // if (tcPlatformDBObject* platformData =
 
-    if (std::shared_ptr<tcSensorPlatformDBObject> sensorPlatData = obj->GetComponent<tcSensorPlatformDBObject>()[0])
+    if (std::shared_ptr<tcSensorPlatformDBObject> sensorPlatData = obj->GetComponent<tcSensorPlatformDBObject>())
     {
         // clear old info
         sensorPlatData->sensorClass.clear();
@@ -2216,7 +2216,7 @@ void tcDatabase::ExportPlatformTables()
             }
         }
 
-        if (std::shared_ptr<tcSensorPlatformDBObject> sensorPlatData = obj->GetComponent<tcSensorPlatformDBObject>()[0])
+        if (std::shared_ptr<tcSensorPlatformDBObject> sensorPlatData = obj->GetComponent<tcSensorPlatformDBObject>())
         {
             size_t nSensors = sensorPlatData->sensorClass.size();
             if (nSensors > 0)

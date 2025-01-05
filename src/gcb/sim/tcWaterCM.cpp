@@ -131,7 +131,7 @@ float tcWaterCM::GetSonarSourceLevel(float az_deg) const
 {
     float speed_mps = C_KTSTOMPS * mcKin.mfSpeed_kts;
 
-    float SLp = mpDBObject->GetComponent<tcWaterDetectionDBObject>()[0]->GetSourceLevel(speed_mps, -mcKin.mfAlt_m, az_deg);
+    float SLp = mpDBObject->GetComponent<tcWaterDetectionDBObject>()->GetSourceLevel(speed_mps, -mcKin.mfAlt_m, az_deg);
 
 	return SLp;
 }

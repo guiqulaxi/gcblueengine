@@ -2490,11 +2490,11 @@ tcPlatformObject::~tcPlatformObject()
 void tcPlatformObject::Construct()
 {
 
-    tcSensorPlatform::Init(mpDBObject->GetComponent<tcSensorPlatformDBObject>()[0],
+    tcSensorPlatform::Init(mpDBObject->GetComponent<tcSensorPlatformDBObject>(),
                            std::dynamic_pointer_cast<tcPlatformObject>(tcGameObject::shared_from_this()));
     mcLauncherState.SetParent(std::dynamic_pointer_cast<tcPlatformObject>(tcGameObject::shared_from_this()));
 
-    brain->SetPaltformObject( std::dynamic_pointer_cast<tcPlatformObject>(tcGameObject::shared_from_this()));
+    brain->SetPlatformObject( std::dynamic_pointer_cast<tcPlatformObject>(tcGameObject::shared_from_this()));
 
     fuel_kg = mpDBObject->GetInternalFuelCapacity(); // max internal fuel
 
@@ -2514,7 +2514,7 @@ void tcPlatformObject::Construct()
 
         if (std::shared_ptr<tcStoresDBObject> storesDBObj = std::dynamic_pointer_cast<tcStoresDBObject>(pDBObj))
         {
-            std::shared_ptr<tcStores> mag = std::make_shared< tcStores>(storesDBObj);
+            std::shared_ptr<tcStores> mag = std::make_shared<tcStores>(storesDBObj);
             mag->SetParent(std::dynamic_pointer_cast<tcPlatformObject>(tcGameObject::shared_from_this()));
             magazines.push_back(mag);
         }
