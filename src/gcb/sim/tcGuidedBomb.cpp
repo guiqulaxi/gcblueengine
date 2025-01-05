@@ -55,7 +55,7 @@ tcGameStream& tcGuidedBomb::operator<<(tcGameStream& stream)
 {
 	tcBallisticWeapon::operator<<(stream);
 
-    tcSensorPlatform::operator<<(stream);
+    GetComponent<tcSensorPlatform>()->operator<<(stream);
 
 	return stream;
 }
@@ -67,7 +67,7 @@ tcGameStream& tcGuidedBomb::operator>>(tcGameStream& stream)
 {
 	tcBallisticWeapon::operator>>(stream);
 
-    tcSensorPlatform::operator>>(stream);
+    GetComponent<tcSensorPlatform>()->operator>>(stream);
 
 	return stream;
 }
@@ -137,7 +137,7 @@ void tcGuidedBomb::LaunchFrom(std::shared_ptr<tcGameObject> obj, unsigned nLaunc
     }
 
     // if bomb has a semiactive sensor, then set the fire control info
-    std::shared_ptr<tcSensorState> sensor = GetSensorMutable(0);
+    std::shared_ptr<tcSensorState> sensor = GetComponent<tcSensorPlatform>()->GetSensorMutable(0);
     std::shared_ptr<tcOpticalSensor> optical = std::dynamic_pointer_cast<tcOpticalSensor>(sensor);
     if ((optical != 0) && (optical->IsSemiactive()))
     {
@@ -222,7 +222,7 @@ void tcGuidedBomb::Update(double afStatusTime)
 
     // check for a current seeker track, and update targetPos
     bool trackIsGood = false;
-    std::shared_ptr<tcSensorState> sensor = GetSensorMutable(0);
+    std::shared_ptr<tcSensorState> sensor = GetComponent<tcSensorPlatform>()->GetSensorMutable(0);
     if (sensor != 0)
     {
         UpdateSensor(sensor, afStatusTime);
@@ -300,7 +300,7 @@ void tcGuidedBomb::Update(double afStatusTime)
     
     UpdateSmartBombFuse();
 
-    tcSensorPlatform::Update(afStatusTime);
+    GetComponent<tcSensorPlatform>()->Update(afStatusTime);
 }
 
 
@@ -372,7 +372,7 @@ void tcGuidedBomb::UpdateSensor(std::shared_ptr<tcSensorState> sensor, double t)
 
     if (sensor->mnMode == SSMODE_SEEKERTRACK)
     {
-        tcSensorPlatform::Update(t);
+        GetComponent<tcSensorPlatform>()->Update(t);
     }
     
 }
@@ -392,7 +392,7 @@ void tcGuidedBomb::UpdateTargetPos(float lon_rad, float lat_rad)
     targetPos.mfLat_rad += latError_rad;
     targetPos.mfLon_rad += lonError_rad;
 
-    std::shared_ptr<tcSensorState> sensor = GetSensorMutable(0);
+    std::shared_ptr<tcSensorState> sensor = GetComponent<tcSensorPlatform>()->GetSensorMutable(0);
     if ((sensor != 0) && sensor->IsActive() && (sensor->mnMode == SSMODE_SEEKERTRACK))
     {
         sensor->mnMode = SSMODE_SEEKERSEARCH;
@@ -414,11 +414,12 @@ tcGuidedBomb::tcGuidedBomb()
 * Copy constructor.
 */
 tcGuidedBomb::tcGuidedBomb(const tcGuidedBomb& obj) 
-: tcBallisticWeapon(obj), tcSensorPlatform(obj)
+: tcBallisticWeapon(obj)
 {
 	mnModelType = MTYPE_LASERGUIDEDBOMB;
 
     mpDBObject = obj.mpDBObject;
+    AddComponent(std::make_shared<tcSensorPlatform>());
 }
 
 /**
@@ -431,7 +432,7 @@ tcGuidedBomb::tcGuidedBomb(std::shared_ptr<tcBallisticDBObject> obj)
 {
 	mnModelType = MTYPE_LASERGUIDEDBOMB;
 
-    tcSensorPlatform::Init(obj->sensorClass.c_str(), tcGameObject::shared_from_this()); // to avoid using this in initializer
+    GetComponent<tcSensorPlatform>()->Init(obj->sensorClass.c_str(), tcGameObject::shared_from_this()); // to avoid using this in initializer
 
     mpDBObject = obj;
 }

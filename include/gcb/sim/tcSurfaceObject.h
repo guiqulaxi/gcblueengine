@@ -30,7 +30,6 @@
 #define _TCSURFACEOBJECT_H_
 
 #include "tcFile.h"
-#include "tcEngagementData.h"
 #include "tcPlatformObject.h"
 #include <deque>
 
@@ -49,7 +48,7 @@ namespace database
 class tcSurfaceObject : public tcPlatformObject
 {
 public:
-    std::shared_ptr<tcShipDBObject>mpDBObject;
+    std::shared_ptr<tcShipDBObject> mpDBObject;
 
 	virtual void Clear();
 
@@ -61,7 +60,7 @@ public:
 	virtual void UpdateHeading(float dt_s);
 
 	void PrintToFile(tcFile& file);
-	void SaveToFile(tcFile& file);
+	void SaveToFile(tcFile& file) override;
 	void LoadFromFile(tcFile& file);
 	virtual void Serialize(tcFile& file, bool mbLoad);
 

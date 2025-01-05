@@ -47,7 +47,7 @@ class tcGameStream;
 *
 * @see tcGuidedBomb
 */
-class tcGuidedBomb : public tcBallisticWeapon, public tcSensorPlatform
+class tcGuidedBomb : public tcBallisticWeapon
 {
 public:
 	virtual void LaunchFrom(std::shared_ptr<tcGameObject> obj, unsigned nLauncher);

@@ -330,9 +330,9 @@ float tcSurfaceObject::GetSonarSourceLevel(float az_deg) const
 {
     float SLp = mpDBObject->GetComponent<tcWaterDetectionDBObject>()->GetSourceLevel(C_KTSTOMPS*mcKin.mfSpeed_kts, 0, az_deg);
 
-	if (!IsEnsonifying()) return SLp;
+    if (!GetComponent<tcSensorPlatform>()->IsEnsonifying()) return SLp;
 
-    const std::shared_ptr<tcSonar> sonar = GetStrongestActiveSonar();
+    const std::shared_ptr<tcSonar> sonar = GetComponent<tcSensorPlatform>()->GetStrongestActiveSonar();
 	if (sonar && (sonar->mpDBObj->SL > SLp))
 	{
 		return sonar->mpDBObj->SL;

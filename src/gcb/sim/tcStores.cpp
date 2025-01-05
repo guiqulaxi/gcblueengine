@@ -2873,7 +2873,7 @@ bool tcStores::ValidateOpObject(std::shared_ptr<tcGameObject> obj)
 	/* if parent of this stores has a flightport, and obj is a child of parent,
     ** then return true if child is in a ALERT15 position, otherwise return true always
 	*/
-    std::shared_ptr<tcFlightOpsObject> flightOps =  std::dynamic_pointer_cast<tcFlightOpsObject>(parent);
+    std::shared_ptr<tcFlightOpsObject> flightOps =  parent->GetComponent<tcFlightOpsObject>();
 	if (flightOps == 0) return true;
 
 	tcFlightPort* flightPort = flightOps->GetFlightPort();

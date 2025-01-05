@@ -65,7 +65,7 @@ class tcTrack;
  *
  * @see tcFlightPort
  */
-class tcFlightOpsObject 
+class tcFlightOpsObject :public tcComponent
 {
 public:
     virtual std::shared_ptr<tcGameObject> AddChildToFlightDeck(const std::string& className, std::string unitName,
@@ -109,7 +109,6 @@ public:
 
     tcFlightOpsObject(std::shared_ptr<tcFlightportDBObject> dbObject);
     virtual ~tcFlightOpsObject();
-protected:
     void SetGameObject(std::shared_ptr<tcGameObject> obj);
 private:
 	static database::tcDatabase* database;

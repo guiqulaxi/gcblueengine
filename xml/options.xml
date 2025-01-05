@@ -81,9 +81,9 @@
     <DisplaySettings>default</DisplaySettings>
     <UserName>Observer</UserName>
     <HostAddress>192.168.1.2</HostAddress>
-    <LastScenarioPath>SinglePlayer.ColdWar.Backfires.pySinglePlayer/Modern/Knife_Fight.pySinglePlayer/Modern/Knife_Fight.pySinglePlayer/Modern/Knife_Fight.pySinglePlayer/Modern/Knife_Fight.pySinglePlayer/Modern/Knife_Fight.pyscenarios/SinglePlayer/Modern/Odyssey_Dawn.pyscenarios/SinglePlayer/Modern/Odyssey_Dawn.pyscenarios/SinglePlayer/Modern/Odyssey_Dawn.pyscenarios/SinglePlayer/Modern/Odyssey_Dawn.py</LastScenarioPath>
+    <LastScenarioPath>SinglePlayer.ColdWar.Backfires.pySinglePlayer/Modern/Knife_Fight.pySinglePlayer/Modern/Knife_Fight.pySinglePlayer/Modern/Knife_Fight.pySinglePlayer/Modern/Knife_Fight.pySinglePlayer/Modern/Knife_Fight.pyscenarios/SinglePlayer/Modern/Odyssey_Dawn.pyscenarios/SinglePlayer/Modern/Odyssey_Dawn.pyscenarios/SinglePlayer/Modern/Odyssey_Dawn.pyscenarios/SinglePlayer/Modern/Odyssey_Dawn.pyscenarios/Tutorial/SurfaceOperations.py</LastScenarioPath>
     <LastScenarioName>Backfires</LastScenarioName>
-    <LastScenarioExtension>pypypypypypypypypypy</LastScenarioExtension>
+    <LastScenarioExtension>pypypypypypypypypypypy</LastScenarioExtension>
     <ScenarioSavePath>scenarios/SinglePlayer/ColdWar/Backfires.py</ScenarioSavePath>
     <UsePositionRegistry/>
     <CacheFullDatabase/>

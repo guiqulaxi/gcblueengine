@@ -86,7 +86,7 @@ void tcWeaponTester::InitializePlatform()
 	sensor->mfSensorHeight_m = 20.0f; //< guess sensor height is 80% of zmax
 	sensor->SetMountAz(0);
     sensor->SetActive(true);
-	ghost->sensorState.push_back(sensor);
+    ghost->GetComponent<tcSensorPlatform>()->sensorState.push_back(sensor);
 
     std::shared_ptr<tcLauncher> launcher = ghost->GetLauncher(0);
     if (launcher == 0)
@@ -94,7 +94,7 @@ void tcWeaponTester::InitializePlatform()
         assert(false);
         return;
     }
-    ghost->mcLauncherState.SetFireControlSensor(0, sensor, ghost->sensorState.size()-1); // use last (Test) sensor for fire control
+    ghost->mcLauncherState.SetFireControlSensor(0, sensor, ghost->GetComponent<tcSensorPlatform>()->sensorState.size()-1); // use last (Test) sensor for fire control
 
     ghost->SetAlliance(2);
 

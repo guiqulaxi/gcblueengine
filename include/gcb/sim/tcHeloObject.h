@@ -55,7 +55,7 @@ public:
     virtual float GetSonarSourceLevel(float az_deg) const;
 
     void PrintToFile(tcFile& file);
-    void SaveToFile(tcFile& file);
+    void SaveToFile(tcFile& file) override;
     void LoadFromFile(tcFile& file);
     virtual void Serialize(tcFile& file, bool mbLoad);
 

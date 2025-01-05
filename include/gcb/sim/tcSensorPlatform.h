@@ -26,6 +26,7 @@
 #ifndef _TCSENSORPLATFORM_H_
 #define _TCSENSORPLATFORM_H_
 
+
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
@@ -36,7 +37,7 @@
 #include "tcGuidanceState.h"
 #include "tcCommandObject.h"
 #include <vector>
-
+#include "tcComponent.h"
 
 class tcStream;
 class tcCommandStream;
@@ -64,7 +65,7 @@ using database::tcSensorPlatformDBObject;
 * Handles sensor-related aspects of platform
 *
 */
-class tcSensorPlatform
+class tcSensorPlatform:public tcComponent
 {
 public:
 	enum
@@ -96,8 +97,8 @@ public:
     
     void Update(double t);
 
-    void PrintToFile(tcFile&);
-    void SaveToFile(tcFile& file);
+    void PrintToFile(tcFile&) ;
+    void SaveToFile(tcFile& file) ;
     void LoadFromFile(tcFile& file);
     void Serialize(tcFile& file, bool mbLoad);
 	void SaveToPython(scriptinterface::tcScenarioLogger& logger);

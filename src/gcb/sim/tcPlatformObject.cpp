@@ -352,8 +352,7 @@ void tcPlatformObject::UpdateMagazines(double t)
 void tcPlatformObject::UpdateSensors(double t)
 {
     if (clientMode) return; // no sensor update for client
-    
-    tcSensorPlatform::Update(t);
+    GetComponent<tcSensorPlatform>()->Update(t);
 }
 
 void tcPlatformObject::Update(double afStatusTime) 
@@ -689,10 +688,10 @@ void tcPlatformObject::ApplyGeneralDamage(float damage, std::shared_ptr<tcGameOb
     // higher probability of sensor damage
     scaledDamage = (mfDamageLevel <= 0.5f) ? (0.6f * damage) : damage;
 
-    unsigned int nSensors = GetSensorCount();
+    unsigned int nSensors = GetComponent<tcSensorPlatform>()->GetSensorCount();
     for (unsigned int n=0; n<nSensors; n++)
     {
-        std::shared_ptr<tcSensorState> sensor = GetSensorMutable(n);
+        std::shared_ptr<tcSensorState> sensor = GetComponent<tcSensorPlatform>()->GetSensorMutable(n);
         assert(sensor);
 
         if ( !sensor->IsDamaged() && (randf() <= scaledDamage))
@@ -798,7 +797,7 @@ float tcPlatformObject::ApplyAdvancedDamage(const Damage& damage, std::shared_pt
     }
 
     // 检查并处理传感器伤害
-    bool sensorDamage = tcSensorPlatform::ApplyAdvancedDamage(damage, damager, newDamage);
+    bool sensorDamage = GetComponent<tcSensorPlatform>()->ApplyAdvancedDamage(damage, damager, newDamage);
     if (sensorDamage)
     {
         damageDescription.append("S"); // 在伤害描述中添加传感器伤害标记
@@ -866,10 +865,10 @@ void tcPlatformObject::ApplyRepairs(float repair)
         }
     }
 
-    unsigned int nSensors = GetSensorCount();
+    unsigned int nSensors = GetComponent<tcSensorPlatform>()->GetSensorCount();
     for (unsigned int n=0; n<nSensors; n++)
     {
-        std::shared_ptr<tcSensorState> sensor = GetSensorMutable(n);
+        std::shared_ptr<tcSensorState> sensor = GetComponent<tcSensorPlatform>()->GetSensorMutable(n);
         assert(sensor);
         
         if (sensor->IsDamaged() && (randf() <= scaledRepairs))
@@ -1172,11 +1171,11 @@ bool tcPlatformObject::IsEquippedForTargetType(int targetFlag)
 
     if ((targetFlag & AEW_TARGET) != 0)
     {
-        size_t nSensors = (size_t)GetSensorCount();
+        size_t nSensors = (size_t)GetComponent<tcSensorPlatform>()->GetSensorCount();
 
         for (size_t n=0; n<nSensors; n++)
         {
-            std::shared_ptr<const tcRadar> radar =  std::dynamic_pointer_cast<const tcRadar>(GetSensor(n));
+            std::shared_ptr<const tcRadar> radar =  std::dynamic_pointer_cast<const tcRadar>(GetComponent<tcSensorPlatform>()->GetSensor(n));
             if ((radar != 0) && 
                 (radar->mpDBObj->isSurveillance) && 
                 (radar->mpDBObj->mfFieldOfView_deg >= 360))
@@ -1260,11 +1259,11 @@ bool tcPlatformObject::RatingForTargetTypeAEW(float& weaponWeight_kg, float& max
     const float minRefRange_km = 25.0f;
     const float minMaxRange_km = 100.0f;
 
-    size_t nSensors = (size_t)GetSensorCount();
+    size_t nSensors = (size_t)GetComponent<tcSensorPlatform>()->GetSensorCount();
 
 	for (size_t n=0; n<nSensors; n++)
 	{
-        std::shared_ptr<const tcRadar> radar =  std::dynamic_pointer_cast<const tcRadar>(GetSensor(n));
+        std::shared_ptr<const tcRadar> radar =  std::dynamic_pointer_cast<const tcRadar>(GetComponent<tcSensorPlatform>()->GetSensor(n));
         if ((radar != 0) && (!radar->IsDamaged()) && 
             (radar->mpDBObj->mfFieldOfView_deg >= 360) &&
             (radar->mpDBObj->isSurveillance) &&
@@ -1602,7 +1601,7 @@ void tcPlatformObject::PrintToFile(tcFile& file)
         file.WriteString(s.GetBuffer());
     }
     
-    tcSensorPlatform::PrintToFile(file);
+    GetComponent<tcSensorPlatform>()->PrintToFile(file);
     
 }
 
@@ -1614,7 +1613,7 @@ void tcPlatformObject::SaveToFile(tcFile& file)
 
     file.Write(&fuel_kg,sizeof(fuel_kg));
     
-    tcSensorPlatform::SaveToFile(file);
+    GetComponent<tcSensorPlatform>()->SaveToFile(file);
     
     // other data
     mcLauncherState.Serialize(file, false);
@@ -1630,7 +1629,7 @@ void tcPlatformObject::LoadFromFile(tcFile& file)
 
     file.Read(&fuel_kg,sizeof(fuel_kg));
     
-    tcSensorPlatform::LoadFromFile(file);
+    GetComponent<tcSensorPlatform>()->LoadFromFile(file);
 
     // other data
     mcLauncherState.Serialize(file, true);
@@ -1753,7 +1752,7 @@ void tcPlatformObject::SaveToPython(scriptinterface::tcScenarioLogger& logger)
 		magazines[k]->SaveToPython(logger);
 	}
 
-    tcSensorPlatform::SaveToPython(logger);
+    GetComponent<tcSensorPlatform>()->SaveToPython(logger);
 
 	brain->SaveToPython(logger);
 
@@ -1819,7 +1818,7 @@ tcCommandStream& tcPlatformObject::operator<<(tcCommandStream& stream)
 
     if (updateMask & UPDATE_SENSORS)
     {
-        tcSensorPlatform::operator<<(stream);
+        GetComponent<tcSensorPlatform>()->operator<<(stream);
     }
 
 	if (updateMask & UPDATE_AI)
@@ -1864,7 +1863,7 @@ tcCommandStream& tcPlatformObject::operator>>(tcCommandStream& stream)
     {
         updateMask |= UPDATE_LAUNCHERS;
     }
-    if (tcSensorPlatform::HasNewCommand())
+    if (GetComponent<tcSensorPlatform>()->HasNewCommand())
     {
         updateMask |= UPDATE_SENSORS;
     }
@@ -1907,7 +1906,7 @@ tcCommandStream& tcPlatformObject::operator>>(tcCommandStream& stream)
 
     if (updateMask & UPDATE_SENSORS)
     {
-        tcSensorPlatform::operator>>(stream);
+        GetComponent<tcSensorPlatform>()->operator>>(stream);
     }
 
 	if (updateMask & UPDATE_AI)
@@ -1948,7 +1947,7 @@ tcCreateStream& tcPlatformObject::operator<<(tcCreateStream& stream)
 {
     tcGameObject::operator<<(stream);
 
-    tcSensorPlatform::operator<<(stream);    
+    GetComponent<tcSensorPlatform>()->operator<<(stream);
 
     return stream;
 }
@@ -1960,7 +1959,7 @@ tcCreateStream& tcPlatformObject::operator>>(tcCreateStream& stream)
 {
     tcGameObject::operator>>(stream);
     
-    tcSensorPlatform::operator>>(stream);    
+    GetComponent<tcSensorPlatform>()->operator>>(stream);
 
     return stream;
 }
@@ -1975,7 +1974,7 @@ tcUpdateStream& tcPlatformObject::operator<<(tcUpdateStream& stream)
 
     mcLauncherState.operator<<(stream);
 
-    tcSensorPlatform::operator<<(stream);
+    GetComponent<tcSensorPlatform>()->operator<<(stream);
 
 	unsigned char nMagazines;
 	stream >> nMagazines;
@@ -2003,7 +2002,7 @@ tcUpdateStream& tcPlatformObject::operator>>(tcUpdateStream& stream)
 
     mcLauncherState.operator>>(stream);
 
-    tcSensorPlatform::operator>>(stream);
+    GetComponent<tcSensorPlatform>()->operator>>(stream);
 
 	unsigned char nMagazines = (unsigned char)magazines.size();
 	stream << nMagazines;
@@ -2025,7 +2024,7 @@ tcGameStream& tcPlatformObject::operator<<(tcGameStream& stream)
 
     mcLauncherState.operator<<(stream);
 
-    tcSensorPlatform::operator<<(stream);
+    GetComponent<tcSensorPlatform>()->operator<<(stream);
 
 	unsigned char nMagazines;
 	stream >> nMagazines;
@@ -2082,7 +2081,7 @@ tcGameStream& tcPlatformObject::operator>>(tcGameStream& stream)
 
     mcLauncherState.operator>>(stream);
 
-    tcSensorPlatform::operator>>(stream);
+    GetComponent<tcSensorPlatform>()->operator>>(stream);
 
 	unsigned char nMagazines = magazines.size();
 	stream << nMagazines;
@@ -2127,7 +2126,7 @@ void tcPlatformObject::ClearNewCommand()
 {
     commandObj.ClearNewCommand();
     mcLauncherState.ClearNewCommand();
-    tcSensorPlatform::ClearNewCommand();
+    GetComponent<tcSensorPlatform>()->ClearNewCommand();
 	brain->ClearNewCommand();
     formation.ClearNewCommand();
 	
@@ -2149,7 +2148,7 @@ bool tcPlatformObject::HasNewCommand() const
     }
 
     return commandObj.HasNewCommand() || mcLauncherState.HasNewCommand() ||
-		tcSensorPlatform::HasNewCommand() || formation.HasNewCommand();
+        GetComponent<tcSensorPlatform>()->HasNewCommand() || formation.HasNewCommand();
 }
 
 void tcPlatformObject::SetController(const std::string& username)
@@ -2305,7 +2304,7 @@ float tcPlatformObject::GetRangeToDatum(float afLon_rad, float afLat_rad)
 */
 void tcPlatformObject::SetFireControlSensors()
 {
-    size_t nSensors = tcSensorPlatform::GetSensorCount();
+    size_t nSensors = GetComponent<tcSensorPlatform>()->GetSensorCount();
     
 	size_t nLaunchers = mcLauncherState.GetLauncherCount();
  
@@ -2414,11 +2413,13 @@ tcPlatformObject::tcPlatformObject()
     brain = std::make_shared<Brain>();
     mcLauncherState.mnCount = 0;
     mnModelType = MTYPE_PLATFORM;
+    AddComponent(std::make_shared<tcSensorPlatform>());
 }
 
 
 tcPlatformObject::tcPlatformObject(std::shared_ptr<tcPlatformDBObject>obj)
-: tcGameObject(obj), tcSensorPlatform(),
+: tcGameObject(obj),
+    //tcSensorPlatform(),
   externalFuelCapacity_kg(0),
   isRefueling(false),
   loadoutTag(""),
@@ -2431,6 +2432,8 @@ tcPlatformObject::tcPlatformObject(std::shared_ptr<tcPlatformDBObject>obj)
     brain=std::make_shared<Brain>();
     mpDBObject = obj;
     mnModelType = MTYPE_PLATFORM;
+    AddComponent(std::make_shared<tcSensorPlatform>());
+
 
 //    mcAI.ClearOrders();
 
@@ -2443,7 +2446,7 @@ tcPlatformObject::tcPlatformObject(std::shared_ptr<tcPlatformDBObject>obj)
 */
 tcPlatformObject::tcPlatformObject(tcPlatformObject& o) : 
     tcGameObject(o),
-    tcSensorPlatform(o),
+    //tcSensorPlatform(o),
     externalFuelCapacity_kg(o.externalFuelCapacity_kg),
     formation(o.formation),
     commandObj(o.commandObj),
@@ -2490,7 +2493,7 @@ tcPlatformObject::~tcPlatformObject()
 void tcPlatformObject::Construct()
 {
 
-    tcSensorPlatform::Init(mpDBObject->GetComponent<tcSensorPlatformDBObject>(),
+    GetComponent<tcSensorPlatform>()->Init(mpDBObject->GetComponent<tcSensorPlatformDBObject>(),
                            std::dynamic_pointer_cast<tcPlatformObject>(tcGameObject::shared_from_this()));
     mcLauncherState.SetParent(std::dynamic_pointer_cast<tcPlatformObject>(tcGameObject::shared_from_this()));
 

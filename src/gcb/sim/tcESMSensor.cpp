@@ -133,13 +133,13 @@ bool tcESMSensor::CanDetectTarget( std::shared_ptr<const tcGameObject> target, f
     else if ( std::shared_ptr<const tcPlatformObject>pPlatformObj = std::dynamic_pointer_cast<const tcPlatformObject>(target))
     {
         // 如果平台对象没有辐射（不是雷达或电子战设备的工作状态），则返回未检测到
-        if (!pPlatformObj->IsRadiating()) return false;
+        if (!pPlatformObj->GetComponent<tcSensorPlatform>()->IsRadiating()) return false;
 
         bool bDetected = false; // 初始化检测状态为未检测到
-        unsigned nSensors = pPlatformObj->GetSensorCount(); // 获取平台对象的传感器数量
+        unsigned nSensors = pPlatformObj->GetComponent<tcSensorPlatform>()->GetSensorCount(); // 获取平台对象的传感器数量
         for (unsigned n=0; (n<nSensors) && (!bDetected); n++) // 遍历所有传感器，直到检测到或遍历完所有传感器
         {
-             std::shared_ptr<const tcSensorState> sensor = pPlatformObj->GetSensor(n); // 获取当前传感器状态
+             std::shared_ptr<const tcSensorState> sensor = pPlatformObj->GetComponent<tcSensorPlatform>()->GetSensor(n); // 获取当前传感器状态
             // 尝试将传感器转换为雷达对象
             if ( std::shared_ptr<const tcRadar> emitter = std::dynamic_pointer_cast<const tcRadar>(sensor))
             {
@@ -624,15 +624,15 @@ void tcESMSensor::ProcessESMDetection(std::shared_ptr<tcGameObject> target, doub
     else if (std::shared_ptr<tcPlatformObject>pPlatformObj = std::dynamic_pointer_cast<tcPlatformObject>(target))
     {
         // 如果平台对象没有辐射电磁波，则返回
-        if (!pPlatformObj->IsRadiating()) return;
+        if (!pPlatformObj->GetComponent<tcSensorPlatform>()->IsRadiating()) return;
 
         // 获取平台对象的传感器数量
-        unsigned nSensors = pPlatformObj->GetSensorCount();
+        unsigned nSensors = pPlatformObj->GetComponent<tcSensorPlatform>()->GetSensorCount();
         // 遍历所有传感器
         for (unsigned n=0; n<nSensors; n++)
         {
             // 获取当前传感器
-             std::shared_ptr<const tcSensorState> sensor = pPlatformObj->GetSensor(n);
+             std::shared_ptr<const tcSensorState> sensor = pPlatformObj->GetComponent<tcSensorPlatform>()->GetSensor(n);
             // 尝试将传感器动态转换为tcRadar类型
             if ( std::shared_ptr<const tcRadar> emitter = std::dynamic_pointer_cast<const tcRadar>(sensor))
             {

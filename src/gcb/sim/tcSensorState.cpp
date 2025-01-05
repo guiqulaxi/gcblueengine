@@ -355,7 +355,7 @@ std::shared_ptr<tcSensorState> tcSensorState::GetFireControlSensor()
 
     if (platform == 0) return 0; // platform doesn't exist
 
-    return platform->GetSensorMutable(fireControlIdx);
+    return platform->GetComponent<tcSensorPlatform>()->GetSensorMutable(fireControlIdx);
 }
 
 /**
@@ -656,10 +656,10 @@ void tcSensorState::SetMountAz(float az)
 	mountAz_rad = az;
 }
 
-void tcSensorState::SetParent(std::shared_ptr<tcGameObject> obj) 
+void tcSensorState::SetParent(std::shared_ptr<tcGameObject> obj)
 {
 	parent = obj;
-    sensorPlatform = std::dynamic_pointer_cast<tcSensorPlatform>(obj);
+    // sensorPlatform = std::dynamic_pointer_cast<tcSensorPlatform>(obj);
 
     if (std::shared_ptr<tcMissileObject> missile =  std::dynamic_pointer_cast<tcMissileObject>(obj))
     {
@@ -911,7 +911,7 @@ tcSensorState& tcSensorState::operator=(const tcSensorState &ss)
     mnMode = ss.mnMode;
     mpDBObj = ss.mpDBObj;
     parent = 0;
-	sensorPlatform = 0;
+    // sensorPlatform = 0;
 	fireControlId = ss.fireControlId;
 	fireControlIdx = ss.fireControlIdx;
     lastCounterMeasureTime = ss.lastCounterMeasureTime;
@@ -939,20 +939,20 @@ std::shared_ptr<tcSensorState> tcSensorState::Clone() const
  */
 tcSensorState::tcSensorState() :
     mbActive(false),
-    isDamaged(false),
-	isHidden(false),
-    mnMode(0), 
-    mpDBObj(0),
+    parent(0),
     mnDBKey(-1),
+    mpDBObj(0),
     mfLastScan(0),
     mfCurrentScanPeriod_s(30.0f),
-    parent(0),
-	sensorPlatform(0),
+    mnMode(0),
+    isHidden(false),
+    isDamaged(false),
+    // sensorPlatform(0),
 	fireControlId(-1),
 	fireControlIdx(0),
+    sensorId(nextSensorId++),
     lastCounterMeasureTime(0),
-    isCommandReceiver(false),
-    sensorId(nextSensorId++)
+    isCommandReceiver(false)
 {
     mcTrack.mnID = NULL_INDEX;
 
@@ -977,7 +977,7 @@ tcSensorState::tcSensorState(std::shared_ptr<tcSensorDBObject> dbObj)
     lastCounterMeasureTime(0),
     isCommandReceiver(false),
 	parent(0),
-	sensorPlatform(0),
+    // sensorPlatform(0),
     sensorId(nextSensorId++)
 {
 	assert(dbObj);

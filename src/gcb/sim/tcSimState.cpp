@@ -1929,7 +1929,7 @@ void tcSimState::UpdateLandingState(double afSimTime)
         std::shared_ptr<tcGameObject>gameObj;
         long nKey;
         maPlatformState.GetNextAssoc(pos,nKey,gameObj);
-        if ( std::dynamic_pointer_cast<tcFlightOpsObject>(gameObj))
+        if ( gameObj->GetComponent<tcFlightOpsObject>())
         {
             flightportPlatforms.push_back(gameObj->mnID);
         }
@@ -2653,7 +2653,7 @@ void tcSimState::ProcessLanding(std::shared_ptr<tcGameObject>receiver, std::shar
 
     if ((range < 0.8f)&&(notClimbing)&&(air->readyForLanding))
     {
-        if (std::shared_ptr<tcFlightOpsObject> flightOps =  std::dynamic_pointer_cast<tcFlightOpsObject>(receiver))
+        if (std::shared_ptr<tcFlightOpsObject> flightOps =  receiver->GetComponent<tcFlightOpsObject>())
         {
             // save key since AddChild can be called from CheckLanding, replaces mnID
             long key = landing_unit->mnID;
@@ -2909,7 +2909,7 @@ int tcSimState::GetAllSensorPlatforms(long *apKeyList, int anMaxLength)
         bool bActiveFound = false;
         if (std::shared_ptr<tcPlatformObject>pPlatformObj = std::dynamic_pointer_cast<tcPlatformObject>(pplat))
         {
-            bActiveFound = pPlatformObj->HasActivatedSensor();
+            bActiveFound = pPlatformObj->GetComponent<tcSensorPlatform>()->HasActivatedSensor();
         }
         else if (std::shared_ptr<tcMissileObject>pMissileObj =  std::dynamic_pointer_cast<tcMissileObject>(pplat))
         {

@@ -41,6 +41,7 @@
 #include "tcAABBBoundingBox.h"
 #include "tcOBBBoundingBox.h"
 #include "tcDatabaseObject.h"
+#include "tcComponent.h"
 ////#include "tv_types.h"
 #include <Dense>
 using Eigen::Vector3d;
@@ -168,8 +169,8 @@ public:
 	GeoPoint RelPosToLatLonAlt(const float& dx, const float& dy, const float& dz) const;
 
 	virtual void LaunchFrom(std::shared_ptr<tcGameObject> obj, unsigned nLauncher);
-    virtual void PrintToFile(tcFile&);
-    virtual void SaveToFile(tcFile& file);
+    virtual void PrintToFile(tcFile&) ;
+    virtual void SaveToFile(tcFile& file) ;
 
     virtual bool IsPlatformObject() const;
 
@@ -231,7 +232,13 @@ public:
     virtual int SetLaunch(int anLauncher, int anQuantity) {return 9;}
 
     bool MatchesClassificationMask(unsigned int mask) const;
-
+    ///获得组件
+    template <typename T>
+    std::vector<std::shared_ptr<T>> GetComponents() const;
+    template <typename T>
+    std::shared_ptr<T> GetComponent() const;
+    //添加组件
+    void AddComponent(std::shared_ptr<tcComponent> com){ components.push_back(com);}
     static bool IsClientMode() {return clientMode;}
 	static bool IsEditMode() {return editMode;}
     static void SetClientMode(bool state) {clientMode = state;}
@@ -268,8 +275,37 @@ protected:
 	static bool addTasksOnCreate; ///< true (default) to automatically add some default AI tasks when obj is created
 
     std::shared_ptr<tcGameObject> CreateObject(const std::string& databaseClass);
-
+    std::vector<std::shared_ptr<tcComponent>>  components;///组件
 //    void Update3D();
     //CTVMesh* GetDatabaseMesh();
 };
+
+template <typename T>
+std::vector<std::shared_ptr<T>> tcGameObject::GetComponents() const
+{
+    std::vector<std::shared_ptr<T>> coms;
+    for (int i = 0; i < components.size(); ++i) {
+        auto com=std::dynamic_pointer_cast<T>(components[i]);
+        if(com)
+        {
+            coms.push_back(com);
+        }
+    }
+    return coms;
+}
+template <typename T>
+std::shared_ptr<T> tcGameObject::GetComponent() const
+{
+
+    for (int i = 0; i < components.size(); ++i) {
+        auto com=std::dynamic_pointer_cast<T>(components[i]);
+        if(com)
+        {
+            return com;
+        }
+    }
+    return nullptr;
+}
+
+
 #endif

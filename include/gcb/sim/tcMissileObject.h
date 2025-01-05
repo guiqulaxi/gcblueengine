@@ -45,7 +45,7 @@ class tcGameStream;
  *
  * @see tcGameObject
  */
-class tcMissileObject : public tcWeaponObject, public tcSensorPlatform
+class tcMissileObject : public tcWeaponObject
 {
 public:
     float goalHeading_rad;
@@ -94,8 +94,8 @@ public:
 
     void SetRandomPreplan(const std::string& planType);
 
-    void PrintToFile(tcFile&);
-    void SaveToFile(tcFile& file);
+    void PrintToFile(tcFile&) override;
+    void SaveToFile(tcFile& file) override;
     void LoadFromFile(tcFile& file);
     virtual void Serialize(tcFile& file, bool mbLoad);
 

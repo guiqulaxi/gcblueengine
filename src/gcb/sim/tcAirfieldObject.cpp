@@ -52,9 +52,7 @@
 tcCommandStream& tcAirfieldObject::operator<<(tcCommandStream& stream)
 {
     tcPlatformObject::operator<<(stream);
-
-	tcFlightOpsObject::operator<<(stream);
-
+    GetComponent<tcFlightOpsObject>()->operator<<(stream);
     return stream;
 }
 
@@ -65,7 +63,7 @@ tcCommandStream& tcAirfieldObject::operator>>(tcCommandStream& stream)
 {
     tcPlatformObject::operator>>(stream);
 
-	tcFlightOpsObject::operator>>(stream);
+    GetComponent<tcFlightOpsObject>()->operator>>(stream);
 
     return stream;
 }
@@ -77,7 +75,7 @@ tcCreateStream& tcAirfieldObject::operator<<(tcCreateStream& stream)
 {
     tcPlatformObject::operator<<(stream);
 
-	tcFlightOpsObject::operator<<(stream);
+    GetComponent<tcFlightOpsObject>()->operator<<(stream);
 
     return stream;
 }
@@ -89,7 +87,7 @@ tcCreateStream& tcAirfieldObject::operator>>(tcCreateStream& stream)
 {
     tcPlatformObject::operator>>(stream);  
 
-	tcFlightOpsObject::operator>>(stream);
+    GetComponent<tcFlightOpsObject>()->operator>>(stream);
 
     return stream;
 }
@@ -102,7 +100,7 @@ tcUpdateStream& tcAirfieldObject::operator<<(tcUpdateStream& stream)
 {
     tcPlatformObject::operator<<(stream);
 
-	tcFlightOpsObject::operator<<(stream);
+    GetComponent<tcFlightOpsObject>()->operator<<(stream);
 
     return stream;
 }
@@ -114,7 +112,7 @@ tcUpdateStream& tcAirfieldObject::operator>>(tcUpdateStream& stream)
 {
     tcPlatformObject::operator>>(stream);
 
-	tcFlightOpsObject::operator>>(stream);
+    GetComponent<tcFlightOpsObject>()->operator>>(stream);
 
     return stream;
 }
@@ -126,7 +124,7 @@ tcGameStream& tcAirfieldObject::operator<<(tcGameStream& stream)
 {
     tcPlatformObject::operator<<(stream);
 
-	tcFlightOpsObject::operator<<(stream);
+    GetComponent<tcFlightOpsObject>()->operator<<(stream);
 
     return stream;
 }
@@ -138,7 +136,7 @@ tcGameStream& tcAirfieldObject::operator>>(tcGameStream& stream)
 {
     tcPlatformObject::operator>>(stream);
 
-	tcFlightOpsObject::operator>>(stream);
+    GetComponent<tcFlightOpsObject>()->operator>>(stream);
 
     return stream;
 }
@@ -151,8 +149,8 @@ void tcAirfieldObject::ApplyGeneralDamage(float damage, std::shared_ptr<tcGameOb
 
 	if (mfDamageLevel >= 1.0f)
 	{
-        tcFlightOpsObject::DestroyAllChildrenAndUpdateScore(damager);
-		tcFlightOpsObject::Clear(); // destroy all captive entities
+        GetComponent<tcFlightOpsObject>()->DestroyAllChildrenAndUpdateScore(damager);
+        GetComponent<tcFlightOpsObject>()->Clear(); // destroy all captive entities
 	}
 }
 
@@ -167,7 +165,7 @@ void tcAirfieldObject::AutoConfigurePlatform(const std::string& setupName)
     tcPlatformObject::AutoConfigureMagazines(magazineLoadout);
     tcPlatformObject::AutoConfigureLaunchers(launcherLoadout);
 
-    tcFlightOpsObject::AutoConfigureAirComplement(airComplement);
+    GetComponent<tcFlightOpsObject>()->AutoConfigureAirComplement(airComplement);
 }
 
 
@@ -175,12 +173,12 @@ void tcAirfieldObject::ClearNewCommand()
 {
 	tcPlatformObject::ClearNewCommand();
 
-	tcFlightOpsObject::ClearNewCommand();
+    GetComponent<tcFlightOpsObject>()->ClearNewCommand();
 }
 
 bool tcAirfieldObject::HasNewCommand() const
 {
-	return (tcPlatformObject::HasNewCommand() || tcFlightOpsObject::HasNewCommand());
+    return (tcPlatformObject::HasNewCommand() || GetComponent<tcFlightOpsObject>()->HasNewCommand());
 }
 
 
@@ -188,7 +186,7 @@ bool tcAirfieldObject::HasNewCommand() const
 void tcAirfieldObject::Clear() 
 {
    tcPlatformObject::Clear();
-   tcFlightOpsObject::Clear();
+   GetComponent<tcFlightOpsObject>()->Clear();
 }
 
 
@@ -225,7 +223,7 @@ void tcAirfieldObject::RandInitNear(float afLon_deg, float afLat_deg)
    mcKin.mfSpeed_kts = 0;
    mfDamageLevel = 0;  
 
-   tcFlightOpsObject::RandInitNear(afLon_deg, afLat_deg);
+   GetComponent<tcFlightOpsObject>()->RandInitNear(afLon_deg, afLat_deg);
 
 }
 
@@ -233,7 +231,7 @@ void tcAirfieldObject::RandInitNear(float afLon_deg, float afLat_deg)
 void tcAirfieldObject::PrintToFile(tcFile& file) 
 {
    tcPlatformObject::PrintToFile(file);
-   tcFlightOpsObject::PrintToFile(file);
+   GetComponent<tcFlightOpsObject>()->PrintToFile(file);
 }
 /******************************************************************************/
 void tcAirfieldObject::SaveToFile(tcFile& file) 
@@ -261,7 +259,7 @@ void tcAirfieldObject::Serialize(tcFile& file, bool mbLoad)
 void tcAirfieldObject::SaveToPython(scriptinterface::tcScenarioLogger& logger)
 {
 	tcPlatformObject::SaveToPython(logger);
-	tcFlightOpsObject::SaveToPython(logger);
+    GetComponent<tcFlightOpsObject>()->SaveToPython(logger);
 }
 
 /**
@@ -280,7 +278,7 @@ void tcAirfieldObject::Update(double afStatusTime)
 
 	if ((dt_s <= min_update_s) && !tcGameObject::IsEditMode()) {return;} // added for pause case
 	
-	tcFlightOpsObject::Update(afStatusTime);
+    GetComponent<tcFlightOpsObject>()->Update(afStatusTime);
 
     //UpdateEffects();
 
@@ -305,12 +303,14 @@ void tcAirfieldObject::Update(double afStatusTime)
 *
 */
 tcAirfieldObject::tcAirfieldObject()
-: tcFlightOpsObject(0)
+
 {
    Clear();
 
    mpDBObject = NULL;
    mnModelType = MTYPE_AIRFIELD;
+
+   AddComponent(std::make_shared<tcFlightOpsObject>(nullptr));
 }
 
 
@@ -321,13 +321,12 @@ tcAirfieldObject::tcAirfieldObject()
 * can hold.
 */
 tcAirfieldObject::tcAirfieldObject(std::shared_ptr<tcGroundDBObject>obj)
-: tcPlatformObject(std::dynamic_pointer_cast<tcPlatformDBObject>(obj)), tcFlightOpsObject(obj->GetFlightport()),
+: tcPlatformObject(std::dynamic_pointer_cast<tcPlatformDBObject>(obj)),
   mpDBObject(obj)
 {
 	mcKin.mfSpeed_kts = 0; // make sure this doesn't move (shouldn't be necessary)
 	mnModelType = MTYPE_AIRFIELD;
-
-	
+    AddComponent(std::make_shared<tcFlightOpsObject>(obj->GetFlightport()));
     brain->AddTask("RefuelAllAircraft", 3.0, ai::Task::PERMANENT | ai::Task::HIDDEN);
 }
 
@@ -337,5 +336,5 @@ tcAirfieldObject::~tcAirfieldObject()
 
 void tcAirfieldObject::Construct()
 {
-    SetGameObject(shared_from_this());
+    GetComponent<tcFlightOpsObject>()->SetGameObject(shared_from_this());
 }

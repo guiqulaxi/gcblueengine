@@ -31,7 +31,7 @@ public:
     virtual void UpdateHeading(float dt_s);
     virtual void Move(float dt_s);
     void PrintToFile(tcFile& file);
-    void SaveToFile(tcFile& file);
+    void SaveToFile(tcFile& file) override;
     void LoadFromFile(tcFile& file);
     virtual void Serialize(tcFile& file, bool mbLoad);
 

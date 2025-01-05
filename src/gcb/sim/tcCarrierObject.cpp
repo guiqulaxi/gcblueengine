@@ -56,7 +56,7 @@ tcCommandStream& tcCarrierObject::operator<<(tcCommandStream& stream)
 {
     tcPlatformObject::operator<<(stream);
 
-	tcFlightOpsObject::operator<<(stream);
+    GetComponent<tcFlightOpsObject>()->operator<<(stream);
 
     return stream;
 }
@@ -68,7 +68,7 @@ tcCommandStream& tcCarrierObject::operator>>(tcCommandStream& stream)
 {
     tcPlatformObject::operator>>(stream);
 
-	tcFlightOpsObject::operator>>(stream);
+    GetComponent<tcFlightOpsObject>()->operator>>(stream);
 
     return stream;
 }
@@ -80,7 +80,7 @@ tcCreateStream& tcCarrierObject::operator<<(tcCreateStream& stream)
 {
     tcPlatformObject::operator<<(stream);
 
-	tcFlightOpsObject::operator<<(stream);
+    GetComponent<tcFlightOpsObject>()->operator<<(stream);
 
     return stream;
 }
@@ -92,7 +92,7 @@ tcCreateStream& tcCarrierObject::operator>>(tcCreateStream& stream)
 {
     tcPlatformObject::operator>>(stream);  
 
-	tcFlightOpsObject::operator>>(stream);
+    GetComponent<tcFlightOpsObject>()->operator>>(stream);
 
     return stream;
 }
@@ -105,7 +105,7 @@ tcUpdateStream& tcCarrierObject::operator<<(tcUpdateStream& stream)
 {
     tcPlatformObject::operator<<(stream);
 
-	tcFlightOpsObject::operator<<(stream);
+    GetComponent<tcFlightOpsObject>()->operator<<(stream);
 
     return stream;
 }
@@ -117,7 +117,7 @@ tcUpdateStream& tcCarrierObject::operator>>(tcUpdateStream& stream)
 {
     tcPlatformObject::operator>>(stream);
 
-	tcFlightOpsObject::operator>>(stream);
+    GetComponent<tcFlightOpsObject>()->operator>>(stream);
 
     return stream;
 }
@@ -130,7 +130,7 @@ tcGameStream& tcCarrierObject::operator<<(tcGameStream& stream)
 {
     tcPlatformObject::operator<<(stream);
 
-	tcFlightOpsObject::operator<<(stream);
+    GetComponent<tcFlightOpsObject>()->operator<<(stream);
 
     return stream;
 }
@@ -142,7 +142,7 @@ tcGameStream& tcCarrierObject::operator>>(tcGameStream& stream)
 {
     tcPlatformObject::operator>>(stream);
 
-	tcFlightOpsObject::operator>>(stream);
+    GetComponent<tcFlightOpsObject>()->operator>>(stream);
 
     return stream;
 }
@@ -159,7 +159,7 @@ float tcCarrierObject::ApplyAdvancedDamage(const Damage& damage, std::shared_ptr
 
     float generalDamage = mfDamageLevel - startDamageLevel;
 
-    bool aircraftDamaged = tcFlightOpsObject::ApplyAdvancedDamage(damage, damager, generalDamage);
+    bool aircraftDamaged = GetComponent<tcFlightOpsObject>()->ApplyAdvancedDamage(damage, damager, generalDamage);
 
     if (aircraftDamaged)
     {   // add an "A" to the damage string to indicate that aircraft were damaged
@@ -181,8 +181,8 @@ void tcCarrierObject::ApplyGeneralDamage(float damage, std::shared_ptr<tcGameObj
 
 	if (mfDamageLevel >= 1.0f)
 	{
-        tcFlightOpsObject::DestroyAllChildrenAndUpdateScore(damager);
-		tcFlightOpsObject::Clear(); // destroy all captive entities
+       GetComponent<tcFlightOpsObject>()->DestroyAllChildrenAndUpdateScore(damager);
+        GetComponent<tcFlightOpsObject>()->Clear(); // destroy all captive entities
 	}
 }
 
@@ -190,12 +190,12 @@ void tcCarrierObject::ClearNewCommand()
 {
 	tcPlatformObject::ClearNewCommand();
 
-	tcFlightOpsObject::ClearNewCommand();
+    GetComponent<tcFlightOpsObject>()->ClearNewCommand();
 }
 
 bool tcCarrierObject::HasNewCommand() const
 {
-	return (tcPlatformObject::HasNewCommand() || tcFlightOpsObject::HasNewCommand());
+    return (tcPlatformObject::HasNewCommand() || GetComponent<tcFlightOpsObject>()->HasNewCommand());
 }
 
 void tcCarrierObject::AutoConfigurePlatform(const std::string& setupName)
@@ -209,14 +209,14 @@ void tcCarrierObject::AutoConfigurePlatform(const std::string& setupName)
     tcPlatformObject::AutoConfigureMagazines(magazineLoadout);
     tcPlatformObject::AutoConfigureLaunchers(launcherLoadout);
 
-    tcFlightOpsObject::AutoConfigureAirComplement(airComplement);
+    GetComponent<tcFlightOpsObject>()->AutoConfigureAirComplement(airComplement);
 }
 
 
 void tcCarrierObject::Clear() 
 {
    tcSurfaceObject::Clear();
-   tcFlightOpsObject::Clear();
+   GetComponent<tcFlightOpsObject>()->Clear();
 }
 
 /**
@@ -241,7 +241,7 @@ void tcCarrierObject::RandInitNear(float afLon_deg, float afLat_deg)
    mcGS.SetSpeed(mcKin.mfSpeed_kts);   
    mcGS.SetAltitude(mcKin.mfAlt_m);
 
-   tcFlightOpsObject::RandInitNear(afLon_deg, afLat_deg);
+   GetComponent<tcFlightOpsObject>()->RandInitNear(afLon_deg, afLat_deg);
 
 }
 
@@ -249,7 +249,7 @@ void tcCarrierObject::RandInitNear(float afLon_deg, float afLat_deg)
 void tcCarrierObject::PrintToFile(tcFile& file) 
 {
    tcSurfaceObject::PrintToFile(file);
-   tcFlightOpsObject::PrintToFile(file);
+   GetComponent<tcFlightOpsObject>()->PrintToFile(file);
 }
 /******************************************************************************/
 void tcCarrierObject::SaveToFile(tcFile& file) 
@@ -278,7 +278,7 @@ void tcCarrierObject::Serialize(tcFile& file, bool mbLoad)
 void tcCarrierObject::SaveToPython(scriptinterface::tcScenarioLogger& logger)
 {
 	tcPlatformObject::SaveToPython(logger);
-	tcFlightOpsObject::SaveToPython(logger);
+    GetComponent<tcFlightOpsObject>()->SaveToPython(logger);
 }
 
 /**
@@ -287,7 +287,7 @@ void tcCarrierObject::SaveToPython(scriptinterface::tcScenarioLogger& logger)
 void tcCarrierObject::Update(double afStatusTime) 
 {
    tcSurfaceObject::Update(afStatusTime);
-   tcFlightOpsObject::Update(afStatusTime);
+   GetComponent<tcFlightOpsObject>()->Update(afStatusTime);
 }
 
 #pragma warning (disable : 4355)
@@ -295,12 +295,12 @@ void tcCarrierObject::Update(double afStatusTime)
 *
 */
 tcCarrierObject::tcCarrierObject()
-: tcFlightOpsObject(nullptr)
 {
    Clear();
 
    mpDBObject = NULL;
    mnModelType = MTYPE_CARRIER;
+   AddComponent(std::make_shared<tcFlightOpsObject>(nullptr));
 
    if (addTasksOnCreate) brain->AddTask("RefuelAllAircraft", 3.0, ai::Task::PERMANENT | ai::Task::HIDDEN);
 }
@@ -321,11 +321,11 @@ tcCarrierObject::tcCarrierObject(tcCarrierObject& o)
 * can hold.
 */
 tcCarrierObject::tcCarrierObject(std::shared_ptr<tcShipDBObject> obj)
-: tcSurfaceObject(obj), tcFlightOpsObject(obj->GetFlightport())
+: tcSurfaceObject(obj)
 {
     mpDBObject = obj;
     mnModelType = MTYPE_CARRIER;
-
+    AddComponent(std::make_shared<tcFlightOpsObject>(obj->GetFlightport()));
 }
 
 tcCarrierObject::~tcCarrierObject() 
@@ -337,5 +337,5 @@ void tcCarrierObject::Construct()
     tcSurfaceObject::Construct();
     if (addTasksOnCreate)
         brain->AddTaskDirectly("RefuelAllAircraft", 3.0, ai::Task::PERMANENT | ai::Task::HIDDEN);
-    SetGameObject(shared_from_this());
+    GetComponent<tcFlightOpsObject>()->SetGameObject(shared_from_this());
 }

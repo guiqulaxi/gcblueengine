@@ -529,7 +529,7 @@ bool tcScenarioInterface::AddUnitToFlightDeck(std::string parentName,
 
     assert(simState);
     std::shared_ptr<tcGameObject> parentObj = simState->GetObjectByName(parentName);
-    if (std::shared_ptr<tcFlightOpsObject> flightOps =  std::dynamic_pointer_cast<tcFlightOpsObject>(parentObj))
+    if (std::shared_ptr<tcFlightOpsObject> flightOps =  parentObj->GetComponent<tcFlightOpsObject>())
     {
         teLocation loc;
         if (locCode == 1) loc = HANGAR;
@@ -768,7 +768,7 @@ void tcScenarioInterface::SetFlightDeckUnitLoadout(const std::string& parent, co
                                                    const std::string& loadoutCommand)
 {
     std::shared_ptr<tcGameObject> parentObj = simState->GetObjectByName(parent);
-    if (std::shared_ptr<tcFlightOpsObject> flightOps =  std::dynamic_pointer_cast<tcFlightOpsObject>(parentObj))
+    if (std::shared_ptr<tcFlightOpsObject> flightOps =  parentObj->GetComponent<tcFlightOpsObject>())
     {
         std::shared_ptr<tcGameObject> obj = flightOps->GetFlightPort()->GetObjectByName(child);
         if (std::shared_ptr<tcPlatformObject> platform = std::dynamic_pointer_cast<tcPlatformObject>(obj))
@@ -1283,7 +1283,7 @@ void tcScenarioInterface::SetDateTime(int year, int month, int day, int hour, in
     for (iter.First();iter.NotDone();iter.Next())
     {
         std::shared_ptr<tcGameObject> obj = iter.Get();
-        if (std::shared_ptr<tcFlightOpsObject> flightOps =  std::dynamic_pointer_cast<tcFlightOpsObject>(obj))
+        if (std::shared_ptr<tcFlightOpsObject> flightOps =  obj->GetComponent<tcFlightOpsObject>() )
         {
             tcFlightPort* flightPort = flightOps->GetFlightPort();
             assert(flightPort != 0);

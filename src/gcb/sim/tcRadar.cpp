@@ -921,13 +921,13 @@ bool tcRadar::ReleaseTrack(long targetId)
 	if ((parent != 0) && (parent->IsClientMode())) return true;
 
 	// after releasing track, check if any other radars on parent platform have active fire control track. If not, remove parent from targeter list
-	assert((parent != 0) && (sensorPlatform != 0));
+    assert((parent != 0) && (parent->GetComponent<tcSensorPlatform>()!= 0));
 
 	bool isTrackingTarget = false;
-	unsigned int nParentSensors = sensorPlatform->GetSensorCount();
+    unsigned int nParentSensors = parent->GetComponent<tcSensorPlatform>()->GetSensorCount();
 	for (unsigned int n=0; n<nParentSensors; n++)
 	{
-        std::shared_ptr<const tcSensorState> sensor = sensorPlatform->GetSensor(n);
+        std::shared_ptr<const tcSensorState> sensor = parent->GetComponent<tcSensorPlatform>()->GetSensor(n);
 		isTrackingTarget = isTrackingTarget || sensor->IsTrackingWithRadar(targetId);
 	}
 
@@ -1379,10 +1379,10 @@ void tcRadar::AdjustTrackForFineTargeting(std::shared_ptr<const tcGameObject> ta
 
 void tcRadar::Update(double t)
 {    
-	assert(sensorPlatform);
+    assert(parent->GetComponent<tcSensorPlatform>());
 	if (mbActive != 0)
 	{
-		sensorPlatform->SetActivityFlag(tcSensorPlatform::RADAR_ACTIVE);
+        parent->GetComponent<tcSensorPlatform>()->SetActivityFlag(tcSensorPlatform::RADAR_ACTIVE);
 	}
 
     if (!UpdateScan(t)) return; // only update once per scan period

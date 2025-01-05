@@ -59,7 +59,7 @@ namespace database
  * @see tcSurfaceObject
  * @see tcFlightOpsObject
  */
-class tcCarrierObject : public tcSurfaceObject, public tcFlightOpsObject  
+class tcCarrierObject : public tcSurfaceObject
 {
 public:
 	virtual void ApplyGeneralDamage(float damage, std::shared_ptr<tcGameObject> damager);
@@ -68,7 +68,7 @@ public:
     virtual void Clear();
     virtual void RandInitNear(float afLon_deg, float afLat_deg);
     void PrintToFile(tcFile& file);
-    void SaveToFile(tcFile& file);
+    void SaveToFile(tcFile& file) override;
     void LoadFromFile(tcFile& file);
     virtual void Serialize(tcFile& file, bool mbLoad);
 	virtual void SaveToPython(scriptinterface::tcScenarioLogger& logger);

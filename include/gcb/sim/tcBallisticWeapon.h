@@ -69,8 +69,8 @@ public:
     unsigned int GetBurstCount() const;
 	virtual float GetDamageEffectRadius() const;
 
-    void PrintToFile(tcFile&);
-    void SaveToFile(tcFile& file);
+    void PrintToFile(tcFile&) override;
+    void SaveToFile(tcFile& file) override;
     void LoadFromFile(tcFile& file);
     virtual void Serialize(tcFile& file, bool mbLoad);
     virtual tcUpdateStream& operator<<(tcUpdateStream& stream);

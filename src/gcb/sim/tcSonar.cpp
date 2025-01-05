@@ -276,7 +276,7 @@ bool tcSonar::CanDetectTarget(std::shared_ptr<const tcGameObject> target, float&
             targetAlt_m = helo->GetDippingSonarAlt();
             if (targetAlt_m > 0) return false; // 如果声呐不在水下，则返回false
             // 获取直升机最强的活动声呐，并获取其发射器ID
-            const std::shared_ptr<tcSonar> sonar = helo->GetStrongestActiveSonar();
+            const std::shared_ptr<tcSonar> sonar = helo->GetComponent<tcSensorPlatform>()->GetStrongestActiveSonar();
             emitterId = sonar->mpDBObj->mnKey;
         }
         else
@@ -956,10 +956,10 @@ void tcSonar::UpdateTrack(std::shared_ptr<const tcGameObject> target, double t)
 
 void tcSonar::Update(double t)
 {    
-	assert(sensorPlatform);
+    assert(parent->GetComponent<tcSensorPlatform>());
 	if ((mbActive != 0) && !isPassive)
 	{
-		sensorPlatform->SetActivityFlag(tcSensorPlatform::ACTIVE_SONAR_ACTIVE);
+        parent->GetComponent<tcSensorPlatform>()->SetActivityFlag(tcSensorPlatform::ACTIVE_SONAR_ACTIVE);
 	}
 
 	UpdateScope(t);

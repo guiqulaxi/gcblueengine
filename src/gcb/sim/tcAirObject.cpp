@@ -614,7 +614,7 @@ void tcAirObject::LoadFromFile(tcFile& file)
 */
 bool tcAirObject::MaintenanceHold() const
 {
-    std::shared_ptr<tcFlightOpsObject> flightOps = std::dynamic_pointer_cast<tcFlightOpsObject>(parent);
+    std::shared_ptr<tcFlightOpsObject> flightOps = parent->GetComponent<tcFlightOpsObject>();
 	if (flightOps == 0) return false;
 
     const tcAirState* airState = flightOps->GetFlightPort()->FindAirStateObj(tcGameObject::shared_from_this());

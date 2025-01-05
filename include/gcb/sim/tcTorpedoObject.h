@@ -48,7 +48,7 @@ namespace database
 *
 * @see tcGameObject
 */
-class tcTorpedoObject : public tcWeaponObject, public tcSensorPlatform
+class tcTorpedoObject : public tcWeaponObject
 {
 public:
     /**
@@ -105,8 +105,8 @@ public:
     virtual void DesignateTarget(long anID);
     virtual int GetGuidanceParameters(tsGuidanceParameters& gp);
     float RuntimeRemaining();
-    void PrintToFile(tcFile&);
-    void SaveToFile(tcFile& file);
+    void PrintToFile(tcFile&) override;
+    void SaveToFile(tcFile& file) override;
     void LoadFromFile(tcFile& file);
     virtual void Serialize(tcFile& file, bool mbLoad);
 

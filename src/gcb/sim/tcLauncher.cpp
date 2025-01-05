@@ -1587,7 +1587,7 @@ void tcLauncher::UpdateFireControlSensor()
     if (fc1.size() > 0)
     {
         SensorData dat;
-        dat.sensor = platform->GetSensorMutable(fc1, dat.idx);
+        dat.sensor = platform->GetComponent<tcSensorPlatform>()->GetSensorMutable(fc1, dat.idx);
         if (dat.sensor != 0)
         {
             sensorsToSearch.push_back(dat);
@@ -1603,7 +1603,7 @@ void tcLauncher::UpdateFireControlSensor()
     if (fc2.size() > 0)
     {
         SensorData dat;
-        dat.sensor = platform->GetSensorMutable(fc2, dat.idx);
+        dat.sensor = platform->GetComponent<tcSensorPlatform>()->GetSensorMutable(fc2, dat.idx);
         if (dat.sensor != 0)
         {
             sensorsToSearch.push_back(dat);
@@ -1616,10 +1616,10 @@ void tcLauncher::UpdateFireControlSensor()
         }
     }
 
-    for (unsigned int n=0; n<platform->GetSensorCount(); n++)
+    for (unsigned int n=0; n<platform->GetComponent<tcSensorPlatform>()->GetSensorCount(); n++)
     {
         SensorData dat;
-        dat.sensor = platform->GetSensorMutable(n);
+        dat.sensor = platform->GetComponent<tcSensorPlatform>()->GetSensorMutable(n);
         dat.idx = n;
         sensorsToSearch.push_back(dat);
     }

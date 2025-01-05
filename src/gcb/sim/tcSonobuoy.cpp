@@ -52,7 +52,7 @@
 tcGameStream& tcSonobuoy::operator<<(tcGameStream& stream)
 {
     tcGameObject::operator<<(stream);
-    tcSensorPlatform::operator<<(stream);
+    GetComponent<tcSensorPlatform>()->operator<<(stream);
 
     stream >> batteryTimeRemaining_s;
     stream >> parentId;
@@ -67,7 +67,7 @@ tcGameStream& tcSonobuoy::operator<<(tcGameStream& stream)
 tcGameStream& tcSonobuoy::operator>>(tcGameStream& stream)
 {
     tcGameObject::operator>>(stream);
-    tcSensorPlatform::operator>>(stream);
+    GetComponent<tcSensorPlatform>()->operator>>(stream);
 
     stream << batteryTimeRemaining_s;
     stream << parentId;
@@ -86,19 +86,19 @@ void tcSonobuoy::Clear()
 void tcSonobuoy::PrintToFile(tcFile& file) 
 {
    tcGameObject::PrintToFile(file);
-   tcSensorPlatform::PrintToFile(file);
+   GetComponent<tcSensorPlatform>()->PrintToFile(file);
 }
 
 void tcSonobuoy::SaveToFile(tcFile& file) 
 {
    tcGameObject::SaveToFile(file);
-   tcSensorPlatform::SaveToFile(file);
+   GetComponent<tcSensorPlatform>()->SaveToFile(file);
 }
 
 void tcSonobuoy::LoadFromFile(tcFile& file) 
 {
    tcGameObject::LoadFromFile(file);
-   tcSensorPlatform::LoadFromFile(file);
+   GetComponent<tcSensorPlatform>()->LoadFromFile(file);
 }
 
 void tcSonobuoy::Serialize(tcFile& file, bool mbLoad) 
@@ -186,7 +186,7 @@ void tcSonobuoy::Update(double afStatusTime)
     mcKin.mfAlt_m = 0.25f * cos(0.7f * afStatusTime) - sonobuoyDepth_m - 0.5;
 
     // TODO: Check that parent platform is in range before updating sensors
-    tcSensorPlatform::Update(afStatusTime);
+    GetComponent<tcSensorPlatform>()->Update(afStatusTime);
     // 减少电池剩余时间
     batteryTimeRemaining_s -= dt_s;
 
@@ -252,10 +252,10 @@ void tcSonobuoy::UpdateDrop(float dt_s)
     {
         mcKin.mfAlt_m = -sonobuoyDepth_m;
         mcKin.mfSpeed_kts = 0; 
-        unsigned nSensors = tcSensorPlatform::GetSensorCount();
+        unsigned nSensors = GetComponent<tcSensorPlatform>()->GetSensorCount();
         for (unsigned n=0; n<nSensors; n++)
         {
-            tcSensorPlatform::SetSensorState(n, true);
+            GetComponent<tcSensorPlatform>()->SetSensorState(n, true);
         }
     }
 
@@ -285,13 +285,15 @@ tcSonobuoy::tcSonobuoy()
 * Constructor that initializes using info from database entry.
 */
 tcSonobuoy::tcSonobuoy(std::shared_ptr<tcSonobuoyDBObject>obj)
-:   tcGameObject(obj), tcSensorPlatform(),
+:   tcGameObject(obj),
     mpDBObject(obj),
     batteryTimeRemaining_s(obj->batteryLife_s),
     parentId(-1),
 	sonobuoyDepth_m(8.0f)
 {
-    tcSensorPlatform::Init(obj->GetComponent<tcSensorPlatformDBObject>(),
+    AddComponent(std::make_shared<tcSensorPlatform>());
+
+    GetComponent<tcSensorPlatform>()->Init(obj->GetComponent<tcSensorPlatformDBObject>(),
                            std::dynamic_pointer_cast<tcPlatformObject>(tcGameObject::shared_from_this()));
 
 	mcKin.mfSpeed_kts = 0; 

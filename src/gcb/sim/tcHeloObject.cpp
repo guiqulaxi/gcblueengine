@@ -68,9 +68,9 @@ float tcHeloObject::GetCurrentFuelRate() const
 float tcHeloObject::GetDippingSonarAlt() const
 {
     const float NOT_APPLICABLE = 999.9f;
-	if (!IsEnsonifying()) return NOT_APPLICABLE;
+    if (!GetComponent<tcSensorPlatform>()->IsEnsonifying()) return NOT_APPLICABLE;
 
-	const std::shared_ptr<tcSonar> sonar = GetStrongestActiveSonar();
+    const std::shared_ptr<tcSonar> sonar = GetComponent<tcSensorPlatform>()->GetStrongestActiveSonar();
 
 	if (sonar != 0)
 	{
@@ -90,9 +90,9 @@ float tcHeloObject::GetSonarSourceLevel(float az_deg) const
 {
     const float NOT_APPLICABLE = -999.9f;
  
-	if (!IsEnsonifying()) return NOT_APPLICABLE;
+    if (!GetComponent<tcSensorPlatform>()->IsEnsonifying()) return NOT_APPLICABLE;
 
-	const std::shared_ptr<tcSonar> sonar = GetStrongestActiveSonar();
+    const std::shared_ptr<tcSonar> sonar = GetComponent<tcSensorPlatform>()->GetStrongestActiveSonar();
 	if (sonar != 0)
 	{
 		return sonar->mpDBObj->SL;

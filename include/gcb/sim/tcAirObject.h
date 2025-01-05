@@ -94,7 +94,7 @@ public:
 	virtual void EquipForTargetType(const std::string& targetType);
 
     void PrintToFile(tcFile& file);
-    void SaveToFile(tcFile& file);
+    void SaveToFile(tcFile& file) override;
     void LoadFromFile(tcFile& file);
     virtual void Serialize(tcFile& file, bool mbLoad);
 

@@ -290,9 +290,9 @@ float tcSubObject::GetSonarSourceLevel(float az_deg) const
 		SLp = std::max(SLp, SL_special);
     }
     
-	if (!IsEnsonifying()) return SLp;
+    if (!GetComponent<tcSensorPlatform>()->IsEnsonifying()) return SLp;
 
-	const std::shared_ptr<tcSonar> sonar = GetStrongestActiveSonar();
+    const std::shared_ptr<tcSonar> sonar = GetComponent<tcSensorPlatform>()->GetStrongestActiveSonar();
 	if (sonar && (sonar->mpDBObj->SL > SLp))
 	{
 		return sonar->mpDBObj->SL;
@@ -721,10 +721,10 @@ void tcSubObject::UpdateSensors(double t)
 {
     if (clientMode) return; // no sensor update for client
 
-    unsigned nSensors = GetSensorCount();
+    unsigned nSensors = GetComponent<tcSensorPlatform>()->GetSensorCount();
     for(unsigned n=0; n<nSensors; n++)
     {
-        std::shared_ptr<tcSensorState> sensor = GetSensorMutable(n);
+        std::shared_ptr<tcSensorState> sensor = GetComponent<tcSensorPlatform>()->GetSensorMutable(n);
         assert(sensor);
         if (sensor->IsSonar())
         {
@@ -742,11 +742,11 @@ void tcSubObject::UpdateSensors(double t)
 
         else
         {
-            SetSensorState(n, false); // vs. sensor->SetActive(false) to have correct multiplayer messages sent
+            GetComponent<tcSensorPlatform>()->SetSensorState(n, false); // vs. sensor->SetActive(false) to have correct multiplayer messages sent
         }
     }
 
-    tcSensorPlatform::Update(t);
+    GetComponent<tcSensorPlatform>()->Update(t);
 }
 
 /**

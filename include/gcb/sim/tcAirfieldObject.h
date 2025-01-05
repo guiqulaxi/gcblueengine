@@ -57,7 +57,7 @@ class tcGameStream;
  *
  * @see tcFlightOpsObject
  */
-class tcAirfieldObject : public tcPlatformObject, public tcFlightOpsObject  
+class tcAirfieldObject : public tcPlatformObject
 {
 public:
     std::shared_ptr<tcGroundDBObject> mpDBObject;
@@ -68,7 +68,7 @@ public:
     virtual void Clear();
     virtual void RandInitNear(float afLon_deg, float afLat_deg);
     void PrintToFile(tcFile& file);
-    void SaveToFile(tcFile& file);
+    void SaveToFile(tcFile& file) override;
     void LoadFromFile(tcFile& file);
     virtual void Serialize(tcFile& file, bool mbLoad);
 	virtual void SaveToPython(scriptinterface::tcScenarioLogger& logger);

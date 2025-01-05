@@ -2990,7 +2990,7 @@ namespace scriptinterface {
                 if ((obj->GetAlliance() == mpPlatformObj->GetAlliance()) && (obj != mpPlatformObj) &&
                     (obj->RangeTo(*mpPlatformObj) <= maxRange_km)  )
                 {
-                    if (std::shared_ptr<tcFlightOpsObject> flightOps =  std::dynamic_pointer_cast<tcFlightOpsObject>(obj))
+                    if (std::shared_ptr<tcFlightOpsObject> flightOps =  obj->GetComponent<tcFlightOpsObject>())
                     {
                         tcFlightPort* flightPort = flightOps->GetFlightPort();
                         bool isCarrier =  std::dynamic_pointer_cast<tcCarrierObject>(obj) != nullptr;
@@ -3101,7 +3101,7 @@ namespace scriptinterface {
     {
         if (mpPlatformObj == 0) return 0;
 
-        return (int)mpPlatformObj->GetSensorCount();
+        return (int)mpPlatformObj->GetComponent<tcSensorPlatform>()->GetSensorCount();
     }
 
     tcSensorInfo tcPlatformInterface::GetSensorInfo(int n)
@@ -3112,10 +3112,10 @@ namespace scriptinterface {
 
         if (mpPlatformObj == 0) return info;
 
-        unsigned nSensors = mpPlatformObj->GetSensorCount();
+        unsigned nSensors = mpPlatformObj->GetComponent<tcSensorPlatform>()->GetSensorCount();
         if ((n < 0)||((unsigned)n >= nSensors)) return info;
 
-        std::shared_ptr<const tcSensorState> sensor_state = mpPlatformObj->GetSensor(n);
+        std::shared_ptr<const tcSensorState> sensor_state = mpPlatformObj->GetComponent<tcSensorPlatform>()->GetSensor(n);
         info.isActive = sensor_state->IsActive();
         info.type = 0;
 
@@ -3158,11 +3158,11 @@ namespace scriptinterface {
         if (mpPlatformObj == 0) return;
 
 		if (!mpPlatformObj->IsControlled()) return;
-        unsigned nSensors = mpPlatformObj->GetSensorCount();
+        unsigned nSensors = mpPlatformObj->GetComponent<tcSensorPlatform>()->GetSensorCount();
 
         for(unsigned n=0;n<nSensors;n++)
         {
-            mpPlatformObj->SetSensorState(n, anState != 0);
+            mpPlatformObj->GetComponent<tcSensorPlatform>()->SetSensorState(n, anState != 0);
         }
     }
 
@@ -3171,7 +3171,7 @@ namespace scriptinterface {
         if (mpPlatformObj == 0) return;
 
 		if (!mpPlatformObj->IsControlled()) return;
-        mpPlatformObj->SetSensorState((unsigned)n, state != 0);
+        mpPlatformObj->GetComponent<tcSensorPlatform>()->SetSensorState((unsigned)n, state != 0);
     }
 
 
@@ -3385,7 +3385,7 @@ namespace scriptinterface {
     // flightport (airstrip, cv flight deck, helo pad)
     bool tcPlatformInterface::HasFlightPort(void)
     {
-        if ( std::dynamic_pointer_cast<tcFlightOpsObject>(mpPlatformObj))
+        if ( mpPlatformObj->GetComponent<tcFlightOpsObject>())
 		{
 			return true;
 		}
@@ -3418,7 +3418,7 @@ namespace scriptinterface {
 			return data;
 		}
 
-        std::shared_ptr<tcFlightOpsObject> flightOps =  std::dynamic_pointer_cast<tcFlightOpsObject>(obj);
+        std::shared_ptr<tcFlightOpsObject> flightOps =  obj->GetComponent<tcFlightOpsObject>();
         if (flightOps == 0)
         {
 			tcTrack data;
@@ -3458,7 +3458,7 @@ namespace scriptinterface {
     {
         tcFlightPortInterface fpi;
         
-        std::shared_ptr<tcFlightOpsObject> flightOps =  std::dynamic_pointer_cast<tcFlightOpsObject>(mpPlatformObj);
+        std::shared_ptr<tcFlightOpsObject> flightOps =  mpPlatformObj->GetComponent<tcFlightOpsObject>();
         if (flightOps != 0) 
         {
 			fpi.flightport = flightOps->GetFlightPort();
@@ -3489,7 +3489,7 @@ namespace scriptinterface {
 //        s = missionIdent.AfterFirst('-');
 //        s.ToLong(&missionId);
 
-        std::shared_ptr<tcFlightOpsObject> flightOps =  std::dynamic_pointer_cast<tcFlightOpsObject>(mpSimState->GetObject(hostId));
+        std::shared_ptr<tcFlightOpsObject> flightOps =  mpSimState->GetObject(hostId)->GetComponent<tcFlightOpsObject>() ;
         if ((flightOps == 0) || (missionId < 1)) return missionInterface;
 
         tcFlightPort* flightPort = flightOps->GetFlightPort();

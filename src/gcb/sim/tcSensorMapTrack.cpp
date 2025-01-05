@@ -954,7 +954,7 @@ void tcSensorMapTrack::UpdateEmitters()
 {
     if (emitterInfo.size() == 0) return;
 
-    std::shared_ptr<tcSensorPlatform> sensorPlatform = std::dynamic_pointer_cast<tcSensorPlatform>(GetAssociated());
+    std::shared_ptr<tcSensorPlatform> sensorPlatform = GetAssociated()->GetComponent<tcSensorPlatform>() ;
 
     if (sensorPlatform == 0) // associated obj is either destroyed (possible) or was not a sensor platform (error)
     {

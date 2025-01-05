@@ -30,11 +30,10 @@
 #include "common/tcObjStream.h"
 #include "common/tcGameStream.h"
 #include "database/tcPlatformDBObject.h"
-#include "database/tcSonarDBObject.h"
 #include "database/tcTorpedoDBObject.h"
-#include "database/tcBallisticDBObject.h"
 //#include "tc3DModel.h"
 //#include "tcParticleEffect.h"
+#include "tcBallisticDBObject.h"
 #include "tcLauncher.h"
 #include "tcMissileObject.h"
 #include "tcBallisticWeapon.h"
@@ -42,6 +41,7 @@
 #include "tc3DPoint.h"
 #include "tcGameObjIterator.h"
 #include <cassert>
+#include "tcSonarDBObject.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -93,7 +93,7 @@ tcGameStream& tcTorpedoObject::operator<<(tcGameStream& stream)
     int version = stream.GetVersionId();
 
     tcWeaponObject::operator<<(stream);
-    tcSensorPlatform::operator<<(stream);
+    GetComponent<tcSensorPlatform>()->operator<<(stream);
 
     stream >> goalDepth_m;
     stream >> goalHeading_rad;
@@ -129,7 +129,7 @@ tcGameStream& tcTorpedoObject::operator>>(tcGameStream& stream)
     int version = stream.GetVersionId();
 
     tcWeaponObject::operator>>(stream);
-    tcSensorPlatform::operator>>(stream);
+    GetComponent<tcSensorPlatform>()->operator>>(stream);
 
     stream << goalDepth_m;
     stream << goalHeading_rad;
@@ -492,7 +492,7 @@ std::shared_ptr<tcSonar> tcTorpedoObject::GetSensorState()
 float tcTorpedoObject::GetSonarSourceLevel(float az_deg) const
 {
     float SLp = mpDBObject->GetComponent<tcWaterDetectionDBObject>()->GetSourceLevel(C_KTSTOMPS*goalSpeed_kts, -mcKin.mfAlt_m, az_deg);
-    if (!IsEnsonifying()) return SLp;
+    if (!GetComponent<tcSensorPlatform>()->IsEnsonifying()) return SLp;
 
     if (seeker->mpDBObj->SL > SLp)
     {
@@ -632,7 +632,7 @@ void tcTorpedoObject::Update(double afStatusTime)
         MalfunctionCheck();
     }
 
-    tcSensorPlatform::Update(afStatusTime);
+    GetComponent<tcSensorPlatform>()->Update(afStatusTime);
 
 }
 
@@ -817,7 +817,7 @@ void tcTorpedoObject::UpdateDetonation()
     // 如果我们距离爆炸点这么近，则爆炸，否则延迟到未来的时间步
     const float tminDet_s = 0.05f; // 最小爆炸延迟时间，单位秒
 
-    std::shared_ptr<tcSensorState> sensor = GetSensorMutable(0); // 获取第一个可变传感器状态
+    std::shared_ptr<tcSensorState> sensor = GetComponent<tcSensorPlatform>()->GetSensorMutable(0); // 获取第一个可变传感器状态
     if (sensor == 0)
     {
         UpdateDetonationUnguided(); // 如果没有传感器，则更新非制导爆炸逻辑
@@ -1485,7 +1485,7 @@ void tcTorpedoObject::UpdateBottomMineTrigger(double t) // 更新底部水雷触
             seeker->SetActive(true); // 激活导引头
             seeker->mnMode = SSMODE_SEEKERSEARCH; // 设置导引头为搜索模式
         }
-        tcSensorPlatform::Update(mfStatusTime); // 更新传感器平台的状态
+        GetComponent<tcSensorPlatform>()->Update(mfStatusTime); // 更新传感器平台的状态
         if (seeker->mnMode == SSMODE_SEEKERTRACK) // 如果导引头处于跟踪模式
         {
             if (!payloadDeployed) DeployPayload(); // 如果未部署有效载荷，则部署
@@ -1641,13 +1641,13 @@ void tcTorpedoObject::Serialize(tcFile& file, bool mbLoad)
 */
 tcTorpedoObject::tcTorpedoObject() 
     : tcWeaponObject(),
-    guidanceUpdateInterval(1.0f),
-    lastGuidanceUpdate(0.0f),
+    goalPitch_rad(0),
+    goalSpeed_kts(35),
     interceptTime(9999.0f),
     runTime(0),
     searchStartTime(0),
-    goalPitch_rad(0),
-    goalSpeed_kts(35),
+    lastGuidanceUpdate(0.0f),
+    guidanceUpdateInterval(1.0f),
     searchHeading_rad(0),
     searchMode(SEARCH_SNAKE),
     mpDBObject(0)
@@ -1677,28 +1677,31 @@ tcTorpedoObject::tcTorpedoObject(tcTorpedoObject& o)
     waypoint = o.waypoint;
     seeker = o.seeker;
     mpDBObject = o.mpDBObject;
+    AddComponent(std::make_shared<tcSensorPlatform>());
+
 }
 /**
 * Constructor that initializes using info from database entry.
 */
 tcTorpedoObject::tcTorpedoObject(std::shared_ptr<tcTorpedoDBObject> obj)
     : tcWeaponObject(obj),
-    guidanceUpdateInterval(1.0f),
-    lastGuidanceUpdate(0.0f),
+    goalPitch_rad(0),
+    goalSpeed_kts(35),
     interceptTime(9999.0f),
     runTime(0),
     searchStartTime(0),
-    goalPitch_rad(0),
-    goalSpeed_kts(35),
+    lastGuidanceUpdate(0.0f),
+    guidanceUpdateInterval(1.0f),
     searchHeading_rad(0),
     searchMode(SEARCH_SNAKE),
     mpDBObject(obj)
 {
     mnModelType = MTYPE_TORPEDO;
+    AddComponent(std::make_shared<tcSensorPlatform>());
 
-    tcSensorPlatform::Init(obj->sonarClass.c_str(), shared_from_this()); // to avoid using this in initializer
+    GetComponent<tcSensorPlatform>()->Init(obj->sonarClass.c_str(), shared_from_this()); // to avoid using this in initializer
 
-    seeker = std::dynamic_pointer_cast<tcSonar>(GetSensorMutable(0));
+    seeker = std::dynamic_pointer_cast<tcSonar>(GetComponent<tcSensorPlatform>()->GetSensorMutable(0));
 }
 
 /**

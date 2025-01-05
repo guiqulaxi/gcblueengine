@@ -59,7 +59,7 @@ public:
     virtual void RandInitNear(float afLon_deg, float afLat_deg);
 
     void PrintToFile(tcFile& file);
-    void SaveToFile(tcFile& file);
+    void SaveToFile(tcFile& file) override;
 
     float GetThrottleFraction() const {return throttleFraction;}
     void SetThrottleFraction(float fract);

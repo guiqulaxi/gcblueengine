@@ -73,7 +73,7 @@ using ai::Brain;
 *
 * @see tcGameObject
 */
-class tcPlatformObject : public tcGameObject, public tcSensorPlatform
+class tcPlatformObject : public tcGameObject
 {
 public:
     friend class tcFormation;
@@ -112,23 +112,23 @@ public:
 
     std::vector<GeoPoint> missilePreplan; ///< waypoints for missile preplan of next launch
 
-    virtual void ApplyGeneralDamage(float damage, std::shared_ptr<tcGameObject> damager);
-    virtual float ApplyAdvancedDamage(const Damage& damage, std::shared_ptr<tcGameObject> damager); ///< called when new damage occurs
-    virtual void ApplyRepairs(float repair); ///< called when repairs occur (damage removed)    
-    virtual void Clear();
-    virtual void DesignateDatum(tcPoint p); 
-    virtual void DesignateLauncherDatum(GeoPoint p, unsigned int anLauncher);  
-    virtual bool DesignateLauncherTarget(long anID, unsigned anLauncher);
-    virtual void DesignateTarget(long anID);
+    virtual void ApplyGeneralDamage(float damage, std::shared_ptr<tcGameObject> damager) override;
+    virtual float ApplyAdvancedDamage(const Damage& damage, std::shared_ptr<tcGameObject> damager) override; ///< called when new damage occurs
+    virtual void ApplyRepairs(float repair) override; ///< called when repairs occur (damage removed)
+    virtual void Clear() override;
+    virtual void DesignateDatum(tcPoint p) override;
+    virtual void DesignateLauncherDatum(GeoPoint p, unsigned int anLauncher)override;
+    virtual bool DesignateLauncherTarget(long anID, unsigned anLauncher)override;
+    virtual void DesignateTarget(long anID)override;
     std::shared_ptr<Brain> GetBrain();
-    virtual void GetDatum(GeoPoint& p) {p=msTargetDatum;}
-	virtual std::shared_ptr<tcLauncher> GetLauncher(unsigned idx);
+    virtual void GetDatum(GeoPoint& p) override{p=msTargetDatum;}
+    virtual std::shared_ptr<tcLauncher> GetLauncher(unsigned idx)override;
     virtual std::shared_ptr<const tcLauncher> GetLauncher(unsigned idx) const;
     std::shared_ptr<tcLauncher> GetLauncherById(unsigned int id);
     unsigned int GetLauncherCount() const;
 	std::string GetLauncherDescription();
     virtual int GetLauncherQuantity(unsigned anLauncher);
-    virtual void GetLauncherState(tcLauncherState*& pLauncherState) {pLauncherState=&mcLauncherState;}
+    virtual void GetLauncherState(tcLauncherState*& pLauncherState)override {pLauncherState=&mcLauncherState;}
     
 
     unsigned int GetMagazineCount() const;
@@ -175,21 +175,21 @@ public:
 	virtual void EquipForTargetType(int targetFlag);
 	virtual void EquipForTargetType(const std::string& targetType);
 
-    virtual void Launch(long& rnKey, unsigned& rnLauncher);
-    virtual void RandInitNear(float afLon_deg, float afLat_deg);
+    virtual void Launch(long& rnKey, unsigned& rnLauncher)override;
+    virtual void RandInitNear(float afLon_deg, float afLat_deg)override;
     virtual void SetAltitude(float new_altitude_m);
-    virtual void SetHeading(float afNewHeading);
+    virtual void SetHeading(float afNewHeading)override;
     virtual void SetLongitude(float aflon_deg ) ;
     virtual void SetLatitude(float aflat_deg) ;
     virtual void SetMaxTurnRate(float rate_degps);
     float GetMaxTurnRate() const;
 	void SetRefueling(bool state);
-    virtual void SetSpeed(float newSpeed);
-    virtual int SetLaunch(int anLauncher, int anQuantity);
-    virtual void Update(double afStatusTime);
+    virtual void SetSpeed(float newSpeed)override;
+    virtual int SetLaunch(int anLauncher, int anQuantity)override;
+    virtual void Update(double afStatusTime)override;
     virtual void UpdateMagazines(double t);
 
-	virtual void SetController(const std::string& username);
+    virtual void SetController(const std::string& username)override;
     bool IsAir() const;
 
     float GetHeadingToDatum(float afLon_rad, float afLat_rad);
@@ -210,8 +210,8 @@ public:
                                                           float afMaxRange_km);
 
 
-    void PrintToFile(tcFile&);
-    void SaveToFile(tcFile& file);
+    void PrintToFile(tcFile&) override;
+    void SaveToFile(tcFile& file) override;
     void LoadFromFile(tcFile& file);
     virtual void Serialize(tcFile& file, bool mbLoad);
 	virtual void SaveToPython(scriptinterface::tcScenarioLogger& logger);

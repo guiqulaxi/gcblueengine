@@ -66,7 +66,7 @@ std::shared_ptr<tcRadar> RadarInterface::GetRadar()
     std::shared_ptr<tcPlatformObject> platform = std::dynamic_pointer_cast<tcPlatformObject>(obj);
     if (platform)
     {
-        return std::dynamic_pointer_cast<tcRadar>(platform->GetSensorMutable(idx));
+        return std::dynamic_pointer_cast<tcRadar>(platform->GetComponent<tcSensorPlatform>()->GetSensorMutable(idx));
     }
     else if (std::shared_ptr<tcMissileObject> missile = dynamic_pointer_cast<tcMissileObject>(obj))
     {
@@ -211,10 +211,10 @@ void tcECM::SetActive(bool active)
 
 void tcECM::Update(double t)
 {
-	assert(sensorPlatform);
+    // assert(sensorPlatform);
 	if (mbActive != 0)
 	{
-        sensorPlatform->SetActivityFlag(tcSensorPlatform::ECM_ACTIVE);
+        parent->GetComponent<tcSensorPlatform>()->SetActivityFlag(tcSensorPlatform::ECM_ACTIVE);
 	}
 
     if (!UpdateScan(t)) return;
@@ -258,10 +258,10 @@ void tcECM::UpdateBarrageTarget(std::shared_ptr<tcGameObject> target)
     {        
         //if (!platform->IsRadiating()) return; // update inactive platform radars to prevent switch on/off exploits
 
-        unsigned nSensors = platform->GetSensorCount();
+        unsigned nSensors = platform->GetComponent<tcSensorPlatform>()->GetSensorCount();
         for (unsigned n=0; n<nSensors; n++) 
         {
-            std::shared_ptr<tcSensorState> sensor = platform->GetSensorMutable(n);
+            std::shared_ptr<tcSensorState> sensor = platform->GetComponent<tcSensorPlatform>()->GetSensorMutable(n);
             if (std::shared_ptr<tcRadar> radar = std::dynamic_pointer_cast<tcRadar>(sensor))
             {
                 UpdateBarrageTargetRadar(radar, n);
@@ -270,7 +270,7 @@ void tcECM::UpdateBarrageTarget(std::shared_ptr<tcGameObject> target)
     }
     else if (missile != 0)
     {
-        if (!missile->IsRadiating()) return;
+        if (!missile->GetComponent<tcSensorPlatform>()->IsRadiating()) return;
 
         if (std::shared_ptr<tcRadar> radar = missile->GetSeekerRadar()) // some AGMs have no sensor
         {

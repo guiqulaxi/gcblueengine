@@ -58,7 +58,7 @@ public:
 	virtual void Update(double afStatusTime);
 
 	void PrintToFile(tcFile& file);
-	void SaveToFile(tcFile& file);
+	void SaveToFile(tcFile& file) override;
 	void LoadFromFile(tcFile& file);
 	virtual void Serialize(tcFile& file, bool mbLoad);
 

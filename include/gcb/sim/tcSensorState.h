@@ -70,7 +70,7 @@ class tcSensorState: public std::enable_shared_from_this<tcSensorState>
 public:
     short int mbActive;
     std::shared_ptr<tcGameObject> parent;
-	std::shared_ptr<tcSensorPlatform> sensorPlatform; ///< parent should always be a sensor plat, this is a down-cast for convenience
+    // std::shared_ptr<tcSensorPlatform> sensorPlatform; ///< parent should always be a sensor plat, this is a down-cast for convenience
     long mnDBKey;
     std::shared_ptr<tcSensorDBObject> mpDBObj;
     double mfLastScan; ///记录上一次扫描的时间。

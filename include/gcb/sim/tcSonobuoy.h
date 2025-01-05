@@ -44,12 +44,12 @@ class tcGameStream;
 /**
 * Sonobuoy model
 */
-class tcSonobuoy : public tcGameObject, public tcSensorPlatform
+class tcSonobuoy : public tcGameObject
 {
 public:
     virtual void Clear();
     void PrintToFile(tcFile& file);
-    void SaveToFile(tcFile& file);
+    void SaveToFile(tcFile& file) override;
     void LoadFromFile(tcFile& file);
     virtual void Serialize(tcFile& file, bool mbLoad);
 

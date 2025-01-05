@@ -303,7 +303,7 @@ std::shared_ptr<tcPlatformObject> tcSimPythonInterface::GetHookedObj() const
 
 tcFlightPort* tcSimPythonInterface::GetHookedObjFlightPort()
 {
-    std::shared_ptr<tcFlightOpsObject> flightOps =  std::dynamic_pointer_cast<tcFlightOpsObject>(mpHookedObj);
+    std::shared_ptr<tcFlightOpsObject> flightOps =  mpHookedObj->GetComponent<tcFlightOpsObject>();
     if (flightOps == 0) return 0;
     return flightOps->GetFlightPort();
 }
