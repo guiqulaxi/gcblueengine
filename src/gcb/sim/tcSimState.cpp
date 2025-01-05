@@ -812,7 +812,10 @@ void tcSimState::Update()
         if (isPlatformObject && (multiplayerMode != MM_CLIENT))
         {
             obj->Launch(nNewKey, nLauncher);
-            if (nNewKey != NULL_INDEX) {AddLaunchedPlatform(nNewKey, obj, nLauncher);}
+            if (nNewKey != NULL_INDEX)
+            {
+                AddLaunchedPlatform(nNewKey, obj, nLauncher);
+            }
         }
 
     }
@@ -822,8 +825,11 @@ void tcSimState::Update()
 
     if (multiplayerMode != MM_CLIENT)
     {
+        //处理爆炸
         UpdateWeaponHits2();
+        //处理降落
         UpdateLandings(mfSimTime);
+        //处理损毁
         RemoveDestroyedObjects();
 #ifdef USE_TEST
         weaponTester->Update(); // relevant in dev mode only
