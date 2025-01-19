@@ -123,36 +123,75 @@ void tcSurfaceObject::ApplyRestrictions()
 }
 
 
+/**
+ * 计算水面物体的光学横截面（Optical Cross Section, OCS）。
+ * 光学横截面是目标在光学传感器（如雷达、红外传感器）中的可见性度量。
+ *
+ * @param view_alt_m 观察者的高度（米）。
+ * @param view_dist_km 观察者与目标的距离（千米）。
+ * @return 返回水面物体的总光学横截面（dBsm，分贝平方米）。
+ */
 float tcSurfaceObject::GetOpticalCrossSection(float view_alt_m, float view_dist_km) const
 {
-	float wake_horizon_km = 3.57*sqrt(view_alt_m);
-	float viewable_wake_dbsm = 0;
-	if (view_dist_km < wake_horizon_km) //calculate the wake dBsm if we can see it
-	{
-		float speed_mps = mcKin.mfSpeed_kts * 0.5144444;
-		float speed_kts = mcKin.mfSpeed_kts;
-		float tonnage = mpDBObject->weight_kg * 0.001;
-		float beam_m = mpDBObject->beam_m;
-		if (beam_m == 0)
-		{
-			float beam = 0.1 * pow(log10f(tonnage) / log10(1.4),1.65);
-		}
-		float wake_m2 = speed_mps * pow(1.6873323, 0.1 * (speed_kts - 9)) * 0.05 * beam_m * (log10f(speed_kts * speed_kts) / log10f(2.3403474)*100+100);
-		float above_horizon_m = view_alt_m - pow(view_dist_km / 3.57,2);
-		float slant_range = sqrt(pow(view_alt_m * .001,2) + pow(view_dist_km,2));
-		float sin_view_fraction = (above_horizon_m * 0.001) / slant_range;
-		float viewable_wake_m2 = sin_view_fraction * wake_m2;
-		viewable_wake_dbsm = 10*log10f(viewable_wake_m2);
+    // 计算水面尾迹的地平线距离（千米）
+    float wake_horizon_km = 3.57 * sqrt(view_alt_m);
 
-	}
-	int SeaState = tcSonarEnvironment::Get()->GetSeaState();
-	float SeaStateHullFactor = 10*log10f(std::max(4, SeaState)-3);
-	float SeaStateWakeFactor = 10*log10(pow(std::max(2,SeaState)-1,2));
+    // 初始化可见尾迹的光学横截面（dBsm）
+    float viewable_wake_dbsm = 0;
+
+    // 如果观察距离小于尾迹的地平线距离，则计算尾迹的光学横截面
+    if (view_dist_km < wake_horizon_km)
+    {
+        // 将速度从节（knots）转换为米/秒（m/s）
+        float speed_mps = mcKin.mfSpeed_kts * 0.5144444;
+        // 获取速度（节）
+        float speed_kts = mcKin.mfSpeed_kts;
+        // 将重量从千克（kg）转换为吨（ton）
+        float tonnage = mpDBObject->weight_kg * 0.001;
+        // 获取船宽（米）
+        float beam_m = mpDBObject->beam_m;
+
+        // 如果船宽为0，则根据吨位估算船宽
+        if (beam_m == 0)
+        {
+            beam_m = 0.1 * pow(log10f(tonnage) / log10(1.4), 1.65);
+        }
+
+        // 计算尾迹的光学横截面（平方米）
+        float wake_m2 = speed_mps * pow(1.6873323, 0.1 * (speed_kts - 9)) * 0.05 * beam_m *
+                        (log10f(speed_kts * speed_kts) / log10f(2.3403474) * 100 + 100);
+
+        // 计算尾迹在地平线以上的高度（米）
+        float above_horizon_m = view_alt_m - pow(view_dist_km / 3.57, 2);
+        // 计算斜距（千米）
+        float slant_range = sqrt(pow(view_alt_m * 0.001, 2) + pow(view_dist_km, 2));
+        // 计算可见尾迹的比例
+        float sin_view_fraction = (above_horizon_m * 0.001) / slant_range;
+        // 计算可见尾迹的光学横截面（平方米）
+        float viewable_wake_m2 = sin_view_fraction * wake_m2;
+        // 将可见尾迹的光学横截面转换为分贝平方米（dBsm）
+        viewable_wake_dbsm = 10 * log10f(viewable_wake_m2);
+    }
+
+    // 获取当前海况
+    int SeaState = tcSonarEnvironment::Get()->GetSeaState();
+
+    // 计算海况对船体光学横截面的影响因子
+    float SeaStateHullFactor = 10 * log10f(std::max(4, SeaState) - 3);
+    // 计算海况对尾迹光学横截面的影响因子
+    float SeaStateWakeFactor = 10 * log10(pow(std::max(2, SeaState) - 1, 2));
+
+    // 获取船体的光学横截面（dBsm）
     float opticalCrossSection = mpDBObject->GetComponent<tcAirDetectionDBObject>()->opticalCrossSection_dBsm;
-	float opticalCrossSection_m2 = pow(10,0.1*(opticalCrossSection - SeaStateHullFactor));
-	float viewable_wake_m2 = pow(10,0.1*(viewable_wake_dbsm - SeaStateWakeFactor));
-	float total_cross_section = 10*log10f(opticalCrossSection_m2 + viewable_wake_m2);
+    // 将船体的光学横截面从分贝平方米转换为平方米
+    float opticalCrossSection_m2 = pow(10, 0.1 * (opticalCrossSection - SeaStateHullFactor));
+    // 将可见尾迹的光学横截面从分贝平方米转换为平方米
+    float viewable_wake_m2 = pow(10, 0.1 * (viewable_wake_dbsm - SeaStateWakeFactor));
 
+    // 计算总光学横截面（平方米），并将其转换回分贝平方米（dBsm）
+    float total_cross_section = 10 * log10f(opticalCrossSection_m2 + viewable_wake_m2);
+
+    // 返回总光学横截面（dBsm）
     return total_cross_section;
 }
 

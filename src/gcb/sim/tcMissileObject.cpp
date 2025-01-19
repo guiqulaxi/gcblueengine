@@ -845,383 +845,412 @@ void tcMissileObject::UpdateDatumInterceptGuidance(double t, bool& useInterceptP
 }
 
 /**
-* Update heading and pitch controls based on flight profile, intercept data, etc.
-* This needs refactoring.
-*/
-void tcMissileObject::UpdateGuidance(double afStatusTime) 
+ * 根据飞行剖面、拦截数据等更新导弹的航向和俯仰控制。
+ * 该函数负责更新导弹的制导系统，包括航向、俯仰和高度，基于当前的飞行段、传感器数据和目标拦截信息。
+ * 该函数还处理飞行段的切换和中途故障检查。
+ *
+ * @param afStatusTime 当前仿真时间，用于制导更新。
+ */
+void tcMissileObject::UpdateGuidance(double afStatusTime)
 {
-	tsMissileFlightSegment* pSegmentInfo;
+    tsMissileFlightSegment* pSegmentInfo;
 
-	if ((msKState.mfFlightTime - mfLastGuidanceUpdate) < mfGuidanceUpdateInterval) 
-	{
-		return;
-	}
+    // 检查是否到了根据制导更新间隔进行更新的时间
+    if ((msKState.mfFlightTime - mfLastGuidanceUpdate) < mfGuidanceUpdateInterval)
+    {
+        return;
+    }
 
+    // 获取用于制导更新的主传感器
     std::shared_ptr<tcSensorState> sensor = GetComponent<tcSensorPlatform>()->GetSensorMutable(0);
 
-	if (guidanceStatusTime == 0) {guidanceStatusTime = afStatusTime;}
-	guidanceStatusTime = afStatusTime;
-	mfLastGuidanceUpdate = msKState.mfFlightTime;
-	if (mpDBObject->mnNumSegments == 0) {assert(false); return;}
-	if (mnCurrentSegment >= mpDBObject->mnNumSegments) {assert(false); return;} // error case, shouldn't happen
-	pSegmentInfo = &mpDBObject->maFlightProfile[mnCurrentSegment];
-	goalAltitude_m = msKState.mfAltitude_m;
+    // 初始化制导状态时间
+    if (guidanceStatusTime == 0) {guidanceStatusTime = afStatusTime;}
+    guidanceStatusTime = afStatusTime;
+    mfLastGuidanceUpdate = msKState.mfFlightTime;
 
-	//************ GuidanceMode update **************
-	bool useInterceptPitch = false;
-	float interceptPitch_rad = 0;
+    // 检查飞行段数据是否有效
+    if (mpDBObject->mnNumSegments == 0) {assert(false); return;}
+    if (mnCurrentSegment >= mpDBObject->mnNumSegments) {assert(false); return;} // 错误情况，不应发生
 
-	switch (pSegmentInfo->meGuidanceMode) 
-	{
-	case GM_NAV:
-        if ((preplanRoute.size() == 0))
+    // 获取当前飞行段信息
+    pSegmentInfo = &mpDBObject->maFlightProfile[mnCurrentSegment];
+    goalAltitude_m = msKState.mfAltitude_m;
+
+    //************ 制导模式更新 **************
+    bool useInterceptPitch = false; // 是否使用拦截俯仰角
+    float interceptPitch_rad = 0;   // 拦截俯仰角（弧度）
+
+    switch (pSegmentInfo->meGuidanceMode)
+    {
+    case GM_NAV: // 导航模式
+        if ((preplanRoute.size() == 0)) // 如果没有预规划路径
         {
-            goalHeading_rad = mcKin.HeadingToGeoRad(&msWaypoint);
-            mfRangeToObjective_km = mcKin.RangeToKm(&msWaypoint);
-            if (pSegmentInfo->meAltitudeMode == AM_DATUM)
+            goalHeading_rad = mcKin.HeadingToGeoRad(&msWaypoint); // 计算目标航向
+            mfRangeToObjective_km = mcKin.RangeToKm(&msWaypoint); // 计算到目标的距离
+            if (pSegmentInfo->meAltitudeMode == AM_DATUM) // 如果高度模式为基准模式
             {
-                UpdateDatumInterceptGuidance(afStatusTime, useInterceptPitch, interceptPitch_rad);
+                UpdateDatumInterceptGuidance(afStatusTime, useInterceptPitch, interceptPitch_rad); // 更新基准拦截制导
             }
         }
-        else
+        else // 如果有预规划路径
         {
-            goalHeading_rad = mcKin.HeadingToGeoRad(&preplanRoute[0]);
-            mfRangeToObjective_km = 9999.0f; // set this large to avoid triggering segment change until preplan is finished
-            float rangeToWaypoint_km = mcKin.RangeToKm(&preplanRoute[0]);
-            float waypointChangeThreshold_km = mfGuidanceUpdateInterval*mcKin.mfSpeed_kts*C_KTSTOKMPS*2.0f;
-            if (rangeToWaypoint_km < waypointChangeThreshold_km)
-            {   // remove completed preplan waypoint from route
+            goalHeading_rad = mcKin.HeadingToGeoRad(&preplanRoute[0]); // 计算到第一个预规划点的航向
+            mfRangeToObjective_km = 9999.0f; // 设置为较大值，避免在预规划完成前触发段切换
+            float rangeToWaypoint_km = mcKin.RangeToKm(&preplanRoute[0]); // 计算到预规划点的距离
+            float waypointChangeThreshold_km = mfGuidanceUpdateInterval * mcKin.mfSpeed_kts * C_KTSTOKMPS * 2.0f; // 计算切换阈值
+            if (rangeToWaypoint_km < waypointChangeThreshold_km) // 如果接近预规划点
+            {
+                // 移除已完成的预规划点
                 std::vector<GeoPoint> temp;
-                for (size_t n=1; n<preplanRoute.size(); n++)
+                for (size_t n = 1; n < preplanRoute.size(); n++)
                 {
                     temp.push_back(preplanRoute[n]);
                 }
                 preplanRoute = temp;
             }
         }
-		break;
-    case GM_COMMAND:
-        {
-            useInterceptPitch = false;
-            /* Use alliance sensor map for command guidance (taking a shortcut here for simplicity)
-			** Check that the fire control sensor is active. If no fire control sensor exists, skip
-			** this check. 
-			*/
-            tcSensorMapTrack mapTrack;
-            float tti_s = 999.0f;
-            if (simState->GetTrack(intendedTarget, GetAlliance(), mapTrack))
-            {
-                tcTrack predictedTrack; 
-                mapTrack.GetPrediction(predictedTrack, afStatusTime);
-
-                float range_km = 0;
-                mcKin.GetInterceptData3D(predictedTrack, goalHeading_rad, 
-                    interceptPitch_rad, tti_s, range_km);
-
-                // For few seconds after launch, head for track without prediction while missile accelerates
-                if (msKState.mfFlightTime < 5)
-                {
-                    predictedTrack = mapTrack;
-                    goalHeading_rad = mcKin.HeadingToTrack(predictedTrack);
-                }
-                
-                mfRangeToObjective_km = mcKin.RangeToKm(predictedTrack); // 2D range
-                
-                useInterceptPitch = (pSegmentInfo->meAltitudeMode == AM_INTERCEPT) || isCommandHandoff || 
-					((pSegmentInfo->meAltitudeMode == AM_INTERCEPT_HIGH) && (interceptPitch_rad > 0));
-			    mfInterceptTime = tti_s;
-                
-
-                msWaypoint.mfLon_rad = predictedTrack.mfLon_rad;
-                msWaypoint.mfLat_rad = predictedTrack.mfLat_rad;
-                msWaypoint.mfAlt_m = predictedTrack.mfAlt_m;
-            }
-            else if ((mfInterceptTime < 9990.0f) && (msWaypoint.mfLon_rad != 0))
-            {
-                tcTrack predictedTrack;
-            
-                predictedTrack.mfAlt_m = msWaypoint.mfAlt_m;
-                predictedTrack.mfLon_rad = msWaypoint.mfLon_rad;
-                predictedTrack.mfLat_rad = msWaypoint.mfLat_rad;
-                predictedTrack.mfSpeed_kts = 0;
-
-                mcKin.GetInterceptData2D(predictedTrack, goalHeading_rad, tti_s);
-                mfRangeToObjective_km = mcKin.RangeToKm(predictedTrack);
-            }
-            else
-            {
-                SelfDestruct(); // no track to command to
-            }
-			
-			if ((sensor != 0) && sensor->HasFireControlSensor())
-			{
-				std::shared_ptr<tcSensorState> fireControl = sensor->GetFireControlSensor();
-				if ((fireControl == 0) || (!fireControl->IsActive()))
-				{
-					SelfDestruct();
-				}
-			}
-
-            mfInterceptTime = tti_s;
-        }
         break;
-	case GM_SENSOR1:
-		assert(sensor);
-		if (sensor == 0) return;
-		
-		if (!sensor->IsActive()) 
-		{
-			sensor->SetActive(true);
-	        sensor->mnMode = SSMODE_SEEKERSEARCH;
+
+    case GM_COMMAND: // 指令制导模式
+    {
+        useInterceptPitch = false;
+        /* 使用联盟传感器地图进行指令制导（此处简化处理）
+            ** 检查火控传感器是否激活。如果没有火控传感器，跳过此检查。
+            */
+        tcSensorMapTrack mapTrack;
+        float tti_s = 999.0f; // 拦截时间
+        if (simState->GetTrack(intendedTarget, GetAlliance(), mapTrack)) // 获取目标跟踪信息
+        {
+            tcTrack predictedTrack;
+            mapTrack.GetPrediction(predictedTrack, afStatusTime); // 预测目标位置
+
+            float range_km = 0;
+            mcKin.GetInterceptData3D(predictedTrack, goalHeading_rad,
+                                     interceptPitch_rad, tti_s, range_km); // 计算拦截数据
+
+            // 发射后的前几秒，导弹加速时不使用预测数据
+            if (msKState.mfFlightTime < 5)
+            {
+                predictedTrack = mapTrack;
+                goalHeading_rad = mcKin.HeadingToTrack(predictedTrack);
+            }
+
+            mfRangeToObjective_km = mcKin.RangeToKm(predictedTrack); // 2D距离
+
+            useInterceptPitch = (pSegmentInfo->meAltitudeMode == AM_INTERCEPT) || isCommandHandoff ||
+                                ((pSegmentInfo->meAltitudeMode == AM_INTERCEPT_HIGH) && (interceptPitch_rad > 0));
+            mfInterceptTime = tti_s;
+
+            // 更新目标点信息
+            msWaypoint.mfLon_rad = predictedTrack.mfLon_rad;
+            msWaypoint.mfLat_rad = predictedTrack.mfLat_rad;
+            msWaypoint.mfAlt_m = predictedTrack.mfAlt_m;
+        }
+        else if ((mfInterceptTime < 9990.0f) && (msWaypoint.mfLon_rad != 0)) // 如果没有目标跟踪信息但有目标点
+        {
+            tcTrack predictedTrack;
+            predictedTrack.mfAlt_m = msWaypoint.mfAlt_m;
+            predictedTrack.mfLon_rad = msWaypoint.mfLon_rad;
+            predictedTrack.mfLat_rad = msWaypoint.mfLat_rad;
+            predictedTrack.mfSpeed_kts = 0;
+
+            mcKin.GetInterceptData2D(predictedTrack, goalHeading_rad, tti_s); // 计算2D拦截数据
+            mfRangeToObjective_km = mcKin.RangeToKm(predictedTrack);
+        }
+        else // 如果没有目标跟踪信息且没有目标点
+        {
+            SelfDestruct(); // 自毁
         }
 
-        mfGuidanceUpdateInterval = 0.5f;
+        // 检查火控传感器是否激活
+        if ((sensor != 0) && sensor->HasFireControlSensor())
+        {
+            std::shared_ptr<tcSensorState> fireControl = sensor->GetFireControlSensor();
+            if ((fireControl == 0) || (!fireControl->IsActive()))
+            {
+                SelfDestruct(); // 自毁
+            }
+        }
 
+        mfInterceptTime = tti_s;
+    }
+    break;
 
-		if (sensor->mnMode == SSMODE_SEEKERTRACK) 
-		{
-			tcTrack predictedtrack;   
-			float tti_s;
-			sensor->mcTrack.GetPrediction(predictedtrack,afStatusTime);
+    case GM_SENSOR1: // 传感器制导模式
+        assert(sensor);
+        if (sensor == 0) return;
 
-			mcKin.GetInterceptData3D(predictedtrack, goalHeading_rad, 
-				interceptPitch_rad, tti_s, mfRangeToObjective_km);
+        if (!sensor->IsActive()) // 如果传感器未激活
+        {
+            sensor->SetActive(true); // 激活传感器
+            sensor->mnMode = SSMODE_SEEKERSEARCH; // 设置为搜索模式
+        }
 
-            // For few seconds after launch, head for track without prediction while missile accelerates
+        mfGuidanceUpdateInterval = 0.5f; // 更新制导间隔
+
+        if (sensor->mnMode == SSMODE_SEEKERTRACK) // 如果传感器处于跟踪模式
+        {
+            tcTrack predictedtrack;
+            float tti_s;
+            sensor->mcTrack.GetPrediction(predictedtrack, afStatusTime); // 预测目标位置
+
+            mcKin.GetInterceptData3D(predictedtrack, goalHeading_rad,
+                                     interceptPitch_rad, tti_s, mfRangeToObjective_km); // 计算拦截数据
+
+            // 发射后的前几秒，导弹加速时不使用预测数据
             if (msKState.mfFlightTime < 5)
             {
                 predictedtrack = sensor->mcTrack;
                 goalHeading_rad = mcKin.HeadingToTrack(sensor->mcTrack);
             }
 
-            // limit intercept angle to keep target in seeker, goalHeading_rad is [-pi,pi) from atan2f,
-            //  mcKin.mfHeading_rad is [0, 2*pi)
+            // 限制拦截角度以保持目标在传感器视野内
             float dh_rad = goalHeading_rad - mcKin.mfHeading_rad;
             dh_rad += C_TWOPI * (float(dh_rad < -C_PI) - float(dh_rad > C_PI));
-            float seekerCoverage_rad = (0.9f*0.5f*C_PIOVER180)*sensor->mpDBObj->mfFieldOfView_deg; // 90% of half fov in rad
+            float seekerCoverage_rad = (0.9f * 0.5f * C_PIOVER180) * sensor->mpDBObj->mfFieldOfView_deg; // 传感器视野的90%
             if (dh_rad > seekerCoverage_rad)
             {
                 goalHeading_rad = mcKin.mfHeading_rad + seekerCoverage_rad;
             }
-            else if (dh_rad <-seekerCoverage_rad)
+            else if (dh_rad < -seekerCoverage_rad)
             {
                 goalHeading_rad = mcKin.mfHeading_rad - seekerCoverage_rad;
             }
 
+            mfRangeToObjective_km *= C_RADTOKM; // 转换为公里
 
-			mfRangeToObjective_km *= C_RADTOKM; // convert to km
+            // 如果高度低于4米，限制俯仰角
+            if (msKState.mfAltitude_m <= 4.0)
+            {
+                if (interceptPitch_rad < 0) {interceptPitch_rad = 0;}
+            }
 
+            useInterceptPitch = (pSegmentInfo->meAltitudeMode == AM_INTERCEPT) || ((pSegmentInfo->meAltitudeMode == AM_INTERCEPT_HIGH) && (interceptPitch_rad > 0));
 
-			if (msKState.mfAltitude_m <= 4.0) 
-			{
-				if (interceptPitch_rad < 0) {interceptPitch_rad = 0;}
-			}
+            mfInterceptTime = tti_s;
 
-			useInterceptPitch = (pSegmentInfo->meAltitudeMode == AM_INTERCEPT) || ((pSegmentInfo->meAltitudeMode == AM_INTERCEPT_HIGH) && (interceptPitch_rad > 0));
-
-			mfInterceptTime = tti_s;
-
-            // update waypoint just in case we want to go back to nav or command
+            // 更新目标点信息
             msWaypoint.mfLon_rad = predictedtrack.mfLon_rad;
             msWaypoint.mfLat_rad = predictedtrack.mfLat_rad;
             msWaypoint.mfAlt_m = predictedtrack.mfAlt_m;
-		}
-		else 
-		{
-			//goalAltitude_m = pSegmentInfo->mfAltitude_m; // used if AltOpt is AM_INTERCEPT
-		}
-        break;
-    case GM_DEPLOY:
+        }
+        else
         {
-            if (!payloadDeployed)
-            {
-                DeployPayload();
-            }
-            else
-            {
-                SelfDestruct();
-            }
+            //goalAltitude_m = pSegmentInfo->mfAltitude_m; // 如果高度模式为拦截模式，则使用此值
         }
         break;
-	default:
-		break;
-	}
 
-    // mid-flight malfunction check
-    if (!tcWeaponObject::malfunctionChecked && ((0.001f * distanceFromLaunch) > mfRangeToObjective_km))
+    case GM_DEPLOY: // 部署模式
     {
-        MalfunctionCheck();
+        if (!payloadDeployed) // 如果有效载荷未部署
+        {
+            DeployPayload(); // 部署有效载荷
+        }
+        else
+        {
+            SelfDestruct(); // 自毁
+        }
+    }
+    break;
+
+    default:
+        break;
     }
 
-	// update guidance update rate and seeker scan rate based on time to intercept
+    // 中途故障检查
+    if (!tcWeaponObject::malfunctionChecked && ((0.001f * distanceFromLaunch) > mfRangeToObjective_km))
+    {
+        MalfunctionCheck(); // 检查故障
+    }
 
-	if (mfInterceptTime <= 2.0) 
-	{
-		mfGuidanceUpdateInterval = 0.1f;
-		if (sensor != 0) sensor->mfCurrentScanPeriod_s = 0.1f;
-	}
-    else if (mfInterceptTime <= 5.0) 
-	{
-		mfGuidanceUpdateInterval = 0.2f;
-		if (sensor != 0) sensor->mfCurrentScanPeriod_s = 0.2f;
-	}
+    // 根据拦截时间更新制导更新速率和传感器扫描速率
+    if (mfInterceptTime <= 2.0)
+    {
+        mfGuidanceUpdateInterval = 0.1f;
+        if (sensor != 0) sensor->mfCurrentScanPeriod_s = 0.1f;
+    }
+    else if (mfInterceptTime <= 5.0)
+    {
+        mfGuidanceUpdateInterval = 0.2f;
+        if (sensor != 0) sensor->mfCurrentScanPeriod_s = 0.2f;
+    }
 
+    //************ 更新高度控制 **************
+    switch (pSegmentInfo->meAltitudeMode)
+    {
+    case AM_ASL: // 绝对高度模式
+    case AM_ASL_LOFT: // 绝对高度+爬升模式
+        goalAltitude_m = pSegmentInfo->mfAltitude_m;
+        break;
 
-	//************ update altitude control **************
-	switch (pSegmentInfo->meAltitudeMode) 
-	{
-	case AM_ASL:
-	case AM_ASL_LOFT:
-		goalAltitude_m = pSegmentInfo->mfAltitude_m;
-		break;
-	case AM_AGL:
-		{
-            float maxHeight_m = std::max(mcTerrain.lookAheadHeight_m, mcTerrain.mfHeight_m);
-            float effectiveTerrainHeight_m = std::max(maxHeight_m, (float)0);
-			goalAltitude_m = pSegmentInfo->mfAltitude_m + effectiveTerrainHeight_m;
-		}
-		break;
-	case AM_INTERCEPT:  // use seeker data or maintain altitude
-	case AM_INTERCEPT_HIGH:
-		break;
-	case AM_DATUM: // use intercept pitch from msWaypoint
-		assert(useInterceptPitch);
-		break;
-	default:
-		goalAltitude_m = 10.0f;
-		break;
-	}
+    case AM_AGL: // 相对地面高度模式
+    {
+        float maxHeight_m = std::max(mcTerrain.lookAheadHeight_m, mcTerrain.mfHeight_m);
+        float effectiveTerrainHeight_m = std::max(maxHeight_m, (float)0);
+        goalAltitude_m = pSegmentInfo->mfAltitude_m + effectiveTerrainHeight_m;
+    }
+    break;
 
-	if (useInterceptPitch) 
-	{
+    case AM_INTERCEPT: // 拦截模式，使用传感器数据或保持高度
+    case AM_INTERCEPT_HIGH:
+        break;
+
+    case AM_DATUM: // 基准模式，使用拦截俯仰角
+        assert(useInterceptPitch);
+        break;
+
+    default:
+        goalAltitude_m = 10.0f;
+        break;
+    }
+
+    // 更新俯仰角
+    if (useInterceptPitch)
+    {
         assert(!_isnan(interceptPitch_rad));
-		goalPitch_rad = interceptPitch_rad;
+        goalPitch_rad = interceptPitch_rad;
         goalAltitude_m = IGNORE_GOAL_ALTITUDE;
-	}
-	else 
-	{
-        goalPitch_rad = 0; // calculated in UpdateGoalPitch();
-	}
+    }
+    else
+    {
+        goalPitch_rad = 0; // 在UpdateGoalPitch()中计算
+    }
 
-	// force level flight for first 0.5 sec for air-launched missiles
-    if ((msKState.mfFlightTime < 0.5)&&(msKState.mfAltitude_m - mcTerrain.mfHeight_m > 50.0f)) 
-	{
-		goalHeading_rad = mcKin.mfHeading_rad;
+    // 对于空射导弹，前0.5秒强制水平飞行
+    if ((msKState.mfFlightTime < 0.5) && (msKState.mfAltitude_m - mcTerrain.mfHeight_m > 50.0f))
+    {
+        goalHeading_rad = mcKin.mfHeading_rad;
         goalPitch_rad = mcKin.mfPitch_rad;
         goalAltitude_m = IGNORE_GOAL_ALTITUDE;
-	}
-	// switch to next flight profile segment if within range
-	else if (mnCurrentSegment < (mpDBObject->mnNumSegments-1)) 
-	{
-		if (mfRangeToObjective_km < pSegmentInfo->mfRange_km) 
-		{
+    }
+    // 如果接近目标范围，切换到下一个飞行段
+    else if (mnCurrentSegment < (mpDBObject->mnNumSegments - 1))
+    {
+        if (mfRangeToObjective_km < pSegmentInfo->mfRange_km)
+        {
             bool commandHandoff = (pSegmentInfo->meGuidanceMode == GM_COMMAND) &&
-                                  (mpDBObject->maFlightProfile[mnCurrentSegment+1].meGuidanceMode != GM_COMMAND);
+                                  (mpDBObject->maFlightProfile[mnCurrentSegment + 1].meGuidanceMode != GM_COMMAND);
             if (!commandHandoff)
             {
-			    mnCurrentSegment++;
+                mnCurrentSegment++; // 切换到下一个飞行段
             }
             else
             {
-                UpdateCommandHandoff();
+                UpdateCommandHandoff(); // 更新指令切换
             }
-		}
-	}
+        }
+    }
 }
-
+/**
+ * 更新指令切换逻辑。
+ * 该函数用于在导弹飞行过程中切换到下一个飞行段时，检查传感器是否可以检测到目标。
+ * 如果传感器可以检测到目标，则切换到下一个飞行段；否则继续保持在当前段。
+ */
 void tcMissileObject::UpdateCommandHandoff()
 {
+    // 确保当前段不是最后一个段，并且目标距离小于当前段的范围
     assert(mnCurrentSegment < (mpDBObject->mnNumSegments-1));
     assert(mfRangeToObjective_km < mpDBObject->maFlightProfile[mnCurrentSegment].mfRange_km);
-    
-    isCommandHandoff = true;
 
+    isCommandHandoff = true; // 标记当前为指令切换状态
+
+    // 获取导弹的主传感器
     std::shared_ptr<tcSensorState> sensor = GetComponent<tcSensorPlatform>()->GetSensorMutable(0);
     assert(sensor != 0);
     if (sensor == 0) return;
-    
-    // activate seeker if not active
+
+    // 如果传感器未激活，则激活传感器
     if (!sensor->IsActive())
     {
         sensor->SetActive(true);
-        sensor->mnMode = SSMODE_NULL; // so we don't update anything yet in sensor->Update()
+        sensor->mnMode = SSMODE_NULL; // 设置为空模式，避免在传感器更新时进行任何操作
     }
 
-    // check if seeker can detect target
+    // 检查传感器是否可以检测到目标
     std::shared_ptr<tcGameObject> target = simState->GetObject(intendedTarget);
     float range_km = 0;
-    sensor->SetCommandReceiver(false);
-    if ((target != 0) && sensor->CanDetectTarget(target, range_km, false))
+    sensor->SetCommandReceiver(false); // 取消传感器的指令接收状态
+    if ((target != 0) && sensor->CanDetectTarget(target, range_km, false)) // 如果目标存在且传感器可以检测到目标
     {
-        isCommandHandoff = false;
-        sensor->mnMode = SSMODE_SEEKERTRACK;
-        mnCurrentSegment++;
+        isCommandHandoff = false; // 取消指令切换状态
+        sensor->mnMode = SSMODE_SEEKERTRACK; // 设置传感器为跟踪模式
+        mnCurrentSegment++; // 切换到下一个飞行段
     }
     else
-    {   // remain on this segment and continue handoff
-        sensor->SetCommandReceiver(true);
+    {   // 如果传感器无法检测到目标，则继续保持在当前段
+        sensor->SetCommandReceiver(true); // 设置传感器为指令接收状态
     }
 }
 
 /**
-* 
-*/
+ * 更新导弹的制导模拟数据。
+ * 该函数根据导弹的当前飞行段和目标信息，更新导弹的制导目标（航向、高度、俯仰角等）。
+ *
+ * @param simData 导弹的模拟数据
+ * @param missileData 导弹的数据库对象
+ */
 void tcMissileObject::UpdateGuidanceSim(MissileSimData& simData, const std::shared_ptr<tcMissileDBObject> missileData)
 {
-	if (missileData->mnNumSegments == 0) 
+    // 检查导弹的飞行段数据是否有效
+    if (missileData->mnNumSegments == 0)
     {
-        assert(false); 
+        assert(false);
         return;
     }
-	assert(simData.segment < missileData->mnNumSegments);
+    assert(simData.segment < missileData->mnNumSegments);
 
-	const tsMissileFlightSegment* segmentInfo = &missileData->maFlightProfile[simData.segment];
-	simData.goalAltitude_m = simData.kstate.mfAltitude_m;
+    // 获取当前飞行段的信息
+    const tsMissileFlightSegment* segmentInfo = &missileData->maFlightProfile[simData.segment];
+    simData.goalAltitude_m = simData.kstate.mfAltitude_m; // 设置目标高度为当前高度
 
-	//************ GuidanceMode update **************
-	bool useInterceptPitch = false;
-	float interceptPitch_rad = 0;
+    //************ 制导模式更新 **************
+    bool useInterceptPitch = false; // 是否使用拦截俯仰角
+    float interceptPitch_rad = 0;   // 拦截俯仰角（弧度）
 
-    switch (segmentInfo->meGuidanceMode) 
+    switch (segmentInfo->meGuidanceMode)
     {
-    case GM_NAV:
-        simData.goalHeading_rad = simData.missileKin.HeadingToGeoRad(&simData.waypoint);
-        simData.rangeToObjective_km = simData.missileKin.RangeToKm(&simData.waypoint);
-        if (segmentInfo->meAltitudeMode == AM_DATUM)
+    case GM_NAV: // 导航模式
+        simData.goalHeading_rad = simData.missileKin.HeadingToGeoRad(&simData.waypoint); // 计算目标航向
+        simData.rangeToObjective_km = simData.missileKin.RangeToKm(&simData.waypoint); // 计算到目标的距离
+        if (segmentInfo->meAltitudeMode == AM_DATUM) // 如果高度模式为基准模式
         {
             tcTrack groundTrack;
 
-            groundTrack.mfAlt_m = simData.waypoint.mfAlt_m + missileData->detonationRange_m; // take det range as det alt for AM_DATUM
+            // 设置地面跟踪点的高度为航点高度加上导弹的爆炸范围
+            groundTrack.mfAlt_m = simData.waypoint.mfAlt_m + missileData->detonationRange_m;
             groundTrack.mfLon_rad = simData.waypoint.mfLon_rad;
             groundTrack.mfLat_rad = simData.waypoint.mfLat_rad;
             groundTrack.mfSpeed_kts = 0;
 
-            float tti_s;
-            float range_km;
+            float tti_s; // 拦截时间
+            float range_km; // 到目标的距离
 
-            simData.missileKin.GetInterceptData3D(groundTrack, simData.goalHeading_rad, 
-                interceptPitch_rad, tti_s, range_km);
+            // 计算拦截数据
+            simData.missileKin.GetInterceptData3D(groundTrack, simData.goalHeading_rad,
+                                                  interceptPitch_rad, tti_s, range_km);
 
-            simData.rangeToObjective_km = range_km;
+            simData.rangeToObjective_km = range_km; // 更新到目标的距离
 
+            // 如果距离目标小于 0.5 公里，则检查是否需要引爆
             if (simData.rangeToObjective_km < 0.5f)
             {
-                // detonate based on altitude
-                float vz_mps = C_KTSTOMPS*simData.missileKin.mfSpeed_kts*sinf(simData.missileKin.mfClimbAngle_rad);
-                float dz = groundTrack.mfAlt_m - simData.missileKin.mfAlt_m; // -height above ground or sea level
-                float t_impact = dz / vz_mps;
+                // 根据高度计算引爆时间
+                float vz_mps = C_KTSTOMPS * simData.missileKin.mfSpeed_kts * sinf(simData.missileKin.mfClimbAngle_rad);
+                float dz = groundTrack.mfAlt_m - simData.missileKin.mfAlt_m; // 高度差
+                float t_impact = dz / vz_mps; // 引爆时间
 
-                if (simData.rangeToObjective_km <= 0.050)
+                if (simData.rangeToObjective_km <= 0.050) // 如果距离目标非常近，则引爆
                 {
                     simData.endFlight = true;
                 }
-                else if ((tti_s < 0.05) || (t_impact < 0.05))
+                else if ((tti_s < 0.05) || (t_impact < 0.05)) // 如果拦截时间或引爆时间非常短，则引爆
                 {
                     simData.endFlight = true;
                 }
-                else // check for diverging range
+                else // 检查距离是否在扩大
                 {
-                    // this section detonates at closest point within 100 m if missile misses first test
+                    // 预测导弹在 0.1 秒后的位置
                     double lonPredict_rad, latPredict_rad;
                     float altPredict_m;
                     simData.missileKin.PredictPosition(0.1f, lonPredict_rad, latPredict_rad, altPredict_m);
@@ -1232,139 +1261,127 @@ void tcMissileObject::UpdateGuidanceSim(MissileSimData& simData, const std::shar
                     groundTrack2.mfAlt_m = altPredict_m;
                     groundTrack2.mfSpeed_kts = 0;
 
+                    // 计算预测位置到目标的距离
                     float rangeToObjective2_km = simData.missileKin.RangeToKmAlt(groundTrack2);
-                    bool rangeDiverging = (rangeToObjective2_km > simData.rangeToObjective_km);
+                    bool rangeDiverging = (rangeToObjective2_km > simData.rangeToObjective_km); // 检查距离是否在扩大
                     if (rangeDiverging)
-                    { 
-                        simData.endFlight = true;
+                    {
+                        simData.endFlight = true; // 如果距离在扩大，则引爆
                     }
                 }
-
             }
 
-            simData.interceptTime_s = tti_s;
-            useInterceptPitch = true;
+            simData.interceptTime_s = tti_s; // 更新拦截时间
+            useInterceptPitch = true; // 使用拦截俯仰角
         }
         break;
-    case GM_COMMAND:
-        {
-            useInterceptPitch = false;
+    case GM_COMMAND: // 指令制导模式
+    {
+        useInterceptPitch = false;
 
-            float tti_s = 999.0f;
-            float range3D_rad = 0;
-            simData.missileKin.GetInterceptData3D(simData.targetTrack, simData.goalHeading_rad, 
-                interceptPitch_rad, tti_s, range3D_rad);
-            simData.rangeToObjective_km = simData.missileKin.RangeToKm(simData.targetTrack); // 2D range
+        float tti_s = 999.0f; // 拦截时间
+        float range3D_rad = 0; // 3D 距离
+        // 计算拦截数据
+        simData.missileKin.GetInterceptData3D(simData.targetTrack, simData.goalHeading_rad,
+                                              interceptPitch_rad, tti_s, range3D_rad);
+        simData.rangeToObjective_km = simData.missileKin.RangeToKm(simData.targetTrack); // 2D 距离
 
-			useInterceptPitch = (segmentInfo->meAltitudeMode == AM_INTERCEPT) || 
-				((segmentInfo->meAltitudeMode == AM_INTERCEPT_HIGH) && (interceptPitch_rad > 0));
+        // 根据高度模式决定是否使用拦截俯仰角
+        useInterceptPitch = (segmentInfo->meAltitudeMode == AM_INTERCEPT) ||
+                            ((segmentInfo->meAltitudeMode == AM_INTERCEPT_HIGH) && (interceptPitch_rad > 0));
 
+        simData.interceptTime_s = tti_s; // 更新拦截时间
 
+        // 更新航点信息
+        simData.waypoint.mfLon_rad = simData.targetTrack.mfLon_rad;
+        simData.waypoint.mfLat_rad = simData.targetTrack.mfLat_rad;
+        simData.waypoint.mfAlt_m = simData.targetTrack.mfAlt_m;
 
-            simData.interceptTime_s = tti_s;
-
-
-            simData.waypoint.mfLon_rad = simData.targetTrack.mfLon_rad;
-            simData.waypoint.mfLat_rad = simData.targetTrack.mfLat_rad;
-            simData.waypoint.mfAlt_m = simData.targetTrack.mfAlt_m;
-
-            simData.interceptTime_s = tti_s;
-        }
-        break;
-    case GM_SENSOR1:
-        {
-        float rangeToTarget_km = simData.missileKin.RangeToKmAlt(simData.targetTrack);
-        if (rangeToTarget_km <= simData.seekerDetectionRange_km)
+        simData.interceptTime_s = tti_s; // 更新拦截时间
+    }
+    break;
+    case GM_SENSOR1: // 传感器制导模式
+    {
+        float rangeToTarget_km = simData.missileKin.RangeToKmAlt(simData.targetTrack); // 计算到目标的距离
+        if (rangeToTarget_km <= simData.seekerDetectionRange_km) // 如果目标在传感器检测范围内
         {
             float tti_s;
-            simData.missileKin.GetInterceptData3D(simData.targetTrack, simData.goalHeading_rad, 
-                interceptPitch_rad, tti_s, simData.rangeToObjective_km);
+            // 计算拦截数据
+            simData.missileKin.GetInterceptData3D(simData.targetTrack, simData.goalHeading_rad,
+                                                  interceptPitch_rad, tti_s, simData.rangeToObjective_km);
 
-            //simData.rangeToObjective_km *= C_RADTOKM; // convert to km
-
-            if (simData.kstate.mfAltitude_m <= 4.0) 
+            if (simData.kstate.mfAltitude_m <= 4.0) // 如果高度低于 4 米，则限制俯仰角
             {
                 if (interceptPitch_rad < 0) {interceptPitch_rad = 0;}
             }
 
+            // 根据高度模式决定是否使用拦截俯仰角
+            useInterceptPitch = (segmentInfo->meAltitudeMode == AM_INTERCEPT) || ((segmentInfo->meAltitudeMode == AM_INTERCEPT_HIGH) && (interceptPitch_rad > 0));
 
-			useInterceptPitch = (segmentInfo->meAltitudeMode == AM_INTERCEPT) || ((segmentInfo->meAltitudeMode == AM_INTERCEPT_HIGH) && (interceptPitch_rad > 0));
+            simData.interceptTime_s = tti_s; // 更新拦截时间
 
-
-
-            simData.interceptTime_s = tti_s;
-
-            // update waypoint just in case we want to go back to nav or command
+            // 更新航点信息
             simData.waypoint.mfLon_rad = simData.targetTrack.mfLon_rad;
             simData.waypoint.mfLat_rad = simData.targetTrack.mfLat_rad;
             simData.waypoint.mfAlt_m = simData.targetTrack.mfAlt_m;
         }
-        else 
+        else
         {
-            //goalAltitude_m = segmentInfo->mfAltitude_m; // used if AltOpt is AM_INTERCEPT
+            //goalAltitude_m = segmentInfo->mfAltitude_m; // 如果高度模式为拦截模式，则使用此值
         }
         break;
-        }
-    case GM_DEPLOY:
-        {
-            simData.endFlight = true;
-            simData.forceHit = true;
-        }
-        break;
+    }
+    case GM_DEPLOY: // 部署模式
+    {
+        simData.endFlight = true; // 结束飞行
+        simData.forceHit = true; // 强制命中
+    }
+    break;
     default:
         break;
     }
 
+    //************ 更新高度控制 **************
+    switch (segmentInfo->meAltitudeMode)
+    {
+    case AM_ASL: // 绝对高度模式
+    case AM_ASL_LOFT: // 绝对高度+爬升模式
+        simData.goalAltitude_m = segmentInfo->mfAltitude_m; // 设置目标高度为飞行段的高度
+        break;
+    case AM_AGL: // 相对地面高度模式
+        simData.goalAltitude_m = segmentInfo->mfAltitude_m + simData.terrainHeight_m; // 设置目标高度为飞行段高度加上地形高度
+        break;
+    case AM_INTERCEPT: // 拦截模式，使用传感器数据或保持高度
+    case AM_INTERCEPT_HIGH:
+        break;
+    case AM_DATUM: // 基准模式，使用拦截俯仰角
+        assert(useInterceptPitch);
+        break;
+    default:
+        simData.goalAltitude_m = 10.0f + simData.terrainHeight_m; // 默认高度为 10 米加上地形高度
+        break;
+    }
 
-	//************ update altitude control **************
-	switch (segmentInfo->meAltitudeMode) 
-	{
-	case AM_ASL:
-	case AM_ASL_LOFT:
-		simData.goalAltitude_m = segmentInfo->mfAltitude_m;
-		break;
-	case AM_AGL:
-        simData.goalAltitude_m = segmentInfo->mfAltitude_m + simData.terrainHeight_m; 
-		break;
-	case AM_INTERCEPT:  // use seeker data or maintain altitude
-	case AM_INTERCEPT_HIGH:
-		break;
-	case AM_DATUM: // use intercept pitch from simData.waypoint
-		assert(useInterceptPitch);
-		break;
-	default:
-		simData.goalAltitude_m = 10.0f + simData.terrainHeight_m;
-		break;
-	}
+    if (useInterceptPitch) // 如果使用拦截俯仰角
+    {
+        assert(!_isnan(interceptPitch_rad)); // 确保拦截俯仰角有效
+        simData.goalPitch_rad = interceptPitch_rad; // 设置目标俯仰角
+        simData.goalAltitude_m = IGNORE_GOAL_ALTITUDE; // 忽略目标高度
+    }
+    else
+    {
+        simData.goalPitch_rad = 0; // 在 UpdateGoalPitch() 中计算
+    }
 
-	if (useInterceptPitch) 
-	{
-        assert(!_isnan(interceptPitch_rad));
-		simData.goalPitch_rad = interceptPitch_rad;
-        simData.goalAltitude_m = IGNORE_GOAL_ALTITUDE;
-	}
-	else 
-	{
-        simData.goalPitch_rad = 0; // calculated in UpdateGoalPitch();
-	}
-
-	// force level flight for first 0.5 sec for air-launched missiles
-    //   if ((simData.kstate.mfFlightTime < 0.5)&&((simData.kstate.mfAltitude_m-simData.terrainHeight_m) > 50.0f)) 
-	//{
-	//	     simData.goalHeading_rad = simData.missileKin.mfHeading_rad;
-    //       simData.goalPitch_rad = simData.missileKin.mfPitch_rad;
-    //       simData.goalAltitude_m = IGNORE_GOAL_ALTITUDE;
-	//}
-	// switch to next flight profile segment if within range
-	if (simData.segment < (missileData->mnNumSegments-1)) 
-	{
-		if (simData.rangeToObjective_km < segmentInfo->mfRange_km) 
-		{
-			simData.segment++;
-		}
-	}
+    // 如果当前段不是最后一个段，并且目标距离小于当前段的范围，则切换到下一个段
+    if (simData.segment < (missileData->mnNumSegments-1))
+    {
+        if (simData.rangeToObjective_km < segmentInfo->mfRange_km)
+        {
+            simData.segment++; // 切换到下一个飞行段
+        }
+    }
 }
-
 
 /**
 * Used to change target datum for datalink active condition.

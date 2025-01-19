@@ -382,86 +382,114 @@ float tcRadar::CalculateJammingDegradation2(float az_rad, float el_rad)
 }
 
 /**
-* For missile seekers call to check for switch
-* to countermeasure target
-*/
+ * 用于导弹导引头检查是否切换到对抗措施（如箔条）目标。
+ * 该函数会检查当前目标附近是否存在有效的对抗措施（如箔条），并根据一定的概率决定是否切换到对抗措施目标。
+ *
+ * @param t 当前时间（秒）。
+ */
 void tcRadar::CounterMeasureTest(double t)
 {
-    const unsigned int maxAttempts = 4; // don't test any more than this number of CMs
+    const unsigned int maxAttempts = 4; // 最多尝试检查的对抗措施数量
 
+    // 记录最后一次检查对抗措施的时间
     lastCounterMeasureTime = t;
 
+    // 获取当前跟踪的目标对象
     std::shared_ptr<tcGameObject> target = simState->GetObject(mcTrack.mnID);
     if (target == 0)
     {
-        assert(false); // called with no target
+        assert(false); // 如果没有目标，则触发断言错误
         return;
     }
 
+    // 如果当前目标已经是对抗措施（如箔条），则不再检查切换
     if (std::shared_ptr<tcAirCM> cm = std::dynamic_pointer_cast<tcAirCM>(target))
     {
-        // already tracking a CM, don't check for switch back right now
         return;
     }
 
-    
+    // 计算目标与平台的相对速度（米/秒）
     float targetRangeRate_mps = parent->mcKin.CalculateRangeRate(target->mcKin);
     assert(target != 0);
+
+    // 计算目标与平台的3D距离（千米）
     float targetRange_km = parent->mcKin.RangeToKmAlt(target->mcKin);
-    // float targetRange_km = parent->mcKin.RangeToKmAlt(target);
 
-    float targetHeight_m = 0; // equivalent height of target for radar horizon
+    // 计算目标的等效高度（用于雷达地平线计算）
+    float targetHeight_m = 0;
+
+    // 计算目标的方位角（弧度）
     float fTargetAz_rad = 0;
-    // could probably find way to use rcs from parent routine
-    float targetRCS_dBsm = CalculateTargetRCS_dBsm(target, fTargetAz_rad, targetHeight_m); 
 
+    // 计算目标的雷达截面积（RCS，分贝平方米）
+    float targetRCS_dBsm = CalculateTargetRCS_dBsm(target, fTargetAz_rad, targetHeight_m);
+
+    // 定义搜索区域（以目标为中心，扩展一定范围）
     tcGeoRect region;
     region.Set(target->mcKin.mfLon_rad, target->mcKin.mfLon_rad, target->mcKin.mfLat_rad, target->mcKin.mfLat_rad);
-    float dy_rad = C_MTORAD*500.0f;
-    float dx_rad = dy_rad / cosf(target->mcKin.mfLat_rad);
+    float dy_rad = C_MTORAD * 500.0f; // 纬度扩展范围（弧度）
+    float dx_rad = dy_rad / cosf(target->mcKin.mfLat_rad); // 经度扩展范围（弧度）
     region.Expand(dx_rad, dy_rad);
 
+    // 初始化尝试次数
     unsigned int attempts = 0;
+
+    // 创建区域内的游戏对象迭代器
     tcGameObjIterator iter(region);
 
-    for (iter.First();iter.NotDone();iter.Next())
+    // 遍历区域内的所有对象
+    for (iter.First(); iter.NotDone(); iter.Next())
     {
         std::shared_ptr<tcGameObject> obj = iter.Get();
 
         assert(obj != 0);
+
+        // 检查对象是否为对抗措施（如箔条）
         std::shared_ptr<tcCounterMeasureDBObject> cmData = std::dynamic_pointer_cast<tcCounterMeasureDBObject>(obj->mpDBObject);
 
+        // 判断对象是否满足条件：是对抗措施且类型为箔条
         bool isEligible = (cmData != 0) && (cmData->subType == "Chaff") &&
-            (obj->mpDBObject->mnType == PTYPE_AIRCM);
+                          (obj->mpDBObject->mnType == PTYPE_AIRCM);
+
         float range_km;
 
+        // 如果对象满足条件且可以被雷达检测到
         if (isEligible && CanDetectTarget(obj, range_km))
         {
+            // 计算对象与平台的相对速度（米/秒）
             float objRangeRate_mps = parent->mcKin.CalculateRangeRate(obj->mcKin);
+
+            // 计算对象与平台的3D距离（千米）
             float objRange_km = parent->mcKin.RangeToKmAlt(obj->mcKin);
+
+            // 获取对象的雷达截面积（RCS，分贝平方米）
             float objRCS_dBsm = lastTargetRCS_dBsm;
 
-            float rangeRateFactor = (objRangeRate_mps < (targetRangeRate_mps - 30.0f)) ? 0.5f : 1.0f;
-            float rangeFactor = (fabsf(objRange_km - targetRange_km) > 0.25f) ? 0.5f : 1.0f;
-            float rcsFactor = (objRCS_dBsm < (targetRCS_dBsm - 3)) ? 0.5f : 1.0f;
-            
-            float prob_success = mpDBObj->counterMeasureFactor * cmData->effectiveness * 
-                rangeRateFactor * rangeFactor * rcsFactor;
+            // 计算切换概率的各个因子
+            float rangeRateFactor = (objRangeRate_mps < (targetRangeRate_mps - 30.0f)) ? 0.5f : 1.0f; // 相对速度因子
+            float rangeFactor = (fabsf(objRange_km - targetRange_km) > 0.25f) ? 0.5f : 1.0f; // 距离因子
+            float rcsFactor = (objRCS_dBsm < (targetRCS_dBsm - 3)) ? 0.5f : 1.0f; // RCS因子
+
+            // 计算切换到对抗措施目标的成功概率
+            float prob_success = mpDBObj->counterMeasureFactor * cmData->effectiveness *
+                                 rangeRateFactor * rangeFactor * rcsFactor;
+
+            // 根据概率决定是否切换到对抗措施目标
             if (randf() < prob_success)
             {
+                // 切换到对抗措施目标
                 mcTrack.mnID = obj->mnID;
                 UpdateTrack(obj, t);
                 return;
             }
             else
             {
+                // 如果尝试次数超过最大限制，则退出
                 if (++attempts >= maxAttempts) return;
             }
-            
         }
     }
 }
-
 bool tcRadar::IsJammed() const
 {
     return isJammed;
@@ -562,62 +590,89 @@ float tcRadar::CalculateClutterAdjustment_dB(std::shared_ptr<const tcGameObject>
 }
 
 /**
-* @return true if target within elevation coverage of radar
-*
-* @param targetRange_km must be 3D range, otherwise get NaN for some low range geometries
-* @param targetEl_rad elevation assuming platform is level
-*/
+ * 判断目标是否在雷达的俯仰覆盖范围内。
+ *
+ * @param target 目标对象，类型为 `std::shared_ptr<const tcGameObject>`。
+ * @param targetRange_km 目标的3D距离（千米），必须是3D距离，否则在某些低距离几何情况下会得到NaN。
+ * @param targetEl_rad 目标的俯仰角（弧度），假设平台是水平的。
+ * @return 如果目标在雷达的俯仰覆盖范围内，则返回 `true`，否则返回 `false`。
+ */
 bool tcRadar::TargetInElevationCoverage(std::shared_ptr<const tcGameObject> target, float targetRange_km, float& targetEl_rad) const
 {
-    assert((target != 0)&&(parent != 0));
+    // 确保目标和父对象（雷达平台）有效
+    assert((target != 0) && (parent != 0));
 
-    if ( std::shared_ptr<const tcWeaponObject> weapon = std::dynamic_pointer_cast<const tcWeaponObject>(parent))
+    // 如果父对象是武器（如导弹），则调用专门处理武器的函数
+    if (std::shared_ptr<const tcWeaponObject> weapon = std::dynamic_pointer_cast<const tcWeaponObject>(parent))
     {
         return TargetInElevationCoverageWeapon(target, targetRange_km, targetEl_rad);
     }
 
+    // 计算目标与雷达平台的高度差（米）
     float dalt_m = target->mcKin.mfAlt_m - parent->mcKin.mfAlt_m;
 
-    assert(fabsf(dalt_m) <= (1000.0f*targetRange_km));
+    // 确保高度差不超过目标的3D距离（防止计算错误）
+    assert(fabsf(dalt_m) <= (1000.0f * targetRange_km));
 
-    targetEl_rad = asinf(dalt_m / (1000.0f*targetRange_km));
+    // 计算目标的俯仰角（弧度）
+    targetEl_rad = asinf(dalt_m / (1000.0f * targetRange_km));
 
+    // 记录目标的俯仰角
     lastTargetElevation_rad = targetEl_rad;
 
+    // 判断目标是否在雷达的俯仰覆盖范围内
     bool inCoverage = (targetEl_rad >= mpDBObj->minElevation_rad) && (targetEl_rad <= mpDBObj->maxElevation_rad);
 
     return inCoverage;
 }
 
 /**
-* @return true if target within elevation coverage of radar
-* This version uses cone angle between platform boresight (assumes forward-looking radar) and target
-*
-* @param targetRange_km must be 3D range, otherwise get NaN for some low range geometries
-* @param targetEl_rad cone angle from parent boresight to target
-*/
+ * 判断目标是否在雷达的俯仰覆盖范围内。
+ * 该版本使用平台瞄准线（假设雷达为前向雷达）与目标之间的锥角来计算。
+ *
+ * @param target 目标对象，类型为 `std::shared_ptr<const tcGameObject>`。
+ * @param targetRange_km 目标的3D距离（千米），必须是3D距离，否则在某些低距离几何情况下会得到NaN。
+ * @param targetEl_rad 目标与平台瞄准线之间的锥角（弧度）。
+ * @return 如果目标在雷达的俯仰覆盖范围内，则返回 `true`，否则返回 `false`。
+ */
 bool tcRadar::TargetInElevationCoverageWeapon(std::shared_ptr<const tcGameObject> target, float targetRange_km, float& targetEl_rad) const
 {
-    assert((target != 0)&&(parent != 0));
+    // 确保目标和父对象（雷达平台）有效
+    assert((target != 0) && (parent != 0));
 
+    // 计算平台的俯仰角余弦值
     float cos_pitch_parent = cosf(parent->mcKin.mfPitch_rad);
-    float zplatform = sinf(parent->mcKin.mfPitch_rad);
-    float xplatform = cos_pitch_parent * cosf(parent->mcKin.mfHeading_rad);
-    float yplatform = cos_pitch_parent * sinf(parent->mcKin.mfHeading_rad);
 
+    // 计算平台在三维空间中的方向向量（x, y, z）
+    float zplatform = sinf(parent->mcKin.mfPitch_rad); // z 分量
+    float xplatform = cos_pitch_parent * cosf(parent->mcKin.mfHeading_rad); // x 分量
+    float yplatform = cos_pitch_parent * sinf(parent->mcKin.mfHeading_rad); // y 分量
+
+    // 计算目标相对于平台的方位角（弧度）
     float bearing_rad = parent->BearingToRad(*target);
-    float dalt_m = target->mcKin.mfAlt_m - parent->mcKin.mfAlt_m;
-    assert(fabsf(dalt_m) <= (1000.0f*targetRange_km));
-    float sin_el_target = dalt_m / (1000.0f*targetRange_km);
-    float cos_el_target = sqrtf(1.0 - sin_el_target*sin_el_target);
 
-    float ztarget = sin_el_target;
-    float xtarget = cos_el_target * cosf(bearing_rad);
-    float ytarget = cos_el_target * sinf(bearing_rad);
-    
-    float cos_cone = xplatform*xtarget + yplatform*ytarget + zplatform*ztarget;
+    // 计算目标与平台的高度差（米）
+    float dalt_m = target->mcKin.mfAlt_m - parent->mcKin.mfAlt_m;
+
+    // 确保高度差不超过目标的3D距离（防止计算错误）
+    assert(fabsf(dalt_m) <= (1000.0f * targetRange_km));
+
+    // 计算目标的俯仰角正弦值和余弦值
+    float sin_el_target = dalt_m / (1000.0f * targetRange_km); // 俯仰角正弦值
+    float cos_el_target = sqrtf(1.0 - sin_el_target * sin_el_target); // 俯仰角余弦值
+
+    // 计算目标在三维空间中的方向向量（x, y, z）
+    float ztarget = sin_el_target; // z 分量
+    float xtarget = cos_el_target * cosf(bearing_rad); // x 分量
+    float ytarget = cos_el_target * sinf(bearing_rad); // y 分量
+
+    // 计算平台方向向量与目标方向向量的点积，得到锥角的余弦值
+    float cos_cone = xplatform * xtarget + yplatform * ytarget + zplatform * ztarget;
+
+    // 计算锥角（弧度）
     targetEl_rad = acosf(cos_cone);
 
+    // 判断目标是否在雷达的最大俯仰角范围内
     bool inCoverage = (targetEl_rad <= mpDBObj->maxElevation_rad);
 
     return inCoverage;
@@ -870,139 +925,171 @@ bool tcRadar::IsTrackAvailable()
 }
 
 /**
-* if track is available, reserve a track.
-* The current approach to semi-active guidance is to require each 
-* missile to request one track per target, even if it is the same 
-* target as a pre-existing track.
-* Calling method must check if target is detectable for this to
-* work properly.
-*/
+ * 如果跟踪可用，则保留一个跟踪。
+ * 当前的半主动制导方法是要求每枚导弹为每个目标请求一个跟踪，即使该目标与现有跟踪相同。
+ * 调用此方法时必须检查目标是否可被检测到，以确保正常工作。
+ *
+ * @param targetId 目标的唯一ID。
+ * @return 如果成功保留跟踪，则返回 `true`，否则返回 `false`。
+ */
 bool tcRadar::RequestTrack(long targetId)
 {
-	if (!IsTrackAvailable())
-	{
-		return false;
-	}
+    // 检查是否有可用的跟踪
+    if (!IsTrackAvailable())
+    {
+        return false;
+    }
 
-	fireControlTracks.push_back(targetId);
+    // 将目标ID添加到火控跟踪列表中
+    fireControlTracks.push_back(targetId);
 
-	if ((parent != 0) && (!parent->IsClientMode()))
-	{
+    // 如果父对象存在且不是客户端模式
+    if ((parent != 0) && (!parent->IsClientMode()))
+    {
         tcSimState* simState = tcSimState::Get();
 
+        // 获取目标对象并添加父对象为目标者
         if (std::shared_ptr<tcGameObject> newTargetObj = simState->GetObject(targetId))
         {
             newTargetObj->AddTargeter(parent->mnID);
         }
     }
 
-	return true;
+    return true;
 }
 
+/**
+ * 释放对目标的跟踪。
+ *
+ * @param targetId 目标的唯一ID。
+ * @return 如果成功释放跟踪，则返回 `true`，否则返回 `false`。
+ */
 bool tcRadar::ReleaseTrack(long targetId)
 {
-	std::vector<long> updatedTracks;
-	for (size_t n=0; n<fireControlTracks.size(); n++)
-	{
-		if (fireControlTracks[n] != targetId)
-		{
-			updatedTracks.push_back(fireControlTracks[n]);
-		}
-	}
+    std::vector<long> updatedTracks;
 
-	if (updatedTracks.size() == fireControlTracks.size())
-	{
-		fprintf(stderr, "tcRadar::ReleaseTrack targetId not found (%d)", targetId);
-		return false;
-	}
+    // 遍历火控跟踪列表，移除目标ID
+    for (size_t n = 0; n < fireControlTracks.size(); n++)
+    {
+        if (fireControlTracks[n] != targetId)
+        {
+            updatedTracks.push_back(fireControlTracks[n]);
+        }
+    }
 
-	fireControlTracks = updatedTracks;
+    // 如果目标ID未找到，则输出错误信息并返回
+    if (updatedTracks.size() == fireControlTracks.size())
+    {
+        fprintf(stderr, "tcRadar::ReleaseTrack targetId not found (%d)", targetId);
+        return false;
+    }
 
-	if ((parent != 0) && (parent->IsClientMode())) return true;
+    // 更新火控跟踪列表
+    fireControlTracks = updatedTracks;
 
-	// after releasing track, check if any other radars on parent platform have active fire control track. If not, remove parent from targeter list
-    assert((parent != 0) && (parent->GetComponent<tcSensorPlatform>()!= 0));
+    // 如果父对象是客户端模式，则直接返回
+    if ((parent != 0) && (parent->IsClientMode())) return true;
 
-	bool isTrackingTarget = false;
+    // 释放跟踪后，检查父平台上的其他雷达是否有活动的火控跟踪。如果没有，则从目标者列表中移除父对象
+    assert((parent != 0) && (parent->GetComponent<tcSensorPlatform>() != 0));
+
+    bool isTrackingTarget = false;
     unsigned int nParentSensors = parent->GetComponent<tcSensorPlatform>()->GetSensorCount();
-	for (unsigned int n=0; n<nParentSensors; n++)
-	{
+
+    // 遍历父平台上的所有传感器，检查是否有雷达正在跟踪目标
+    for (unsigned int n = 0; n < nParentSensors; n++)
+    {
         std::shared_ptr<const tcSensorState> sensor = parent->GetComponent<tcSensorPlatform>()->GetSensor(n);
-		isTrackingTarget = isTrackingTarget || sensor->IsTrackingWithRadar(targetId);
-	}
+        isTrackingTarget = isTrackingTarget || sensor->IsTrackingWithRadar(targetId);
+    }
 
-	if (!isTrackingTarget)
-	{
-		std::shared_ptr<tcGameObject> target = simState->GetObject(targetId);
-		if (target != 0)
-		{
-			target->RemoveTargeter(parent->mnID);
-		}
-	}
+    // 如果没有雷达正在跟踪目标，则从目标者列表中移除父对象
+    if (!isTrackingTarget)
+    {
+        std::shared_ptr<tcGameObject> target = simState->GetObject(targetId);
+        if (target != 0)
+        {
+            target->RemoveTargeter(parent->mnID);
+        }
+    }
 
-	return true;
-
+    return true;
 }
 
 /**
-* @return true if this radar has any active fire control tracks on targetId
-*/
+ * 检查雷达是否正在使用火控跟踪目标。
+ *
+ * @param targetId 目标的唯一ID。
+ * @return 如果雷达正在跟踪目标，则返回 `true`，否则返回 `false`。
+ */
 bool tcRadar::IsTrackingWithRadar(long targetId) const
 {
-	size_t nFireControlTracks = fireControlTracks.size();
-	for (size_t n=0; n<nFireControlTracks; n++)
-	{
-		if (fireControlTracks[n] == targetId) return true;
-	}
+    size_t nFireControlTracks = fireControlTracks.size();
 
-	return false;
+    // 遍历火控跟踪列表，检查是否包含目标ID
+    for (size_t n = 0; n < nFireControlTracks; n++)
+    {
+        if (fireControlTracks[n] == targetId) return true;
+    }
+
+    return false;
 }
 
 /**
-* Updates missile seeker radar.
-*/
+ * 更新导弹导引头雷达。
+ *
+ * @param t 当前时间（秒）。
+ */
 void tcRadar::UpdateSeeker(double t)
 {
     long nTargetID;
-    std::shared_ptr<tcGameObject>ptarget = 0;
+    std::shared_ptr<tcGameObject> ptarget = 0;
     bool bFound = false;
     bool isEligible = false;
     std::shared_ptr<tcMissileObject> missile = std::dynamic_pointer_cast<tcMissileObject>(parent);
 
-    switch (mnMode) 
+    // 根据雷达模式进行处理
+    switch (mnMode)
     {
-    case SSMODE_SEEKERACQUIRE:        // fall through to SEEKERTRACK
+    case SSMODE_SEEKERACQUIRE: // 进入 SEEKERTRACK 模式
         if (missile != 0) missile->SetSeekerTarget(mcTrack.mnID);
 
-    case SSMODE_SEEKERTRACK:
+    case SSMODE_SEEKERTRACK: // 跟踪模式
         nTargetID = mcTrack.mnID;
+
+        // 检查目标是否存在且不是自身
         if (nTargetID != parent->mnID)
-        { 
-            bFound = simState->maPlatformState.Lookup(nTargetID,ptarget);
-        } 
-        else // no self detection
+        {
+            bFound = simState->maPlatformState.Lookup(nTargetID, ptarget);
+        }
+        else // 不检测自身
         {
             bFound = false;
         }
 
-        if ((missile != 0) && bFound && (missile->mfInterceptTime < 5.0f) && 
+        // 如果导弹接近目标且未检测到对抗措施，则进行对抗措施测试
+        if ((missile != 0) && bFound && (missile->mfInterceptTime < 5.0f) &&
             (lastCounterMeasureTime < (t - 1.0)))
         {
             CounterMeasureTest(t);
         }
 
-        if (bFound) 
-        {  // own-alliance is allowed
+        // 如果目标存在且符合条件，则更新跟踪
+        if (bFound)
+        {
             float fRange_km;
 
-            bool surfacedSub = (ptarget->mpDBObject->mnType == PTYPE_SUBMARINE) && 
-                (ptarget->mcKin.mfAlt_m > -2.0f);
+            // 检查目标是否为浮出水面的潜艇
+            bool surfacedSub = (ptarget->mpDBObject->mnType == PTYPE_SUBMARINE) &&
+                               (ptarget->mcKin.mfAlt_m > -2.0f);
 
-            isEligible = surfacedSub || 
-                ((ptarget->mpDBObject->mnType & 
-                (PTYPE_AIR | PTYPE_GROUND | PTYPE_MISSILE | PTYPE_SURFACE)) != 0);
+            // 检查目标类型是否符合条件（空中、地面、导弹、水面）
+            isEligible = surfacedSub ||
+                         ((ptarget->mpDBObject->mnType &
+                           (PTYPE_AIR | PTYPE_GROUND | PTYPE_MISSILE | PTYPE_SURFACE)) != 0);
 
-            if (isEligible && CanDetectTarget(ptarget, fRange_km)) 
+            // 如果目标符合条件且可被检测到，则更新跟踪
+            if (isEligible && CanDetectTarget(ptarget, fRange_km))
             {
                 UpdateTrack(ptarget, t);
                 return;
@@ -1015,28 +1102,12 @@ void tcRadar::UpdateSeeker(double t)
             }
         }
 
-		// shut down missile if target doesn't exist or can't detect
-		/*{
-            parent->SelfDestruct();
-            mcTrack.mnID = -1;
-#ifdef _DEBUG
-            if(simState->mpUserInfo->IsOwnAlliance(parent->GetAlliance())) 
-            {
-                char zBuff[128];
-				_snprintf(zBuff, 128, "Mis %d shut down (%s)\n", parent->mnID, parent->mzClass.c_str());
-                simState->mpCommandInterface->DisplayInfoMessage(zBuff);
-            }
-#endif
-            return;
-		}*/
-
-
+        // 如果目标不存在或无法检测到，则关闭导弹
         if (missile != 0)
         {
-            /* if range to target is close enough, assume this is a terminal missile
-            ** and ignore failed detection */
+            // 如果导弹接近目标，则强制更新跟踪
             const float terminalRange_km = 0.5f;
-            bool cheatUpdate = (ptarget != 0) && ((missile->RangeTo(*ptarget) < terminalRange_km) || (missile->msKState.mfFlightTime < 3.0f)); 
+            bool cheatUpdate = (ptarget != 0) && ((missile->RangeTo(*ptarget) < terminalRange_km) || (missile->msKState.mfFlightTime < 3.0f));
 
             if ((ptarget != 0) && isEligible && cheatUpdate)
             {
@@ -1044,16 +1115,19 @@ void tcRadar::UpdateSeeker(double t)
                 return;
             }
 
+            // 重置目标ID并设置导弹的航向和俯仰角
             mcTrack.mnID = -1;
             missile->goalHeading_rad = missile->mcKin.mfHeading_rad;
             missile->goalPitch_rad = missile->mcKin.mfPitch_rad;
 
+            // 检查导弹是否有分段导航
             bool hasSegments = (missile->mpDBObject->mnNumSegments > 0);
             bool datumLaunched = hasSegments && (missile->mpDBObject->maFlightProfile[0].meGuidanceMode == GM_NAV);
 
+            // 如果有分段导航，则进入搜索模式；否则自毁
             if (datumLaunched)
             {
-                mnMode = SSMODE_SEEKERSEARCH; 
+                mnMode = SSMODE_SEEKERSEARCH;
             }
             else
             {
@@ -1064,83 +1138,62 @@ void tcRadar::UpdateSeeker(double t)
         {
             parent->SelfDestruct();
         }
-        
-
-
-        // shut down missile if track lost for > 7 seconds
-        //if ((mnMode == SSMODE_SEEKERTRACK)&&
-        //    (t - mcTrack.mfTimestamp) > 7.0)
-        //{
-        //    parent->mfDamageLevel = 1.0f; 
-        //    mcTrack.mnID = NULL_INDEX;
-        //    if(simState->mpUserInfo->IsOwnAlliance(parent->GetAlliance())) 
-        //    {
-        //        char zBuff[128];
-        //        sprintf(zBuff,"Missile %d shut down\n", parent->mnID);
-        //        simState->mpCommandInterface->DisplayInfoMessage(zBuff);
-        //    }
-        //    return;
-        //}
-
-        // this code to enter search mode after track lost
 
         break;
-    case SSMODE_SEEKERSEARCH:
+
+    case SSMODE_SEEKERSEARCH: // 搜索模式
+    {
+        // 获取搜索区域
+        tcGeoRect region;
+        GetTestArea(region);
+
+        tcGameObjIterator iter(region);
+        float minRange = 1e15f;
+        float maxRCS = -12345.0f;
+        long minID = NULL_INDEX;
+
+        // 查找可检测到的最近目标
+        for (iter.First(); iter.NotDone(); iter.Next())
         {
-            // get list of candidate tracks/detections
-            tcGeoRect region;   
-            GetTestArea(region);
-
-            tcGameObjIterator iter(region);
-            float minRange = 1e15f;
-            float maxRCS = -12345.0f;
-            long minID = NULL_INDEX;
-
-            // find closest detectable target
-            for (iter.First();iter.NotDone();iter.Next())
+            std::shared_ptr<tcGameObject> target = iter.Get();
+            if (target != parent) // 不检测自身
             {
-                std::shared_ptr<tcGameObject>target = iter.Get();
-                if (target != parent) // no self detection
+                float range_km = 0;
+                bool bDetected = CanDetectTarget(target, range_km);
+                float rcs_dBsm = lastTargetRCS_dBsm;
+
+                bDetected = bDetected && (range_km > 1.0f); // 不允许在1.0公里范围内锁定
+
+                bool targetPreferred = (range_km < minRange) ||
+                                       ((range_km < minRange + 1.0f) && (rcs_dBsm > maxRCS));
+
+                if (bDetected && targetPreferred)
                 {
-                    float range_km = 0;
-                    /* Substitute this to disable own-alliance seeker detections:
-                    ** bool bDetected = (parent->GetAlliance() != target->GetAlliance()) &&
-                    **    CanDetectTarget(target,range_km);
-                    */
-                    bool bDetected = CanDetectTarget(target, range_km);
-                    float rcs_dBsm = lastTargetRCS_dBsm;
-
-                    bDetected = bDetected && (range_km > 1.0f); // don't allow lock inside 1.0 km range
-
-                    bool targetPreferred = (range_km < minRange) ||
-                        ((range_km < minRange + 1.0f) && (rcs_dBsm > maxRCS));
-
-                    if (bDetected && targetPreferred)
-                    {
-                        minID = target->mnID;
-                        minRange = range_km;
-                        maxRCS = rcs_dBsm;
-                    }
+                    minID = target->mnID;
+                    minRange = range_km;
+                    maxRCS = rcs_dBsm;
                 }
             }
-           
-            if (minID==NULL_INDEX) return; // no targets found
-
-            // if seeker has locked on a countermeasure, roll against the effectiveness * cm_factor to start a track
-            if (std::shared_ptr<tcAirCM> airCM =  std::dynamic_pointer_cast<tcAirCM>(simState->GetObject(minID)))
-            {
-                float prob_success = mpDBObj->counterMeasureFactor * airCM->mpDBObject->effectiveness;
-                if (randf() > prob_success)
-                {
-                    return; // CM rejected
-                }
-            }
-
-            parent->DesignateTarget(minID); // select closest as target
         }
+
+        // 如果未找到目标，则返回
+        if (minID == NULL_INDEX) return;
+
+        // 如果导引头锁定的是对抗措施，则根据概率决定是否开始跟踪
+        if (std::shared_ptr<tcAirCM> airCM = std::dynamic_pointer_cast<tcAirCM>(simState->GetObject(minID)))
+        {
+            float prob_success = mpDBObj->counterMeasureFactor * airCM->mpDBObject->effectiveness;
+            if (randf() > prob_success)
+            {
+                return; // 对抗措施被拒绝
+            }
+        }
+
+        // 选择最近的目标作为目标
+        parent->DesignateTarget(minID);
+    }
     }
 }
-
 /**
 * Called after a surveillance detection to update sensor map for
 * appropriate alliance.

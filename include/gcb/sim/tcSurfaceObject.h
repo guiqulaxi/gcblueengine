@@ -50,22 +50,22 @@ class tcSurfaceObject : public tcPlatformObject
 public:
     std::shared_ptr<tcShipDBObject> mpDBObject;
 
-	virtual void Clear();
+    virtual void Clear() override;
 
-	virtual float GetSonarSourceLevel(float az_deg) const;
-	virtual bool IsDestroyed();
-	virtual void RandInitNear(float afLon_deg, float afLat_deg);
-	virtual void Update(double afStatusTime);
+    virtual float GetSonarSourceLevel(float az_deg) const override;
+    virtual bool IsDestroyed() override;
+    virtual void RandInitNear(float afLon_deg, float afLat_deg)override;
+    virtual void Update(double afStatusTime)override;
     //virtual void UpdateEffects();
-	virtual void UpdateHeading(float dt_s);
+    virtual void UpdateHeading(float dt_s)override;
 
-	void PrintToFile(tcFile& file);
+    void PrintToFile(tcFile& file)override;
 	void SaveToFile(tcFile& file) override;
-	void LoadFromFile(tcFile& file);
-	virtual void Serialize(tcFile& file, bool mbLoad);
+    void LoadFromFile(tcFile& file) override;
+    virtual void Serialize(tcFile& file, bool mbLoad)override;
 
-    virtual float GetOpticalCrossSection(float view_alt_m, float view_dist_km) const;
-    virtual float GetIRSignature(float az_deg) const;
+    virtual float GetOpticalCrossSection(float view_alt_m, float view_dist_km) const override;
+    virtual float GetIRSignature(float az_deg) const override ;
 
     const std::deque<tcPoint>& GetPositionHistory() const;
     bool IsNearWake(const tcPoint& pos, float distance_m, tcPoint& nextPos, size_t& leg) const;

@@ -168,266 +168,556 @@ tcGameStream& tcTorpedoObject::operator>>(tcGameStream& stream)
 */
 void tcTorpedoObject::LaunchFrom(std::shared_ptr<tcGameObject> obj, unsigned nLauncher)
 {
-    isWireActive = false;
-    autoWireUpdates = true;
+    // 初始化鱼雷状态
+    isWireActive = false; // 鱼雷的线导功能初始为关闭状态
+    autoWireUpdates = true; // 自动更新线导状态
 
-    // tcLauncher virtualLauncher; // for missile deployment
-    // std::shared_ptr<tcLauncher> pLauncher = &virtualLauncher;
+    // 创建一个虚拟发射器
     std::shared_ptr<tcLauncher> pLauncher = std::make_shared<tcLauncher>();
+
+    // 检查发射平台是否为tcPlatformObject类型（如舰船、潜艇等）
     if (std::shared_ptr<tcPlatformObject> platObj = std::dynamic_pointer_cast<tcPlatformObject>(obj))
     {
+        // 获取发射器的位置
         tc3DPoint launcherPos = platObj->mpDBObject->GetLauncherPosition(nLauncher);
-        GeoPoint pos = obj->RelPosToLatLonAlt(launcherPos.x, launcherPos.y,
-                                              launcherPos.z);
-        mcKin.mfLon_rad = pos.mfLon_rad;
-        mcKin.mfLat_rad = pos.mfLat_rad;
-        mcKin.mfAlt_m = pos.mfAlt_m;
+        // 将发射器的相对位置转换为地理坐标（经度、纬度、高度）
+        GeoPoint pos = obj->RelPosToLatLonAlt(launcherPos.x, launcherPos.y, launcherPos.z);
+        mcKin.mfLon_rad = pos.mfLon_rad; // 设置鱼雷的经度
+        mcKin.mfLat_rad = pos.mfLat_rad; // 设置鱼雷的纬度
+        mcKin.mfAlt_m = pos.mfAlt_m; // 设置鱼雷的高度
 
+        // 获取发射器对象
         pLauncher = obj->GetLauncher(nLauncher);
 
+        // 如果鱼雷在水下发射
         if (mcKin.mfAlt_m <= 0)
         {
-             std::shared_ptr<tcSonarDBObject> sonar = mpDBObject->GetSeekerDBObj();
-            
+            // 获取鱼雷的声纳数据库对象
+            std::shared_ptr<tcSonarDBObject> sonar = mpDBObject->GetSeekerDBObj();
+
+            // 设置鱼雷的速度为发射平台速度加上鱼雷的发射速度
             mcKin.mfSpeed_kts = obj->mcKin.mfSpeed_kts + C_MPSTOKTS * mpDBObject->launchSpeed_mps;
 
+            // 根据声纳属性设置搜索模式
             if ((sonar != 0) && ((sonar->isWakeHoming) || (sonar->mfMaxRange_km <= 0.1f)))
             {
-                searchMode = SEARCH_STRAIGHT;
+                searchMode = SEARCH_STRAIGHT; // 直航搜索模式
             }
             else
             {
-                searchMode = SEARCH_SNAKE;
+                searchMode = SEARCH_SNAKE; // 蛇形搜索模式
             }
-            isWireActive = mpDBObject->wireGuidance;
+            isWireActive = mpDBObject->wireGuidance; // 根据数据库设置是否启用线导
         }
-        else // air launched
+        else // 如果鱼雷在空中发射
         {
-            mcKin.mfSpeed_kts = obj->mcKin.mfSpeed_kts;
-            searchMode = randbool() ? SEARCH_LEFTCIRCLE : SEARCH_RIGHTCIRCLE;
+            mcKin.mfSpeed_kts = obj->mcKin.mfSpeed_kts; // 设置鱼雷速度为发射平台速度
+            searchMode = randbool() ? SEARCH_LEFTCIRCLE : SEARCH_RIGHTCIRCLE; // 随机选择左旋或右旋搜索模式
         }
     }
-    else if (std::shared_ptr<tcMissileObject> missile =  std::dynamic_pointer_cast<tcMissileObject>(obj))
+    // 检查发射平台是否为导弹类型
+    else if (std::shared_ptr<tcMissileObject> missile = std::dynamic_pointer_cast<tcMissileObject>(obj))
     {
+        // 设置鱼雷的位置为导弹的位置
         mcKin.mfLon_rad = obj->mcKin.mfLon_rad;
         mcKin.mfLat_rad = obj->mcKin.mfLat_rad;
         mcKin.mfAlt_m = obj->mcKin.mfAlt_m;
 
+        // 设置发射器的参数
         pLauncher->pointingAngle = 0;
         pLauncher->pointingElevation = 0;
         pLauncher->firingArc_deg = 0;
         pLauncher->runToEnable_m = 0;
-        pLauncher->msDatum = missile->msWaypoint;
+        pLauncher->msDatum = missile->msWaypoint; // 设置目标点为导弹的航路点
         pLauncher->runDepth_m = 0;
         pLauncher->preEnableSpeed_kts = 35.0f;
         pLauncher->ceiling_m = 0;
         pLauncher->floor_m = 0;
         pLauncher->usePassive = false;
-        pLauncher->mnTargetID = missile->GetIntendedTarget();
+        pLauncher->mnTargetID = missile->GetIntendedTarget(); // 设置目标ID为导弹的预定目标
 
-        mcKin.mfSpeed_kts = obj->mcKin.mfSpeed_kts;
-        searchMode = randbool() ? SEARCH_LEFTCIRCLE : SEARCH_RIGHTCIRCLE;
+        mcKin.mfSpeed_kts = obj->mcKin.mfSpeed_kts; // 设置鱼雷速度为导弹速度
+        searchMode = randbool() ? SEARCH_LEFTCIRCLE : SEARCH_RIGHTCIRCLE; // 随机选择左旋或右旋搜索模式
     }
+    // 检查发射平台是否为鱼雷类型
     else if (std::shared_ptr<tcTorpedoObject> torpedo = std::dynamic_pointer_cast<tcTorpedoObject>(obj))
     {
+        // 设置鱼雷的位置为发射鱼雷的位置
         mcKin.mfLon_rad = obj->mcKin.mfLon_rad;
         mcKin.mfLat_rad = obj->mcKin.mfLat_rad;
         mcKin.mfAlt_m = obj->mcKin.mfAlt_m;
 
+        // 设置发射器的参数
         pLauncher->pointingAngle = 0;
         pLauncher->pointingElevation = 0;
-        pLauncher->runToEnable_m = 1.0; // start enabled
-        pLauncher->msDatum = torpedo->waypoint;
-        pLauncher->runDepth_m = torpedo->goalDepth_m;
+        pLauncher->runToEnable_m = 1.0; // 启动时启用
+        pLauncher->msDatum = torpedo->waypoint; // 设置目标点为鱼雷的航路点
+        pLauncher->runDepth_m = torpedo->goalDepth_m; // 设置运行深度为鱼雷的目标深度
         pLauncher->preEnableSpeed_kts = 35.0f;
         pLauncher->ceiling_m = 0;
         pLauncher->floor_m = 0;
         pLauncher->usePassive = false;
-        pLauncher->mnTargetID = torpedo->GetIntendedTarget();
+        pLauncher->mnTargetID = torpedo->GetIntendedTarget(); // 设置目标ID为鱼雷的预定目标
 
-        mcKin.mfSpeed_kts = obj->mcKin.mfSpeed_kts + C_MPSTOKTS * mpDBObject->launchSpeed_mps;
-        searchMode = randbool() ? SEARCH_LEFTCIRCLE : SEARCH_RIGHTCIRCLE;
+        mcKin.mfSpeed_kts = obj->mcKin.mfSpeed_kts + C_MPSTOKTS * mpDBObject->launchSpeed_mps; // 设置鱼雷速度
+        searchMode = randbool() ? SEARCH_LEFTCIRCLE : SEARCH_RIGHTCIRCLE; // 随机选择左旋或右旋搜索模式
     }
-    else if (std::shared_ptr<tcBallisticWeapon> ballistic =  std::dynamic_pointer_cast<tcBallisticWeapon>(obj))
+    // 检查发射平台是否为弹道武器类型
+    else if (std::shared_ptr<tcBallisticWeapon> ballistic = std::dynamic_pointer_cast<tcBallisticWeapon>(obj))
     {
+        // 设置鱼雷的位置为弹道武器的位置
         mcKin.mfLon_rad = obj->mcKin.mfLon_rad;
         mcKin.mfLat_rad = obj->mcKin.mfLat_rad;
         mcKin.mfAlt_m = obj->mcKin.mfAlt_m;
-        mcKin.mfSpeed_kts = obj->mcKin.mfSpeed_kts + C_MPSTOKTS * mpDBObject->launchSpeed_mps;
+        mcKin.mfSpeed_kts = obj->mcKin.mfSpeed_kts + C_MPSTOKTS * mpDBObject->launchSpeed_mps; // 设置鱼雷速度
 
+        // 设置发射器的参数
         pLauncher->pointingAngle = 0;
         pLauncher->pointingElevation = 0;
-        pLauncher->runToEnable_m = 1.0; // start enabled
-        pLauncher->msDatum.Set(mcKin.mfLon_rad, mcKin.mfLat_rad, 0);
+        pLauncher->runToEnable_m = 1.0; // 启动时启用
+        pLauncher->msDatum.Set(mcKin.mfLon_rad, mcKin.mfLat_rad, 0); // 设置目标点为当前位置
         pLauncher->runDepth_m = 0;
         pLauncher->preEnableSpeed_kts = 35.0f;
         pLauncher->ceiling_m = 0;
         pLauncher->floor_m = 0;
         pLauncher->usePassive = false;
-        pLauncher->mnTargetID = ballistic->GetIntendedTarget();
+        pLauncher->mnTargetID = ballistic->GetIntendedTarget(); // 设置目标ID为弹道武器的预定目标
 
-        if (ballistic->mpDBObject->payloadQuantity > 1) // assume this is a RBU type
+        // 如果是RBU类型的武器，随机调整发射角度
+        if (ballistic->mpDBObject->payloadQuantity > 1)
         {
             pLauncher->pointingAngle += randfc(1.0f);
             pLauncher->pointingElevation += randfc(0.1f);
         }
     }
+    // 如果发射平台类型无效，输出错误信息并返回
     else
     {
         assert(false);
-        fprintf(stderr, "tcTorpedoObject::LaunchFrom - Launched from invalid platform (%s)\n",
-                obj->GetName());
+        fprintf(stderr, "tcTorpedoObject::LaunchFrom - Launched from invalid platform (%s)\n", obj->GetName());
         return;
     }
 
-    // added this for unguided torpedo modeling, 11 APR 2011
-    if (seeker == 0) // straight run if no seeker
+    // 如果鱼雷没有寻的器，设置为直航模式
+    if (seeker == 0)
     {
         searchMode = SEARCH_STRAIGHT;
     }
 
-
-
+    // 设置鱼雷的航向、俯仰角和爬升角
     mcKin.mfHeading_rad = obj->mcKin.mfHeading_rad + pLauncher->pointingAngle;
     mcKin.mfPitch_rad = obj->mcKin.mfPitch_rad + pLauncher->pointingElevation;
     mcKin.mfClimbAngle_rad = mcKin.mfPitch_rad;
 
+    // 设置鱼雷的航路点
     waypoint = pLauncher->msDatum;
 
+    // 计算目标航向
     goalHeading_rad = mcKin.HeadingToGeoRad(&waypoint);
+
+    // 设置鱼雷的启用距离
     if (pLauncher->runToEnable_m > 0)
     {
         runToEnable_m = pLauncher->runToEnable_m;
     }
     else if (mpDBObject->payloadClass.size() == 0)
     {
-        runToEnable_m = 500.0f * mcKin.RangeToKm(&waypoint); // enable halfway to waypoint
+        runToEnable_m = 500.0f * mcKin.RangeToKm(&waypoint); // 如果鱼雷没有载荷，启用距离为到航路点距离的一半
     }
-    else // has payload
+    else // 如果鱼雷有载荷
     {
-        runToEnable_m = 1000.0f * mcKin.RangeToKm(&waypoint); // set run to enable to deploy payload at waypoint
+        runToEnable_m = 1000.0f * mcKin.RangeToKm(&waypoint); // 设置启用距离为到航路点的距离
     }
 
+    // 设置鱼雷的运行深度
     if (pLauncher->runDepth_m > 0)
     {
         goalDepth_m = pLauncher->runDepth_m;
     }
-    else if (mpDBObject->weaponType == tcTorpedoDBObject::TORPEDO)  // run depth not specified
+    else if (mpDBObject->weaponType == tcTorpedoDBObject::TORPEDO)  // 如果运行深度未指定且鱼雷类型为普通鱼雷
     {
-        // set run depth based on target classification
+        // 根据目标分类设置运行深度
         tcTrack track;
         bool found = simState->mcSensorMap.GetTrack(pLauncher->mnTargetID, track, obj->GetAlliance());
         if (found && (track.mnClassification != 0))
         {
-            if (track.IsSurface())
+            if (track.IsSurface()) // 如果目标是水面目标
             {
-                goalDepth_m = 5.0f;
+                goalDepth_m = 5.0f; // 设置深度为5米
             }
-            else if (track.IsSub())
+            else if (track.IsSub()) // 如果目标是潜艇
             {
-                if ((track.mnFlags & TRACK_ALT_VALID) != 0)
+                if ((track.mnFlags & TRACK_ALT_VALID) != 0) // 如果目标高度有效
                 {
-                    goalDepth_m = -track.mfAlt_m;
+                    goalDepth_m = -track.mfAlt_m; // 设置深度为目标高度
                 }
-                else
+                else // 如果目标高度无效
                 {
+                    // 获取地形高度并计算最大深度
                     float terrain_m = tcMapData::Get()->GetTerrainHeight(
                         C_180OVERPI*obj->mcKin.mfLon_rad, C_180OVERPI*obj->mcKin.mfLat_rad, obj->mfStatusTime);
                     float maxDepth_m = std::min(-terrain_m - 15.0f, mpDBObject->maxDepth_m);
                     maxDepth_m = std::max(maxDepth_m, 10.0f);
-                    goalDepth_m = ((maxDepth_m - 10.0f) * randf()) + 10.0f; // randomly pick a depth
+                    goalDepth_m = ((maxDepth_m - 10.0f) * randf()) + 10.0f; // 随机选择一个深度
                 }
             }
         }
-        else
+        else // 如果目标未找到或分类无效
         {
-            bool subValid = (mpDBObject->targetFlags & SUBSURFACE_TARGET) != 0;
-            bool surfaceValid = (mpDBObject->targetFlags & SURFACE_TARGET) != 0;
+            bool subValid = (mpDBObject->targetFlags & SUBSURFACE_TARGET) != 0; // 检查鱼雷是否可以攻击水下目标
+            bool surfaceValid = (mpDBObject->targetFlags & SURFACE_TARGET) != 0; // 检查鱼雷是否可以攻击水面目标
 
-            if (surfaceValid && !subValid)
+            if (surfaceValid && !subValid) // 如果只能攻击水面目标
             {
-                goalDepth_m = 5.0f;
+                goalDepth_m = 5.0f; // 设置深度为5米
             }
-            else
+            else // 如果可以攻击水下目标
             {
+                // 获取地形高度并计算最大深度
                 float terrain_m = tcMapData::Get()->GetTerrainHeight(
                     C_180OVERPI*obj->mcKin.mfLon_rad, C_180OVERPI*obj->mcKin.mfLat_rad, obj->mfStatusTime);
                 float maxDepth_m = std::min(-terrain_m - 15.0f, mpDBObject->maxDepth_m);
                 maxDepth_m = std::max(maxDepth_m, 10.0f);
-                goalDepth_m = ((maxDepth_m - 10.0f) * randf()) + 10.0f; // randomly pick a depth
+                goalDepth_m = ((maxDepth_m - 10.0f) * randf()) + 10.0f; // 随机选择一个深度
             }
         }
     }
-    else // mine or depth charge
+    else // 如果鱼雷是水雷或深水炸弹
     {
+        // 获取地形高度并计算最大深度
         float terrain_m = tcMapData::Get()->GetTerrainHeight(
             C_180OVERPI*obj->mcKin.mfLon_rad, C_180OVERPI*obj->mcKin.mfLat_rad, obj->mfStatusTime);
         float maxDepth_m = std::min(-terrain_m - 50.0f, mpDBObject->maxDepth_m);
         maxDepth_m = std::max(maxDepth_m, 100.0f);
-        goalDepth_m = ((maxDepth_m - 100.0f) * randf()) + 100.0f; // randomly pick a depth
+        goalDepth_m = ((maxDepth_m - 100.0f) * randf()) + 100.0f; // 随机选择一个深度
     }
 
-    // keep off bottom and surface
+    // 确保鱼雷不触底或浮出水面
     float bottom_m = -obj->mcTerrain.mfHeight_m;
     goalDepth_m = std::max(std::min(goalDepth_m, bottom_m - 15.0f), 5.0f);
 
-    // limit speed to 10 - max_speed
+    // 限制鱼雷速度在10节到最大速度之间
     goalSpeed_kts = std::max(std::min(pLauncher->preEnableSpeed_kts, mpDBObject->maxSpeed_kts), 10.0f);
 
+    // 设置鱼雷的顶板和底板高度
     ceiling_m = pLauncher->ceiling_m;
-    
+
     if (floor_m > 0)
     {
         floor_m = pLauncher->floor_m;
     }
     else
     {
-        floor_m = 8096.0f;
+        floor_m = 8096.0f; // 默认底板高度为8096米
     }
 
-
+    // 如果鱼雷是CAPTOR水雷且没有载荷，输出错误信息并返回
     if (mpDBObject->weaponType == tcTorpedoDBObject::BOTTOM_MINE_CAPTOR)
     {
         if (mpDBObject->payloadClass.size() == 0)
         {
-            fprintf(stderr, "tcTorpedoObject::LaunchFrom - CAPTOR has no payload (%s)\n",
-                    mpDBObject->mzClass.c_str());
+            fprintf(stderr, "tcTorpedoObject::LaunchFrom - CAPTOR has no payload (%s)\n", mpDBObject->mzClass.c_str());
             return;
         }
     }
 
-
+    // 设置鱼雷的状态时间为发射平台的状态时间
     mfStatusTime = obj->mfStatusTime;
 
-    battery_kJ = mpDBObject->battery_kJ; // start with full battery charge
+    // 初始化鱼雷的电池电量
+    battery_kJ = mpDBObject->battery_kJ;
 
+    // 如果鱼雷有寻的器，设置其工作模式
     if (seeker != 0)
     {
-        if (pLauncher->usePassive)
+        if (pLauncher->usePassive) // 如果使用被动声纳
         {
             seeker->SetPassiveSonar();
         }
-        else
+        else // 如果使用主动声纳
         {
             seeker->SetActiveSonar();
         }
 
-        seeker->mnMode = SSMODE_SEEKERSEARCH;
-        seeker->SetActive(false); // override default for passive to always be active
+        seeker->mnMode = SSMODE_SEEKERSEARCH; // 设置寻的模式为搜索模式
+        seeker->SetActive(false); // 覆盖默认设置，确保被动模式不总是激活
     }
 
+    // 设置鱼雷的单元名称
     std::string s = strutil::format("Torp %d-%d", obj->mnID, launchedCounter++);
-    mzUnit = s.c_str();      
+    mzUnit = s.c_str();
 
+    // 设置鱼雷的阵营为发射平台的阵营
     SetAlliance(obj->GetAlliance());
 
+    // 将鱼雷添加到仿真状态中
     simState->AddPlatform(shared_from_this());
 
-    // Set intended target (has to be done after alliance and id is set).
-    // This is a tcWeaponObject method
+    // 设置鱼雷的预定目标（必须在设置阵营和ID之后调用）
     SetIntendedTarget(pLauncher->mnTargetID);
-
 }
+// void tcTorpedoObject::LaunchFrom(std::shared_ptr<tcGameObject> obj, unsigned nLauncher)
+// {
+//     isWireActive = false;
+//     autoWireUpdates = true;
+
+//     // tcLauncher virtualLauncher; // for missile deployment
+//     // std::shared_ptr<tcLauncher> pLauncher = &virtualLauncher;
+//     std::shared_ptr<tcLauncher> pLauncher = std::make_shared<tcLauncher>();
+//     if (std::shared_ptr<tcPlatformObject> platObj = std::dynamic_pointer_cast<tcPlatformObject>(obj))
+//     {
+//         tc3DPoint launcherPos = platObj->mpDBObject->GetLauncherPosition(nLauncher);
+//         GeoPoint pos = obj->RelPosToLatLonAlt(launcherPos.x, launcherPos.y,
+//                                               launcherPos.z);
+//         mcKin.mfLon_rad = pos.mfLon_rad;
+//         mcKin.mfLat_rad = pos.mfLat_rad;
+//         mcKin.mfAlt_m = pos.mfAlt_m;
+
+//         pLauncher = obj->GetLauncher(nLauncher);
+
+//         if (mcKin.mfAlt_m <= 0)
+//         {
+//              std::shared_ptr<tcSonarDBObject> sonar = mpDBObject->GetSeekerDBObj();
+            
+//             mcKin.mfSpeed_kts = obj->mcKin.mfSpeed_kts + C_MPSTOKTS * mpDBObject->launchSpeed_mps;
+
+//             if ((sonar != 0) && ((sonar->isWakeHoming) || (sonar->mfMaxRange_km <= 0.1f)))
+//             {
+//                 searchMode = SEARCH_STRAIGHT;
+//             }
+//             else
+//             {
+//                 searchMode = SEARCH_SNAKE;
+//             }
+//             isWireActive = mpDBObject->wireGuidance;
+//         }
+//         else // air launched
+//         {
+//             mcKin.mfSpeed_kts = obj->mcKin.mfSpeed_kts;
+//             searchMode = randbool() ? SEARCH_LEFTCIRCLE : SEARCH_RIGHTCIRCLE;
+//         }
+//     }
+//     else if (std::shared_ptr<tcMissileObject> missile =  std::dynamic_pointer_cast<tcMissileObject>(obj))
+//     {
+//         mcKin.mfLon_rad = obj->mcKin.mfLon_rad;
+//         mcKin.mfLat_rad = obj->mcKin.mfLat_rad;
+//         mcKin.mfAlt_m = obj->mcKin.mfAlt_m;
+
+//         pLauncher->pointingAngle = 0;
+//         pLauncher->pointingElevation = 0;
+//         pLauncher->firingArc_deg = 0;
+//         pLauncher->runToEnable_m = 0;
+//         pLauncher->msDatum = missile->msWaypoint;
+//         pLauncher->runDepth_m = 0;
+//         pLauncher->preEnableSpeed_kts = 35.0f;
+//         pLauncher->ceiling_m = 0;
+//         pLauncher->floor_m = 0;
+//         pLauncher->usePassive = false;
+//         pLauncher->mnTargetID = missile->GetIntendedTarget();
+
+//         mcKin.mfSpeed_kts = obj->mcKin.mfSpeed_kts;
+//         searchMode = randbool() ? SEARCH_LEFTCIRCLE : SEARCH_RIGHTCIRCLE;
+//     }
+//     else if (std::shared_ptr<tcTorpedoObject> torpedo = std::dynamic_pointer_cast<tcTorpedoObject>(obj))
+//     {
+//         mcKin.mfLon_rad = obj->mcKin.mfLon_rad;
+//         mcKin.mfLat_rad = obj->mcKin.mfLat_rad;
+//         mcKin.mfAlt_m = obj->mcKin.mfAlt_m;
+
+//         pLauncher->pointingAngle = 0;
+//         pLauncher->pointingElevation = 0;
+//         pLauncher->runToEnable_m = 1.0; // start enabled
+//         pLauncher->msDatum = torpedo->waypoint;
+//         pLauncher->runDepth_m = torpedo->goalDepth_m;
+//         pLauncher->preEnableSpeed_kts = 35.0f;
+//         pLauncher->ceiling_m = 0;
+//         pLauncher->floor_m = 0;
+//         pLauncher->usePassive = false;
+//         pLauncher->mnTargetID = torpedo->GetIntendedTarget();
+
+//         mcKin.mfSpeed_kts = obj->mcKin.mfSpeed_kts + C_MPSTOKTS * mpDBObject->launchSpeed_mps;
+//         searchMode = randbool() ? SEARCH_LEFTCIRCLE : SEARCH_RIGHTCIRCLE;
+//     }
+//     else if (std::shared_ptr<tcBallisticWeapon> ballistic =  std::dynamic_pointer_cast<tcBallisticWeapon>(obj))
+//     {
+//         mcKin.mfLon_rad = obj->mcKin.mfLon_rad;
+//         mcKin.mfLat_rad = obj->mcKin.mfLat_rad;
+//         mcKin.mfAlt_m = obj->mcKin.mfAlt_m;
+//         mcKin.mfSpeed_kts = obj->mcKin.mfSpeed_kts + C_MPSTOKTS * mpDBObject->launchSpeed_mps;
+
+//         pLauncher->pointingAngle = 0;
+//         pLauncher->pointingElevation = 0;
+//         pLauncher->runToEnable_m = 1.0; // start enabled
+//         pLauncher->msDatum.Set(mcKin.mfLon_rad, mcKin.mfLat_rad, 0);
+//         pLauncher->runDepth_m = 0;
+//         pLauncher->preEnableSpeed_kts = 35.0f;
+//         pLauncher->ceiling_m = 0;
+//         pLauncher->floor_m = 0;
+//         pLauncher->usePassive = false;
+//         pLauncher->mnTargetID = ballistic->GetIntendedTarget();
+
+//         if (ballistic->mpDBObject->payloadQuantity > 1) // assume this is a RBU type
+//         {
+//             pLauncher->pointingAngle += randfc(1.0f);
+//             pLauncher->pointingElevation += randfc(0.1f);
+//         }
+//     }
+//     else
+//     {
+//         assert(false);
+//         fprintf(stderr, "tcTorpedoObject::LaunchFrom - Launched from invalid platform (%s)\n",
+//                 obj->GetName());
+//         return;
+//     }
+
+//     // added this for unguided torpedo modeling, 11 APR 2011
+//     if (seeker == 0) // straight run if no seeker
+//     {
+//         searchMode = SEARCH_STRAIGHT;
+//     }
+
+
+
+//     mcKin.mfHeading_rad = obj->mcKin.mfHeading_rad + pLauncher->pointingAngle;
+//     mcKin.mfPitch_rad = obj->mcKin.mfPitch_rad + pLauncher->pointingElevation;
+//     mcKin.mfClimbAngle_rad = mcKin.mfPitch_rad;
+
+//     waypoint = pLauncher->msDatum;
+
+//     goalHeading_rad = mcKin.HeadingToGeoRad(&waypoint);
+//     if (pLauncher->runToEnable_m > 0)
+//     {
+//         runToEnable_m = pLauncher->runToEnable_m;
+//     }
+//     else if (mpDBObject->payloadClass.size() == 0)
+//     {
+//         runToEnable_m = 500.0f * mcKin.RangeToKm(&waypoint); // enable halfway to waypoint
+//     }
+//     else // has payload
+//     {
+//         runToEnable_m = 1000.0f * mcKin.RangeToKm(&waypoint); // set run to enable to deploy payload at waypoint
+//     }
+
+//     if (pLauncher->runDepth_m > 0)
+//     {
+//         goalDepth_m = pLauncher->runDepth_m;
+//     }
+//     else if (mpDBObject->weaponType == tcTorpedoDBObject::TORPEDO)  // run depth not specified
+//     {
+//         // set run depth based on target classification
+//         tcTrack track;
+//         bool found = simState->mcSensorMap.GetTrack(pLauncher->mnTargetID, track, obj->GetAlliance());
+//         if (found && (track.mnClassification != 0))
+//         {
+//             if (track.IsSurface())
+//             {
+//                 goalDepth_m = 5.0f;
+//             }
+//             else if (track.IsSub())
+//             {
+//                 if ((track.mnFlags & TRACK_ALT_VALID) != 0)
+//                 {
+//                     goalDepth_m = -track.mfAlt_m;
+//                 }
+//                 else
+//                 {
+//                     float terrain_m = tcMapData::Get()->GetTerrainHeight(
+//                         C_180OVERPI*obj->mcKin.mfLon_rad, C_180OVERPI*obj->mcKin.mfLat_rad, obj->mfStatusTime);
+//                     float maxDepth_m = std::min(-terrain_m - 15.0f, mpDBObject->maxDepth_m);
+//                     maxDepth_m = std::max(maxDepth_m, 10.0f);
+//                     goalDepth_m = ((maxDepth_m - 10.0f) * randf()) + 10.0f; // randomly pick a depth
+//                 }
+//             }
+//         }
+//         else
+//         {
+//             bool subValid = (mpDBObject->targetFlags & SUBSURFACE_TARGET) != 0;
+//             bool surfaceValid = (mpDBObject->targetFlags & SURFACE_TARGET) != 0;
+
+//             if (surfaceValid && !subValid)
+//             {
+//                 goalDepth_m = 5.0f;
+//             }
+//             else
+//             {
+//                 float terrain_m = tcMapData::Get()->GetTerrainHeight(
+//                     C_180OVERPI*obj->mcKin.mfLon_rad, C_180OVERPI*obj->mcKin.mfLat_rad, obj->mfStatusTime);
+//                 float maxDepth_m = std::min(-terrain_m - 15.0f, mpDBObject->maxDepth_m);
+//                 maxDepth_m = std::max(maxDepth_m, 10.0f);
+//                 goalDepth_m = ((maxDepth_m - 10.0f) * randf()) + 10.0f; // randomly pick a depth
+//             }
+//         }
+//     }
+//     else // mine or depth charge
+//     {
+//         float terrain_m = tcMapData::Get()->GetTerrainHeight(
+//             C_180OVERPI*obj->mcKin.mfLon_rad, C_180OVERPI*obj->mcKin.mfLat_rad, obj->mfStatusTime);
+//         float maxDepth_m = std::min(-terrain_m - 50.0f, mpDBObject->maxDepth_m);
+//         maxDepth_m = std::max(maxDepth_m, 100.0f);
+//         goalDepth_m = ((maxDepth_m - 100.0f) * randf()) + 100.0f; // randomly pick a depth
+//     }
+
+//     // keep off bottom and surface
+//     float bottom_m = -obj->mcTerrain.mfHeight_m;
+//     goalDepth_m = std::max(std::min(goalDepth_m, bottom_m - 15.0f), 5.0f);
+
+//     // limit speed to 10 - max_speed
+//     goalSpeed_kts = std::max(std::min(pLauncher->preEnableSpeed_kts, mpDBObject->maxSpeed_kts), 10.0f);
+
+//     ceiling_m = pLauncher->ceiling_m;
+    
+//     if (floor_m > 0)
+//     {
+//         floor_m = pLauncher->floor_m;
+//     }
+//     else
+//     {
+//         floor_m = 8096.0f;
+//     }
+
+
+//     if (mpDBObject->weaponType == tcTorpedoDBObject::BOTTOM_MINE_CAPTOR)
+//     {
+//         if (mpDBObject->payloadClass.size() == 0)
+//         {
+//             fprintf(stderr, "tcTorpedoObject::LaunchFrom - CAPTOR has no payload (%s)\n",
+//                     mpDBObject->mzClass.c_str());
+//             return;
+//         }
+//     }
+
+
+//     mfStatusTime = obj->mfStatusTime;
+
+//     battery_kJ = mpDBObject->battery_kJ; // start with full battery charge
+
+//     if (seeker != 0)
+//     {
+//         if (pLauncher->usePassive)
+//         {
+//             seeker->SetPassiveSonar();
+//         }
+//         else
+//         {
+//             seeker->SetActiveSonar();
+//         }
+
+//         seeker->mnMode = SSMODE_SEEKERSEARCH;
+//         seeker->SetActive(false); // override default for passive to always be active
+//     }
+
+//     std::string s = strutil::format("Torp %d-%d", obj->mnID, launchedCounter++);
+//     mzUnit = s.c_str();
+
+//     SetAlliance(obj->GetAlliance());
+
+//     simState->AddPlatform(shared_from_this());
+
+//     // Set intended target (has to be done after alliance and id is set).
+//     // This is a tcWeaponObject method
+//     SetIntendedTarget(pLauncher->mnTargetID);
+
+// }
 
 /**
 * @return time remaining in seconds based on current fuel consumption
