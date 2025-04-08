@@ -43,6 +43,9 @@
 #include "tcSurfaceObject.h"
 #include "tcSubObject.h"
 
+#include <assert.h>
+#include <assert.h>
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif 

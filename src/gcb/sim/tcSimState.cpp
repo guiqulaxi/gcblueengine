@@ -93,7 +93,7 @@
 #include "tcWeaponTester.h"
 #include "tcEventManager.h"
 #include "tcSpaceObject.h"
-
+#include <assert.h>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif

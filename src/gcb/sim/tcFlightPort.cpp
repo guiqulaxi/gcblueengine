@@ -51,6 +51,8 @@
 #include "tcOptions.h"
 // #include "scriptinterface/tcPlatformInterface.h"
 #include "strutil.h"
+
+#include <assert.h>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif

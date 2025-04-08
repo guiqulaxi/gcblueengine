@@ -57,7 +57,6 @@ public:
     bool IsDetected(std::shared_ptr<const tcSensorState> emitter, float ERP_dBW, float& az_rad);
     bool IsDetectedECM( std::shared_ptr<const tcECM> emitter, float& az_rad);
     bool IsDetectedRadar(std::shared_ptr<const tcRadar> emitter, float& az_rad);
-    
     virtual bool IsESM() const;
     void Serialize(tcFile& file, bool mbLoad);
     virtual void Update(double t);

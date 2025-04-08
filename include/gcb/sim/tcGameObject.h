@@ -284,7 +284,7 @@ template <typename T>
 std::vector<std::shared_ptr<T>> tcGameObject::GetComponents() const
 {
     std::vector<std::shared_ptr<T>> coms;
-    for (int i = 0; i < components.size(); ++i) {
+    for (size_t i = 0; i < components.size(); ++i) {
         auto com=std::dynamic_pointer_cast<T>(components[i]);
         if(com)
         {
@@ -297,7 +297,7 @@ template <typename T>
 std::shared_ptr<T> tcGameObject::GetComponent() const
 {
 
-    for (int i = 0; i < components.size(); ++i) {
+    for (size_t i = 0; i < components.size(); ++i) {
         auto com=std::dynamic_pointer_cast<T>(components[i]);
         if(com)
         {

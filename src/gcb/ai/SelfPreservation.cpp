@@ -34,6 +34,8 @@
 // #include "scriptinterface/tcPlatformInterface.h"
 #include "tcGameStream.h"
 
+#include <assert.h>
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif 
