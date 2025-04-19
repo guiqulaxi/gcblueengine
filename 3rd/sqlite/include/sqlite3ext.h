@@ -68,7 +68,7 @@ struct sqlite3_api_routines {
   const void * (*column_origin_name16)(sqlite3_stmt*,int);
   const char * (*column_table_name)(sqlite3_stmt*,int);
   const void * (*column_table_name16)(sqlite3_stmt*,int);
-  const char * (*column_text)(sqlite3_stmt*,int iCol);
+  const unsigned char * (*column_text)(sqlite3_stmt*,int iCol);
   const void * (*column_text16)(sqlite3_stmt*,int iCol);
   int  (*column_type)(sqlite3_stmt*,int iCol);
   sqlite3_value* (*column_value)(sqlite3_stmt*,int iCol);
@@ -152,7 +152,7 @@ struct sqlite3_api_routines {
   int  (*value_int)(sqlite3_value*);
   sqlite_int64  (*value_int64)(sqlite3_value*);
   int  (*value_numeric_type)(sqlite3_value*);
-  const char * (*value_text)(sqlite3_value*);
+  const unsigned char * (*value_text)(sqlite3_value*);
   const void * (*value_text16)(sqlite3_value*);
   const void * (*value_text16be)(sqlite3_value*);
   const void * (*value_text16le)(sqlite3_value*);
@@ -352,9 +352,9 @@ struct sqlite3_api_routines {
   int (*vtab_in_first)(sqlite3_value*,sqlite3_value**);
   int (*vtab_in_next)(sqlite3_value*,sqlite3_value**);
   /* Version 3.39.0 and later */
-  int (*deserialize)(sqlite3*,const char*,char*,
+  int (*deserialize)(sqlite3*,const char*,unsigned char*,
                      sqlite3_int64,sqlite3_int64,unsigned);
-  char *(*serialize)(sqlite3*,const char *,sqlite3_int64*,
+  unsigned char *(*serialize)(sqlite3*,const char *,sqlite3_int64*,
                               unsigned int);
   const char *(*db_name)(sqlite3*,int);
   /* Version 3.40.0 and later */
