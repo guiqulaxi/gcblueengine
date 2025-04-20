@@ -1,3 +1,5 @@
+##依赖
+libgeotiff libtif libproj libsqlite3 libcurl python pybind11
 ## 战役级的作战仿真引擎  
 从[gcblue
 ](https://github.com/WarfareCode/gcblue)剥离  
@@ -7,4 +9,4 @@
 4. 用http,json对外开放接口（去除会加速很多）;  
 5. 修改了一些bug。  
 ## 运行
---scenario scenarios/Tutorial/SateliteOperations.py --times 100 --runmode normal --ip  0.0.0.0 --port 8081
+app.exe --scenario scenarios/Tutorial/SateliteOperations.py --times 100 --runmode normal --ip  0.0.0.0 --port 8081

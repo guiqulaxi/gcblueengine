@@ -8,7 +8,7 @@
 #include <cmath>
 #include "tcDamageModel.h"
 #include "tcCommDeviceDBObject.h"
-
+#include <cassert>
 namespace database {
     class tcCommDeviceDBObject;
 }
