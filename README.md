@@ -1,5 +1,7 @@
-##依赖
+## 依赖
 libgeotiff libtif libproj libsqlite3 libcurl python pybind11
+## 高程数据
+可以从 https://www.ncei.noaa.gov/products/etopo-global-relief-model下载需要的高程tif
 ## 战役级的作战仿真引擎  
 从[gcblue
 ](https://github.com/WarfareCode/gcblue)剥离  
