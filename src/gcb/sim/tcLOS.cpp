@@ -77,8 +77,10 @@ const std::string& tcLOS::GetRayTestData(const GeoPoint& p1, const GeoPoint& p2)
 
     UpdateRay(testRay);
 
-    text += strutil::format("   min LOS clearance: %.0f m (%d rays in cache, %d map tiles)\n", testRay.terrainClearance_m,
-        GetRayCount(), mapData->GetTilesUsedCount());
+    // text += strutil::format("   min LOS clearance: %.0f m (%d rays in cache, %d map tiles)\n", testRay.terrainClearance_m,
+    //     GetRayCount(), mapData->GetTilesUsedCount());
+    text += strutil::format("   min LOS clearance: %.0f m (%d rays in cache)\n", testRay.terrainClearance_m,
+                            GetRayCount());
 
     s = text;
 

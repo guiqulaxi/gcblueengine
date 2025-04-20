@@ -848,7 +848,7 @@ void tcSimState::Update()
     if ((mfSimTime-mfLastTileAgeOut) > 25.4f)
     {
         mfLastTileAgeOut = mfSimTime;
-        mpMapData->AgeOutTiles(mfSimTime);
+        //mpMapData->AgeOutTiles(mfSimTime);
         
         tcSonarEnvironment::Get()->Update(mfSimTime);
         tcLOS::Get()->Update(mfSimTime); // age out old LOS paths

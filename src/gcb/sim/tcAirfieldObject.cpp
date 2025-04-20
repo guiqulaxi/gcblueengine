@@ -327,7 +327,6 @@ tcAirfieldObject::tcAirfieldObject(std::shared_ptr<tcGroundDBObject>obj)
 	mcKin.mfSpeed_kts = 0; // make sure this doesn't move (shouldn't be necessary)
 	mnModelType = MTYPE_AIRFIELD;
     AddComponent(std::make_shared<tcFlightOpsObject>(obj->GetFlightport()));
-    brain->AddTask("RefuelAllAircraft", 3.0, ai::Task::PERMANENT | ai::Task::HIDDEN);
 }
 
 tcAirfieldObject::~tcAirfieldObject() 
@@ -336,5 +335,9 @@ tcAirfieldObject::~tcAirfieldObject()
 
 void tcAirfieldObject::Construct()
 {
+    tcPlatformObject::Construct();
     GetComponent<tcFlightOpsObject>()->SetGameObject(shared_from_this());
+    brain->AddTask("RefuelAllAircraft", 3.0, ai::Task::PERMANENT | ai::Task::HIDDEN);
+
+
 }

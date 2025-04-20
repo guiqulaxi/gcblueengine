@@ -471,7 +471,7 @@ void tcGame::Init()
         //		progressDialog->Update(65, "Loading low res map data");
         /* ** Initialize mcMapData  * **/
         mapData->AttachOptions(tcOptions::Get());
-        mapData->LoadLowRes();
+       // mapData->LoadLowRes();
         //mapData->LoadHighRes(-8.0f, 55.0f);
         //mapData->LoadHighResB(-8.0f, 55.0f);
 
@@ -989,13 +989,13 @@ void tcGame::SetTheater(float lat_deg, float lon_deg)
         return;
     }
 
-    int theaterDecimation = mapData->GetTheaterDecimation();
-    if (!mapData->IsTheaterDecimationValid(theaterDecimation) || (theaterDecimation > 4))
-    {
-        theaterDecimation = mapData->GetHighResDecimation();
-    }
+    // int theaterDecimation = mapData->GetTheaterDecimation();
+    // if (!mapData->IsTheaterDecimationValid(theaterDecimation) || (theaterDecimation > 4))
+    // {
+    //     theaterDecimation = mapData->GetHighResDecimation();
+    // }
 
-    mapData->LoadHighResC(lon_deg, lat_deg, theaterDecimation);
+    // mapData->LoadHighResC(lon_deg, lat_deg, theaterDecimation);
 
 }
 
