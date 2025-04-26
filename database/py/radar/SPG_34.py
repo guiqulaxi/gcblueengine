@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='Same as Mk-34 FCS, except introduces a new parabolic reflector, achieves a 2.2°x2.2° beam, higher gain, transpits at 50kW.  Given a higher gain(40.355 vs 37.661, calculated from beamwidths), and a higher power, ref range is increased.  Overall yield is roughly a 4.24dB improvement, so setting this ref range to detect a 37.644m² target.  This is basically the 100m² target from Mk-34 FCS, reduced by the improvements in SPG-34.'
+    dbObj.notes='Same as Mk-34 FCS, except introduces a new parabolic reflector, achieves a 2.2Â°x2.2Â° beam, higher gain, transpits at 50kW.  Given a higher gain(40.355 vs 37.661, calculated from beamwidths), and a higher power, ref range is increased.  Overall yield is roughly a 4.24dB improvement, so setting this ref range to detect a 37.644mÂ² target.  This is basically the 100mÂ² target from Mk-34 FCS, reduced by the improvements in SPG-34.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

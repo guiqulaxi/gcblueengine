@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='capable of detecting a \'large\' target in free space to a range of 150km, will assume this to be 50m², instrumented range is 150km. frequency is centered on 10Ghz, with 20-50% bandwidth, assuming 25%.  Elevation, max range, and frequency are accurate all else is estimated.  Produces \'pencil beams\', will assume quite small angular capabilities.'
+    dbObj.notes='capable of detecting a \'large\' target in free space to a range of 150km, will assume this to be 50mÂ², instrumented range is 150km. frequency is centered on 10Ghz, with 20-50% bandwidth, assuming 25%.  Elevation, max range, and frequency are accurate all else is estimated.  Produces \'pencil beams\', will assume quite small angular capabilities.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='little is known at current about this radar, modifying a search water, which is a later development of the same system.  50nm instrumented, assuming 40dBsm target at that range.  80kW peak power with a 2.5µs 200pps transmitter in the X band.'
+    dbObj.notes='little is known at current about this radar, modifying a search water, which is a later development of the same system.  50nm instrumented, assuming 40dBsm target at that range.  80kW peak power with a 2.5Âµs 200pps transmitter in the X band.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

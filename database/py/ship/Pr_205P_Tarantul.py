@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcShipDBObject()
@@ -16,7 +17,7 @@ def CreateDBObject():
     dbObj.iconFileName='none'
     dbObj.mz3DModelFileName='sovremenny.xml'
     dbObj.notes='the USSR built 137 of these, but while I can find their names, I cannot find service entry or exit, even so much as the year.  I do know Primorskiy shipyard in leningrad built 105 of them between 1967 and 1989.  will space their entries evenly across this.  Spaced the first group by 90 days each, spaced the second grouping by 130 days each.  Each group is from a different ship yard, and the spacing allows them to cover their full range evenly.  Knowing only 19 remain in soviet service, i can space out the exit dates to be fairly consistent, yet leave 19 still operating by 2011.  Of course this will not be random, the oldest will go first, etc.  Exit from service will be over a 6 year period.'
-    dbObj.length_m=39.980000
+    dbObj.length_m=0.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000
     sensorPlatformDBObject=pygcb.tcSensorPlatformDBObject()

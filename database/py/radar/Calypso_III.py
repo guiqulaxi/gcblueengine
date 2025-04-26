@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='Marcos-modified by Amram.  Effective range vs 10m² target is 18nm, so, 18.746km.  Effective range vs a 200m² target is thus '
+    dbObj.notes='Marcos-modified by Amram.  Effective range vs 10mÂ² target is 18nm, so, 18.746km.  Effective range vs a 200mÂ² target is thus '
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

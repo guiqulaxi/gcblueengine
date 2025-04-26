@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='capable of a 1m² target track at 128km.  this pushed the APG-73 downwards as this radar is capable of more than twice the tracking range.  Assumed half errors against APG-73.'
+    dbObj.notes='capable of a 1mÂ² target track at 128km.  this pushed the APG-73 downwards as this radar is capable of more than twice the tracking range.  Assumed half errors against APG-73.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

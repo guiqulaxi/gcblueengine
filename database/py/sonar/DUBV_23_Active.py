@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcSonarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='contributed by greengills  capable of detecting a 200ft target at 14000yds, tweaked capable of detecting a kilo 50/50 at 12.7km, upper limit on detection range is 35kyds, 32km, range accuracy is 150yds ±1%, bearing accuracy is 1°.  Assigning range accuracy of 150yds plus 1% of 17500yds.'
+    dbObj.notes='contributed by greengills  capable of detecting a 200ft target at 14000yds, tweaked capable of detecting a kilo 50/50 at 12.7km, upper limit on detection range is 35kyds, 32km, range accuracy is 150yds Â±1%, bearing accuracy is 1Â°.  Assigning range accuracy of 150yds plus 1% of 17500yds.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

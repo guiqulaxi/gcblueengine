@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='Marcos -Amram, S band, 2°x9° beamwidths, 145kW peak power, 23dB transmitter gain, 31.5 receiver gain, 0.6µs PW compressed, 3800pps, 27rpm.  Designed to detect 0.1m² target at unknown range.  150km instrumented.   assumed slightly superior to mk1'
+    dbObj.notes='Marcos -Amram, S band, 2Â°x9Â° beamwidths, 145kW peak power, 23dB transmitter gain, 31.5 receiver gain, 0.6Âµs PW compressed, 3800pps, 27rpm.  Designed to detect 0.1mÂ² target at unknown range.  150km instrumented.   assumed slightly superior to mk1'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

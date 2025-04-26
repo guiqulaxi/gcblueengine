@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcShipDBObject()
@@ -16,7 +17,7 @@ def CreateDBObject():
     dbObj.iconFileName='none'
     dbObj.mz3DModelFileName='TicoVLS.xml'
     dbObj.notes='VLS is introduced both increasing the quantity of weapons allowable, but also the mmaximum size, and perhaps most importantly, the rate of fire.  Also introduced are the ability to fire the Tomahawk missile, and support for the SH-60B lamps III Helo.  Also introduces the SQR-19 Towed Array sonar.'
-    dbObj.length_m=173.000000
+    dbObj.length_m=0.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000
     sensorPlatformDBObject=pygcb.tcSensorPlatformDBObject()

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcShipDBObject()
@@ -16,7 +17,7 @@ def CreateDBObject():
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName='burke.xml'
     dbObj.notes='[kbluck] First modernization in late \'70s. Fitted with 6 Penguin, 8 Sea Sparrow, 324mm torpedoes.'
-    dbObj.length_m=96.599998
+    dbObj.length_m=0.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000
     sensorPlatformDBObject=pygcb.tcSensorPlatformDBObject()

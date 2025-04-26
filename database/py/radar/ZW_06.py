@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='60kW, 0.6µs pulses, PRF 2000, 32dB gain, 0.9°x19° beam, 2.4° az resolution, range on 10m² tarfget is 14nm, 26km. 24rpm.  Assuming 80km instrumented.'
+    dbObj.notes='60kW, 0.6Âµs pulses, PRF 2000, 32dB gain, 0.9Â°x19Â° beam, 2.4Â° az resolution, range on 10mÂ² tarfget is 14nm, 26km. 24rpm.  Assuming 80km instrumented.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

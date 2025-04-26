@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcShipDBObject()
@@ -16,7 +17,7 @@ def CreateDBObject():
     dbObj.iconFileName='none'
     dbObj.mz3DModelFileName='pg-84.xml'
     dbObj.notes='Marcos Amram-is a swiftships 110 foot patrol boat.  http://www.swiftships.com/subcommon.php?eC&MnK&ecB'
-    dbObj.length_m=109.900002
+    dbObj.length_m=0.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000
     sensorPlatformDBObject=pygcb.tcSensorPlatformDBObject()

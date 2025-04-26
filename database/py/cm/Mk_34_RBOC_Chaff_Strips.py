@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcCounterMeasureDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName='cm.jpg'
     dbObj.mz3DModelFileName='flare.xml'
-    dbObj.notes='approximately equal to a 9000m² ship.'
+    dbObj.notes='approximately equal to a 9000m ship.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

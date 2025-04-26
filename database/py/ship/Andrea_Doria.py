@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcShipDBObject()
@@ -16,7 +17,7 @@ def CreateDBObject():
     dbObj.iconFileName='none'
     dbObj.mz3DModelFileName='type-45.xml'
     dbObj.notes='EW systems using ESM-3 and ARBB-33 ECM as stand-ins, missing data'
-    dbObj.length_m=152.899994
+    dbObj.length_m=0.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000
     sensorPlatformDBObject=pygcb.tcSensorPlatformDBObject()

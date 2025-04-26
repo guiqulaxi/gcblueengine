@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='very little is known of this radar it seems.  microwave Journal 401 suggests a range of 80km, and engaging up to 4 at once.   Overscan\'s guide to russian military avionics roughly confirms, suggesting detection at 80km, and tracking at 60km.  non offers any information regarding power, pulse rates, scan sectors, and instrumented range.   Since the Chinese selected it for the J-17, and the Chinese PL-13 has a maximum engagement range of 148km, I will assume this radar has an instrumented range of either 90NM(167km), or its detection range of a 15dBsm target +10%, which ever is larger.  Based off a fighter at 3m², the end result is that it will detect a 15dBsm(31.63m²) target at 144km, add on the 10% headroom and we arrive at 158.6km, or 85.6nm.  Copied from N-010 Zhuk-M as it is derived from this family, aside from instrumented and ref ranges, nothing else is changed.'
+    dbObj.notes='very little is known of this radar it seems.  microwave Journal 401 suggests a range of 80km, and engaging up to 4 at once.   Overscan\'s guide to russian military avionics roughly confirms, suggesting detection at 80km, and tracking at 60km.  non offers any information regarding power, pulse rates, scan sectors, and instrumented range.   Since the Chinese selected it for the J-17, and the Chinese PL-13 has a maximum engagement range of 148km, I will assume this radar has an instrumented range of either 90NM(167km), or its detection range of a 15dBsm target +10%, which ever is larger.  Based off a fighter at 3mÂ², the end result is that it will detect a 15dBsm(31.63mÂ²) target at 144km, add on the 10% headroom and we arrive at 158.6km, or 85.6nm.  Copied from N-010 Zhuk-M as it is derived from this family, aside from instrumented and ref ranges, nothing else is changed.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

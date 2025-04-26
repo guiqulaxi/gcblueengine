@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='2000 kW peak power with 29 dBi antenna gain. 7.5 RPM scan. About 50 ms of effective dwell time.  160nm vs 10m² target.'
+    dbObj.notes='2000 kW peak power with 29 dBi antenna gain. 7.5 RPM scan. About 50 ms of effective dwell time.  160nm vs 10mÂ² target.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

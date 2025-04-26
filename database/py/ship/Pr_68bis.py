@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcShipDBObject()
@@ -16,7 +17,7 @@ def CreateDBObject():
     dbObj.iconFileName='NONE'
     dbObj.mz3DModelFileName='sovremenny.xml'
     dbObj.notes='These ships were improved and slightly enlarged versions of the Chapayev class cruisers. They had the same main armament, machinery and side protection as the earlier ships, but had increased fuel capacity for greater range, an all welded hull, improved underwater protection, increased anti aircraft artillery and radar.The Admiral Nakhimov had an SS-N-1 anti-ship missile launcher installed in place of A and B turrets as a trial in 1957. This installation was not successful, the ship was rapidly decommissioned and was used as a target ship in 1961.The Dzerzhinsky had a SAM launcher for the SA-2 missile, replacing the aft turrets in 1960-62. This conversion was also not successful and no further ships were converted.The Senyavin and Zhdanov were converted into command ships in 1971 by replacing the aft turrets with extra accommodation and electronics. The two command ships were fitted with a helicopter deck and hangar together with a SA-N-4 SAM missile system and 4 twin 30mm guns.'
-    dbObj.length_m=210.000000
+    dbObj.length_m=0.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000
     sensorPlatformDBObject=pygcb.tcSensorPlatformDBObject()

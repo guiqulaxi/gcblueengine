@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='Small surface radar.  C band(5450-5825), 350kW peak, .5µs pulsed @ 680pps, 29dB gain, 1.75°x15° beam, csc² 22° beam.'
+    dbObj.notes='Small surface radar.  C band(5450-5825), 350kW peak, .5Âµs pulsed @ 680pps, 29dB gain, 1.75Â°x15Â° beam, cscÂ² 22Â° beam.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

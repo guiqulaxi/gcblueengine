@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='http://pwencycl.kgbudge.com/S/v/SV_air_search_radar.htm    Aligned to peg a 10m fighter, and 63m naval bomber to 12km and 19km respectively, also, lookdown penalty used to restrain the horizon search such that a 2kton destroyer is detected at 16km, and a 6kton cruiser is detected at 24km.  Assumed 29.4dB gain based on 5° wide beam, and estimated 30° tall beam'
+    dbObj.notes='http://pwencycl.kgbudge.com/S/v/SV_air_search_radar.htm    Aligned to peg a 10m fighter, and 63m naval bomber to 12km and 19km respectively, also, lookdown penalty used to restrain the horizon search such that a 2kton destroyer is detected at 16km, and a 6kton cruiser is detected at 24km.  Assumed 29.4dB gain based on 5Â° wide beam, and estimated 30Â° tall beam'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

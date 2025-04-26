@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcShipDBObject()
@@ -16,7 +17,7 @@ def CreateDBObject():
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName='burke.xml'
     dbObj.notes='[kbluck] Second modernization 87-91. Fitted with TSM 2633 hull and VDS sonar. 2x Penguin and DC rail removed to make room for VDS. Aft 76mm replaced with 40mm/70.'
-    dbObj.length_m=96.599998
+    dbObj.length_m=0.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000
     sensorPlatformDBObject=pygcb.tcSensorPlatformDBObject()

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcOpticalDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='-20° to +45°, scans in 5° bands at 90rpm, so, it needs 9 scans to complete a horizon to max_el scan, so cut RPM from 90 to 10, and we get a 6 second update rate.  Is configured able to detect a small subsonic missile at 8km, a mach 4 large missile at up t'
+    dbObj.notes='-20Â° to +45Â°, scans in 5Â° bands at 90rpm, so, it needs 9 scans to complete a horizon to max_el scan, so cut RPM from 90 to 10, and we get a 6 second update rate.  Is configured able to detect a small subsonic missile at 8km, a mach 4 large missile at up t'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

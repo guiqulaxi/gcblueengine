@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='test version of SPG-62 illuminator for SM-2 Aegis.  Naval institute Guide to World naval Weapons systems cties RIM-156 as nearly exceeding the limits of the illuminator.  As such an maximum effective engagement range of 240km is then nearly beyond what the illuminator can do.  I have adjusted the illuminator for a 20dBsm target like a Tu-95 to be illuminated at up to 260km, a 10dBsm target like many early cold war fighters engaged at up to 147km, a 5 dBsm(like many late cold war fighters) target at 110.6km, 2dBsm(like the F-16) at 93.1km, -7dBsm(like the Rafale) at 55km. This means many missiles will not be illuminated to extreme ranges, but missiles like the Kh-22(5.33 dBsm:8.33 RCS, -3dB signature) can be pegged out to 112.8km.  GCB cannot cope with multiple sensors with multiple FC\'s with the same name on one ship, nor can it cope with more than two FC\'s applicable to one function, for now these illuminator/FC\'s must be combined into 360° arcs'
+    dbObj.notes='test version of SPG-62 illuminator for SM-2 Aegis.  Naval institute Guide to World naval Weapons systems cties RIM-156 as nearly exceeding the limits of the illuminator.  As such an maximum effective engagement range of 240km is then nearly beyond what the illuminator can do.  I have adjusted the illuminator for a 20dBsm target like a Tu-95 to be illuminated at up to 260km, a 10dBsm target like many early cold war fighters engaged at up to 147km, a 5 dBsm(like many late cold war fighters) target at 110.6km, 2dBsm(like the F-16) at 93.1km, -7dBsm(like the Rafale) at 55km. This means many missiles will not be illuminated to extreme ranges, but missiles like the Kh-22(5.33 dBsm:8.33 RCS, -3dB signature) can be pegged out to 112.8km.  GCB cannot cope with multiple sensors with multiple FC\'s with the same name on one ship, nor can it cope with more than two FC\'s applicable to one function, for now these illuminator/FC\'s must be combined into 360Â° arcs'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

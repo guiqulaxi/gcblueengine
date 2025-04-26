@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='200nm+, assuming this to be for a bomber type(100m²).  http://www.scribd.com/doc/65788019/Naval-Radar'
+    dbObj.notes='200nm+, assuming this to be for a bomber type(100mÂ²).  http://www.scribd.com/doc/65788019/Naval-Radar'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

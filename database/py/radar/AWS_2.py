@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='small aircraft target at 60nm(assuming 5m²).  S band, 1.5°x40°, 750kW, 32dB gain, 0.35µs or 1.5µs pulses, 1000 or 400 pps, 10-12 or 20 RPM.  Assumed instrumented at more than 60nm.'
+    dbObj.notes='small aircraft target at 60nm(assuming 5mÂ²).  S band, 1.5Â°x40Â°, 750kW, 32dB gain, 0.35Âµs or 1.5Âµs pulses, 1000 or 400 pps, 10-12 or 20 RPM.  Assumed instrumented at more than 60nm.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

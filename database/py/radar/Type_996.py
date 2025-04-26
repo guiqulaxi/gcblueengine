@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='Due to a shortage of time, shortcuts were taken with this radar.  I know only that its scan rate is 14rpm, and that it can track a fighter out to 115km, and a maritime aircraft(P-3 Orion/IL-76 May?) out to more than 150km.  These details aside, the radar is a direct copy of the SPS-58A.  Aligned for a 50m² target at 160km.  This is apparantly a 3D radar with surface search capabilities.'
+    dbObj.notes='Due to a shortage of time, shortcuts were taken with this radar.  I know only that its scan rate is 14rpm, and that it can track a fighter out to 115km, and a maritime aircraft(P-3 Orion/IL-76 May?) out to more than 150km.  These details aside, the radar is a direct copy of the SPS-58A.  Aligned for a 50mÂ² target at 160km.  This is apparantly a 3D radar with surface search capabilities.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

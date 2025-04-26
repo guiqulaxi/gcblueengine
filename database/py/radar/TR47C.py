@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='0.1m²@8km, 2m²@15km, 10m²@20km.  instrumenting at 20km, '
+    dbObj.notes='0.1mÂ²@8km, 2mÂ²@15km, 10mÂ²@20km.  instrumenting at 20km, '
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

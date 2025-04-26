@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcShipDBObject()
@@ -16,7 +17,7 @@ def CreateDBObject():
     dbObj.iconFileName='none'
     dbObj.mz3DModelFileName='type-22.xml'
     dbObj.notes='Reality is that the ships are only fitted with Exocets according to operational needs, generally just those deployed to hostile environments will have them.  in GCB any environment they will be used it is likely to be a hostile environment, likewise GCB usually assumes forces are at war(or about to be), thus i have simply assigned all ships with Exocets full time.'
-    dbObj.length_m=80.000000
+    dbObj.length_m=0.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000
     sensorPlatformDBObject=pygcb.tcSensorPlatformDBObject()

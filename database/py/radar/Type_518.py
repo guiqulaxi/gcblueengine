@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='range is just 280km, not 400, 34 or 38 dB gain antenna, 3 or 6 rpm scan rate, accuracy of 1.2° bearing, 300m range, 1.1° wide beamm resolution of 4° and 400m, maximum elevation of 28.8°.  unknown power outputs.  Assuming 120kW peak with similar duty cycle to LW-08 given Type 518\'s heritage.  Claimed range is 150km for a 2m² target.'
+    dbObj.notes='range is just 280km, not 400, 34 or 38 dB gain antenna, 3 or 6 rpm scan rate, accuracy of 1.2Â° bearing, 300m range, 1.1Â° wide beamm resolution of 4Â° and 400m, maximum elevation of 28.8Â°.  unknown power outputs.  Assuming 120kW peak with similar duty cycle to LW-08 given Type 518\'s heritage.  Claimed range is 150km for a 2mÂ² target.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

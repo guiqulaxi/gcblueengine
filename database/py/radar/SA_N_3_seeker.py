@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='Ref range boosted from 5.54 to 11.28.  previous it required a 414m² target to be able to attack at max range, this is unlikely to ever happen.  11.28 allows for engagement of any target larger than 50m² to max range.  It also lifts the engagement range of a 2dBsm target from 6.216km to 12.55km.  Still weak, but considerably better.'
+    dbObj.notes='Ref range boosted from 5.54 to 11.28.  previous it required a 414mÂ² target to be able to attack at max range, this is unlikely to ever happen.  11.28 allows for engagement of any target larger than 50mÂ² to max range.  It also lifts the engagement range of a 2dBsm target from 6.216km to 12.55km.  Still weak, but considerably better.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

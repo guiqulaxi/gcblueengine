@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='I have no information other than the needs of its missile.  with a detonation range set at 22.1m, I set the radar to be accurate enough to put the missile within this the majority of the time for the longer ranged V-611M which it also guides.  Maximum 3-dimensional error is under 30m at 38km range.  Missile is set capable of tracking a 1m² at 55km.  5m² target then allows for detection at 82km, setting max range at 80.  nothing else is adjusted.'
+    dbObj.notes='I have no information other than the needs of its missile.  with a detonation range set at 22.1m, I set the radar to be accurate enough to put the missile within this the majority of the time for the longer ranged V-611M which it also guides.  Maximum 3-dimensional error is under 30m at 38km range.  Missile is set capable of tracking a 1mÂ² at 55km.  5mÂ² target then allows for detection at 82km, setting max range at 80.  nothing else is adjusted.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

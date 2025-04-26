@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcOpticalDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='the reality is that this missile is VERY aspect limited, but in GCB this makes it virtually useless, the \'h\' command lacks the precision, plus the failure of the AI to agerssively position itself in short order leads to necessitating an increased FoV, granting it 15° instead of 4'
+    dbObj.notes='the reality is that this missile is VERY aspect limited, but in GCB this makes it virtually useless, the \'h\' command lacks the precision, plus the failure of the AI to agerssively position itself in short order leads to necessitating an increased FoV, granting it 15Â° instead of 4'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

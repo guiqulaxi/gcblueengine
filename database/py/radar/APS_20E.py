@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='unknown gain, beam parameters, scan rate, performance.  6500w transmitter, 3.9w average power, 0.67µs @ 900pps.  Transmiter range is 2880mhz ±30mhz.  http://radar.tpub.com/TM-11-487C-1/TM-11-487C-10857.htm'
+    dbObj.notes='unknown gain, beam parameters, scan rate, performance.  6500w transmitter, 3.9w average power, 0.67Âµs @ 900pps.  Transmiter range is 2880mhz Â±30mhz.  http://radar.tpub.com/TM-11-487C-1/TM-11-487C-10857.htm'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='capability extrapolated from a reference given.  Was quoted as capable of tracking an F6F out to a range of 120kyds(109.74km), I am assuming the F6F to be a 15m² target.  this puts the ref range at 55.7625km.'
+    dbObj.notes='capability extrapolated from a reference given.  Was quoted as capable of tracking an F6F out to a range of 120kyds(109.74km), I am assuming the F6F to be a 15mÂ² target.  this puts the ref range at 55.7625km.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

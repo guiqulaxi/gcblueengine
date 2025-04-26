@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='Old soviet surface search.  quoted capable of a cruiser at 20-22nm, destroyer at 14-16nm, periscopt(1.5m height) at 1-1.5nm.  Range accurate to 15m/nm.  scan rate of 6 seconds, 7 degree beam, 150kW, 2950-3020Mhz, 427pps at 1µs  Assuming 30dB for the destroyer at 16nm, is 5.2694.  Low PPS suggests a fairly long unambiguous range, 48dB equates to 45nm/83.5km.  using that as instrumented until further information is known.'
+    dbObj.notes='Old soviet surface search.  quoted capable of a cruiser at 20-22nm, destroyer at 14-16nm, periscopt(1.5m height) at 1-1.5nm.  Range accurate to 15m/nm.  scan rate of 6 seconds, 7 degree beam, 150kW, 2950-3020Mhz, 427pps at 1Âµs  Assuming 30dB for the destroyer at 16nm, is 5.2694.  Low PPS suggests a fairly long unambiguous range, 48dB equates to 45nm/83.5km.  using that as instrumented until further information is known.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

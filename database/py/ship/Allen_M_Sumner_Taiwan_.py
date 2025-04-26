@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcShipDBObject()
@@ -16,7 +17,7 @@ def CreateDBObject():
     dbObj.iconFileName='none'
     dbObj.mz3DModelFileName='burke.xml'
     dbObj.notes='initially installed with SC-2, and SG radars.  Early 50\'s gains it the SPS-6, 1953 SG is replaced with SPS-10.  During FRAM II SPS-6 was replaced with SPS-40.  Initial Sonar was the QGA(3kyds-5kyds detection), FRAM II gained her SQS-4(up to 15kyds).  Winter 1962 added the VDS SQA-8, 600ft cable.  Late 1944 saw introduction of SPR-1 ESM, WLR-1 in 1960\'s.  makes her one of the earliest US ships found in GCB, with ESM of some sort.'
-    dbObj.length_m=112.000000
+    dbObj.length_m=0.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000
     sensorPlatformDBObject=pygcb.tcSensorPlatformDBObject()

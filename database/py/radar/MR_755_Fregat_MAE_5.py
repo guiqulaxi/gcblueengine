@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='300km instrumented, 55° elevation, fighter at 230km, missile at 50km, ships in LOS, 120m range accuracy, 24 arcminute azimuth accuracy, 30 arcminute elevation accuracy, 6 to 12 rpm scanrate, 90.3kW peak power.   Unknown gain, using editors estimated 32.2'
+    dbObj.notes='300km instrumented, 55Â° elevation, fighter at 230km, missile at 50km, ships in LOS, 120m range accuracy, 24 arcminute azimuth accuracy, 30 arcminute elevation accuracy, 6 to 12 rpm scanrate, 90.3kW peak power.   Unknown gain, using editors estimated 32.2'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

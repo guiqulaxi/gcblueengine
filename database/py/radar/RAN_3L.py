@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='L band, 2.15°x9°, 135kW peak power, 30dB gain, 78.4µs pulse, 6 rps scan rate, scan to scan frequency agility, phase coded pulse doppler yielding pulse compression power and doppler MTI and clutter rejection.Rated max range is 150nm(277.8km) on a fighter(assuming 10m²).  Axxuracy is 0.4° bearing, 70m range.'
+    dbObj.notes='L band, 2.15Â°x9Â°, 135kW peak power, 30dB gain, 78.4Âµs pulse, 6 rps scan rate, scan to scan frequency agility, phase coded pulse doppler yielding pulse compression power and doppler MTI and clutter rejection.Rated max range is 150nm(277.8km) on a fighter(assuming 10mÂ²).  Axxuracy is 0.4Â° bearing, 70m range.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='this is the Heracles II radar, used on the French Panther and Dauphin helos, among others, detection of 500m² ship is 90km.'
+    dbObj.notes='this is the Heracles II radar, used on the French Panther and Dauphin helos, among others, detection of 500mÂ² ship is 90km.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

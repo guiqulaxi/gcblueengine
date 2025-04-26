@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='Marcos  -Amram-I lack enough info to do a full rebalance of the radar, but I do know some things.  50kW transmitter, 1.5µs at 650pps, 20 or 40 rpm scan rates, 2°x7° beam, x band.  These man a peak power of 50kW, but an average power of just 49w, the beamwidth yields an estimated gain of 35.74, and my radar sheet estimates it at 19.3km ref range, a value close to Sea Spray which is an alternative fit, so im leaving it in place.'
+    dbObj.notes='Marcos  -Amram-I lack enough info to do a full rebalance of the radar, but I do know some things.  50kW transmitter, 1.5Âµs at 650pps, 20 or 40 rpm scan rates, 2Â°x7Â° beam, x band.  These man a peak power of 50kW, but an average power of just 49w, the beamwidth yields an estimated gain of 35.74, and my radar sheet estimates it at 19.3km ref range, a value close to Sea Spray which is an alternative fit, so im leaving it in place.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

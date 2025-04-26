@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='needs updating with accurate details.  Current info \'generated\' mathematically.  Max range, elevation limits, scan rate are accurate.  elevation error was 0.63, range error was 0, angle error was 0.1, update was 2.  for 190m error at 60km, use 0.1° error for elevation and angle, for 190m error at 45km, use 0.15.  for 200m at 30km, use 0.25'
+    dbObj.notes='needs updating with accurate details.  Current info \'generated\' mathematically.  Max range, elevation limits, scan rate are accurate.  elevation error was 0.63, range error was 0, angle error was 0.1, update was 2.  for 190m error at 60km, use 0.1Â° error for elevation and angle, for 190m error at 45km, use 0.15.  for 200m at 30km, use 0.25'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

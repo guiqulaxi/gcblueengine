@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='Claimed range on a 2m² is 78-92nm, will assume 85nm.  this equates to a ref of 132.374'
+    dbObj.notes='Claimed range on a 2mÂ² is 78-92nm, will assume 85nm.  this equates to a ref of 132.374'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

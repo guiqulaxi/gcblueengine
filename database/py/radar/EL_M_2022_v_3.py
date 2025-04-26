@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='ref range is for detection of 1m² target at 30nm at sea, thus no additional penalty for lookdown on water applied.'
+    dbObj.notes='ref range is for detection of 1mÂ² target at 30nm at sea, thus no additional penalty for lookdown on water applied.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

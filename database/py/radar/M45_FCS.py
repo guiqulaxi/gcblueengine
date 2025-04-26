@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='can fnd little on this system.  32kyd range, 29.25km.  X-band, 180kw.  As an early funfire radar, assuming a target size of 10m² at range.  180kW, assuming 26dB gain.'
+    dbObj.notes='can fnd little on this system.  32kyd range, 29.25km.  X-band, 180kw.  As an early funfire radar, assuming a target size of 10mÂ² at range.  180kW, assuming 26dB gain.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

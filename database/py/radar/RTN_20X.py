@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='Marcos  -Amram -beam is 2.2°, gain 37dB, target acquisition is usually 2-6nm, 3 arc minutes of angular accuracy, 3m range accuracy.  200kW power, 0.5µs pulses at 2000pps.'
+    dbObj.notes='Marcos  -Amram -beam is 2.2Â°, gain 37dB, target acquisition is usually 2-6nm, 3 arc minutes of angular accuracy, 3m range accuracy.  200kW power, 0.5Âµs pulses at 2000pps.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

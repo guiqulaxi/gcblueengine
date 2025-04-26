@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='2m²@21.5nm, 5m²@32nm, taken from http://www.alternatewars.com/SAC/AIM-7F_Sparrow_CS_-_January_1976.pdf'
+    dbObj.notes='2mÂ²@21.5nm, 5mÂ²@32nm, taken from http://www.alternatewars.com/SAC/AIM-7F_Sparrow_CS_-_January_1976.pdf'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

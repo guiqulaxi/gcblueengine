@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcSonarDBObject()
@@ -29,8 +30,8 @@ def CreateDBObject():
     dbObj.rangeError=0.075000
     dbObj.angleError_deg=3.750000
     dbObj.elevationError_deg=10.000000
-    dbObj.minFrequency_Hz=8000.000000
-    dbObj.maxFrequency_Hz=15000.000000
+    dbObj.minFrequency_Hz=-0.001327
+    dbObj.maxFrequency_Hz=-0.001327
     dbObj.idThreshold_dB=9999.000000
     dbObj.counterMeasureFactor=1.000000
     dbObj.isSurveillance=True

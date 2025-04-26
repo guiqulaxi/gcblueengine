@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='suggested as capable of 2-5m² target from 97 to 130km range, and low rcs target from 65+km, 84.25 approximates all three achieving 100.2km vs 2m², 125.98km vs 5m², and 65.26km vs 0.36m²'
+    dbObj.notes='suggested as capable of 2-5mÂ² target from 97 to 130km range, and low rcs target from 65+km, 84.25 approximates all three achieving 100.2km vs 2mÂ², 125.98km vs 5mÂ², and 65.26km vs 0.36mÂ²'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='http://pwencycl.kgbudge.com/S/j/SJ_surface_search_radar.htm    assuming 1.2az beam, and 40° vert beam.'
+    dbObj.notes='http://pwencycl.kgbudge.com/S/j/SJ_surface_search_radar.htm    assuming 1.2az beam, and 40Â° vert beam.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

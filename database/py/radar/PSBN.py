@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='detection of fighter targets at ranges of not less than 15-17km.  Assuming this to be the smaller of a 7m² target at 17km of 3m² at 15km.'
+    dbObj.notes='detection of fighter targets at ranges of not less than 15-17km.  Assuming this to be the smaller of a 7mÂ² target at 17km of 3mÂ² at 15km.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

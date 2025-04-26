@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='The Sea king AEW radar SearchWater(Ari 5980) detects a medium sized warship at 130nm.  since carriers at around 30-35dB, medium sized warships should be found around 24-27dB, assuming 25.5dB.  Thats puts Searchwater\'s ref range at 46.675km.  It(searchwater) also quotes a range of 28+nm for a snorkel and this ref range approximates this as well putting range to a  1m² target at 25.2nm.  Will use a vaule moderately less than this for the Sea spray, again as it isn\'t intended for EW purposes and more for target acquisition.'
+    dbObj.notes='The Sea king AEW radar SearchWater(Ari 5980) detects a medium sized warship at 130nm.  since carriers at around 30-35dB, medium sized warships should be found around 24-27dB, assuming 25.5dB.  Thats puts Searchwater\'s ref range at 46.675km.  It(searchwater) also quotes a range of 28+nm for a snorkel and this ref range approximates this as well putting range to a  1mÂ² target at 25.2nm.  Will use a vaule moderately less than this for the Sea spray, again as it isn\'t intended for EW purposes and more for target acquisition.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

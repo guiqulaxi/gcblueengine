@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='Copied from APG-63 and incrementally uprated.  No figures as yet.  Providing boost in maximum range from 115nm to 135nm(250km),  boosting ref range by 15% more than proportional(IE, 130@213 is equal to 7.2m² @ max range, 7.2m² @ 250km is a ref range of 152.58km, 15% greater than that is 175.47km), widening the field of view a little, shortening the update rate, tightening the beam widths.  If anyone has details specific to the APG-63(v)1 do let me know.'
+    dbObj.notes='Copied from APG-63 and incrementally uprated.  No figures as yet.  Providing boost in maximum range from 115nm to 135nm(250km),  boosting ref range by 15% more than proportional(IE, 130@213 is equal to 7.2mÂ² @ max range, 7.2mÂ² @ 250km is a ref range of 152.58km, 15% greater than that is 175.47km), widening the field of view a little, shortening the update rate, tightening the beam widths.  If anyone has details specific to the APG-63(v)1 do let me know.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

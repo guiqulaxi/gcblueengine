@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='>300NM maximum range.  Said to observe an airspace 3 times greater than the APS-145.  given APS-145\'s instrumented range of 650km, that yields an area of 1.327 million km².  to review three times this needs the area must rise to 3.982m km².  That equates to a radius, or range of 1125km.  FAR too much.'
+    dbObj.notes='>300NM maximum range.  Said to observe an airspace 3 times greater than the APS-145.  given APS-145\'s instrumented range of 650km, that yields an area of 1.327 million kmÂ².  to review three times this needs the area must rise to 3.982m kmÂ².  That equates to a radius, or range of 1125km.  FAR too much.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

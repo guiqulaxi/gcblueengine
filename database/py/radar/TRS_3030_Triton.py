@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='Triton TRS 3030 surface/air search radar.  is capable of detecting a 2m² target at 30-45km, will align for 37.5km, results in a ref range of 31.534km.  As no instrumented range is given, will assume the detection range of a 100m² target plus 20%.  Amusingly enough, this results in detecting a 100m² target at 100km, so, will set instrumented at 120km.  Gives no indication of scanned height, or if its a stacked beam or not, just that its beam is 22° in the vertical.  As it is surface/air, will assume at least 3 stacked beams for 66°. assuming half widths for elevation and azimuth beam errors.'
+    dbObj.notes='Triton TRS 3030 surface/air search radar.  is capable of detecting a 2mÂ² target at 30-45km, will align for 37.5km, results in a ref range of 31.534km.  As no instrumented range is given, will assume the detection range of a 100mÂ² target plus 20%.  Amusingly enough, this results in detecting a 100mÂ² target at 100km, so, will set instrumented at 120km.  Gives no indication of scanned height, or if its a stacked beam or not, just that its beam is 22Â° in the vertical.  As it is surface/air, will assume at least 3 stacked beams for 66Â°. assuming half widths for elevation and azimuth beam errors.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

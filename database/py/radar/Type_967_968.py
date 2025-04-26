@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='Due to a shortage of time, im cheating on this radar.  I know little of this radar, basing it off a copied type 965 and modifying to taste.  If you have better information, don\'t hesitate to rewrite this radar.  Setting it for detection of a 150m² target at max range.'
+    dbObj.notes='Due to a shortage of time, im cheating on this radar.  I know little of this radar, basing it off a copied type 965 and modifying to taste.  If you have better information, don\'t hesitate to rewrite this radar.  Setting it for detection of a 150mÂ² target at max range.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='Plessey claims a pidgeon(0.008m²) can be detected at 105km in clear conditions.  That produces an enormously huge ref range of 351.0887.  Going to assume some marketing at work there, and will spec for a 0.01m² target at 100km.  25kW transmitter, 256 PCR, 0.1µs to 1µs pulses at a duty cycle of up to 25%.  Assigning this radar a duty cycle of 12.5%.  Unknown gain, using the editors estimated gain.  It is a smaller array antennae compared to SPY-1, while operating in a similar frequency band, assuming roughly equivalent gain given its much newer design, so assuming 40dB gain.  Assuming slightly weaker beam forming capability, but only just.'
+    dbObj.notes='Plessey claims a pidgeon(0.008mÂ²) can be detected at 105km in clear conditions.  That produces an enormously huge ref range of 351.0887.  Going to assume some marketing at work there, and will spec for a 0.01mÂ² target at 100km.  25kW transmitter, 256 PCR, 0.1Âµs to 1Âµs pulses at a duty cycle of up to 25%.  Assigning this radar a duty cycle of 12.5%.  Unknown gain, using the editors estimated gain.  It is a smaller array antennae compared to SPY-1, while operating in a similar frequency band, assuming roughly equivalent gain given its much newer design, so assuming 40dB gain.  Assuming slightly weaker beam forming capability, but only just.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

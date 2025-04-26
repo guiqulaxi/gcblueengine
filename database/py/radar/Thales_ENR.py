@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='All I know of this radar is 200w average power, slotted planar array, and TWT transmitter, scan to scan processing, and ISAR, is capable of detecting and tracking periscopes.  given the lacking data, I am going to assume 0.25m² to a range of 35km, all else will be copied directly from APS-116.'
+    dbObj.notes='All I know of this radar is 200w average power, slotted planar array, and TWT transmitter, scan to scan processing, and ISAR, is capable of detecting and tracking periscopes.  given the lacking data, I am going to assume 0.25mÂ² to a range of 35km, all else will be copied directly from APS-116.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

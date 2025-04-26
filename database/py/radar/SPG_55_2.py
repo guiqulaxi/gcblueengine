@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='assumed 25dB gain.  maximum range of 300kyds.  assumed 20m² target at this range.  I don\'t have any references that state this radar is a hinderence to RIM-67D'
+    dbObj.notes='assumed 25dB gain.  maximum range of 300kyds.  assumed 20mÂ² target at this range.  I don\'t have any references that state this radar is a hinderence to RIM-67D'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

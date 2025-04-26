@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='shares entry with DRBC 32.  -32 use casegrain antennae while othrs use lightweight dishes, otherwise the same.  1.5° wide beam, 80kw peak power, 0.1m² tracked at 15km.  Being a gun FCS, assuming a max instrumented of 20nm, or 37km'
+    dbObj.notes='shares entry with DRBC 32.  -32 use casegrain antennae while othrs use lightweight dishes, otherwise the same.  1.5Â° wide beam, 80kw peak power, 0.1mÂ² tracked at 15km.  Being a gun FCS, assuming a max instrumented of 20nm, or 37km'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

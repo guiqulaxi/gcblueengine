@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='broadly equal to WM-20, detects 1m² target at 30km and 15km altitude, or 33.5km slant.'
+    dbObj.notes='broadly equal to WM-20, detects 1mÂ² target at 30km and 15km altitude, or 33.5km slant.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

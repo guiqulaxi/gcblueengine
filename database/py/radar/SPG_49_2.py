@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='originally designed with ain instrumented range of 400kyds and track a 1m² target at 200kyds, this was later relaxed to 300kyds instrumented while tracking at 4.5m² target at 200kyds.'
+    dbObj.notes='originally designed with ain instrumented range of 400kyds and track a 1mÂ² target at 200kyds, this was later relaxed to 300kyds instrumented while tracking at 4.5mÂ² target at 200kyds.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

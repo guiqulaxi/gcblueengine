@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='150kW peak power, 5.2kW average power, 145nm claimed for 2m² target, 2.2 degree resolution in azimuth, 300m in range.  150,000w is 51.761dB, 30dB gain, for a P_erp of 81.761.  Antenna is a little shorter in height than it is wide, assuming 3° vertical beam width.  Ref range of an astounding 225.814km.  Will assume a 600km range as this corresponds to a radar horizon at 50,000ft/15,200m, and a target size of 49.85m, or 50m².'
+    dbObj.notes='150kW peak power, 5.2kW average power, 145nm claimed for 2mÂ² target, 2.2 degree resolution in azimuth, 300m in range.  150,000w is 51.761dB, 30dB gain, for a P_erp of 81.761.  Antenna is a little shorter in height than it is wide, assuming 3Â° vertical beam width.  Ref range of an astounding 225.814km.  Will assume a 600km range as this corresponds to a radar horizon at 50,000ft/15,200m, and a target size of 49.85m, or 50mÂ².'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcShipDBObject()
@@ -16,7 +17,7 @@ def CreateDBObject():
     dbObj.iconFileName='NONE'
     dbObj.mz3DModelFileName='sovremenny.xml'
     dbObj.notes='while there are 281 Osa\'s of the various types, there will not be 281 names provided.  For one I lack information on the correct names, for two there is a lack of info on dates, comission and decomission.  I will instead only include those for which I have both dates, this should still yield far more than will be needed in any scenario.  58 Osa I\'s given names and dates'
-    dbObj.length_m=38.599998
+    dbObj.length_m=0.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000
     sensorPlatformDBObject=pygcb.tcSensorPlatformDBObject()

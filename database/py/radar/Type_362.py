@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='x-band, 42km va 2m² target, 120km instrumented, 60m range accuracy, 0.5° azimuth accuracy, 2°x10° beamwidth, 360mhz bandwidth, 33.5dB gain, 30rpm scan rate, 150kW peak power.  '
+    dbObj.notes='x-band, 42km va 2mÂ² target, 120km instrumented, 60m range accuracy, 0.5Â° azimuth accuracy, 2Â°x10Â° beamwidth, 360mhz bandwidth, 33.5dB gain, 30rpm scan rate, 150kW peak power.  '
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

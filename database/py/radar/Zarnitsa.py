@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='destroyer at 7.5nm, torpedo boat at 3.4nm, aircraft at 300m at 9-17nm.  Assuming this to be fighter to bomber, or 10m²-125m².  Significant lookdown penalty to meet references.  80kW, 1µs 400pps, 17² beam.  -35dBsm for lookdown on water should penalise the ref range enough to force the naval detection down to 7.5nm for a 3000ton ship, and 2.95nm for a 250ton ship.'
+    dbObj.notes='destroyer at 7.5nm, torpedo boat at 3.4nm, aircraft at 300m at 9-17nm.  Assuming this to be fighter to bomber, or 10mÂ²-125mÂ².  Significant lookdown penalty to meet references.  80kW, 1Âµs 400pps, 17Â² beam.  -35dBsm for lookdown on water should penalise the ref range enough to force the naval detection down to 7.5nm for a 3000ton ship, and 2.95nm for a 250ton ship.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

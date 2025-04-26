@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='Pollux FCS, started with the entry for TRS 2620 and modified from there.  I lack info on TRS 3020 other than 2m² aircraft tracked at16nm, 20m range error at 18km, 1mrad error in bearing.  X band, 2 degree beam, 200kW Perp, 90w PAve, 30dB Gain, 0.3µs pulses, 1500pps.'
+    dbObj.notes='Pollux FCS, started with the entry for TRS 2620 and modified from there.  I lack info on TRS 3020 other than 2mÂ² aircraft tracked at16nm, 20m range error at 18km, 1mrad error in bearing.  X band, 2 degree beam, 200kW Perp, 90w PAve, 30dB Gain, 0.3Âµs pulses, 1500pps.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

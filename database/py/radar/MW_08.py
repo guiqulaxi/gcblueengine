@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='0.1m² target at 17km, 1m² at 27km, 0.1m² is the harder target to achieve, yielding a ref range of 30.231.  beams are 2°x12°. 50kW power, all else assumed equal to SMART series of which this is a development.  Assumed 3% dutycycle.'
+    dbObj.notes='0.1mÂ² target at 17km, 1mÂ² at 27km, 0.1mÂ² is the harder target to achieve, yielding a ref range of 30.231.  beams are 2Â°x12Â°. 50kW power, all else assumed equal to SMART series of which this is a development.  Assumed 3% dutycycle.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

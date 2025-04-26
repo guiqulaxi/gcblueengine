@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='I don\'t know much about this system, but its peak range is 1/3 that of the Stir 240, going to scale details that i don\'t know accordingly, setting them at 1/4 of SIR 240 values.  STIR 240 has 25 times the averager power, which is the same as 25 times larger target at the same power.  so, 25m² target at 140km.'
+    dbObj.notes='I don\'t know much about this system, but its peak range is 1/3 that of the Stir 240, going to scale details that i don\'t know accordingly, setting them at 1/4 of SIR 240 values.  STIR 240 has 25 times the averager power, which is the same as 25 times larger target at the same power.  so, 25mÂ² target at 140km.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

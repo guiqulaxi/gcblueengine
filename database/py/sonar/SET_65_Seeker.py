@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcSonarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='assumed to be capable of active acquisition at 800m.  Tagged for 800m on 30° aspect vs TS=8 target.  Vs LA with TS of 12 this results in 1270.  broadside this is 5120 to 6390.  a broadside target is almost always prefered.  Maximum range set to permit a TS=16 broadside at 8000m.  Since torpedoes would switch to faster and faster pulse rates as they close with the target, I have chosen to set a scan rate that exceeds the speed of sound in sea water at 8000m range.  scan rate chosen for 2500m range.'
+    dbObj.notes='assumed to be capable of active acquisition at 800m.  Tagged for 800m on 30Â° aspect vs TS=8 target.  Vs LA with TS of 12 this results in 1270.  broadside this is 5120 to 6390.  a broadside target is almost always prefered.  Maximum range set to permit a TS=16 broadside at 8000m.  Since torpedoes would switch to faster and faster pulse rates as they close with the target, I have chosen to set a scan rate that exceeds the speed of sound in sea water at 8000m range.  scan rate chosen for 2500m range.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

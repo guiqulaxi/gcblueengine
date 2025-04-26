@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='is capable of detecting a 0.1m²target at 50km, 2m² at 100km, and 10m² at 180km, yielding ref ranges of 88.91, 84.09, and 101.22km.  will use a combined average of 91.41km.'
+    dbObj.notes='is capable of detecting a 0.1mÂ²target at 50km, 2mÂ² at 100km, and 10mÂ² at 180km, yielding ref ranges of 88.91, 84.09, and 101.22km.  will use a combined average of 91.41km.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

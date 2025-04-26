@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='Due to a shortage of time, im cheating on this radar.  I know its maximum range of 965M icreases the range to 200nm, range of 965P to 280nm, setting base 965 to 160nm. thats all I know currently.  Can detect a \'jet bomber\' at a range of 120nm(setting the radar for 120m² @ 220km).  Using 4 times the low altitude penalty of the 1022 as well.  Picks up an exocet as set currently(the exocet should probably be smaller than it is currently) at 30.2km.  moved lookdown_water to -24dB, changes exocet detection from 30.2km to around 14km.'
+    dbObj.notes='Due to a shortage of time, im cheating on this radar.  I know its maximum range of 965M icreases the range to 200nm, range of 965P to 280nm, setting base 965 to 160nm. thats all I know currently.  Can detect a \'jet bomber\' at a range of 120nm(setting the radar for 120mÂ² @ 220km).  Using 4 times the low altitude penalty of the 1022 as well.  Picks up an exocet as set currently(the exocet should probably be smaller than it is currently) at 30.2km.  moved lookdown_water to -24dB, changes exocet detection from 30.2km to around 14km.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

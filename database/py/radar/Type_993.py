@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='Due to a shortage of time, the research phase is rather...short for this radar.  It is based off a copy of the SPS-55 entry.  known target detection ranges are for a bomber ay 20,000ft at 35nm(assuming then 150m² @ 65km), and a carrier at 30nm(1,000m² at 56km).  lookdown water will be tweaked at achieve the carrier detection range.  in order to allow for detection of the bomber target at 6100m altitude at 65km range, the beam angle must be under 5.36° to prevent the lookdown penalty from imparing it as well.'
+    dbObj.notes='Due to a shortage of time, the research phase is rather...short for this radar.  It is based off a copy of the SPS-55 entry.  known target detection ranges are for a bomber ay 20,000ft at 35nm(assuming then 150mÂ² @ 65km), and a carrier at 30nm(1,000mÂ² at 56km).  lookdown water will be tweaked at achieve the carrier detection range.  in order to allow for detection of the bomber target at 6100m altitude at 65km range, the beam angle must be under 5.36Â° to prevent the lookdown penalty from imparing it as well.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

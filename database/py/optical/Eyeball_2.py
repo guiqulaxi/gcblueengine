@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcOpticalDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='equivalent to 20/10 vision.  should only be assigned to aircraft, as they generally screen for less than excellent eyesight.  20/10 eyesight allows for discrimination of a 1m² target at 6.8754km, as pilots would have to cope with unaided views(they do not get the benefit of 20x binoculars, such as the lookouts on a ship do), this entry does appear to be for weaker eyes, this definitely is not true, altho their performance in GCB will suffer as a result of not having the binoculars.  This will be offset by a higher rate of update, and in greater angular acuracy.  1 arc minute is 1/60 of a degree, or 0.1667°. this full accuracy is available to a pilot.  Asumed to be capable of estimating range to within 5%'
+    dbObj.notes='equivalent to 20/10 vision.  should only be assigned to aircraft, as they generally screen for less than excellent eyesight.  20/10 eyesight allows for discrimination of a 1mÂ² target at 6.8754km, as pilots would have to cope with unaided views(they do not get the benefit of 20x binoculars, such as the lookouts on a ship do), this entry does appear to be for weaker eyes, this definitely is not true, altho their performance in GCB will suffer as a result of not having the binoculars.  This will be offset by a higher rate of update, and in greater angular acuracy.  1 arc minute is 1/60 of a degree, or 0.1667Â°. this full accuracy is available to a pilot.  Asumed to be capable of estimating range to within 5%'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcShipDBObject()
@@ -16,7 +17,7 @@ def CreateDBObject():
     dbObj.iconFileName='none'
     dbObj.mz3DModelFileName='hermes.xml'
     dbObj.notes='Some ships sold to China and India. Also has Moose Jaw LF sonar but didnt include.   bumped up the flight deck according to Janes ships 81-82.  normal compliment is 32 aircraft, provided room for 34. bumped up the number of stage 2 aircraft from 2 to 8.  provided a generational loadout.'
-    dbObj.length_m=273.100006
+    dbObj.length_m=0.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000
     sensorPlatformDBObject=pygcb.tcSensorPlatformDBObject()

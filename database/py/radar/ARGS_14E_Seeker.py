@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='maximum detection range of over 20km, sectoer width of ±45°, vertical scanning of +10°, -20°.   Assuming 30dB destroyer at 20km even.  it first attempts to lock up a target at 40km.  As 30dB at 20km results in 3.557 km ref range, this also results in a 42dB target requirement for detectin at 40km, this IS achievable, leaving it as is.'
+    dbObj.notes='maximum detection range of over 20km, sectoer width of Â±45Â°, vertical scanning of +10Â°, -20Â°.   Assuming 30dB destroyer at 20km even.  it first attempts to lock up a target at 40km.  As 30dB at 20km results in 3.557 km ref range, this also results in a 42dB target requirement for detectin at 40km, this IS achievable, leaving it as is.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

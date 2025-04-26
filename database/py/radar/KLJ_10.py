@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='copied from KLJ-7.  This is the radar for the J-10 fighter, essentially unchanged from the KLJ-7 except for a larger aperture array.  I do not know the difference in size, assuming  25% increased diameter, which yields a 56% larger aperture by area.  Since a rough means to estimate fighter performance is power times aperture, and power is unchanged, then this radar should detect a 3m² target at the same range that KLJ-7 detects a 3m² target, or 89.443km.  This yields a ref range of 67.962.  Assuming the same deal regarding instrumented range as with KLJ-7, this yields 177km instrumented.  Boosting ERP values by 56% as well, or a bit under 2dB.  Otherwise assuming unchanged.'
+    dbObj.notes='copied from KLJ-7.  This is the radar for the J-10 fighter, essentially unchanged from the KLJ-7 except for a larger aperture array.  I do not know the difference in size, assuming  25% increased diameter, which yields a 56% larger aperture by area.  Since a rough means to estimate fighter performance is power times aperture, and power is unchanged, then this radar should detect a 3mÂ² target at the same range that KLJ-7 detects a 3mÂ² target, or 89.443km.  This yields a ref range of 67.962.  Assuming the same deal regarding instrumented range as with KLJ-7, this yields 177km instrumented.  Boosting ERP values by 56% as well, or a bit under 2dB.  Otherwise assuming unchanged.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

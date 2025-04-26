@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='ref range extrapolated from (v)3 based on power.  tranmistter is 1.8km instead of 8kw, all else assumed equal.  to receive equivalent power at 30nm the target must be a 4.4444m² target instead of 1m², this yields a ref range of 38.266km.  smallest targets een to maximum range on (v)3 is 1967m², this size target is only seen at 255km if correct about extrapolation, this is 137.6nm, set maximum range to 130nm.'
+    dbObj.notes='ref range extrapolated from (v)3 based on power.  tranmistter is 1.8km instead of 8kw, all else assumed equal.  to receive equivalent power at 30nm the target must be a 4.4444mÂ² target instead of 1mÂ², this yields a ref range of 38.266km.  smallest targets een to maximum range on (v)3 is 1967mÂ², this size target is only seen at 255km if correct about extrapolation, this is 137.6nm, set maximum range to 130nm.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

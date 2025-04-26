@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcOpticalDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='this camera has a focal length of 1.75in, and is mounted at a 19.75° depression angle, this camera station has 60% overlap, assumed to be at its peak velocity of 590m/s at an altitude of 12200m.  this results in a field of view of 78.965°.  nominal scan rate for no overlap would be 100.95seconds, 60% overlap is then 40.38s.  as the 12in camera is quoted to be capable of resolving a tennis ball from 40,000ft, this equates to a ref range of 13.1 for the 1.75in focal length, assuming equivalent film is used.  This camera is arranged for tri-fan coverage.'
+    dbObj.notes='this camera has a focal length of 1.75in, and is mounted at a 19.75Â° depression angle, this camera station has 60% overlap, assumed to be at its peak velocity of 590m/s at an altitude of 12200m.  this results in a field of view of 78.965Â°.  nominal scan rate for no overlap would be 100.95seconds, 60% overlap is then 40.38s.  as the 12in camera is quoted to be capable of resolving a tennis ball from 40,000ft, this equates to a ref range of 13.1 for the 1.75in focal length, assuming equivalent film is used.  This camera is arranged for tri-fan coverage.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

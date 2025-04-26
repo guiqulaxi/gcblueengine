@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='smaller export version of DRBV23.  600kW peak power, 26dB gain, 12RPM, 70nm vs a 10m² target'
+    dbObj.notes='smaller export version of DRBV23.  600kW peak power, 26dB gain, 12RPM, 70nm vs a 10mÂ² target'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

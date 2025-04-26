@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='Marcos  -Amram -reduced ref range by 12.4km, added error values, increased max elevation by 15°, increased scan rate by 2 seconds, reduced beam width from 5 to 1.5, increased beam elevation from 5 to 17, 20.8µs pulses at 900pps, 28dB gain, 140kW peak power.'
+    dbObj.notes='Marcos  -Amram -reduced ref range by 12.4km, added error values, increased max elevation by 15Â°, increased scan rate by 2 seconds, reduced beam width from 5 to 1.5, increased beam elevation from 5 to 17, 20.8Âµs pulses at 900pps, 28dB gain, 140kW peak power.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

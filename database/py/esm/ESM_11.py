@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcESMDBObject()
@@ -19,7 +20,7 @@ def CreateDBObject():
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000
-    dbObj.mfMaxRange_km=1100.000000
+    dbObj.mfMaxRange_km=0.000000
     dbObj.mfRefRange_km=2.200000
     dbObj.mfFieldOfView_deg=360.000000
     dbObj.minElevation_deg=-90.000000

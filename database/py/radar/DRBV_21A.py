@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='related to DRBV 26, so, copied from there and changes to suit needs.  DRBV 15C receiver mated to DBRV22 antennae, Naval institude suggests probably capable of detecting aircraft at 60nm.  110km instrumented, so expect aircraft detections to instrumented.  Will assume 5m² at 110km, thus 73.561km ref.'
+    dbObj.notes='related to DRBV 26, so, copied from there and changes to suit needs.  DRBV 15C receiver mated to DBRV22 antennae, Naval institude suggests probably capable of detecting aircraft at 60nm.  110km instrumented, so expect aircraft detections to instrumented.  Will assume 5mÂ² at 110km, thus 73.561km ref.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

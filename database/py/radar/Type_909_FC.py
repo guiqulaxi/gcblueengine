@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='ref_range adjusted to permit detection of a 25m² target out to 150km.  It was set for a 400m² target acquired at just 150km.  This adjustment may be too much.  I want an exocet to get dangerously close as they did in the falklands war.  The Exocet has an assigned RCS of -9.47, aspect 0 is -3dB, so -12.47.  Lookdown water is -30, so the missile has an efective RCS of -42.47 when on the deck.  to detect at 6km, the effective RCS needs to be -41.35.  For this to apply only to aircraft at or under 50m altitude, at 14000m range, the elevation beam width must be no larger than 0.204627°.  I will use 0.2 instead of the current value of 5.'
+    dbObj.notes='ref_range adjusted to permit detection of a 25mÂ² target out to 150km.  It was set for a 400mÂ² target acquired at just 150km.  This adjustment may be too much.  I want an exocet to get dangerously close as they did in the falklands war.  The Exocet has an assigned RCS of -9.47, aspect 0 is -3dB, so -12.47.  Lookdown water is -30, so the missile has an efective RCS of -42.47 when on the deck.  to detect at 6km, the effective RCS needs to be -41.35.  For this to apply only to aircraft at or under 50m altitude, at 14000m range, the elevation beam width must be no larger than 0.204627Â°.  I will use 0.2 instead of the current value of 5.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

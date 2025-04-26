@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='Aligned to detect a 100m² target(large bomber) at 48km, but capable of exceeding this, the missile itself can headon a 550kt target from 77km...Also features better resistance to ground/surface clutter'
+    dbObj.notes='Aligned to detect a 100mÂ² target(large bomber) at 48km, but capable of exceeding this, the missile itself can headon a 550kt target from 77km...Also features better resistance to ground/surface clutter'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

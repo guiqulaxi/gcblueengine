@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcShipDBObject()
@@ -16,7 +17,7 @@ def CreateDBObject():
     dbObj.iconFileName='none'
     dbObj.mz3DModelFileName='hermes.xml'
     dbObj.notes='This version with 100 mm turrets before major refit in 80s. 60 days endurance. About 1800 m3 of aviation fuel = 1.4M kg. Refit for SAMs for CVN R98 Clemenceau/R99 Foch was 1 Sep 1985 - 31 Aug 1989. Foch was Feb 87 to early 88 according to globalsecurity.org. NEED TO FINISH ADDING AIRCRAFT'
-    dbObj.length_m=264.000000
+    dbObj.length_m=0.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000
     sensorPlatformDBObject=pygcb.tcSensorPlatformDBObject()

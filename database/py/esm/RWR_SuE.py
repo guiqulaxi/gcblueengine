@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcESMDBObject()
@@ -19,7 +20,7 @@ def CreateDBObject():
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000
-    dbObj.mfMaxRange_km=250.000000
+    dbObj.mfMaxRange_km=0.000000
     dbObj.mfRefRange_km=0.200000
     dbObj.mfFieldOfView_deg=360.000000
     dbObj.minElevation_deg=-90.000000
@@ -34,6 +35,6 @@ def CreateDBObject():
     dbObj.idThreshold_dB=0.000000
     dbObj.counterMeasureFactor=1.250000
     dbObj.isSurveillance=True
-    dbObj.mfMaxRange_km=True
+    dbObj.mfMaxRange_km=False
     dbObj.CalculateParams()
     return dbObj

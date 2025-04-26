@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='as the mk-92 is based of the Signaal \'Egg\' WM20 series, I have used it as the base entry for the WM25. Instrumented set according to 100m² target'
+    dbObj.notes='as the mk-92 is based of the Signaal \'Egg\' WM20 series, I have used it as the base entry for the WM25. Instrumented set according to 100mÂ² target'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcECMDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='Jams on H thorugh J bands, capable of range gate pull off and azimuth gate pull off.  Each 90° sector is covered continuously by 32 beams, with a total radiated power of 1MW, yielding 31.25kW per beam, or 44.95dB radiated power in each beam.'
+    dbObj.notes='Jams on H thorugh J bands, capable of range gate pull off and azimuth gate pull off.  Each 90Â° sector is covered continuously by 32 beams, with a total radiated power of 1MW, yielding 31.25kW per beam, or 44.95dB radiated power in each beam.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

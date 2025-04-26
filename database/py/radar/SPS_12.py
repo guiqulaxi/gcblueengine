@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='http://radar.tpub.com/TM-11-487C-1/TM-11-487C-11233.htm   ,     http://www.scribd.com/doc/65788019/Naval-Radar  Dwell increases from 4µs at 150pps to 4µs at 300pps, or double the dwell considering all else is equal.'
+    dbObj.notes='http://radar.tpub.com/TM-11-487C-1/TM-11-487C-11233.htm   ,     http://www.scribd.com/doc/65788019/Naval-Radar  Dwell increases from 4Âµs at 150pps to 4Âµs at 300pps, or double the dwell considering all else is equal.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

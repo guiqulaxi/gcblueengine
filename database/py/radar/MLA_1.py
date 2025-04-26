@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='I can find very little about this radar except that its a postwar italian set, air search, 150nm(177.8km) maximum range, peak power of 250kW, L band.  Assuming that this system detects a 100m² target at instrumented, putting ref range at 87.848km.  Being post war, assuming large positional errors.  As i have no data on error or on antennae dimensions, values are all creatively input.  Assuming a gain of 20dB.'
+    dbObj.notes='I can find very little about this radar except that its a postwar italian set, air search, 150nm(177.8km) maximum range, peak power of 250kW, L band.  Assuming that this system detects a 100mÂ² target at instrumented, putting ref range at 87.848km.  Being post war, assuming large positional errors.  As i have no data on error or on antennae dimensions, values are all creatively input.  Assuming a gain of 20dB.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

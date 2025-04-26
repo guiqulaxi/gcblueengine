@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='C band(upper end of G band), 2.7°x1.4° beam, 150kW, 2.2kW average power, 5RPM scan rate, maximum tracking range of 180km, 28.8° elevation limit, 100m range accuracy, 0.8° angular accuracy, 10% bandwidth.  Lacking better info, assuming 120m² target at instrumented.'
+    dbObj.notes='C band(upper end of G band), 2.7Â°x1.4Â° beam, 150kW, 2.2kW average power, 5RPM scan rate, maximum tracking range of 180km, 28.8Â° elevation limit, 100m range accuracy, 0.8Â° angular accuracy, 10% bandwidth.  Lacking better info, assuming 120mÂ² target at instrumented.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

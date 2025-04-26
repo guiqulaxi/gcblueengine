@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='1.5µs and 0.25µs pulses @ 1200, 600, and 300pps.  peak power of 108kWclaimed range is 28nm on a periscope, 60nm on a patrol boat, and 130nm on a medium sized ship, all in sea state 3 or 4.'
+    dbObj.notes='1.5Âµs and 0.25Âµs pulses @ 1200, 600, and 300pps.  peak power of 108kWclaimed range is 28nm on a periscope, 60nm on a patrol boat, and 130nm on a medium sized ship, all in sea state 3 or 4.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000

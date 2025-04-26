@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygcb
 def CreateDBObject():
     dbObj=pygcb.tcRadarDBObject()
@@ -15,7 +16,7 @@ def CreateDBObject():
     dbObj.imageList=''
     dbObj.iconFileName=''
     dbObj.mz3DModelFileName=''
-    dbObj.notes='error levels are WAY too high for guiding Crotale.  Reducing these to suite needs.  The missile must pass within 16m of its target to detonate, and must do this at close to maximum range.  Setting up for 20m maximum error at 14km.  Range error of 0.0006, angular error of 0.032° and 0.064°, 3 dimensional error at 14km is 19.4 meters.'
+    dbObj.notes='error levels are WAY too high for guiding Crotale.  Reducing these to suite needs.  The missile must pass within 16m of its target to detonate, and must do this at close to maximum range.  Setting up for 20m maximum error at 14km.  Range error of 0.0006, angular error of 0.032Â° and 0.064Â°, 3 dimensional error at 14km is 19.4 meters.'
     dbObj.length_m=1.000000
     dbObj.width_m=1.000000
     dbObj.height_m=1.000000
