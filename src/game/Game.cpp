@@ -1213,13 +1213,15 @@ bool tcGame::UpdateFrame()
 
     //    directorTime += fdt; // run director when not in simple brief mode
     std::cout << "\r";
-    std::cout << std::left<<std::setw(10) << simState->GetTime()<<" " ;
+    std::cout << std::left<<std::setw(10)<<std::setprecision(2) << simState->GetTime()<<" " ;
     std::cout << simState->GetDateTime().GetYear()<<"-" ;
     std::cout << std::left<<std::setw(2)<<simState->GetDateTime().GetMonth()<<"-" ;
     std::cout << std::left<<std::setw(2)<<simState->GetDateTime().GetDay()<<" " ;
     std::cout <<std::left<<std::setw(2)<< simState->GetDateTime().GetHour()<<":" ;
     std::cout << std::left<<std::setw(2)<<simState->GetDateTime().GetMinute()<<":" ;
-    std::cout << std::left<<std::setw(2)<<simState->GetDateTime().GetSecond() ;
+    std::cout << std::left<<std::setw(3)<<simState->GetDateTime().GetSecond() ;
+    int nSize = simState->maPlatformState.GetCount();
+    std::cout << std::left<<std::setw(5)<<nSize ;
     //更新输出数据
     UpdateOutSimData();
     //处理命令

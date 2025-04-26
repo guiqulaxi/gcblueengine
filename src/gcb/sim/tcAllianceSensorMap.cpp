@@ -257,7 +257,7 @@ void tcAllianceSensorMap::AddAlwaysVisibleTrack(std::shared_ptr<tcGameObject> ob
     long nIdx = maTrackToSensorTrack[nTrackID];
     if (nIdx == NULL_INDEX)
     {
-        std::shared_ptr<tcSensorMapTrack>track = std::make_shared<tcSensorMapTrack>();
+        track = std::make_shared<tcSensorMapTrack>();
         long nKey;
         maTrack.AddElement(track, nKey);
         maTrackToSensorTrack[nTrackID] = nKey;
@@ -271,6 +271,7 @@ void tcAllianceSensorMap::AddAlwaysVisibleTrack(std::shared_ptr<tcGameObject> ob
             return;
         }
     }
+
 
     assert(track != 0);
 
