@@ -24,9 +24,11 @@ void MyTIFFErrorHandler(const char* module, const char* fmt, va_list args) {
 tcGeoTiffReader::tcGeoTiffReader():
     mTif(NULL),
     mGtif(NULL),
-    mTrans(NULL)
+    mTrans(NULL),
+    mDataBuf(NULL),
+    mCache(100)
 {
-    char* file="maps/ETOPO_2022_v1_60s_N90W180_surface.tif";
+    const char* file="maps/ETOPO_2022_v1_60s_N90W180_surface.tif";
     TIFFErrorHandler oldHandler = TIFFSetErrorHandler(MyTIFFErrorHandler);
     mTif = XTIFFOpen(file, "r");
     if (!mTif) {
@@ -105,6 +107,15 @@ tcGeoTiffReader::tcGeoTiffReader():
 
     PJ_CONTEXT *ctx = proj_context_create();
     mTrans = proj_create_crs_to_crs(ctx, "EPSG:4326", target_crs, NULL);
+
+    if (TIFFIsTiled(mTif)) {//块存储
+         mDataBuf = _TIFFmalloc(TIFFTileSize(mTif));
+    }
+    else
+    {
+       mDataBuf = _TIFFmalloc(TIFFScanlineSize(mTif));
+    }
+
 }
 
 tcGeoTiffReader::~tcGeoTiffReader()
@@ -112,44 +123,80 @@ tcGeoTiffReader::~tcGeoTiffReader()
     GTIFFree(mGtif);
     XTIFFClose(mTif);
     proj_destroy(mTrans);
+    if(mDataBuf)
+    {
+        _TIFFfree(mDataBuf);
+    }
 }
 
 
 float tcGeoTiffReader::GetTerrainHeight(double afLon_deg, double afLat_deg)
 {
+
     PJ_COORD proj = proj_trans(mTrans, PJ_FWD, proj_coord(afLon_deg, afLat_deg, 0, 0));
 
 
 
     int x_pixel = (proj.xy.x - mA) / mB;
     int y_pixel = (proj.xy.y - mC) / mD;
-
     // 5. 读取数据
     double value=MISSING_DATA_VAL;
-    if (TIFFIsTiled(mTif)) {//块存储
+    if (TIFFIsTiled(mTif))
+    {//块存储
+        if(mnBitsPerSample == 32)
+        {
+            int x_tile = x_pixel / nTileWidth;
+            int y_tile = y_pixel / nTileHeight;
+            std::vector<float> tile_data;
+            bool cache_hit = mCache.Get(x_tile, y_tile, tile_data);
+            if (cache_hit)
+            {
+                uint32_t offset_x = x_pixel % nTileWidth;
+                uint32_t offset_y = y_pixel % nTileHeight;
+                value = tile_data[offset_y * nTileWidth + offset_x];
+            }
+            else
+            {
+                if (TIFFReadTile(mTif, mDataBuf, x_pixel, y_pixel, 0, 0) == -1) {
+                    return MISSING_DATA_VAL;
+                }
+                size_t tile_size = nTileWidth * nTileHeight;
+                tile_data.resize(tile_size);
+                memcpy(tile_data.data(), mDataBuf, tile_size * sizeof(float));
 
-        unsigned char* buf = (unsigned char*)_TIFFmalloc(TIFFTileSize(mTif));
-        TIFFReadTile(mTif, buf, x_pixel, y_pixel, 0, 0);
-        // TIFFReadTile(tif, buf1,x_pixel+1, y_pixel, 0, 0);//即使偏移buf也是一样的 因为是按块读取
+                mCache.Put(x_tile, y_tile, tile_data);
+                uint32_t offset_x = x_pixel % nTileWidth;
+                uint32_t offset_y = y_pixel % nTileHeight;
+                value = tile_data[offset_y * nTileWidth + offset_x];
+            }
 
-        if (mnBitsPerSample == 32) {
-            float* floatData = (float*)buf;
-            uint32_t offset_x = x_pixel % nTileWidth;
-            uint32_t offset_y = y_pixel % nTileHeight;
-            value = (floatData)[offset_y * nTileWidth + offset_x];
-
-            // float* floatData1 = (float*)buf1;
-            // float value1 = (floatData1)[offset_y * tile_width + offset_x];
-            // int  a=0;
-            // 处理32位浮点数据...
-        } else if (mnBitsPerSample == 64) {
-            double* doubleData = (double*)buf;
-            int a=0;
-            // 处理64位浮点数据...
         }
-        else if (mnBitsPerSample == 16) {
-            uint16_t* shortData = (uint16_t*)buf;
-        }
+
+
+
+        // TIFFReadTile(mTif, mDataBuf, x_pixel, y_pixel, 0, 0);
+        // // TIFFReadTile(tif, buf1,x_pixel+1, y_pixel, 0, 0);//即使偏移buf也是一样的 因为是按块读取
+
+        // if (mnBitsPerSample == 32) {
+
+        //     float* floatData = (float*)mDataBuf;
+        //     uint32_t offset_x = x_pixel % nTileWidth;
+        //     uint32_t offset_y = y_pixel % nTileHeight;
+        //     value = floatData[offset_y * nTileWidth + offset_x];
+
+        //     // float* floatData1 = (float*)buf1;
+        //     // float value1 = (floatData1)[offset_y * tile_width + offset_x];
+        //     // int  a=0;
+        //     // 处理32位浮点数据...
+
+        // } else if (mnBitsPerSample == 64) {
+        //     double* doubleData = (double*)mDataBuf;
+        //     int a=0;
+        //     // 处理64位浮点数据...
+        // }
+        // else if (mnBitsPerSample == 16) {
+        //     uint16_t* shortData = (uint16_t*)mDataBuf;
+        // }
 
         //读取所有
         // for (uint32_t y = 0; y < height; y += tileHeight) {
@@ -175,16 +222,11 @@ float tcGeoTiffReader::GetTerrainHeight(double afLon_deg, double afLat_deg)
 
         //     }
         // }
-        _TIFFfree(buf);
     }
     else
     {
-        int size=TIFFTileSize(mTif);
-        unsigned char* buf = (unsigned char*)_TIFFmalloc(TIFFScanlineSize(mTif));
         for (long i = 0; i < mnHeight; i++) {
-            if (TIFFReadScanline(mTif, buf, (unsigned int)i, 0) == -1) {
-
-                _TIFFfree(buf);
+            if (TIFFReadScanline(mTif, mDataBuf, (unsigned int)i, 0) == -1) {
                 return value;
             }
 

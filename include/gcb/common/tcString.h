@@ -41,9 +41,9 @@ class tcString : public std::string {
     typedef std::string StdString; // workaround for MSVC 6 bug with scoped base names
 public:
     int Delete(int index, int count);
-    void Format(char *azFormat, ...);  
+    void Format( char *azFormat, ...);
     int Find(char c, int nStart=0);
-    int Find(char* substr, int nStart=0);
+    int Find( char* substr, int nStart=0);
     const char* GetBuffer() {return c_str();}
     const char* GetBufferSetLength(int anMaxLength);
     int GetLength() {return (int)size();}
