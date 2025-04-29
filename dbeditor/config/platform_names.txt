@@ -1,5 +1,0 @@
-// column label,column value pairs for platform_names table
-Name,Name
-Hull Number,HullNumber
-Service Start [year],DateInService
-Service End [year],DateOutService

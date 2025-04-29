@@ -1,5 +1,0 @@
-<Window>
-
-  <TextBox TopMargin="2" BottomMargin="2" Wrap="34" DrawBorder="0" FontSize="10"/>
-
-</Window>

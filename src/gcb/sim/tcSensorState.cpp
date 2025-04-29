@@ -296,10 +296,7 @@ bool tcSensorState::GetAltitudeEstimate(float& altitudeEstimate_m, float& altitu
         // 根据估计的仰角和距离计算估计的高度
         altitudeEstimate_m = parent->mcKin.mfAlt_m + range_m * tanf(elEstimate_rad);
         // 如果计算得到的高度估计值为负，则进行无操作（这里可能是为了调试，实际使用中应去除）
-        if(altitudeEstimate_m<0)
-        {
-            int a=0;
-        }
+
         // 计算高度估计的方差，考虑了仰角误差和距离
         altitudeVariance = mpDBObj->elevationError_rad * range_m;
         // 使用常数C_U2GVAR对方差进行缩放

@@ -201,6 +201,7 @@ unsigned short tcLauncherDBObject::GetDefaultChildCapacity() const
     */
 const char* tcLauncherDBObject::GetDefaultChildClass() const
 {
+
     static std::string errorString = "";
     static std::vector<std::string> matches;
     if (childClassList.size() > 0)

@@ -1178,6 +1178,7 @@ void tcLauncher::SetRepeatShotsForType()
 */
 void tcLauncher::SetChildClass(const std::string& childClass, bool ignoreRestrictions)
 {
+
     if (mpChildDBObj && (childClass == mpChildDBObj->mzClass.c_str())) return;
 
     if ((mpChildDBObj != 0) && (isExternalFuelTank))

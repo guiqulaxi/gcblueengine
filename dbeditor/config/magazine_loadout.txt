@@ -1,4 +1,0 @@
-// column label,column value pairs for table
-Item,Item
-Magazine Id,MagazineId
-Quantity,Quantity

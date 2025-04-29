@@ -210,10 +210,7 @@ void tcDatabase::BuildDictionaries()
         assert(obj->mnKey != -1);
 
         std::string className = obj->mzClass.c_str();
-        if(className=="57mm/70 Mks 2-3 Store")
-        {
-            int a=0;
-        }
+
         mapIter = nameToKey.find(className);
         if (mapIter == nameToKey.end())
         {
@@ -810,6 +807,7 @@ void tcDatabase::LoadPlatformTables()
 
                 // platformData->maMagazineClass.push_back(magazineClass);
                 // platformData->magazineId.push_back(magId);
+
                 platformData->mnNumMagazines++;
             }
             assert(platformData->maMagazineClass.size() == platformData->magazineId.size());
@@ -2813,7 +2811,6 @@ long tcDatabase::AddOrUpdateObject(std::shared_ptr<tcDatabaseObject>rpobj)
     mcObjectData.AddElement(rpobj, key); // add to database, key gets new key val
     rpobj->mnKey = key; // set key val of object (may not be necessary anymore)
     nameToKey[rpobj->GetName() ] = key;
-
     return key;
 }
 long tcDatabase::AddOrUpdateObjectForceKey(std::shared_ptr<tcDatabaseObject> rpobj,long forceKey)
@@ -3201,8 +3198,8 @@ std::vector<std::string> tcDatabase::WildcardSearch(const std::string& expressio
 
     std::string prefix = expression.substr(0,nPrefix);
 
-    std::map<std::string, std::string>::const_iterator mapIter = nameToTable.lower_bound(prefix);
-    bool searching = (mapIter != nameToTable.end());
+    std::map<std::string, long>::const_iterator mapIter = nameToKey.lower_bound(prefix);
+    bool searching = (mapIter != nameToKey.end());
     while (searching)
     {
         std::string s(mapIter->first.c_str());
@@ -3254,7 +3251,7 @@ std::vector<std::string> tcDatabase::WildcardSearch(const std::string& expressio
 
         ++mapIter;
 
-        searching = (mapIter != nameToTable.end()) && (prefixMatches);
+        searching = (mapIter != nameToKey.end()) && (prefixMatches);
     }
 
     return result;

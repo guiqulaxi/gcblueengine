@@ -35,6 +35,8 @@
 *.cppback
 *.pyc
 
+*.user
+*.tif
 build/
 MapDataReader/
 client/

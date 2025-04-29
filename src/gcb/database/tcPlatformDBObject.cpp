@@ -506,6 +506,7 @@ void tcPlatformDBObject::WriteSql(std::string& valueString) const
 void tcPlatformDBObject::WritePythonValue(std::string &valueString) const
 {
     tcDatabaseObject::WritePythonValue(valueString);
+
     GetComponent<tcSensorPlatformDBObject>()->WritePythonValue(mzClass,valueString);
     valueString+="    dbObj.mfMaxSpeed_kts="+strutil::to_python_value(mfMaxSpeed_kts)+"\n";
     valueString+="    dbObj.mfAccel_ktsps="+strutil::to_python_value(mfAccel_ktsps)+"\n";
@@ -517,6 +518,7 @@ void tcPlatformDBObject::WritePythonValue(std::string &valueString) const
     valueString+="    dbObj.mnNumLaunchers="+strutil::to_python_value(mnNumLaunchers)+"\n";
     valueString+="    dbObj.maLauncherClass="+strutil::to_python_value(maLauncherClass)+"\n";
     valueString+="    dbObj.maMagazineClass="+strutil::to_python_value(maMagazineClass)+"\n";
+    valueString+="    dbObj.mnNumMagazines="+strutil::to_python_value(mnNumMagazines)+"\n";
     valueString+="    dbObj.magazineId="+strutil::to_python_value(magazineId)+"\n";
     valueString+="    dbObj.launcherId="+strutil::to_python_value(launcherId)+"\n";
     valueString+="    dbObj.launcherName="+strutil::to_python_value(launcherName)+"\n";

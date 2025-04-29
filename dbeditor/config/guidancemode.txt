@@ -1,5 +1,0 @@
-// label,value table
-Command,0
-Nav,1
-Seeker,2
-Deploy,3

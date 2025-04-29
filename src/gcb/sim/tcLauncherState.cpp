@@ -67,7 +67,7 @@ void tcLauncherState::AddFullLauncher(long anKey, float azimuth_rad, float eleva
 			anKey);
         return;
     }
-    
+
     if (mnCount >= tcPlatformDBObject::MAXLAUNCHERS) 
     {
         fprintf(stderr, "Error - tcLauncherState::AddFullLauncher - full\n");
@@ -95,7 +95,6 @@ void tcLauncherState::AddFullLauncher(long anKey, float azimuth_rad, float eleva
             new_launcher->SetChildQuantity(ldata->GetConfigurationCapacity(1));
         }
     }
-
     assert((new_launcher->mpChildDBObj != 0) || (ldata->mzClass == "Test Launcher"));
     
 

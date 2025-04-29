@@ -421,38 +421,38 @@ void tcGame::Init()
     {
 
         //初始化数据库
-        database->addTable("ship");
-        database->addTable("simpleair");
-        database->addTable("ground");
-       database->addTable("missile");
-        //tables.push_back("launcher"); // launcher is now a virtual table, special case formed from distinct values in launcher_configuration table
-        database->addTable("radar");
-        database->addTable("esm");
-        database->addTable("optical");
-       database->addTable("ecm");
-        database->addTable("sonar");
-        database->addTable("air");
-        database->addTable("flightport");
-       database->addTable("ballistic");
-        database->addTable("stores");
-       database->addTable("torpedo");
-        database->addTable("sonobuoy");
-        database->addTable("item");
-        database->addTable("sub");
-        database->addTable("fueltank");
-        database->addTable("cm");
-        database->addTable("ballistic_missile");
-         database->addTable("space");
+       //  database->addTable("ship");
+       //  database->addTable("simpleair");
+       //  database->addTable("ground");
+       // database->addTable("missile");
+       //  //tables.push_back("launcher"); // launcher is now a virtual table, special case formed from distinct values in launcher_configuration table
+       //  database->addTable("radar");
+       //  database->addTable("esm");
+       //  database->addTable("optical");
+       // database->addTable("ecm");
+       //  database->addTable("sonar");
+       //  database->addTable("air");
+       //  database->addTable("flightport");
+       // database->addTable("ballistic");
+       //  database->addTable("stores");
+       // database->addTable("torpedo");
+       //  database->addTable("sonobuoy");
+       //  database->addTable("item");
+       //  database->addTable("sub");
+       //  database->addTable("fueltank");
+       //  database->addTable("cm");
+       //  database->addTable("ballistic_missile");
+       //   database->addTable("space");
 
-        database->SerializeSql("", true); // moved to top so that db is loaded for db browse panel
-        database->SetProgressReporting( 0, 0);
+       //  database->SerializeSql("", true); // moved to top so that db is loaded for db browse panel
+       //  database->SetProgressReporting( 0, 0);
 
 
 
-        if (tcOptions::Get()->OptionStringExists("CopyDatabase"))
-        {
-            database->SerializeSql("_copy", false);
-        }
+       //  if (tcOptions::Get()->OptionStringExists("CopyDatabase"))
+       //  {
+       //      database->SerializeSql("_copy", false);
+       //  }
 
 
 
@@ -480,30 +480,7 @@ void tcGame::Init()
         tcGameObject::SetGameObjectMapData(mapData);
         tcPlatformObject::InitPlatformObject();
 
-        // ///////////////////////////////////////////////////////
-        // #define K_DEC_LOWRES (int)30
-        // #define SCALE_LOWRES (float)120/(float)K_DEC_LOWRES
-        // #define SCALE_HIGHRES (float)120.0f
-        // #define SCALE_LOOKUP (float)0.5f
-        // #define RESLOW_DEG (float)K_DEC_LOWRES/120.0f
-        // #define RESHIGH_DEG (float)1.0f/120.0f
-        // #define M_LOWRES (int)180*120/K_DEC_LOWRES // latitude cells for low res global map
-        // #define N_LOWRES (int)360*120/K_DEC_LOWRES // longitude
-        //         size_t  M_HIGHRES =M_LOWRES;
-        //         size_t  N_HIGHRES=N_LOWRES;
-        //         UINT32 *apData =new UINT32[M_HIGHRES*N_HIGHRES];
-        //         mapData->CreateMapArrayHighRes();
-        //         mapData->CreateMapImage(0,0,apData);
-        //         QImage image(M_HIGHRES,N_HIGHRES,QImage::Format_ARGB32);
-        //         for(int m=0;m<M_HIGHRES;m++)
-        //         {
-        //             for(int n=0;n<M_HIGHRES;n++)
-        //             {
-        //                 image.setPixel(m,n,apData[(M_HIGHRES-1-m)*N_HIGHRES + n]);
-        //             }
-        //         }
-        //         // QImage image((uchar *)apData, M_HIGHRES, N_HIGHRES, QImage::Format_ARGB32);
-        //         image.save("D:/1.png");
+
         InitSim();
     }
     catch(std::string s)
@@ -598,6 +575,7 @@ bool tcGame::InitSim()
     Aero::LoadAtmosphereTable();
 
     //加载水声数据
+    std::cout << "load python data:acoustic_noise" << std::endl;
     for (const auto& entry : fs::directory_iterator("database/py/acoustic_noise")) {
         if (fs::is_regular_file(entry.status())) {
             auto pathString=entry.path().string();
@@ -606,6 +584,7 @@ bool tcGame::InitSim()
         }
     }
     //加载特性数据
+    std::cout << "load python data:signature" << std::endl;
     for (const auto& entry : fs::directory_iterator("database/py/signature")) {
         if (fs::is_regular_file(entry.status())) {
             auto pathString=entry.path().string();
@@ -614,6 +593,7 @@ bool tcGame::InitSim()
         }
     }
     //加载毁伤数据
+    std::cout << "load python data:weapon_damage" << std::endl;
     for (const auto& entry : fs::directory_iterator("database/py/weapon_damage")) {
         if (fs::is_regular_file(entry.status())) {
             auto pathString=entry.path().string();
@@ -622,6 +602,7 @@ bool tcGame::InitSim()
         }
     }
     //加载毁伤效果
+    std::cout << "load python data:damage_effect" << std::endl;
     for (const auto& entry : fs::directory_iterator("database/py/damage_effect")) {
         if (fs::is_regular_file(entry.status())) {
             auto pathString=entry.path().string();
@@ -631,35 +612,37 @@ bool tcGame::InitSim()
     }
     //加载所有数据
     std::vector<std::string> dataDir= {
-                                        // "stores",
-                                        // "ballistic",
-                                        // "ballistic_missile",
-                                        // "cm",
-                                        // "air",
-                                        // "ecm",
-                                        // "esm",
-                                        // "flightport",
-                                        // "fueltank",
-                                        // "ground",
-                                        // "item",
-                                        // "missile",
-                                        // "optical",
-                                        // "radar",
-                                        // "ship",
-                                        // "simpleair",
-                                        // "sonar",
-                                        // "sonobuoy",
-                                        // "space",
-                                        // "sub",
-                                        // "torpedo",
-                                        // "launcher"
+                                        "stores",
+                                        "ballistic",
+                                        "ballistic_missile",
+                                        "cm",
+                                        "air",
+                                        "ecm",
+                                        "esm",
+                                        "flightport",
+                                        "fueltank",
+                                        "ground",
+                                        "item",
+                                        "missile",
+                                        "optical",
+                                        "radar",
+                                        "ship",
+                                        "simpleair",
+                                        "sonar",
+                                        "sonobuoy",
+                                        "space",
+                                        "sub",
+                                        "torpedo",
+                                        "launcher"
 
 
     };
     for (auto & dir:dataDir)
     {
+         std::cout << "load python data:" << dir << "" << std::endl;
         for (const auto& entry : fs::directory_iterator("database/py/"+dir)) {
             if (fs::is_regular_file(entry.status())) {
+
                 auto pathString=entry.path().string();
                 std::replace(pathString.begin(), pathString.end(), '\\', '/');
                 LoadDatabaseObject(pathString);
@@ -667,7 +650,7 @@ bool tcGame::InitSim()
         }
     }
 
-     simState->AttachWeaponTester(); // dev mode feature
+    //simState->AttachWeaponTester(); // dev mode feature
     return true;
 }
 
@@ -685,6 +668,7 @@ void tcGame::SaveDatabaseToPython(const std::string& dirPath)
             ofs.open(path);
             std::string valueString;
             obj->WritePython(valueString);
+            ofs << "# -*- coding: utf-8 -*-\n";  // 可选：强制 Python 使用 UTF-8 解析
             ofs<<valueString;
             ofs.close();
         }
@@ -697,6 +681,7 @@ void tcGame::SaveDatabaseToPython(const std::string& dirPath)
         ofs.open(path);
         std::string valueString;
         kv.second.WritePython(valueString);
+        ofs << "# -*- coding: utf-8 -*-\n";  // 可选：强制 Python 使用 UTF-8 解析
         ofs<<valueString;
         ofs.close();
     }
@@ -708,6 +693,7 @@ void tcGame::SaveDatabaseToPython(const std::string& dirPath)
         ofs.open(path);
         std::string valueString;
         kv.second.WritePython(valueString);
+        ofs << "# -*- coding: utf-8 -*-\n";  // 可选：强制 Python 使用 UTF-8 解析
         ofs<<valueString;
         ofs.close();
     }
@@ -721,6 +707,7 @@ void tcGame::SaveDatabaseToPython(const std::string& dirPath)
 
         std::string valueString;
         kv.second.WritePython(valueString);
+        ofs << "# -*- coding: utf-8 -*-\n";  // 可选：强制 Python 使用 UTF-8 解析
         ofs<<valueString;
         ofs.close();
     }
@@ -732,6 +719,7 @@ void tcGame::SaveDatabaseToPython(const std::string& dirPath)
         ofs.open(path);
         std::string valueString;
         kv.second.WritePython(valueString);
+        ofs << "# -*- coding: utf-8 -*-\n";  // 可选：强制 Python 使用 UTF-8 解析
         ofs<<valueString;
         ofs.close();
     }
@@ -947,7 +935,9 @@ void tcGame::LoadScenario(const std::string& filePath, const std::string& captio
         fprintf(stderr, s.c_str());
 
     }
-        SaveDatabaseToPython("./database/py");
+
+
+    //SaveDatabaseToPython("./database/py");
 }
 
 string tcGame::GetOutSimData()
@@ -1213,7 +1203,7 @@ bool tcGame::UpdateFrame()
 
     //    directorTime += fdt; // run director when not in simple brief mode
     std::cout << "\r";
-    std::cout << std::left<<std::setw(10)<<std::setprecision(2) << simState->GetTime()<<" " ;
+   std::cout <<std::setw(10)<< std::fixed << std::setprecision(2)<<std::setprecision(2) << simState->GetTime()<<" " ;
     std::cout << simState->GetDateTime().GetYear()<<"-" ;
     std::cout << std::left<<std::setw(2)<<simState->GetDateTime().GetMonth()<<"-" ;
     std::cout << std::left<<std::setw(2)<<simState->GetDateTime().GetDay()<<" " ;

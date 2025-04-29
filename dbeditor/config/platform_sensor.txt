@@ -1,3 +1,0 @@
-// column label,column value pairs for platform_sensor table
-Sensor Class,SensorClass
-Az [deg],SensorAz

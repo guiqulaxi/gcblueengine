@@ -1,0 +1,81 @@
+# -*- coding: utf-8 -*-
+import pygcb
+def CreateDBObject():
+    dbObj=pygcb.tcMissileDBObject()
+    dbObj.mzClass='AIM-54C ECCM'
+    dbObj.natoClass='AIM-54C ECCM'
+    dbObj.mnModelType=5
+    dbObj.mnType=64
+    dbObj.cost=478000.000000
+    dbObj.weight_kg=460.000000
+    dbObj.volume_m3=1.000000
+    dbObj.initialYear=1990.000000
+    dbObj.finalYear=2004.746948
+    dbObj.country=''
+    dbObj.designation=''
+    dbObj.imageList=''
+    dbObj.iconFileName='mis/icoAIM-54C ECCM.jpg'
+    dbObj.mz3DModelFileName='am-39.xml'
+    dbObj.notes='improved guidance and ECCM are the prime alterations, especially the ECCM, as well as a reprogrammable memory and new signal processor software.  this missile is kept in service until 30 sep 2004.'
+    dbObj.length_m=1.000000
+    dbObj.width_m=1.000000
+    dbObj.height_m=1.000000
+    dbObj.mfDamage=40.000000
+    dbObj.damageModel='BlastFragAir60kg'
+    dbObj.damageEffect='TestMissileDmg'
+    dbObj.launchSpeed_mps=0.000000
+    dbObj.targetFlags=10
+    dbObj.minLaunchAlt_m=0.000000
+    dbObj.maxLaunchAlt_m=34567.000000
+    dbObj.minRange_km=2.000000
+    dbObj.maxRange_km=156.500000
+    dbObj.probNoFaults=0.850000
+    dbObj.payloadClass=''
+    dbObj.payloadQuantity=1
+    dbObj.datalinkRange_km=0.000000
+    dbObj.acceptsUserCommands=False
+    dbObj.detonationRange_m=11.129025
+    airDetectionDBObject=pygcb.tcAirDetectionDBObject()
+    airDetectionDBObject.RCS_dBsm=-7.400000
+    airDetectionDBObject.RCS_Model='MissileRCS1'
+    airDetectionDBObject.opticalCrossSection_dBsm=1.340000
+    airDetectionDBObject.irSignature_dB=0.000000
+    airDetectionDBObject.IR_ModelA='IR_M_S_R_M0.85'
+    airDetectionDBObject.IR_ModelB='IR_M_S_R_M0.85'
+    airDetectionDBObject.IR_ModelC='IR_M_S_R_M0.85'
+    airDetectionDBObject.effectiveHeight_m=0.000000
+    airDetectionDBObject.BindSignatureModels()
+    dbObj.AddComponent(airDetectionDBObject)
+    dbObj.mfDragArea_sm=1.100000
+    dbObj.mfGmax=20.000000
+    dbObj.mfMaxTurnRate_degps=43.700001
+    dbObj.mfCdpsub=0.029400
+    dbObj.mfCdptran=0.036750
+    dbObj.mfCdpsup=0.024500
+    dbObj.mfMcm=0.800000
+    dbObj.mfMsupm=1.200000
+    dbObj.mfBoostThrust_N=174000.000000
+    dbObj.mfBoostTime_s=4.000000
+    dbObj.mfSustThrust_N=0.000000
+    dbObj.mfSustTime_s=0.000000
+    dbObj.mfShutdownSpeed_mps=500.000000
+    dbObj.maSensorClass='AIM-54C Seeker'
+    dbObj.needsFireControl=True
+    dbObj.acceptsWaypoints=False
+    dbObj.fireAndForget=-1
+    dbObj.isARM=-1
+    dbObj.seekerFOV_rad=-1.000000
+    dbObj.aczConstant_kts=1.286111
+    dbObj.invMass_kg=0.002174
+    dbObj.mnNumSegments=2
+    dbObj.maFlightProfile=[pygcb.tsMissileFlightSegment()]*2
+    dbObj.maFlightProfile[0].meAltitudeMode=pygcb.teAltitudeMode.AM_ASL
+    dbObj.maFlightProfile[0].meGuidanceMode=pygcb.teGuidanceMode.GM_COMMAND
+    dbObj.maFlightProfile[0].mfAltitude_m=16550.000000
+    dbObj.maFlightProfile[0].mfRange_km=20.000000
+    dbObj.maFlightProfile[1].meAltitudeMode=pygcb.teAltitudeMode.AM_INTERCEPT
+    dbObj.maFlightProfile[1].meGuidanceMode=pygcb.teGuidanceMode.GM_SENSOR1
+    dbObj.maFlightProfile[1].mfAltitude_m=0.000000
+    dbObj.maFlightProfile[1].mfRange_km=0.100000
+    dbObj.CalculateParams()
+    return dbObj
