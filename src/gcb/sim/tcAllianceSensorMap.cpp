@@ -637,6 +637,26 @@ std::shared_ptr<tcSensorMapTrack> tcAllianceSensorMap::GetSensorMapTrack(long an
     maTrack.Lookup(nMapID,psmtrack);
     return psmtrack;
 }
+
+std::vector<tcSensorReport > tcAllianceSensorMap::GetSensorReport(long platformID)
+{
+    std::vector<tcSensorReport> result;
+    long cmappos = maTrack.GetStartPosition();
+    long nKey;
+     std::shared_ptr<tcSensorMapTrack>  track;
+    for (size_t i = 0; i < maTrack.GetCount(); ++i) {
+         maTrack.GetNextAssoc(cmappos,nKey,track);
+        if ( track->IsValid()) {
+            for (const auto& report : track->maSensorReport) {
+                if ( report.platformID == platformID) {
+                    result.push_back(report);
+                }
+            }
+        }
+    }
+
+    return result;
+}
 /*******************************************************************************/
 bool tcAllianceSensorMap::GetTrack(long anTrackID, tcTrack& track) 
 {

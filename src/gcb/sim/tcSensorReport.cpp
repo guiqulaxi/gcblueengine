@@ -225,7 +225,8 @@ tcSensorReport::tcSensorReport()
     headingEstimate_rad(0),
     headingVariance(0),
     climbEstimate_rad(0),
-    climbVariance(0)
+    climbVariance(0),
+    isLocal(false)
 {
 }
 

@@ -76,8 +76,15 @@ public:
      * @return
      */
     std::shared_ptr<tcSensorMapTrack> GetSensorMapTrack(long anTrackID);
-	bool GetTrack(long anTrackID, tcTrack& track);
-	int Serialize(tcFile& file, bool mbLoad);
+    /**
+ * 获取指定平台的所有探测信息
+ * @param platformId 平台ID
+ * @return 包含该平台所有探测信息的向量
+ */
+    std::vector<tcSensorReport> GetSensorReport(long platformId);
+
+    bool GetTrack(long anTrackID, tcTrack& track);
+    int Serialize(tcFile& file, bool mbLoad);
 
 	tcUpdateStream& operator<<(tcUpdateStream& stream);
 	tcUpdateStream& operator>>(tcUpdateStream& stream);

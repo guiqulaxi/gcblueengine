@@ -13,6 +13,6 @@
 ## 依赖
 libgeotiff libtif libproj libsqlite3 libcurl python pybind11
 ## 高程数据
-可以从 https://www.ncei.noaa.gov/products/etopo-global-relief-model下载需要的高程tif
+可以从 https://www.ncei.noaa.gov/products/etopo-global-relief-model 下载需要的高程tif
 ## 运行
 app.exe --scenario scenarios/Tutorial/SateliteOperations.py --times 100 --runmode normal --ip  0.0.0.0 --port 8081

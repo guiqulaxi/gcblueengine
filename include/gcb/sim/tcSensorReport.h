@@ -96,6 +96,8 @@ public:
     // 目标的爬升角估计及其方差
     float climbEstimate_rad; ///< 爬升角估计值（弧度）
     float climbVariance;     ///< 爬升角方差
+    //是否本地有效，通信没有通信智能报告给本地
+    bool isLocal;
 
     // 获取目标的跟踪寿命（从开始跟踪到当前时间的时间差）
     double GetTrackLife() const;

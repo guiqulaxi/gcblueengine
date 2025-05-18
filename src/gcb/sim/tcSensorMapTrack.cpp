@@ -28,6 +28,7 @@
 #include "tcSensorMapTrack.h"
 #include "aerror.h"
 #include "simmath.h"
+#include "tcCommPlatform.h"
 #include "tcSimState.h"
 #include "tcWeaponObject.h"
 #include "tcPlatformDBObject.h"
@@ -986,11 +987,16 @@ void tcSensorMapTrack::UpdateEmitters()
 tcSensorReport* tcSensorMapTrack::GetOrCreateReport(long platformID, long sensorID)
 {
     size_t nContributors = maSensorReport.size();
+    //如果平台不能通信则
+    std::shared_ptr<tcPlatformObject>platform = std::dynamic_pointer_cast<tcPlatformObject>(simState->GetObject(platformID));
+    assert (platform);
+
     for (size_t n=0; n<nContributors; n++)
     {
         tcSensorReport* sensorReport = &maSensorReport[n];
         if ((sensorReport->platformID == platformID) && (sensorReport->sensorID == sensorID))
         {
+            sensorReport->isLocal=!platform->IsCommunicable();
             return sensorReport;
         }
     }
@@ -1000,6 +1006,7 @@ tcSensorReport* tcSensorMapTrack::GetOrCreateReport(long platformID, long sensor
         tcSensorReport newReport;
         newReport.platformID = platformID;
         newReport.sensorID = sensorID;
+        newReport.isLocal=!platform->IsCommunicable();
         maSensorReport.push_back(newReport);
         return &maSensorReport.back();
     }
@@ -1435,7 +1442,8 @@ void tcSensorMapTrack::UpdateTrack(double tCoast_s)
     for (size_t n=0; n<nContributors; n++)
     {
         tcSensorReport* report = &maSensorReport[n];
-        mostRecentReportTime_s = std::max(report->timeStamp, mostRecentReportTime_s);
+        if(!report->isLocal)
+            mostRecentReportTime_s = std::max(report->timeStamp, mostRecentReportTime_s);
     }
     // 如果最新的报告时间或预测时间都不晚于当前跟踪时间戳，则无需更新
     if ((mostRecentReportTime_s <= tcTrack::mfTimestamp) && (tCoast_s <= tcTrack::mfTimestamp)) return; // no update required
@@ -1471,6 +1479,8 @@ void tcSensorMapTrack::UpdateTrack(double tCoast_s)
     for (size_t n=0; n<nContributors; n++)
     {
         tcSensorReport* report = &maSensorReport[n];
+         if(report->isLocal)
+            continue;
         // 根据预测结果更新位置和其他参数的估计值
         PredictReport(tPredict_s, *report, predicted);
         // update combined estimate for each contributor with valid lat/lon

@@ -25,6 +25,7 @@
 //#include "stdwx.h"
 
 #include "tcAllianceSensorMap.h"
+#include "tcCommPlatform.h"
 #ifndef WX_PRECOMP
 ////#include "wx/wx.h" 
 #endif
@@ -354,6 +355,11 @@ void tcPlatformObject::UpdateSensors(double t)
     if (clientMode) return; // no sensor update for client
     GetComponent<tcSensorPlatform>()->Update(t);
 }
+ void tcPlatformObject::UpdateComms(double t)
+{
+     if (clientMode) return; // no sensor update for client
+     GetComponent<tcCommPlatform>()->Update(t);
+}
 
 void tcPlatformObject::Update(double afStatusTime) 
 {
@@ -388,6 +394,8 @@ void tcPlatformObject::Update(double afStatusTime)
     UpdateLauncherState(dt_s);
 
     UpdateSensors(afStatusTime);
+
+    UpdateComms(afStatusTime);
 
     UpdateMagazines(afStatusTime);
 
@@ -2149,6 +2157,15 @@ bool tcPlatformObject::HasNewCommand() const
 
     return commandObj.HasNewCommand() || mcLauncherState.HasNewCommand() ||
         GetComponent<tcSensorPlatform>()->HasNewCommand() || formation.HasNewCommand();
+}
+
+bool tcPlatformObject::IsCommunicable() const
+{
+    if(std::shared_ptr<tcCommPlatform> comm= GetComponent<tcCommPlatform>())
+    {
+       return  comm->HasActivatedComm();
+    }
+    return true;
 }
 
 void tcPlatformObject::SetController(const std::string& username)

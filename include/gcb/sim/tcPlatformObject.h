@@ -230,7 +230,8 @@ public:
 
     virtual void ClearNewCommand();
     virtual bool HasNewCommand() const;
-
+    //是否可通信
+    virtual bool IsCommunicable() const;
     static void InitPlatformObject();
 
     tcPlatformObject();
@@ -255,6 +256,7 @@ protected:
     virtual void UpdateHeading(float dt_s);
     virtual void UpdateLauncherState(float dt_s);
     virtual void UpdateSensors(double t);
+    virtual void UpdateComms(double t);
     virtual void UpdateSpeed(float dt_s);
 
     void SaveFormationPositionToPython(scriptinterface::tcScenarioLogger& logger);

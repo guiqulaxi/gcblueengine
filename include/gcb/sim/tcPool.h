@@ -35,8 +35,8 @@ template <class T, int POOLSIZE> class tcPool {
 public:
    bool Lookup(long n,std::shared_ptr<T>& pt);
    std::shared_ptr<const T> LookupConst(long n) const;
-   long GetStartPosition(void);
-   long GetCount(void);
+   long GetStartPosition(void) const;
+   long GetCount(void) const;
    void GetNextAssoc(long& pos, long& index, std::shared_ptr<T>& pt);
    long GetNextKey(long pos);
    long GetPrevKey(long pos);
@@ -248,12 +248,12 @@ bool tcPool<T,POOLSIZE>::AddElementForceKey(std::shared_ptr<T> pt, long newkey) 
 }
 /**********************************************************/
 template <class T, int POOLSIZE>
-long tcPool<T,POOLSIZE>::GetStartPosition(void) {
+long tcPool<T,POOLSIZE>::GetStartPosition(void) const {
    return mnBase;
 }
 /**********************************************************/
 template <class T, int POOLSIZE>
-long tcPool<T,POOLSIZE>::GetCount(void) {
+long tcPool<T,POOLSIZE>::GetCount(void) const {
    return mnSize;
 }
 /**********************************************************/

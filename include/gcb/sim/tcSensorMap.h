@@ -94,7 +94,7 @@ public:
      * @param anAlliance
      * @return
      */
-	std::shared_ptr<tcSensorMapTrack> GetSensorMapTrack(long anTrackID, UINT8 anAlliance);
+    std::shared_ptr<tcSensorMapTrack> GetSensorMapTrack(long anTrackID, UINT8 anAlliance);
 	bool GetTrack(unsigned long anTrackID, tcTrack& track, UINT8 anAlliance);
 	int Serialize(tcFile& file, bool mbLoad);
 	bool Test();

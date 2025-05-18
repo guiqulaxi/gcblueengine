@@ -303,6 +303,8 @@ std::shared_ptr<tcSensorMapTrack> tcSensorMap::GetSensorMapTrack(long anTrackID,
 	}
 }
 
+
+
 int tcSensorMap::Serialize(tcFile& file, bool mbLoad) 
 {
     if (mbLoad)
