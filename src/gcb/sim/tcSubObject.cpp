@@ -42,6 +42,7 @@
 #include "common/tcGameStream.h"
 #include "ai/brain.h"
 #include "ai/task.h"
+#include "tcMapData.h"
 #include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -402,7 +403,17 @@ void tcSubObject::SetSnorkelState(bool state)
 /**
 *
 */
-void tcSubObject::ApplyRestrictions() 
+void tcSubObject::SetKinematics(double fLon_rad, double fLat_rad, float fAlt_m, float fHeading_rad, float fYaw_rad, float fPitch_rad, float fRoll_rad, float fSpeed_kts)
+{
+    tcPlatformObject::SetKinematics(fLon_rad, fLat_rad, fAlt_m, fHeading_rad, fYaw_rad, fPitch_rad, fRoll_rad, fSpeed_kts);
+    float terrainHeight = mapData->GetTerrainHeight(fLon_rad*C_PIOVER180, fLat_rad*C_PIOVER180, 0); 
+       if (this->mcKin.mfAlt_m < terrainHeight + 10.0f)
+        {
+            mcKin.mfAlt_m = terrainHeight + 10.0f;
+        }
+        this->SetAltitude(mcKin.mfAlt_m);
+}
+void tcSubObject::ApplyRestrictions()
 {
     // check for crash (bottom)
     if ((mcTerrain.mfHeight_m + mpDBObject->draft_m) > mcKin.mfAlt_m)

@@ -39,10 +39,12 @@
 #include "ai/Brain.h"
 #include "ai/Task.h"
 #include "tcDatabase.h"
+#include "tcMapData.h"
 #include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
+#include <algorithm>
 
 
 
@@ -152,6 +154,14 @@ void tcAirfieldObject::ApplyGeneralDamage(float damage, std::shared_ptr<tcGameOb
         GetComponent<tcFlightOpsObject>()->DestroyAllChildrenAndUpdateScore(damager);
         GetComponent<tcFlightOpsObject>()->Clear(); // destroy all captive entities
 	}
+}
+
+void tcAirfieldObject::SetKinematics(double fLon_rad, double fLat_rad, float fAlt_m, float fHeading_rad, float fYaw_rad, float fPitch_rad, float fRoll_rad, float fSpeed_kts)
+{
+        tcPlatformObject::SetKinematics(fLon_rad, fLat_rad, fAlt_m, fHeading_rad, fYaw_rad, fPitch_rad, fRoll_rad, fSpeed_kts);
+        mcKin.mfAlt_m = std::max(mcKin.mfAlt_m, 1.0f); // minimum 1 m over ground
+mcKin.mfAlt_m +=
+            mapData->GetTerrainHeight(mcKin.mfLon_rad*C_PIOVER180, mcKin.mfLat_rad*C_PIOVER180, 0);
 }
 
 void tcAirfieldObject::AutoConfigurePlatform(const std::string& setupName)

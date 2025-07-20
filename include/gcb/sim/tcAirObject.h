@@ -9,17 +9,17 @@
 **
 **  1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
 **
-**  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the 
+**  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
 **     documentation and/or other materials provided with the distribution.
 **
-**  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from 
+**  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from
 **     this software without specific prior written permission.
 **
-**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT 
-**  NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE 
-**  COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
-**  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
-**  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING 
+**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
+**  NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+**  COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+**  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+**  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
 **  IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #ifndef _AIROBJECT_H_
@@ -44,9 +44,9 @@ class tcGameStream;
 #define MAX_PITCH_RAD 0.875f
 
 /**
-* Models air object that can land
-*/
-class tcAirObject : public tcPlatformObject 
+ * Models air object that can land
+ */
+class tcAirObject : public tcPlatformObject
 {
 public:
     enum
@@ -56,7 +56,7 @@ public:
 
     std::shared_ptr<tcAirDBObject> mpDBObject;
     int readyForLanding; ///< 1 if gear down/ready for landing, 0 otherwise
-
+    virtual void SetKinematics(double fLon_rad, double fLat_rad, float fAlt_m, float fHeading_rad, float fYaw_rad, float fPitch_rad, float fRoll_rad, float fSpeed_kts) override;
 
     virtual void ApplyRestrictions();
     virtual void Clear();
@@ -70,12 +70,12 @@ public:
     float GetClimbCommand() const;
     virtual void UpdateClimb(float dt_s);
     virtual void Update(double afStatusTime);
-    
+
     virtual float GetCruiseSpeedForAltitude(float alt_m) const;
     virtual float GetCurrentFuelRate() const;
     virtual float GetCruiseRangeKm(float alt_m) const;
     virtual float GetCruiseAltitude() const;
-	virtual float GetStallSpeedForAltitude(float alt_m) const;
+    virtual float GetStallSpeedForAltitude(float alt_m) const;
 
     bool AddFuelTarget(long id);
     bool CanRefuelInFlight() const;
@@ -83,28 +83,28 @@ public:
     unsigned int TankerSpotsFree() const;
 
     bool IsOverweight() const;
-	bool IsReadyForLaunch();
+    bool IsReadyForLaunch();
     void UpdateLoadoutTag();
     bool MaintenanceHold() const;
     void LightenLoad();
 
     float CalculateBombElevationRad(float targetLon_rad, float targetLat_rad) const;
 
-	virtual void EquipForTargetType(int targetFlag);
-	virtual void EquipForTargetType(const std::string& targetType);
+    virtual void EquipForTargetType(int targetFlag);
+    virtual void EquipForTargetType(const std::string &targetType);
 
-    void PrintToFile(tcFile& file);
-    void SaveToFile(tcFile& file) override;
-    void LoadFromFile(tcFile& file);
-    virtual void Serialize(tcFile& file, bool mbLoad);
+    void PrintToFile(tcFile &file);
+    void SaveToFile(tcFile &file) override;
+    void LoadFromFile(tcFile &file);
+    virtual void Serialize(tcFile &file, bool mbLoad);
 
-    virtual tcCommandStream& operator<<(tcCommandStream& stream);
-    virtual tcUpdateStream& operator<<(tcUpdateStream& stream);
-    virtual tcGameStream& operator<<(tcGameStream& stream);
+    virtual tcCommandStream &operator<<(tcCommandStream &stream);
+    virtual tcUpdateStream &operator<<(tcUpdateStream &stream);
+    virtual tcGameStream &operator<<(tcGameStream &stream);
 
-    virtual tcCommandStream& operator>>(tcCommandStream& stream);
-    virtual tcUpdateStream& operator>>(tcUpdateStream& stream);
-    virtual tcGameStream& operator>>(tcGameStream& stream);
+    virtual tcCommandStream &operator>>(tcCommandStream &stream);
+    virtual tcUpdateStream &operator>>(tcUpdateStream &stream);
+    virtual tcGameStream &operator>>(tcGameStream &stream);
 
     virtual void ClearNewCommand();
     virtual bool HasNewCommand() const;
@@ -113,10 +113,11 @@ public:
     virtual float GetIRSignature(float az_deg) const;
 
     tcAirObject();
-    tcAirObject(tcAirObject&);
+    tcAirObject(tcAirObject &);
     tcAirObject(std::shared_ptr<tcAirDBObject> obj);
     virtual ~tcAirObject();
     virtual void Construct() override;
+
 protected:
     tcCommandObject commandObj;
 
@@ -128,7 +129,7 @@ protected:
     void UpdateInFlightRefuel(float dt_s);
     void UpdateClimbCommand(float dt_s);
 
-    float maxPitch_rad; ///< user imposed restriction to pitch angle
+    float maxPitch_rad;     ///< user imposed restriction to pitch angle
     float climbCommand_rad; ///< user/ai override on climb angle, zero for no command
     bool doneCrashing;
     std::vector<long> fuelTargets; ///< for tanker

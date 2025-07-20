@@ -204,7 +204,7 @@ void tcCommPlatform::PrintToFile(tcFile& file)
         std::shared_ptr<tcCommDevice>& pSS = commDevice[i];
         if (pSS != NULL)
         {
-            s.Format("   SENSOR%d: %s\n", i, pSS->mpDBObj->mzClass.c_str());
+            s.Format("   COMM%d: %s\n", i, pSS->mpDBObj->mzClass.c_str());
         }
         else
         {
@@ -446,6 +446,7 @@ tcCommPlatform::tcCommPlatform(const char* databaseClass, std::shared_ptr<tcGame
 {
 Init(databaseClass, parent);
 }
+
 tcCommPlatform::~tcCommPlatform()
 {
     size_t nComms = commDevice.size();

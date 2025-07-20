@@ -50,7 +50,7 @@ class tcGroundVehicleObject : public tcPlatformObject
 {
 public:
 	std::shared_ptr<tcGroundDBObject> mpDBObject;
-
+ virtual void  SetKinematics(double fLon_rad, double fLat_rad, float fAlt_m, float fHeading_rad, float fYaw_rad, float fPitch_rad, float fRoll_rad, float fSpeed_kts) override;
 	virtual void Clear();
 
 	virtual bool IsDestroyed();

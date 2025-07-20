@@ -1,0 +1,29 @@
+{
+	"version": "2.0.0",
+	"options": {
+		"cwd": "${workspaceFolder}" // 命令工作目录
+        // ${workspaceFolder} 为当前链接文件夹的工作区根目录
+        // 此处即为 D://02
+	},
+	"tasks": [
+        {
+            "label": "CMake",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-S",
+                "${workspaceFolder}",
+                "-B",
+                "${workspaceFolder}",
+                "-G",
+                "Unix Makefiles"
+            ]
+        },
+        {
+            "label": "Build",
+            "dependsOn": [
+                "Cmake"
+            ]
+        }
+    ]
+}

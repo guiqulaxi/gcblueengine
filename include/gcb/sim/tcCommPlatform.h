@@ -77,7 +77,10 @@ public:
     tcCommPlatform(const tcCommPlatform&);
     tcCommPlatform(std::shared_ptr<tcCommPlatformDBObject> obj, std::shared_ptr<tcGameObject> parent);
     tcCommPlatform(const char* databaseClass, std::shared_ptr<tcGameObject> parent);
+
+
     virtual ~tcCommPlatform();
+
 protected:
     unsigned int commActivityFlags; ///< flags for faster check of activity state of diff sensor types
 

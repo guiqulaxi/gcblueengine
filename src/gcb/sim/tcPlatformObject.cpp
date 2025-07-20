@@ -670,6 +670,15 @@ bool tcPlatformObject::IsInterceptingTrack(long id)
 * Called when new general damage occurs. 
 * @param damage fractional amount of new damage
 */
+void tcPlatformObject::SetKinematics(double fLon_rad, double fLat_rad, float fAlt_m, float fHeading_rad, float fYaw_rad, float fPitch_rad, float fRoll_rad, float fSpeed_kts)
+{
+    tcGameObject::SetKinematics(fLon_rad, fLat_rad, fAlt_m, fHeading_rad, fYaw_rad, fPitch_rad, fRoll_rad, fSpeed_kts);
+     if (this->mcKin.mfSpeed_kts > this->mpDBObject->mfMaxSpeed_kts)
+        {
+            this->mcKin.mfSpeed_kts = this->mpDBObject->mfMaxSpeed_kts;
+        }
+        this->SetSpeed(mcKin.mfSpeed_kts);
+}
 void tcPlatformObject::ApplyGeneralDamage(float damage, std::shared_ptr<tcGameObject> damager)
 {
     float priorDamage = mfDamageLevel;

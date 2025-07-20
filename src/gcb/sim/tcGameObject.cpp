@@ -1353,6 +1353,19 @@ void tcGameObject::RemoveTargeter(long id)
 }
 
 
+void tcGameObject::SetKinematics(double fLon_rad, double fLat_rad, float fAlt_m, float fHeading_rad, float fYaw_rad, float fPitch_rad, float fRoll_rad, float fSpeed_kts)
+{
+    mcKin.mfLon_rad = fLon_rad;
+    mcKin.mfLat_rad = fLat_rad;
+    mcKin.mfAlt_m = fAlt_m;
+    mcKin.mfHeading_rad = fHeading_rad;
+    mcKin.mfYaw_rad = fYaw_rad;
+    mcKin.mfPitch_rad = fPitch_rad;
+    mcKin.mfRoll_rad = fRoll_rad;
+    mcKin.mfSpeed_kts = fSpeed_kts;
+    mcKin.mfClimbAngle_rad=fPitch_rad;
+}
+
 void tcGameObject::ApplyGeneralDamage(float damage, std::shared_ptr<tcGameObject> damager)
 {
     float priorDamage = mfDamageLevel;

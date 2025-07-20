@@ -24,6 +24,16 @@ class tcSpaceObject : public tcPlatformObject
 public:
     std::shared_ptr<tcSpaceDBObject>mpDBObject;
 
+      virtual void SetKinematics(
+            double fLon_rad,              ///< longitude [rad]
+            double fLat_rad,               ///< latitude [rad]
+            float fAlt_m,                  ///< altitude, negative is subsurface depth [m]
+            float fHeading_rad,           ///< relative to north [rad] 顺时针
+            float fYaw_rad,                ///< orientation in azimuthal plane
+            float fPitch_rad,              ///< orientation in elevation plane
+            float fRoll_rad, 			   ///< orienation about roll axis
+            float fSpeed_kts             ///< [kts])
+    ) override;
     virtual void Clear();
 
     virtual bool IsDestroyed();
@@ -45,6 +55,8 @@ public:
     tcSpaceObject(std::shared_ptr<tcSpaceDBObject>obj);
     ~tcSpaceObject();
 
+    //根据经纬度高度速度构造轨道参数
+    void SetOrbit(double fLat_rad, double fLon_rad, double fAlt_m, double fSpeed_kts, double fHeading_rad);
     // 访问器和修改器，用于获取和设置轨道参数
     double GetA(void) const  {return m_a;}     // 获取半长轴
     void   SetA(double a)  {m_a = a;}       // 设置半长轴

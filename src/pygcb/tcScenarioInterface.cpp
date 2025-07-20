@@ -96,18 +96,18 @@ void tcScenarioUnit::SetPosition(double lon_deg, double lat_deg, float alt_m)
     alt = alt_m;
 }
 
-void tcScenarioUnit::SetOrbit(double a_km, double e, double i_deg,
-                              double Omega_deg, double omega_deg,
-                              double M_deg, double tp)
-{
-    this-> a=a_km;             // 半长轴 千米 输入
-    this-> e=e;             // 偏心率  输入
-    this-> i=i_deg;             // 轨道倾角 输入
-    this-> Omega=Omega_deg;         // 升交点经度 输入
-    this-> omega=omega_deg;         // 近地点幅角 输入
-    this-> M=M_deg;             // 初始平近点角 输入
-    this-> tp=tp;            // 过近地点时间
-}
+// void tcScenarioUnit::SetOrbit(double a_km, double e, double i_deg,
+//                               double Omega_deg, double omega_deg,
+//                               double M_deg, double tp)
+// {
+//     this-> a=a_km;             // 半长轴 千米 输入
+//     this-> e=e;             // 偏心率  输入
+//     this-> i=i_deg;             // 轨道倾角 输入
+//     this-> Omega=Omega_deg;         // 升交点经度 输入
+//     this-> omega=omega_deg;         // 近地点幅角 输入
+//     this-> M=M_deg;             // 初始平近点角 输入
+//     this-> tp=tp;            // 过近地点时间
+// }
 
 /**
     * Test that fields are valid. Display message box if not.
@@ -130,8 +130,20 @@ bool tcScenarioUnit::Validate()
 
 }
 
+// void tcScenarioUnit::SetParameter(const std::string& key, const py::object& value)
+// {
+//     parameters[key] = value;
+// }
 
-
+// py::object tcScenarioUnit::GetParameter(const std::string& key, const py::object& defaultValue) const
+// {
+//     auto it = parameters.find(key);
+//     if (it != parameters.end())
+//     {
+//         return it->second;
+//     }
+//     return defaultValue;
+// }
 
 //    tcDirector* tcScenarioInterface::director = 0;
 tcMapData* tcScenarioInterface::mapData = 0;
@@ -396,36 +408,43 @@ bool tcScenarioInterface::AddUnitToAlliance(scriptinterface::tcScenarioUnit unit
     }
 
     tcKinematics& kin = gameObj->mcKin;
+    gameObj->SetKinematics(
+        C_PIOVER180*unit.lon,
+         C_PIOVER180*unit.lat, 
+         unit.alt,
+         C_PIOVER180*unit.heading,
+         0,
+         C_PIOVER180*unit.heading,0,unit.speed);
 
-    kin.mfLon_rad = C_PIOVER180*unit.lon;
-    kin.mfLat_rad = C_PIOVER180*unit.lat;
-    kin.mfAlt_m = unit.alt;
+    // kin.mfLon_rad = C_PIOVER180*unit.lon;
+    // kin.mfLat_rad = C_PIOVER180*unit.lat;
+    // kin.mfAlt_m = unit.alt;
 
-    kin.mfHeading_rad = C_PIOVER180*unit.heading;
+    // kin.mfHeading_rad = C_PIOVER180*unit.heading;
     gameObj->SetHeading(kin.mfHeading_rad);
-    kin.mfPitch_rad = 0;
-    kin.mfRoll_rad = 0;
-    if (unit.speed < 0) {unit.speed = 0;}
-    kin.mfSpeed_kts = unit.speed;
+    // kin.mfPitch_rad = 0;
+    // kin.mfRoll_rad = 0;
+    // if (unit.speed < 0) {unit.speed = 0;}
+    // kin.mfSpeed_kts = unit.speed;
 
     gameObj->SetAlliance(alliance);
     gameObj->mfStatusTime = 0; // for lack of a better time
     gameObj->mzUnit = unit.unitName.c_str();
     gameObj->SetCost(unit.cost);
 
-    float terrainHeight = mapData->GetTerrainHeight(unit.lon, unit.lat, 0);
-
-    // class-specific initialization
-    std::shared_ptr<tcPlatformObject> platObj = std::dynamic_pointer_cast<tcPlatformObject>(gameObj);
-    if (platObj != 0)
-    {
-        // limit speed to max
-        if (kin.mfSpeed_kts > platObj->mpDBObject->mfMaxSpeed_kts)
-        {
-            platObj->mcKin.mfSpeed_kts = platObj->mpDBObject->mfMaxSpeed_kts;
-        }
-        platObj->SetSpeed(kin.mfSpeed_kts);
-    }
+    //float terrainHeight = mapData->GetTerrainHeight(unit.lon, unit.lat, 0);
+        
+    // // class-specific initialization
+     std::shared_ptr<tcPlatformObject> platObj = std::dynamic_pointer_cast<tcPlatformObject>(gameObj);
+    // if (platObj != 0)
+    // {
+    //     // limit speed to max
+    //     if (kin.mfSpeed_kts > platObj->mpDBObject->mfMaxSpeed_kts)
+    //     {
+    //         platObj->mcKin.mfSpeed_kts = platObj->mpDBObject->mfMaxSpeed_kts;
+    //     }
+    //     platObj->SetSpeed(kin.mfSpeed_kts);
+    // }
     // need something to calculate steady state speed based on throttle and altitude.
     if (std::shared_ptr<tcAeroAirObject>aeroAirObj =  std::dynamic_pointer_cast<tcAeroAirObject>(gameObj))
     {
@@ -437,63 +456,64 @@ bool tcScenarioInterface::AddUnitToAlliance(scriptinterface::tcScenarioUnit unit
         }
     }
 
-    if (std::shared_ptr<tcAirObject>airObj = std::dynamic_pointer_cast<tcAirObject>(gameObj))
-    {
-        if (kin.mfAlt_m < terrainHeight + 10.0f)
-        {
-            kin.mfAlt_m = terrainHeight + 10.0f;
-        }
-        if (kin.mfAlt_m < 50.0f)
-        {
-            kin.mfAlt_m = 50.0f;
-        }
+    // if (std::shared_ptr<tcAirObject>airObj = std::dynamic_pointer_cast<tcAirObject>(gameObj))
+    // {
+    //     if (kin.mfAlt_m < terrainHeight + 10.0f)
+    //     {
+    //         kin.mfAlt_m = terrainHeight + 10.0f;
+    //     }
+    //     if (kin.mfAlt_m < 50.0f)
+    //     {
+    //         kin.mfAlt_m = 50.0f;
+    //     }
 
-        airObj->SetAltitude(airObj->mcKin.mfAlt_m);
-        std::shared_ptr<Brain>  brain = airObj->GetBrain();
-        brain->AddTask("RTB", 2.0f, ai::Task::PERMANENT | ai::Task::HIDDEN);
-    }
-    if (std::shared_ptr<tcSubObject> sub =  std::dynamic_pointer_cast<tcSubObject>(gameObj))
-    {
-        if (kin.mfAlt_m < terrainHeight + 10.0f)
-        {
-            kin.mfAlt_m = terrainHeight + 10.0f;
-        }
-        sub->SetAltitude(kin.mfAlt_m);
-    }
+    //     airObj->SetAltitude(airObj->mcKin.mfAlt_m);
+    //     std::shared_ptr<Brain>  brain = airObj->GetBrain();
+    //     brain->AddTask("RTB", 2.0f, ai::Task::PERMANENT | ai::Task::HIDDEN);
+    // }
+    // if (std::shared_ptr<tcSubObject> sub =  std::dynamic_pointer_cast<tcSubObject>(gameObj))
+    // {
+    //     if (kin.mfAlt_m < terrainHeight + 10.0f)
+    //     {
+    //         kin.mfAlt_m = terrainHeight + 10.0f;
+    //     }
+    //     sub->SetAltitude(kin.mfAlt_m);
+    // }
 
-    if (std::shared_ptr<tcSurfaceObject> surface = std::dynamic_pointer_cast<tcSurfaceObject>(gameObj))
-    {
-        surface->SetAltitude(0); // ignore altitude field and set to sea level
-    }
+    // if (std::shared_ptr<tcSurfaceObject> surface = std::dynamic_pointer_cast<tcSurfaceObject>(gameObj))
+    // {
+    //     surface->SetAltitude(0); // ignore altitude field and set to sea level
+    // }
 
     // place ground objects relative to terrain height
-    if (std::shared_ptr<tcAirfieldObject> fieldObj = std::dynamic_pointer_cast<tcAirfieldObject>(gameObj))
-    {
-        kin.mfAlt_m +=
-            mapData->GetTerrainHeight(unit.lon, unit.lat, 0);
-    }
-    else if (std::shared_ptr<tcGroundObject> groundObj = std::dynamic_pointer_cast<tcGroundObject>(gameObj))
-    {
-        kin.mfAlt_m = max(kin.mfAlt_m, 1.0f); // minimum 1 m over ground
+    // if (std::shared_ptr<tcAirfieldObject> fieldObj = std::dynamic_pointer_cast<tcAirfieldObject>(gameObj))
+    // {
+    //     kin.mfAlt_m +=
+    //         mapData->GetTerrainHeight(unit.lon, unit.lat, 0);
+    // }
+    // else if (std::shared_ptr<tcGroundObject> groundObj = std::dynamic_pointer_cast<tcGroundObject>(gameObj))
+    // {
+    //     kin.mfAlt_m = max(kin.mfAlt_m, 1.0f); // minimum 1 m over ground
 
-        kin.mfAlt_m +=
-            mapData->GetTerrainHeight(unit.lon, unit.lat, 0);
-    }
-    else if (std::shared_ptr<tcGroundVehicleObject> groundVehicleObj = std::dynamic_pointer_cast<tcGroundVehicleObject>(gameObj))
-    {
-        kin.mfAlt_m +=
-            mapData->GetTerrainHeight(unit.lon, unit.lat, 0);
-    }
-    if (std::shared_ptr<tcSpaceObject> space = std::dynamic_pointer_cast<tcSpaceObject>(gameObj))
-    {
-        space->SetA(unit.a);
-        space->Sete(unit.e);
-        space->SetI(unit.i*C_PIOVER180);
-        space->SetOmega(unit.Omega*C_PIOVER180);
-        space->Setomega(unit.omega*C_PIOVER180);
-        space->SetTp(unit.tp);
-        space->SetM(unit.M);
-    }
+    //     kin.mfAlt_m +=
+    //         mapData->GetTerrainHeight(unit.lon, unit.lat, 0);
+    // }
+    // else if (std::shared_ptr<tcGroundVehicleObject> groundVehicleObj = std::dynamic_pointer_cast<tcGroundVehicleObject>(gameObj))
+    // {
+    //     kin.mfAlt_m +=
+    //         mapData->GetTerrainHeight(unit.lon, unit.lat, 0);
+    // }
+    // if (std::shared_ptr<tcSpaceObject> space = std::dynamic_pointer_cast<tcSpaceObject>(gameObj))
+    // {
+    //     space->SetOrbit(kin.mfLon_rad, kin.mfLat_rad, kin.mfAlt_m, kin.mfSpeed_kts,kin.mfHeading_rad);
+    //     // space->SetA(unit.a);
+    //     // space->Sete(unit.e);
+    //     // space->SetI(unit.i*C_PIOVER180);
+    //     // space->SetOmega(unit.Omega*C_PIOVER180);
+    //     // space->Setomega(unit.omega*C_PIOVER180);
+    //     // space->SetTp(unit.tp);
+    //     // space->SetM(unit.M);
+    // }
 
     gameObj->mfStatusTime = simState->GetTime();
     simState->AddPlatform(gameObj);

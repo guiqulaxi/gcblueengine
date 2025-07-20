@@ -95,23 +95,28 @@ public:
     double cost; ///< custom cost for scoring, negative to use database default
 
     void SetPosition(double lon_deg, double lat_deg, float alt_m);
-    double a;             // 半长轴 千米 输入 描述椭圆轨道的大小
-    double e;             // 偏心率  输入 描述椭圆轨道的形状，0为圆轨道
-    double i;             // 轨道倾角 输入 描述轨道平面与赤道平面的夹角
-    double Omega;         // 升交点经度 输入 描述轨道平面与赤道平面的交线与春分点的夹角
-    double omega;         // 近地点幅角 输入 描述从升交点赤经线到近地点的夹角
-    double M;             // 初始平近点角 输入 描述在初始时刻卫星相对于近地点的位置
-    double tp;            // 过近地点时间 从初始时刻开始经过的时间
-    void SetOrbit(
-        double a_km,             // 半长轴 千米 输入
-        double e,             // 偏心率  输入
-        double i_deg,             // 轨道倾角 输入
-        double Omega_deg,         // 升交点经度 输入
-        double omega_deg,         // 近地点幅角 输入
-        double M_deg,             // 初始平近点角 输入
-        double tp           // 过近地点时间
-        );
-    bool Validate();
+    // double a;             // 半长轴 千米 输入 描述椭圆轨道的大小
+    // double e;             // 偏心率  输入 描述椭圆轨道的形状，0为圆轨道
+    // double i;             // 轨道倾角 输入 描述轨道平面与赤道平面的夹角
+    // double Omega;         // 升交点经度 输入 描述轨道平面与赤道平面的交线与春分点的夹角
+    // double omega;         // 近地点幅角 输入 描述从升交点赤经线到近地点的夹角
+    // double M;             // 初始平近点角 输入 描述在初始时刻卫星相对于近地点的位置
+    // double tp;            // 过近地点时间 从初始时刻开始经过的时间
+    // void SetOrbit(
+    //     double a_km,             // 半长轴 千米 输入
+    //     double e,             // 偏心率  输入
+    //     double i_deg,             // 轨道倾角 输入
+    //     double Omega_deg,         // 升交点经度 输入
+    //     double omega_deg,         // 近地点幅角 输入
+    //     double M_deg,             // 初始平近点角 输入
+    //     double tp           // 过近地点时间
+    //     );
+     bool Validate();
+    //    // 动态参数支持
+    // std::unordered_map<std::string, py::object> parameters;
+
+    // void SetParameter(const std::string& key, const py::object& value);
+    // py::object GetParameter(const std::string& key, const py::object& defaultValue = py::none()) const;
 };
 
 class tcParsedUnitName

@@ -79,7 +79,7 @@ public:
     /**
  * 获取指定平台的所有探测信息
  * @param platformId 平台ID
- * @return 包含该平台所有探测信息的向量
+ * @return 包含该平台所有探测信息的信息，包含通信
  */
     std::vector<tcSensorReport> GetSensorReport(long platformId);
 

@@ -28,6 +28,7 @@
 #include "tcAllianceSensorMap.h"
 #include "aerror.h"
 #include "simmath.h"
+#include "tcCommPlatform.h"
 #include "tcSimState.h"
 #include "tcWeaponObject.h"
 #include "tcPlatformDBObject.h"
@@ -644,12 +645,25 @@ std::vector<tcSensorReport > tcAllianceSensorMap::GetSensorReport(long platformI
     long cmappos = maTrack.GetStartPosition();
     long nKey;
      std::shared_ptr<tcSensorMapTrack>  track;
+    tcSimState* simState = tcSimState::Get();
+       std::shared_ptr<tcPlatformObject> pPlatformObj = std::dynamic_pointer_cast<tcPlatformObject>(simState->GetObject(platformID));
+    if (!pPlatformObj)
+    {
+           return result;
+    }
     for (size_t i = 0; i < maTrack.GetCount(); ++i) {
          maTrack.GetNextAssoc(cmappos,nKey,track);
         if ( track->IsValid()) {
             for (const auto& report : track->maSensorReport) {
                 if ( report.platformID == platformID) {
                     result.push_back(report);
+                }
+                //如果通信相通也可以加入
+                std::shared_ptr<tcPlatformObject> obj = std::dynamic_pointer_cast<tcPlatformObject>(simState->GetObject(report.platformID));
+                int n=pPlatformObj->GetComponent<tcCommPlatform>()->GetCommCount();
+                for(int j=0;j<n;j++)
+                {
+                    //pPlatformObj->GetComponent<tcCommPlatform>()->commDevice[j]->CanEstablishLink(obj);
                 }
             }
         }

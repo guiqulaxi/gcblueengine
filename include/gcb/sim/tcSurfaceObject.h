@@ -51,7 +51,16 @@ public:
     std::shared_ptr<tcShipDBObject> mpDBObject;
 
     virtual void Clear() override;
-
+    virtual void SetKinematics(
+            double fLon_rad,              ///< longitude [rad]
+            double fLat_rad,               ///< latitude [rad]
+            float fAlt_m,                  ///< altitude, negative is subsurface depth [m]
+            float fHeading_rad,           ///< relative to north [rad] 顺时针
+            float fYaw_rad,                ///< orientation in azimuthal plane
+            float fPitch_rad,              ///< orientation in elevation plane
+            float fRoll_rad, 			   ///< orienation about roll axis
+            float fSpeed_kts             ///< [kts])
+    ) override;
     virtual float GetSonarSourceLevel(float az_deg) const override;
     virtual bool IsDestroyed() override;
     virtual void RandInitNear(float afLon_deg, float afLat_deg)override;

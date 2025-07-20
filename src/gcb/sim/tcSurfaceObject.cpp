@@ -360,6 +360,12 @@ void tcSurfaceObject::Clear()
     tcPlatformObject::Clear();
 }
 
+void tcSurfaceObject::SetKinematics(double fLon_rad, double fLat_rad, float fAlt_m, float fHeading_rad, float fYaw_rad, float fPitch_rad, float fRoll_rad, float fSpeed_kts)
+{
+    tcPlatformObject::SetKinematics(fLon_rad, fLat_rad, fAlt_m, fHeading_rad, fYaw_rad, fPitch_rad, fRoll_rad, fSpeed_kts);
+        SetAltitude(0); // ignore altitude field and set to sea level
+
+}
 
 /**
 * @returns sonar source level of object or, if object has active sonar on, maximum of source level of 

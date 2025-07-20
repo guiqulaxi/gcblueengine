@@ -190,7 +190,11 @@ void tcSpaceObject::UpdateDestroyed(double t)
 
 }
 
-
+void tcSpaceObject::SetKinematics(double fLon_rad, double fLat_rad, float fAlt_m, float fHeading_rad, float fYaw_rad, float fPitch_rad, float fRoll_rad, float fSpeed_kts)
+{
+       tcPlatformObject::SetKinematics(fLon_rad, fLat_rad, fAlt_m, fHeading_rad, fYaw_rad, fPitch_rad, fRoll_rad, fSpeed_kts);
+        SetOrbit(fLon_rad, fLat_rad, fAlt_m, fSpeed_kts,fHeading_rad);
+}
 
 void tcSpaceObject::Clear()
 {
@@ -263,6 +267,63 @@ tcSpaceObject::tcSpaceObject(std::shared_ptr<tcSpaceDBObject>obj)
 /******************************************************************************/
 tcSpaceObject::~tcSpaceObject()
 {
+}
+
+void tcSpaceObject::SetOrbit(double fLat_rad, double fLon_rad, double fAlt_m, double fSpeed_kts, double fHeading_rad)
+{
+    // 1. 地理坐标转地心坐标系 (ECI)
+    double Re = C_REARTHM; // 地球半径
+    double R = Re + fAlt_m; // 卫星到地心的距离
+
+    // 经纬度转笛卡尔坐标
+    double x_eci = R * cos(fLat_rad) * cos(fLon_rad);
+    double y_eci = R * cos(fLat_rad) * sin(fLon_rad);
+    double z_eci = R * sin(fLat_rad);
+
+    // 2. 速度信息转地心坐标系
+    double speed_ms = fSpeed_kts * C_KTSTOMPS; // 将速度从节转换为米/秒
+    double vx_eci = speed_ms * cos(fHeading_rad);
+    double vy_eci = speed_ms * sin(fHeading_rad);
+    double vz_eci = 0.0; // 假设初始垂直速度为0
+
+    // 3. 计算轨道要素
+    double r_x = sqrt(x_eci * x_eci + y_eci * y_eci + z_eci * z_eci); // 位置向量模长
+    double v_x = sqrt(vx_eci * vx_eci + vy_eci * vy_eci + vz_eci * vz_eci); // 速度向量模长
+
+    // 角动量向量
+    double h_x = y_eci * vz_eci - z_eci * vy_eci;
+    double h_y = z_eci * vx_eci - x_eci * vz_eci;
+    double h_z = x_eci * vy_eci - y_eci * vx_eci;
+
+    double h_mag = sqrt(h_x * h_x + h_y * h_y + h_z * h_z); // 角动量模长
+
+    // 轨道倾角
+    m_i = acos(h_z / h_mag);
+
+    // 升交点经度
+    double n_x = -h_y;
+    double n_y = h_x;
+    double n_mag = sqrt(n_x * n_x + n_y * n_y);
+    m_Omega = atan2(n_y, n_x);
+
+    // 近地点幅角
+    double e_x = ((v_x * v_x - m_mu / r_x) * x_eci - vx_eci * vy_eci * y_eci - vx_eci * vz_eci * z_eci) / m_mu;
+    double e_y = ((v_x * v_x - m_mu / r_x) * y_eci - vy_eci * vx_eci * x_eci - vy_eci * vz_eci * z_eci) / m_mu;
+    double e_z = ((v_x * v_x - m_mu / r_x) * z_eci - vz_eci * vx_eci * x_eci - vz_eci * vy_eci * y_eci) / m_mu;
+
+    double e_mag = sqrt(e_x * e_x + e_y * e_y + e_z * e_z); // 偏心率
+    m_e = e_mag;
+
+    m_omega = atan2(e_y, e_x) - atan2(n_y, n_x);
+
+    // 真近点角
+    m_v = atan2(sqrt(1 - m_e * m_e) * sin(m_v), cos(m_v) + m_e);
+
+    // 半长轴
+    m_a = pow(h_mag, 2) / (m_mu * (1 - m_e * m_e));
+
+    // 平近点角
+    m_M = m_v + 2 * atan((sqrt((1 + m_e) / (1 - m_e)) * tan(m_v / 2)));
 }
 
 void tcSpaceObject::SetM(double M)

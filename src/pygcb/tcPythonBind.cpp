@@ -182,9 +182,10 @@ PYBIND11_EMBEDDED_MODULE(pygcb, m) {
         .def_readwrite("speed",&tcScenarioUnit::speed)
         .def_readwrite("throttle",&tcScenarioUnit::throttle)
         .def_readwrite("cost",&tcScenarioUnit::cost)
-        .def("SetPosition",&tcScenarioUnit::SetPosition)
-        .def("SetOrbit",&tcScenarioUnit::SetOrbit)
-        ;
+        .def("SetPosition",&tcScenarioUnit::SetPosition);
+        // .def("SetOrbit",&tcScenarioUnit::SetOrbit)
+        // .def("SetParameter", &tcScenarioUnit::SetParameter, "key"_a, "value"_a)
+        // .def("GetParameter", &tcScenarioUnit::GetParameter, "key"_a, "defaultValue"_a = py::none());
 
     py::class_<tcStringArray>(m,"StringArray")
         .def("Size", &tcStringArray::Size)
