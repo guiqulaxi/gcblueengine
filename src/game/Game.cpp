@@ -2446,6 +2446,8 @@ void  tcGameObjectToJson(const tcGameObject& obj,rapidjson::Value& unitinfo,rapi
     rapidjson::Value mfDamageLevelValue(rapidjson::kNumberType);
     mfDamageLevelValue.SetFloat(obj.GetDamageLevel()); // 使用文档的分配器来分配内存
     unitinfo.AddMember("mfDamageLevel",mfDamageLevelValue,document.GetAllocator());
+
+
 }
 
 void tcGame::UpdateOutSimData()

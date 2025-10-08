@@ -413,8 +413,8 @@ bool tcScenarioInterface::AddUnitToAlliance(scriptinterface::tcScenarioUnit unit
          C_PIOVER180*unit.lat, 
          unit.alt,
          C_PIOVER180*unit.heading,
-         0,
-         C_PIOVER180*unit.heading,0,unit.speed);
+         C_PIOVER180*unit.heading,
+         0,0,unit.speed);
 
     // kin.mfLon_rad = C_PIOVER180*unit.lon;
     // kin.mfLat_rad = C_PIOVER180*unit.lat;
