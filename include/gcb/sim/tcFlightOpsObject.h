@@ -35,6 +35,7 @@
 
 #include "tcFile.h"
 #include "tcFlightPort.h"
+#include "rapidjson/document.h"
 
 class tcGameObject;
 
@@ -68,6 +69,8 @@ class tcTrack;
 class tcFlightOpsObject :public tcComponent
 {
 public:
+    virtual std::string GetType() const override{return "tcFlightOpsObject" ;}
+
     virtual std::shared_ptr<tcGameObject> AddChildToFlightDeck(const std::string& className, std::string unitName,
 		teLocation loc, unsigned int position);
     virtual std::shared_ptr<tcGameObject> AddChildToFlightDeck(std::shared_ptr<tcDatabaseObject> databaseObject, std::string unitName,
@@ -90,7 +93,7 @@ public:
     void AutoConfigureAirComplement(const std::vector<database::AirComplement>& airComplement);
     void GetAirBlockName(std::string& prefix, unsigned int blockSize, unsigned int& startId);
 
-    long GetParentId() const;
+    int GetParentId() const;
 
 	virtual void SaveToPython(scriptinterface::tcScenarioLogger& logger);
 
@@ -106,6 +109,8 @@ public:
 
     virtual void ClearNewCommand();
     virtual bool HasNewCommand() const;
+    
+    void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const;
 
     tcFlightOpsObject(std::shared_ptr<tcFlightportDBObject> dbObject);
     virtual ~tcFlightOpsObject();

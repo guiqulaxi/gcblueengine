@@ -44,6 +44,12 @@
 #define new DEBUG_NEW
 #endif
 
+#include "tcSensorMapTrack.h"
+#include "aerror.h"
+#include "simmath.h"
+#include "tcCommPlatform.h"
+#include "rapidjson/document.h"
+
 std::string EmitterInfo::GetEmitterName() const
 {
 	static std::string result;
@@ -291,7 +297,7 @@ tcGameStream& tcSensorMapTrack::operator<<(tcGameStream& stream)
     stream >> nIntercepts;
     for (unsigned int k=0; k<nIntercepts; k++)
     {
-        long val;
+        int val;
         stream >> val;
         intercepts.push_back(val);
     }
@@ -301,7 +307,7 @@ tcGameStream& tcSensorMapTrack::operator<<(tcGameStream& stream)
     assert(nEngaged < 256);
     for (unsigned int k=0; k<nEngaged; k++)
     {
-        long val;
+        int val;
         stream >> val;
         engaged.push_back(val);
     }
@@ -312,7 +318,7 @@ tcGameStream& tcSensorMapTrack::operator<<(tcGameStream& stream)
     for (unsigned int k=0; k<nAmbiguity; k++)
     {
         std::string ambiguityClass;
-        long val;
+        int val;
 
         stream >> ambiguityClass;
         if (ambiguityClass.size() > 1)
@@ -450,7 +456,7 @@ tcGameStream& tcSensorMapTrack::operator>>(tcGameStream& stream)
 /**
 * @return false if id already in engaged vector
 */
-bool tcSensorMapTrack::AddEngagement(long id)
+bool tcSensorMapTrack::AddEngagement(int id)
 {
     if (id == -1) return false;
 
@@ -466,7 +472,7 @@ bool tcSensorMapTrack::AddEngagement(long id)
 /**
 * @return false if id already in intercepts vector
 */
-bool tcSensorMapTrack::AddIntercept(long id)
+bool tcSensorMapTrack::AddIntercept(int id)
 {
     if (id == -1) return false;
 
@@ -649,7 +655,7 @@ const char* tcSensorMapTrack::GetContributorName(unsigned idx) const
 
     if (idx >= (unsigned)maSensorReport.size()) return emptyString.c_str();
 
-    long contributorId = maSensorReport[idx].platformID;
+    int contributorId = maSensorReport[idx].platformID;
     if (std::shared_ptr<tcGameObject> obj = simState->GetObject(contributorId))
     {
         return obj->mzUnit.c_str();
@@ -871,7 +877,7 @@ void tcSensorMapTrack::UpdateEngagements()
     int nEngaged = (int)engaged.size();
     for (int n=nEngaged-1;n>=0;n--)
     {
-        long id = engaged[n];
+        int id = engaged[n];
         std::shared_ptr<tcWeaponObject>weapon =  std::dynamic_pointer_cast<tcWeaponObject>(simState->GetObject(id));
         if (weapon)
         {
@@ -899,7 +905,7 @@ void tcSensorMapTrack::UpdateIntercepts()
     int nIntercepts = (int)intercepts.size();
     for (int n=nIntercepts-1;n>=0;n--)
     {
-        long id = intercepts[n];
+        int id = intercepts[n];
         std::shared_ptr<tcPlatformObject>platform = std::dynamic_pointer_cast<tcPlatformObject>(simState->GetObject(id));
         if (platform)
         {
@@ -917,7 +923,7 @@ void tcSensorMapTrack::UpdateIntercepts()
 }
 
 
-bool tcSensorMapTrack::UpdateEmitter(EmitterInfo*& rpEmitterInfo, long anEmitterID) 
+bool tcSensorMapTrack::UpdateEmitter(EmitterInfo*& rpEmitterInfo, int anEmitterID) 
 {
     // search for existing match
     for(size_t n=0; n<emitterInfo.size(); n++) 
@@ -949,7 +955,7 @@ bool tcSensorMapTrack::UpdateEmitter(EmitterInfo*& rpEmitterInfo, long anEmitter
 }
 
 /**
-* Remove emitters that are no longer active
+* Remove emitters that are no inter active
 */
 void tcSensorMapTrack::UpdateEmitters()
 {
@@ -970,7 +976,7 @@ void tcSensorMapTrack::UpdateEmitters()
 
     for (size_t n=0; n<nEmitters; n++)
     {
-        long emitterID = emitterInfo[n].mnEmitterID; // database id of emitter sensor
+        int emitterID = emitterInfo[n].mnEmitterID; // database id of emitter sensor
         std::shared_ptr<const tcSensorState> sensor = sensorPlatform->GetSensorByDatabaseID(emitterID);
         if ((sensor != 0) && sensor->IsActive())
         {
@@ -984,7 +990,7 @@ void tcSensorMapTrack::UpdateEmitters()
 /**
 * @return pointer to matching report if exists, otherwise create one and return pointer, return 0 if no room due to contributor limit
 */
-tcSensorReport* tcSensorMapTrack::GetOrCreateReport(long platformID, long sensorID)
+tcSensorReport* tcSensorMapTrack::GetOrCreateReport(int platformID, int sensorID)
 {
     size_t nContributors = maSensorReport.size();
     //如果平台不能通信则
@@ -1032,7 +1038,7 @@ void tcSensorMapTrack::UpdateAmbiguityList()
     size_t nEmitters = emitterInfo.size();
 	if (nEmitters == 0) return;
 
-	std::vector<long> emitterList;
+	std::vector<int> emitterList;
 	for (size_t n=0; n<nEmitters; n++)
 	{
 		emitterList.push_back(emitterInfo[n].mnEmitterID);
@@ -1571,7 +1577,7 @@ void tcSensorMapTrack::UpdateTrack(double tCoast_s)
             size_t nEmittersReported = report->emitterList.size();
             for (size_t k=0; k<nEmittersReported; k++)
             {
-                long emitter_id = report->emitterList[k];
+                int emitter_id = report->emitterList[k];
                 bool searching = true;
                 for (size_t idx=0; (idx<emitterInfo.size())&&(searching); idx++)
                 {
@@ -2106,7 +2112,7 @@ std::shared_ptr<const tcGameObject> tcSensorMapTrack::GetAssociatedConst() const
 /**
 * @returns database id of track or -1 if not identified
 */
-long tcSensorMapTrack::GetDatabaseId() const
+int tcSensorMapTrack::GetDatabaseId() const
 {
 	return mnDatabaseID;
 }
@@ -2160,7 +2166,7 @@ EmitterInfo tcSensorMapTrack::GetEmitterInfo(unsigned idx)
     }
 }
 
-void tcSensorMapTrack::IdentifyTrack(long id)
+void tcSensorMapTrack::IdentifyTrack(int id)
 {
 	if (mnDatabaseID == id) return;
 	mnDatabaseID = id;
@@ -2346,3 +2352,93 @@ tcSensorMapTrack::~tcSensorMapTrack()
 //    }
 }
 
+void tcSensorMapTrack::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    // Call parent class serialization
+    tcTrack::SerializeToJson(obj, allocator);
+    
+    // Serialize std::deque<tcSensorReport> maSensorReport
+    if (!maSensorReport.empty())
+    {
+        rapidjson::Value sensorReportsArray(rapidjson::kArrayType);
+        for (const auto& report : maSensorReport)
+        {
+            rapidjson::Value reportObj(rapidjson::kObjectType);
+            // TODO: Implement tcSensorReport serialization when available
+            // report.SerializeToJson(reportObj, allocator);
+            sensorReportsArray.PushBack(reportObj, allocator);
+        }
+        obj.AddMember(rapidjson::Value("maSensorReport", allocator).Move(), sensorReportsArray, allocator);
+    }
+    
+    // Serialize std::vector<EmitterInfo> emitterInfo
+    if (!emitterInfo.empty())
+    {
+        rapidjson::Value emitterInfoArray(rapidjson::kArrayType);
+        for (const auto& emitter : emitterInfo)
+        {
+            rapidjson::Value emitterObj(rapidjson::kObjectType);
+            emitterObj.AddMember(rapidjson::Value("mnEmitterID", allocator).Move(), emitter.mnEmitterID, allocator);
+            emitterObj.AddMember(rapidjson::Value("mfTimestamp", allocator).Move(), emitter.mfTimestamp, allocator);
+            emitterObj.AddMember(rapidjson::Value("mnMode", allocator).Move(), emitter.mnMode, allocator);
+            emitterInfoArray.PushBack(emitterObj, allocator);
+        }
+        obj.AddMember(rapidjson::Value("emitterInfo", allocator).Move(), emitterInfoArray, allocator);
+    }
+    
+    // Serialize simple data members
+    obj.AddMember(rapidjson::Value("assessedDamage", allocator).Move(), assessedDamage, allocator);
+    
+    // Serialize std::vector<int> intercepts
+    if (!intercepts.empty())
+    {
+        rapidjson::Value interceptsArray(rapidjson::kArrayType);
+        for (const auto& intercept : intercepts)
+        {
+            interceptsArray.PushBack(intercept, allocator);
+        }
+        obj.AddMember(rapidjson::Value("intercepts", allocator).Move(), interceptsArray, allocator);
+    }
+    
+    // Serialize std::vector<int> engaged
+    if (!engaged.empty())
+    {
+        rapidjson::Value engagedArray(rapidjson::kArrayType);
+        for (const auto& engagement : engaged)
+        {
+            engagedArray.PushBack(engagement, allocator);
+        }
+        obj.AddMember(rapidjson::Value("engaged", allocator).Move(), engagedArray, allocator);
+    }
+    
+    // Serialize std::vector<int> ambiguityList
+    if (!ambiguityList.empty())
+    {
+        rapidjson::Value ambiguityListArray(rapidjson::kArrayType);
+        for (const auto& ambiguity : ambiguityList)
+        {
+            ambiguityListArray.PushBack(ambiguity, allocator);
+        }
+        obj.AddMember(rapidjson::Value("ambiguityList", allocator).Move(), ambiguityListArray, allocator);
+    }
+    
+    // Serialize errorPoly
+    if (!errorPoly.empty())
+    {
+        rapidjson::Value errorPolyArray(rapidjson::kArrayType);
+        for (const auto& point : errorPoly)
+        {
+            rapidjson::Value pointObj(rapidjson::kObjectType);
+            pointObj.AddMember(rapidjson::Value("x", allocator).Move(), point.x, allocator);
+            pointObj.AddMember(rapidjson::Value("y", allocator).Move(), point.y, allocator);
+            errorPolyArray.PushBack(pointObj, allocator);
+        }
+        obj.AddMember(rapidjson::Value("errorPoly", allocator).Move(), errorPolyArray, allocator);
+    }
+    
+    obj.AddMember(rapidjson::Value("errorPolyLonWidth_rad", allocator).Move(), errorPolyLonWidth_rad, allocator);
+    obj.AddMember(rapidjson::Value("errorPolyLatWidth_rad", allocator).Move(), errorPolyLatWidth_rad, allocator);
+    obj.AddMember(rapidjson::Value("alwaysVisible", allocator).Move(), alwaysVisible ? 1 : 0, allocator);
+    obj.AddMember(rapidjson::Value("sensorFlags", allocator).Move(), sensorFlags, allocator);
+    obj.AddMember(rapidjson::Value("mnDatabaseID", allocator).Move(), mnDatabaseID, allocator);
+}

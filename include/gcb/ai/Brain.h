@@ -96,8 +96,8 @@ public:
     void RemoveTask(const std::string& taskName);
     bool TaskExists(const std::string& taskName);
 
-    long GetTarget() const;
-    void SetTarget(long target_);
+    int GetTarget() const;
+    void SetTarget(int target_);
 
     const std::string& GetActionText() const;
     void SetActionText(const std::string& s);
@@ -136,9 +136,9 @@ private:
 
     std::shared_ptr< tcPlatformObject>  platform;
     const float updateInterval;
-    long nextId; ///< id assigned to next task
+    int nextId; ///< id assigned to next task
     double lastUpdateTime; ///< last time tasks were updated
-    long target; ///< id of target (may be more general way to handle this)
+    int target; ///< id of target (may be more general way to handle this)
     bool updating; ///< true if in the middle of Update
 	bool hasNewCommand; ///< for multiplayer, true if task or bb state has been changed
 	Blackboard board; ///< for inter-task communication

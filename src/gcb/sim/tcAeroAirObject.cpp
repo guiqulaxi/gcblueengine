@@ -47,6 +47,10 @@
 #define new DEBUG_NEW
 #endif
 
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
+
 using namespace database;
 
 
@@ -528,6 +532,20 @@ void tcAeroAirObject::Serialize(tcFile& file, bool mbLoad)
     {
         SaveToFile(file);
     }
+}
+
+void tcAeroAirObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    // call parent serialization
+    tcAirObject::SerializeToJson(obj, allocator);
+
+    // aerodynamic-specific fields
+    obj.AddMember("throttleFraction", rapidjson::Value().SetFloat(throttleFraction), allocator);
+    obj.AddMember("levelThrottleFraction", rapidjson::Value().SetFloat(levelThrottleFraction), allocator);
+    obj.AddMember("levelThrust_N", rapidjson::Value().SetFloat(levelThrust_N), allocator);
+    obj.AddMember("angleOfAttack", rapidjson::Value().SetFloat(angleOfAttack), allocator);
+    obj.AddMember("lastThrust_N", rapidjson::Value().SetFloat(lastThrust_N), allocator);
+    obj.AddMember("lastWeight_N", rapidjson::Value().SetFloat(lastWeight_N), allocator);
 }
 
 void tcAeroAirObject::SaveToPython(scriptinterface::tcScenarioLogger& logger)

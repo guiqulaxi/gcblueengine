@@ -47,6 +47,9 @@
 #include "nsNav.h"
 #include "tcFloatCompressor.h"
 #include "tcScenarioRandomizer.h"
+#include <rapidjson/document.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
 #include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -90,6 +93,24 @@ tcStream& tsRelativePosition::operator>>(tcStream& stream)
     return stream;
 }
 
+/**
+ * Serialize relative position to JSON object
+ */
+void tsRelativePosition::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    obj.SetObject();
+
+    obj.AddMember(rapidjson::Value("dx", allocator).Move(), dx, allocator);
+    obj.AddMember(rapidjson::Value("dy", allocator).Move(), dy, allocator);
+    obj.AddMember(rapidjson::Value("dz", allocator).Move(), dz, allocator);
+
+    obj.AddMember(rapidjson::Value("yaw", allocator).Move(), yaw, allocator);
+    obj.AddMember(rapidjson::Value("pitch", allocator).Move(), pitch, allocator);
+    obj.AddMember(rapidjson::Value("roll", allocator).Move(), roll, allocator);
+
+    obj.AddMember(rapidjson::Value("isVisible", allocator).Move(), isVisible, allocator);
+}
+
 
 
 bool tcGameObject::clientMode = false;
@@ -98,7 +119,7 @@ bool tcGameObject::editMode = false;
 tcMapData* tcGameObject::mapData = NULL;
 database::tcDatabase* tcGameObject::database = NULL;
 tcSimState* tcGameObject::simState = NULL;
-long tcGameObject::hookedId = -1;
+int tcGameObject::hookedId = -1;
 unsigned short tcGameObject::launchedCounter = 0;
 bool tcGameObject::addTasksOnCreate = true;
 
@@ -634,7 +655,7 @@ bool tcGameObject::CalculateCollisionPoint(std::shared_ptr<tcGameObject> collide
 //}
 
 /**
-* Calculates collision point along specified direction in model coordinates
+* Calculates collision point aint specified direction in model coordinates
 * @return true if collision occurs, false otherwise
 * @param distance_m range to collision in meters 碰撞点位置到目标（collider）的距离
 * @param dir direction vector in local coords to check for collision
@@ -714,7 +735,7 @@ bool tcGameObject::CalculateCollisionPointDir(std::shared_ptr<tcGameObject> coll
 //}
 
 /**
-* Calculates collision point along ray to model origin
+* Calculates collision point aint ray to model origin
 * @return true if collision occurs, false otherwise
 * @param distance_m range to collision in meters
 * @param dir direction vector in local coords to check for collision
@@ -1126,7 +1147,7 @@ void tcGameObject::AddChild(std::shared_ptr<tcGameObject>child)
 /**
 * Version that forces id and does not increment nextChildId
 */
-void tcGameObject::AddChildWithId(std::shared_ptr<tcGameObject>child, long id_)
+void tcGameObject::AddChildWithId(std::shared_ptr<tcGameObject>child, int id_)
 {
     child->mnID = id_;
     child->parent = tcGameObject::shared_from_this();
@@ -1135,7 +1156,7 @@ void tcGameObject::AddChildWithId(std::shared_ptr<tcGameObject>child, long id_)
     simState->RegisterChildObject(child->GetName(), tcGameObject::shared_from_this());
 }
 
-void tcGameObject::AddTargeter(long id)
+void tcGameObject::AddTargeter(int id)
 {
     // clumsy, but targeter removal is very sketchy
     // do garbage collect if targeters size gets too big
@@ -1156,7 +1177,7 @@ void tcGameObject::AddTargeter(long id)
 /**
 * @return pointer to child with matching id, or 0 if not found
 */
-std::shared_ptr<tcGameObject> tcGameObject::GetChildById(long id) const
+std::shared_ptr<tcGameObject> tcGameObject::GetChildById(int id) const
 {
     size_t nChildren = children.size();
 	for (size_t n=0; n<nChildren; n++)
@@ -1337,9 +1358,9 @@ void tcGameObject::RemoveChild(std::shared_ptr<tcGameObject>child)
     assert(false);
 }
 
-void tcGameObject::RemoveTargeter(long id)
+void tcGameObject::RemoveTargeter(int id)
 {
-    std::vector<long> temp;
+    std::vector<int> temp;
 
     for (size_t n=0; n<targeters.size(); n++)
     {
@@ -1729,7 +1750,7 @@ tcGameStream& tcGameObject::operator>>(tcGameStream& stream)
     for (size_t n=0; n<nChildren; n++)
     {
         std::string databaseClass = children[n]->mzClass.c_str();
-        long id = children[n]->mnID;
+        int id = children[n]->mnID;
 
         stream << databaseClass;
         stream << id;
@@ -1742,7 +1763,7 @@ tcGameStream& tcGameObject::operator>>(tcGameStream& stream)
     for (size_t n=0; n<nLaunch; n++)
     {
         std::string databaseClass = toLaunch[n]->mzClass.c_str();
-        long id = toLaunch[n]->mnID;
+        int id = toLaunch[n]->mnID;
 
         stream << databaseClass;
         stream << id;
@@ -1754,7 +1775,7 @@ tcGameStream& tcGameObject::operator>>(tcGameStream& stream)
     stream << nTargeters;
     for (size_t n=0; n<nTargeters; n++)
     {
-        long id = targeters[n];
+        int id = targeters[n];
         stream << id;
     }
 
@@ -1791,7 +1812,7 @@ tcGameStream& tcGameObject::operator<<(tcGameStream& stream)
         std::string databaseClass;
         stream >> databaseClass;
 
-        long id;
+        int id;
         stream >> id;
 
         std::shared_ptr<tcGameObject> child = CreateObject(databaseClass);
@@ -1807,7 +1828,7 @@ tcGameStream& tcGameObject::operator<<(tcGameStream& stream)
         std::string databaseClass;
         stream >> databaseClass;
 
-        long id;
+        int id;
         stream >> id;
 
         std::shared_ptr<tcGameObject> child = CreateObject(databaseClass);
@@ -1824,7 +1845,7 @@ tcGameStream& tcGameObject::operator<<(tcGameStream& stream)
     stream >> nTargeters;
     for (size_t n=0; n<nTargeters; n++)
     {
-        long id;
+        int id;
         stream >> id;
         targeters.push_back(id);
     }
@@ -1841,7 +1862,7 @@ tcGameStream& tcGameObject::operator<<(tcGameStream& stream)
 */
 void tcGameObject::CleanupTargeters()
 {
-    std::vector<long> temp;
+    std::vector<int> temp;
 
     for (size_t n=0; n<targeters.size(); n++)
     {
@@ -2131,4 +2152,72 @@ tcGameObject::~tcGameObject()
 //        model->GetMesh()->Enable(false); // causes crash when game closing
 //        delete model;
 //    }
+}
+
+/**
+ * Serialize base tcGameObject fields to JSON. Derived classes should call
+ * this to include base fields in their JSON representation.
+ */
+void tcGameObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    obj.SetObject();
+
+    // id
+    obj.AddMember(rapidjson::Value("id", allocator).Move(), mnID, allocator);
+
+    // class and unit name
+    rapidjson::Value className;
+    className.SetString(mzClass.c_str(), static_cast<rapidjson::SizeType>(mzClass.length()), allocator);
+    obj.AddMember(rapidjson::Value("class", allocator).Move(), className, allocator);
+
+    rapidjson::Value unitName;
+    unitName.SetString(mzUnit.c_str(), static_cast<rapidjson::SizeType>(mzUnit.length()), allocator);
+    obj.AddMember(rapidjson::Value("unit", allocator).Move(), unitName, allocator);
+
+    obj.AddMember(rapidjson::Value("dbKey", allocator).Move(), mnDBKey, allocator);
+
+    // kinematics
+    rapidjson::Value kinObj(rapidjson::kObjectType);
+    kinObj.AddMember(rapidjson::Value("lon_rad", allocator).Move(), mcKin.mfLon_rad, allocator);
+    kinObj.AddMember(rapidjson::Value("lat_rad", allocator).Move(), mcKin.mfLat_rad, allocator);
+    kinObj.AddMember(rapidjson::Value("alt_m", allocator).Move(), mcKin.mfAlt_m, allocator);
+    kinObj.AddMember(rapidjson::Value("heading_rad", allocator).Move(), mcKin.mfHeading_rad, allocator);
+    kinObj.AddMember(rapidjson::Value("yaw_rad", allocator).Move(), mcKin.mfYaw_rad, allocator);
+    kinObj.AddMember(rapidjson::Value("pitch_rad", allocator).Move(), mcKin.mfPitch_rad, allocator);
+    kinObj.AddMember(rapidjson::Value("roll_rad", allocator).Move(), mcKin.mfRoll_rad, allocator);
+    kinObj.AddMember(rapidjson::Value("speed_kts", allocator).Move(), mcKin.mfSpeed_kts, allocator);
+    obj.AddMember(rapidjson::Value("kinematics", allocator).Move(), kinObj, allocator);
+
+    // damage
+    obj.AddMember(rapidjson::Value("damageLevel", allocator).Move(), mfDamageLevel, allocator);
+
+    // parent id
+    int parentId = (parent) ? static_cast<int>(parent->mnID) : -1;
+    obj.AddMember(rapidjson::Value("parentId", allocator).Move(), parentId, allocator);
+
+    // relative position
+    rapidjson::Value relObj(rapidjson::kObjectType);
+    rel_pos.SerializeToJson(relObj, allocator);
+    obj.AddMember(rapidjson::Value("relativePosition", allocator).Move(), relObj, allocator);
+
+    // children ids
+    rapidjson::Value childrenArr(rapidjson::kArrayType);
+    for (size_t i = 0; i < children.size(); ++i)
+    {
+        childrenArr.PushBack(children[i] ? children[i]->mnID : -1, allocator);
+    }
+    obj.AddMember(rapidjson::Value("children", allocator).Move(), childrenArr, allocator);
+
+    // components: include type names as minimal info
+    rapidjson::Value compsArr(rapidjson::kArrayType);
+    for (size_t i = 0; i < components.size(); ++i)
+    {
+        rapidjson::Value compObj(rapidjson::kObjectType);
+        components[i]->SerializeToJson(compObj,allocator);
+        compsArr.PushBack(compObj, allocator);
+    }
+    obj.AddMember(rapidjson::Value("components", allocator).Move(), compsArr, allocator);
+
+    // flags
+    obj.AddMember(rapidjson::Value("isInvulnerable", allocator).Move(), isInvulnerable, allocator);
 }

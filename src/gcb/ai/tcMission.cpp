@@ -260,7 +260,7 @@ void tcMission::SetMissionManager(tcMissionManager* mm)
 * If air1 isn't in list, do nothing. If air2 is new replace air1 with air2.
 * Otherwise swap position of air2 and air1. Keep role fields in old position.
 */
-void tcMission::SwapMissionAircraft(const std::string& air1, long id1,  const std::string& air2, long id2)
+void tcMission::SwapMissionAircraft(const std::string& air1, int id1,  const std::string& air2, int id2)
 {
     size_t idx1 = 999;
     size_t idx2 = 999;

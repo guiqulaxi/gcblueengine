@@ -60,7 +60,7 @@ public:
 
     float CalculateSimpleDetectionRange(std::shared_ptr<tcGameObject> target, float& NL, float& SLp);
     virtual bool CanDetectTarget(std::shared_ptr<const tcGameObject> target, float& range_km, bool useRandom=true); 
-    virtual bool InitFromDatabase(long key); ///< initializes sensor using database data at key
+    virtual bool InitFromDatabase(int key); ///< initializes sensor using database data at key
 	float GetLastSNRExcess() const;
 
     void Serialize(tcFile& file, bool mbLoad);
@@ -88,6 +88,9 @@ public:
     tcSonar( std::shared_ptr<tcSonarDBObject> dbObj);
     virtual ~tcSonar();
 
+    // JSON serialization
+    virtual void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const;
+
 protected:
     bool isPassive;
 	float scope_m; ///< [m] scope of towed array
@@ -106,7 +109,7 @@ private:
     float last_range_km; ///< [km] target range from last call to CanDetectTarget
     float last_snr_excess; ///< [dB] snr excess from last call to CanDetectTarget
     static float last_TL; ///< [dB] last transmission loss from last call to CanDetectTarget
-    long emitterId; ///< if active sonar has been detected, database id of active sonar, -1 otherwise
+    int emitterId; ///< if active sonar has been detected, database id of active sonar, -1 otherwise
 
     bool CountermeasureRejected(std::shared_ptr<const tcGameObject> target) const;
 };

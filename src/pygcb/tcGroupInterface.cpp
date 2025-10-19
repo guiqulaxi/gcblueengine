@@ -53,7 +53,7 @@ namespace scriptinterface
 	*/
 	tcPlatformInterface tcGroupInterface::GetPlatformInterface(int idx)
 	{
-		long id = GetUnitId(idx);
+        int id = GetUnitId(idx);
 
 		std::shared_ptr<tcGameObject> gameObj = simState->GetObject(id);
 		if (std::shared_ptr<tcPlatformObject> platformObj = std::dynamic_pointer_cast<tcPlatformObject>(gameObj))
@@ -73,7 +73,7 @@ namespace scriptinterface
 	*/
 	tcWeaponInterface tcGroupInterface::GetWeaponInterface(int idx)
 	{
-		long id = GetUnitId(idx);
+        int id = GetUnitId(idx);
 
 		std::shared_ptr<tcGameObject> gameObj = simState->GetObject(id);
         if (std::shared_ptr<tcWeaponObject> weaponObj =  std::dynamic_pointer_cast<tcWeaponObject>(gameObj))
@@ -107,7 +107,7 @@ namespace scriptinterface
 
         for (size_t n=0; n<groupUnits.size(); n++)
         {
-            long id_n = groupUnits[n];
+            int id_n = groupUnits[n];
              std::shared_ptr<tcAirObject> air = std::dynamic_pointer_cast<tcAirObject>(simState->GetObject(id_n));
             if ((air != 0) && (air->IsTanker()))
             {
@@ -128,7 +128,7 @@ namespace scriptinterface
 	/**
 	*
 	*/
-	long tcGroupInterface::GetUnitId(int idx) const
+    int tcGroupInterface::GetUnitId(int idx) const
 	{
 		if ((size_t)idx >= groupUnits.size())
 		{
@@ -142,7 +142,7 @@ namespace scriptinterface
 
     bool tcGroupInterface::IsPlatform(int idx) const
     {
-        long id = GetUnitId(idx);
+        int id = GetUnitId(idx);
 		std::shared_ptr<const tcGameObject> gameObj = simState->GetObject(id);
         std::shared_ptr<const tcPlatformObject> platformObj =  std::dynamic_pointer_cast<const tcPlatformObject>(gameObj);
         return (platformObj != 0);
@@ -150,7 +150,7 @@ namespace scriptinterface
 
     bool tcGroupInterface::IsWeapon(int idx) const
     {
-        long id = GetUnitId(idx);
+        int id = GetUnitId(idx);
 		std::shared_ptr<const tcGameObject> gameObj = simState->GetObject(id);
         std::shared_ptr<const tcWeaponObject> weaponObj =  std::dynamic_pointer_cast<const tcWeaponObject>(gameObj);
         return (weaponObj != 0);
@@ -159,7 +159,7 @@ namespace scriptinterface
     /**
     *
     */
-    std::vector<long>& tcGroupInterface::GetUnits()
+    std::vector<int>& tcGroupInterface::GetUnits()
     {
         return groupUnits;
     }
@@ -174,11 +174,11 @@ namespace scriptinterface
 //        mpCommandQueue->GetUserInput(callback.c_str(), uitype.c_str(), -1, "");
     }
 
-    long tcGroupInterface::LookupUnit(const std::string& name)
+    int tcGroupInterface::LookupUnit(const std::string& name)
     {
         for (size_t n=0; n<groupUnits.size(); n++)
         {
-            long id_n = groupUnits[n];
+            int id_n = groupUnits[n];
             std::shared_ptr<tcGameObject> gameObj = simState->GetObject(id_n);
             if ((gameObj != 0) && (name == gameObj->mzUnit.c_str()))
             {
@@ -193,7 +193,7 @@ namespace scriptinterface
     {
         for (size_t n=0; n<groupUnits.size(); n++)
         {
-            long id_n = groupUnits[n];
+            int id_n = groupUnits[n];
             std::shared_ptr<tcGameObject> gameObj = simState->GetObject(id_n);
             if ((gameObj != 0) && (name == gameObj->mzUnit.c_str()))
             {
@@ -207,9 +207,9 @@ namespace scriptinterface
     /**
     * Call to remove destroyed unit from group selection
     */
-    void tcGroupInterface::RemoveUnit(long unit)
+    void tcGroupInterface::RemoveUnit(int unit)
     {
-        std::vector<long> remainingUnits;
+        std::vector<int> remainingUnits;
 
         for (size_t n=0; n<groupUnits.size(); n++)
         {
@@ -222,7 +222,7 @@ namespace scriptinterface
     /**
     *
     */
-	void tcGroupInterface::SetUnit(long unit)
+    void tcGroupInterface::SetUnit(int unit)
     {
         groupUnits.clear();
         groupUnits.push_back(unit);
@@ -231,7 +231,7 @@ namespace scriptinterface
 	/**
 	*
 	*/
-	void tcGroupInterface::SetUnits(const std::vector<long>& units)
+    void tcGroupInterface::SetUnits(const std::vector<int>& units)
 	{
 		groupUnits = units;
 	}
@@ -243,7 +243,7 @@ namespace scriptinterface
 
 //		using network::tcMultiplayerInterface;
 
-        std::vector<long> controlledIds;
+        std::vector<int> controlledIds;
 
         for (size_t k=0; k<groupUnits.size(); k++)
         {
@@ -264,7 +264,7 @@ namespace scriptinterface
 
         // using network::tcMultiplayerInterface;
 
-        std::vector<long> availableIds;
+        std::vector<int> availableIds;
 
         for (size_t k=0; k<groupUnits.size(); k++)
         {

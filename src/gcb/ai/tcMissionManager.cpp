@@ -394,7 +394,7 @@ void tcMissionManager::DeleteMission(unsigned int missionId)
 	missionsToDelete.push_back(missionId);
 }
 
-std::shared_ptr<tcAirObject> tcMissionManager::GetAircraft(long id)
+std::shared_ptr<tcAirObject> tcMissionManager::GetAircraft(int id)
 {
     return std::dynamic_pointer_cast<tcAirObject>(flightPort->GetObjectById(id));
 }
@@ -409,9 +409,9 @@ std::shared_ptr<tcAirObject> tcMissionManager::GetAircraft(const std::string& un
 * @return missionId of mission that aircraft is assigned to, or 0 if not assigned
 * Should call UpdateReserved() first if mission aircraft changes have been made
 */
-unsigned int tcMissionManager::GetAircraftMissionId(long aircraftId)
+unsigned int tcMissionManager::GetAircraftMissionId(int aircraftId)
 {
-    std::map<long, unsigned int>::const_iterator iter = 
+    std::map<int, unsigned int>::const_iterator iter = 
         reserved.find(aircraftId);
 
     if (iter != reserved.end())
@@ -468,7 +468,7 @@ std::vector<MissionAircraftInfo>& tcMissionManager::GetAvailableAircraft(int tar
 	{
 		tcAirState* airState = flightPort->GetAirState((unsigned int)n);
 
-		long id = airState->obj->mnID;
+		int id = airState->obj->mnID;
 		if (!IsAircraftReserved(id))
 		{
             std::shared_ptr<tcPlatformObject> platform = std::dynamic_pointer_cast<tcPlatformObject>(airState->obj);
@@ -515,7 +515,7 @@ std::shared_ptr<tcGameObject> tcMissionManager::GetFlightportParent()
 	return flightPort->parent;
 }
 
-long tcMissionManager::GetFlightportParentId() const
+int tcMissionManager::GetFlightportParentId() const
 {
 	return flightPort->parent->mnID;
 }
@@ -553,15 +553,15 @@ size_t tcMissionManager::GetMissionCount() const
     return missions.size();
 }
 
-bool tcMissionManager::IsAircraftReserved(long id) const
+bool tcMissionManager::IsAircraftReserved(int id) const
 {
-	std::map<long, unsigned int>::const_iterator iter =
+	std::map<int, unsigned int>::const_iterator iter =
 		reserved.find(id);
 
 	return (iter != reserved.end());
 }
 
-void tcMissionManager::LaunchAircraft(long id)
+void tcMissionManager::LaunchAircraft(int id)
 {
 	flightPort->LaunchID(id);
 }

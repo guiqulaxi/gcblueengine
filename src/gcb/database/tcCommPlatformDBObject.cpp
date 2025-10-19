@@ -2,12 +2,10 @@
 
 #include <tcDatabase.h>
 #include <tcDatabaseObject.h>
+#include "rapidjson/document.h"
 
 
-namespace database
-{
-
-
+using namespace database;
 void tcCommPlatformDBObject::PrintToFile(tcFile& file)
 {
 }
@@ -44,7 +42,7 @@ void tcCommPlatformDBObject::UpdateCommList()
 */
 void tcCommPlatformDBObject::AddSqlColumns(std::string& columnString)
 {
-    // no longer needed since all covered by platform_sensors table
+    // no inter needed since all covered by platform_sensors table
     /*
     columnString += ",";
 
@@ -70,7 +68,7 @@ void tcCommPlatformDBObject::ReadSql(tcSqlReader& entry)
     commAz.clear();
     commId.clear();
 
-    // no longer needed since all covered by platform_sensors table
+    // no inter needed since all covered by platform_sensors table
     //
     //for(int i=0;i<MAXSENSORS;i++)
     //{
@@ -94,7 +92,7 @@ void tcCommPlatformDBObject::ReadSql(tcSqlReader& entry)
 
 void tcCommPlatformDBObject::WriteSql(std::string& valueString) const
 {
-    // no longer needed since all covered by platform_sensors table
+    // no inter needed since all covered by platform_sensors table
     /*
     std::stringstream s;
 
@@ -155,4 +153,19 @@ tcCommPlatformDBObject::~tcCommPlatformDBObject()
 {
 }
 
+void tcCommPlatformDBObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    tcComponentDBObject::SerializeToJson(obj, allocator);
+
+    rapidjson::Value arrClass(rapidjson::kArrayType);
+    for (const auto& s : commClass) arrClass.PushBack(rapidjson::Value(s.c_str(), allocator).Move(), allocator);
+    obj.AddMember(rapidjson::Value("commClass", allocator).Move(), arrClass, allocator);
+
+    rapidjson::Value arrId(rapidjson::kArrayType);
+    for (const auto& id : commId) arrId.PushBack(id, allocator);
+    obj.AddMember(rapidjson::Value("commId", allocator).Move(), arrId, allocator);
+
+    rapidjson::Value arrAz(rapidjson::kArrayType);
+    for (const auto& f : commAz) arrAz.PushBack(f, allocator);
+    obj.AddMember(rapidjson::Value("commAz", allocator).Move(), arrAz, allocator);
 }

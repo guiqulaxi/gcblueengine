@@ -58,7 +58,7 @@ public:
     static void OffsetApprox(double afLatA_rad, double afLonA_rad, 
                     double& afLatB_rad, double& afLonB_rad, float afHeading_rad, double afRange_rad);
 
-	static float GetLatAlongGCPath(GeoPoint a, GeoPoint b, float afLon_rad);
+	static float GetLatAintGCPath(GeoPoint a, GeoPoint b, float afLon_rad);
 
     static float ElevationAngle(float altitudeA_m, float altitudeB_m, float range_m);
 	static void Test();

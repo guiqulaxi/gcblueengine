@@ -246,13 +246,13 @@ tcStream& tcStream::operator<<(const int& val)
     return *this;
 }
 
-tcStream& tcStream::operator<<(const long& val)
-{
-    assert(direction != OUTPUT);
+// tcStream& tcStream::operator<<(const int& val)
+// {
+//     assert(direction != OUTPUT);
 
-    write((char*)&val, sizeof(val));   
-    return *this;
-}
+//     write((char*)&val, sizeof(val));
+//     return *this;
+// }
  tcStream& tcStream::operator<<(const size_t& val)
  {
      assert(direction != OUTPUT);
@@ -299,13 +299,13 @@ tcStream& tcStream::operator<<(const unsigned int& val)
     return *this;
 }
 
-tcStream& tcStream::operator<<(const unsigned long& val)
-{
-    assert(direction != OUTPUT);
+// tcStream& tcStream::operator<<(const unsigned int& val)
+// {
+//     assert(direction != OUTPUT);
 
-    write((char*)&val, sizeof(val));   
-    return *this;
-}
+//     write((char*)&val, sizeof(val));
+//     return *this;
+// }
 
 
 tcStream& tcStream::operator<<(const bool& val)
@@ -415,13 +415,13 @@ tcStream& tcStream::operator>>(int& val)
     return *this;
 }
 
-tcStream& tcStream::operator>>(long& val)
-{
-    assert(direction != INPUT);
+// tcStream& tcStream::operator>>(int& val)
+// {
+//     assert(direction != INPUT);
 
-    read((char*)&val, sizeof(val));   
-    return *this;
-}
+//     read((char*)&val, sizeof(val));
+//     return *this;
+// }
 tcStream& tcStream::operator>>(size_t& val)
 {
     assert(direction != INPUT);
@@ -469,13 +469,13 @@ tcStream& tcStream::operator>>(unsigned int& val)
     return *this;
 }
 
-tcStream& tcStream::operator>>(unsigned long& val)
-{
-    assert(direction != INPUT);
+// tcStream& tcStream::operator>>(unsigned int& val)
+// {
+//     assert(direction != INPUT);
 
-    read((char*)&val, sizeof(val));   
-    return *this;
-}
+//     read((char*)&val, sizeof(val));
+//     return *this;
+// }
 
 tcStream& tcStream::operator>>(bool& val)
 {

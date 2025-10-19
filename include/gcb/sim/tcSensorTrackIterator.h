@@ -58,8 +58,8 @@ public:
 private:
     static tcSimState *simState;
     tcAllianceSensorMap* map;
-    long firstPos; ///< index of first game object, last advances to first
-    long currentPos; ///< current position index for pool
+    int firstPos; ///< index of first game object, last advances to first
+    int currentPos; ///< current position index for pool
     std::shared_ptr<tcSensorMapTrack> currentObj;
     bool useRegion;
     tcGeoRect region;

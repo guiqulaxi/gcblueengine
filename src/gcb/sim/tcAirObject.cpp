@@ -45,7 +45,9 @@
 #include "tcFloatCompressor.h"
 #include "tcFuelTankDBObject.h"
 #include "tcBallisticDBObject.h"
+#include "tcWeaponDBObject.h"
 #include <cassert>
+#include <memory>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -117,7 +119,7 @@ tcGameStream& tcAirObject::operator<<(tcGameStream& stream)
     stream >> nFuelTargets;
     for (unsigned char n=0; n<nFuelTargets; n++)
     {
-        long id;
+        int id;
         stream >> id;
         fuelTargets.push_back(id);
     }
@@ -152,7 +154,7 @@ tcGameStream& tcAirObject::operator>>(tcGameStream& stream)
 /**
 * @return true if id successfully added as fuel target
 */
-bool tcAirObject::AddFuelTarget(long id)
+bool tcAirObject::AddFuelTarget(int id)
 {
     const float maxRefuelRange_km = 0.25f;
 
@@ -273,7 +275,7 @@ void tcAirObject::LightenLoad()
             {
                 // 尝试从弹药库中卸载指定量的燃油（超重量+1，确保能完全卸载超重量）
 
-                bool result = mag->UnloadOther("Fuel", (unsigned long)(excessWeight_kg)+1, tcGameObject::shared_from_this());
+                bool result = mag->UnloadOther("Fuel", (unsigned int)(excessWeight_kg)+1, tcGameObject::shared_from_this());
                 searching = false; // 无论是否成功，都停止搜索
                 if (result) return; // 如果成功卸载，则直接返回
             }
@@ -290,8 +292,8 @@ void tcAirObject::LightenLoad()
         std::shared_ptr<const tcLauncher> launcher = GetLauncher(n); // 获取当前发射器
         float itemWeight_kg = launcher->GetItemWeight(); // 获取当前发射器内物品的重量
         // 尝试将发射器的子对象转换为武器或燃油箱数据对象
-        std::shared_ptr<tcWeaponDBObject> weaponData = dynamic_pointer_cast<tcWeaponDBObject>(launcher->mpChildDBObj);
-        std::shared_ptr<tcFuelTankDBObject> tankData = dynamic_pointer_cast<tcFuelTankDBObject>(launcher->mpChildDBObj);
+    std::shared_ptr<database::tcWeaponDBObject> weaponData = std::dynamic_pointer_cast<database::tcWeaponDBObject>(launcher->mpChildDBObj);
+    std::shared_ptr<database::tcFuelTankDBObject> tankData = std::dynamic_pointer_cast<database::tcFuelTankDBObject>(launcher->mpChildDBObj);
         // 如果发射器内有物品，且当前物品比已知最重物品轻（注意这里的逻辑是找最“轻”的重物，即排除更重的），且物品是武器或燃油箱
         if ((launcher->mnCurrent > 0) && (itemWeight_kg < heaviestItem_kg) &&
             ((weaponData != 0) || (tankData != 0)))
@@ -1002,11 +1004,11 @@ void tcAirObject::UpdateInFlightRefuel(float dt_s)
 
     const float maxRefuelRange_km = 0.25f;
 
-    std::vector<long> validId;
+    std::vector<int> validId;
 
     for (size_t n=0; n<fuelTargets.size(); n++)
     {
-        long id = fuelTargets[n];
+        int id = fuelTargets[n];
         std::shared_ptr<tcAirObject> target = std::dynamic_pointer_cast<tcAirObject>(simState->GetObject(id));
         if ((target != 0) && (target->fuel_kg < target->GetFuelCapacity() - 30) &&
             (mcKin.RangeToKmAlt(target->mcKin) <= maxRefuelRange_km))
@@ -1159,6 +1161,24 @@ tcAirObject::tcAirObject(std::shared_ptr<tcAirDBObject> obj)
 
 tcAirObject::~tcAirObject()
 {
+}
+
+void tcAirObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    tcPlatformObject::SerializeToJson(obj, allocator);
+
+    obj.AddMember("fuel_kg", rapidjson::Value().SetFloat(fuel_kg), allocator);
+    obj.AddMember("maxPitch_rad", rapidjson::Value().SetFloat(maxPitch_rad), allocator);
+    obj.AddMember("climbCommand_rad", rapidjson::Value().SetFloat(climbCommand_rad), allocator);
+    obj.AddMember("readyForLanding", rapidjson::Value().SetInt(readyForLanding), allocator);
+
+    // fuel targets
+    rapidjson::Value ftArr(rapidjson::kArrayType);
+    for (size_t i=0; i<fuelTargets.size(); ++i)
+    {
+        ftArr.PushBack(rapidjson::Value().SetInt((int)fuelTargets[i]), allocator);
+    }
+    obj.AddMember("fuelTargets", ftArr, allocator);
 }
 
 void tcAirObject::Construct()

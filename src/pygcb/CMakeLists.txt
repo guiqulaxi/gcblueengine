@@ -28,6 +28,8 @@ target_include_directories(pygcb PRIVATE
     ${PROJECT_SOURCE_DIR}/3rd/Eigen
     ${PROJECT_SOURCE_DIR}/3rd/sqlite/include
     ${PROJECT_SOURCE_DIR}/3rd/date/include
+    ${PROJECT_SOURCE_DIR}/3rd/rapidjson/include
+
     ${PYTHON_INCLUDE_DIR}
 )
 target_compile_options(pygcb

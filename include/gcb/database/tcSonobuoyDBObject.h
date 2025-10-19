@@ -48,6 +48,8 @@ namespace database
 		virtual const char* GetClassName() const {return "Sonobuoy";} ///< returns class name of database object
 		virtual void PrintToFile(tcFile& file);
 
+        virtual void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const override;
+
 		static void AddSqlColumns(std::string& columnString);
 		void ReadSql(tcSqlReader& entry);
         void WriteSql(std::string& valueString) const;

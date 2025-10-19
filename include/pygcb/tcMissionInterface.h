@@ -68,7 +68,7 @@ namespace scriptinterface
         
         unsigned int GetMissionAircraftCount() const; ///< @returns number of mission aircraft
         unsigned int GetAirborneAircraftCount() const;
-		long GetAirborneAircraftId(unsigned int idx) const;
+		int GetAirborneAircraftId(unsigned int idx) const;
         unsigned int GetSmallestWaypointIndex() const;
 
         tcMissionInterface();

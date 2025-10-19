@@ -94,7 +94,7 @@ protected:
     void UpdateAutocannon();
     void UpdateSmartBombFuse();
     void UpdateTargetFuse();
-    const GeoPoint& CalculateGunSolution(long targetId);
+    const GeoPoint& CalculateGunSolution(int targetId);
 
 };
 #endif

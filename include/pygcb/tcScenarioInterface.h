@@ -125,7 +125,7 @@ public:
     bool isValid;
     std::string root;
     std::string separator;
-    long id;
+    int id;
 };
 
 class tcAllianceROEInfo
@@ -148,16 +148,16 @@ public:
     bool AddUnitToFlightDeck(std::string parentName, std::string className,
                              std::string unitName, int locCode);
     void AddToUnitMagazine(const std::string& unitName,
-                           const std::string& item, unsigned long quantity);
+                           const std::string& item, unsigned int quantity);
     tcPlatformInterface GetUnitInterface(const std::string& unitName);
-    std::string GetUnitNameById(long id) const;
-    long GetUnitIdByName(const std::string& unitName) const;
+    std::string GetUnitNameById(int id) const;
+    int GetUnitIdByName(const std::string& unitName) const;
     void SetUnitLauncherItem(const std::string& unitName,
                              unsigned int launcherIdx, const std::string& item, unsigned int quantity);
     void SetFlightDeckUnitLoadout(const std::string& parent, const std::string& child,
                                   const std::string& loadoutCommand);
     std::string GetRandomPlatformName(const std::string& databaseClass, const std::string& referenceName);
-    bool ParseUnitName(const std::string& referenceName, std::string& root, std::string& separator, long& id) const;
+    bool ParseUnitName(const std::string& referenceName, std::string& root, std::string& separator, int& id) const;
     tcParsedUnitName GetParsedUnitName(const std::string& referenceName) const;
     void DuplicateUnitTasking(const std::string& unitName1, const std::string& unitName2);
 
@@ -184,9 +184,9 @@ public:
     void SaveGame(const std::string& fileName);
     void SetAllianceGoal(int alliance, tcGoal& goal);
     tcGoalWrap GetAllianceGoal(int alliance);
-    tcGoalWrap GetGoalById(unsigned long id);
-    void AddChildGoalToId(unsigned long id, tcGoal& goal);
-    void DeleteGoalById(unsigned long id);
+    tcGoalWrap GetGoalById(unsigned int id);
+    void AddChildGoalToId(unsigned int id, tcGoal& goal);
+    void DeleteGoalById(unsigned int id);
     bool IsUsingNATONames() const;
     std::string GetDisplayName(const std::string& className);
 
@@ -317,7 +317,7 @@ public:
     int GetAllianceRelationship(unsigned char alliance_a, unsigned char alliance_b) const;
 
     void SetEditMode(bool state);
-    void SetTimeAccel(long accel);
+    void SetTimeAccel(int accel);
     void ClearScenario();
     void LoadScenario(const std::string &filePath);
 
@@ -327,7 +327,7 @@ private:
 
     double eventTime; ///< start time for briefing event functions
     std::shared_ptr<tcGameObject> lastObjectAdded; ///< last object added to sim
-    double lon_theater_deg; ///< default starting longitude for theater
+    double lon_theater_deg; ///< default starting intitude for theater
     double lat_theater_deg; ///< default starting latitude for theater
     int sideCode; ///< used to toggle user's alliance in scenario, 0 means uninitialized
     bool isScenarioLocked; ///< true to block edit mode for scenario that has been loaded

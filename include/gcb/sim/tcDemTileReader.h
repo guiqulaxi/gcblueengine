@@ -68,14 +68,14 @@ private:
     tcString demPathMedium;
     tcString demPathLow;
     tcString demPathLow10;
-	std::map<long, bool> tileStatusHigh;
-    std::map<long, bool> tileStatusMedium;
-	std::map<long, bool> tileStatusLow;
-	std::map<long, bool> tileStatusLow10;
+	std::map<int, bool> tileStatusHigh;
+    std::map<int, bool> tileStatusMedium;
+	std::map<int, bool> tileStatusLow;
+	std::map<int, bool> tileStatusLow10;
 
 	void GetTileName(std::string& nameString, int lat_deg, int lon_deg, int resolution);
-	void KeyToLatLon(long key, int& lat, int& lon);
-	long LatLonToKey(int lat, int lon);
+	void KeyToLatLon(int key, int& lat, int& lon);
+	int LatLonToKey(int lat, int lon);
 	void MarkTileUnavailable(int lat, int lon, int resolution);
 	void ScanTiles();
 };

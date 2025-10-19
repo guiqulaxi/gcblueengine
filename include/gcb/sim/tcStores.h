@@ -69,7 +69,7 @@ public:
     {
     public:
         std::string className;
-        unsigned long quantity;
+        unsigned int quantity;
         unsigned int itemId;
         
         std::shared_ptr<tcDatabaseObject> GetDatabaseObject() const;
@@ -78,7 +78,7 @@ public:
 
         StoreItem();
         StoreItem(const StoreItem& src);
-        StoreItem(const std::string& name, unsigned long qty, unsigned int id);
+        StoreItem(const std::string& name, unsigned int qty, unsigned int id);
     private:
         std::shared_ptr<tcDatabaseObject> databaseObj;
         
@@ -90,13 +90,13 @@ public:
     public:
         enum {UNLOAD = 0, LOAD = 1, REFUEL = 2, AUTOMATION = 3, MOVE = 4, DEFUEL = 5};
         std::string item; ///< item type to transfer
-        unsigned long quantity; ///< quantity of item
+        unsigned int quantity; ///< quantity of item
         float timeToComplete; ///< time left for op to complete [s]
         float timeElapsed; ///< time since op started (used for reversing operation when canceled)
         unsigned int launcherIdx; ///< launcher idx to transfer to/from (also doubles as magazine index for store-to-store move)
         int transferType; ///< UNLOAD or LOAD
 
-        long platformId; ///< id of obj or host obj in simState
+        int platformId; ///< id of obj or host obj in simState
         short int childId; ///< id of child obj, or -1 if not a child
 
         unsigned int opId; ///< unique id for this operation
@@ -114,7 +114,7 @@ public:
     struct StoreItemInfo
     {
         std::string className;
-        unsigned long quantity;
+        unsigned int quantity;
         unsigned int id;
     };
 
@@ -130,16 +130,16 @@ public:
         bool isNuclear;
     };
 
-    bool AddItems(const std::string& item, unsigned long quantity);
-    bool AddItemsForceId(const std::string& item, unsigned long quantity, unsigned int itemId);
-    bool RemoveItems(const std::string& item, unsigned long quantity);
+    bool AddItems(const std::string& item, unsigned int quantity);
+    bool AddItemsForceId(const std::string& item, unsigned int quantity, unsigned int itemId);
+    bool RemoveItems(const std::string& item, unsigned int quantity);
     void RemoveAllItems();
 
     bool CancelOperation(unsigned char id);
 
-    unsigned long CurrentItemQuantity(const std::string& itemMask, std::string& matchingItem) const;
-    unsigned long CurrentQuantity() const;
-	unsigned long IncomingQuantity() const;
+    unsigned int CurrentItemQuantity(const std::string& itemMask, std::string& matchingItem) const;
+    unsigned int CurrentQuantity() const;
+	unsigned int IncomingQuantity() const;
 	std::shared_ptr<tcStoresDBObject> GetDatabaseObject() const;
     std::shared_ptr<tcDatabaseObject> GetDatabaseObjectForItem(const std::string& item) const;
 	const std::string& GetDisplayName() const;
@@ -156,17 +156,17 @@ public:
     bool IsFull() const;
     bool LoadLauncher(unsigned int idx, const std::string& item, 
              std::shared_ptr<tcGameObject> child = 0, unsigned int maxToLoad = 12345);
-	bool LoadOther(const std::string& item, unsigned long quantity, std::shared_ptr<tcGameObject> child = 0);
+	bool LoadOther(const std::string& item, unsigned int quantity, std::shared_ptr<tcGameObject> child = 0);
     unsigned int MoveStores(const std::string& item, unsigned int quantity, std::shared_ptr<tcPlatformObject> destination, unsigned int storesIdx);
-    unsigned long GetFreeCapacityForItem(float itemWeight_kg, float itemVolume_m3) const;
+    unsigned int GetFreeCapacityForItem(float itemWeight_kg, float itemVolume_m3) const;
     bool GetBestLoadout(std::shared_ptr<tcAirObject> obj, const std::vector<LauncherLoadout>& launcherLoadout, std::vector<WeaponInfo>& bestForLauncher, unsigned int groupSize=1);
     bool GetBestGenericLoadout(std::shared_ptr<tcPlatformObject> obj, const std::string& type, std::vector<WeaponInfo>& bestForLauncher);
     const std::vector<StoreItemInfo>& GetMoveSummary() const;
 
     virtual void SaveToPython(scriptinterface::tcScenarioLogger& logger);
     void SetParent(std::shared_ptr<tcPlatformObject> obj);
-    bool UnloadLauncher(unsigned int idx, std::shared_ptr<tcGameObject> child = 0, unsigned long maxToUnload = 123456);
-    bool UnloadOther(const std::string& item, unsigned long quantity, std::shared_ptr<tcGameObject> child = 0);
+    bool UnloadLauncher(unsigned int idx, std::shared_ptr<tcGameObject> child = 0, unsigned int maxToUnload = 123456);
+    bool UnloadOther(const std::string& item, unsigned int quantity, std::shared_ptr<tcGameObject> child = 0);
     void Update(double t);
 
 	void AddAutomationOp(const std::string& type, std::shared_ptr<tcGameObject> child = 0);
@@ -224,15 +224,15 @@ private:
 	{
 		short int id; ///< id of unit that command applies to, -1 for local unit
 		unsigned char op; ///< UNLOAD = 0, LOAD = 1, REFUEL = 2, AUTOMATION = 3
-		long itemId; ///< database id of item (if applicable)
-		unsigned long quantity;
+		int itemId; ///< database id of item (if applicable)
+		unsigned int quantity;
 		unsigned char launcherIdx;
 		std::string type; ///< for automation only
 	};
 	std::vector<CommandInfo> commandList;
 
 
-    bool AddOperation(const std::string& itemName, unsigned int launcherIdx, unsigned long quantity, float transferTime_s,
+    bool AddOperation(const std::string& itemName, unsigned int launcherIdx, unsigned int quantity, float transferTime_s,
 							int opType, std::shared_ptr<tcGameObject> obj);
     void CompleteOperation(StoreOperation& op);
     void CompleteMoveOperation(tcStores::StoreOperation& op, std::shared_ptr<tcGameObject> obj);

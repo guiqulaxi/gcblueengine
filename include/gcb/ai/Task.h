@@ -89,7 +89,7 @@ public:
 	virtual tcGameStream& operator>>(tcGameStream& stream);
 
     Task(std::shared_ptr<tcPlatformObject> platform_, Blackboard* bb, 
-        long id_, double priority_, int attributes_, const std::string& taskName_);
+        int id_, double priority_, int attributes_, const std::string& taskName_);
     virtual ~Task();
     
 

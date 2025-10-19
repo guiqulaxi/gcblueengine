@@ -53,9 +53,95 @@
 #include "strutil.h"
 
 #include <assert.h>
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
+
+void tcFlightPort::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    obj.SetObject();
+
+    // parent id
+    int parentId = parent ? parent->mnID : -1;
+    obj.AddMember(rapidjson::Value("parentId", allocator).Move(), parentId, allocator);
+
+    obj.AddMember(rapidjson::Value("hangarCapacity", allocator).Move(), (unsigned)hangarCapacity, allocator);
+    obj.AddMember(rapidjson::Value("inHangarCount", allocator).Move(), (unsigned)inHangarCount, allocator);
+
+    // toLaunch ids
+    rapidjson::Value launchArray(rapidjson::kArrayType);
+    for (const auto &a : toLaunch)
+    {
+        int id = a ? a->mnID : -1;
+        launchArray.PushBack(id, allocator);
+    }
+    obj.AddMember(rapidjson::Value("toLaunch", allocator).Move(), launchArray, allocator);
+
+    // toLand ids
+    rapidjson::Value landArray(rapidjson::kArrayType);
+    for (const auto &a : toLand)
+    {
+        int id = a ? a->mnID : -1;
+        landArray.PushBack(id, allocator);
+    }
+    obj.AddMember(rapidjson::Value("toLand", allocator).Move(), landArray, allocator);
+
+    // ready_spots
+    rapidjson::Value readyArr(rapidjson::kArrayType);
+    for (const tsSpotInfo &s : ready_spots)
+    {
+        rapidjson::Value so(rapidjson::kObjectType);
+        so.AddMember(rapidjson::Value("x", allocator).Move(), s.x, allocator);
+        so.AddMember(rapidjson::Value("y", allocator).Move(), s.y, allocator);
+        so.AddMember(rapidjson::Value("z", allocator).Move(), s.z, allocator);
+        so.AddMember(rapidjson::Value("orientation", allocator).Move(), s.orientation, allocator);
+        so.AddMember(rapidjson::Value("length", allocator).Move(), s.length, allocator);
+        int occId = (s.obj_info && s.obj_info->obj) ? s.obj_info->obj->mnID : -1;
+        so.AddMember(rapidjson::Value("occupantId", allocator).Move(), occId, allocator);
+        readyArr.PushBack(so, allocator);
+    }
+    obj.AddMember(rapidjson::Value("ready_spots", allocator).Move(), readyArr, allocator);
+
+    // launch_spots
+    rapidjson::Value launchSpArr(rapidjson::kArrayType);
+    for (const tsSpotInfo &s : launch_spots)
+    {
+        rapidjson::Value so(rapidjson::kObjectType);
+        so.AddMember(rapidjson::Value("x", allocator).Move(), s.x, allocator);
+        so.AddMember(rapidjson::Value("y", allocator).Move(), s.y, allocator);
+        so.AddMember(rapidjson::Value("z", allocator).Move(), s.z, allocator);
+        so.AddMember(rapidjson::Value("orientation", allocator).Move(), s.orientation, allocator);
+        so.AddMember(rapidjson::Value("length", allocator).Move(), s.length, allocator);
+        int occId = (s.obj_info && s.obj_info->obj) ? s.obj_info->obj->mnID : -1;
+        so.AddMember(rapidjson::Value("occupantId", allocator).Move(), occId, allocator);
+        launchSpArr.PushBack(so, allocator);
+    }
+    obj.AddMember(rapidjson::Value("launch_spots", allocator).Move(), launchSpArr, allocator);
+
+    // units: serialize per-unit minimal info (index, location, spot, ready_time, op, obj id)
+    rapidjson::Value unitsArr(rapidjson::kArrayType);
+    for (size_t i=0;i<units.size();++i)
+    {
+        tcAirState* s = units[i];
+        if (!s) continue;
+        rapidjson::Value u(rapidjson::kObjectType);
+        u.AddMember(rapidjson::Value("index", allocator).Move(), (unsigned)i, allocator);
+        u.AddMember(rapidjson::Value("current_location", allocator).Move(), (int)s->current_location, allocator);
+        u.AddMember(rapidjson::Value("current_spot", allocator).Move(), s->current_spot, allocator);
+        u.AddMember(rapidjson::Value("goal_location", allocator).Move(), (int)s->goal_location, allocator);
+        u.AddMember(rapidjson::Value("goal_spot", allocator).Move(), s->goal_spot, allocator);
+        u.AddMember(rapidjson::Value("inTransit", allocator).Move(), (bool)s->inTransit, allocator);
+        u.AddMember(rapidjson::Value("op", allocator).Move(), (int)s->op, allocator);
+        u.AddMember(rapidjson::Value("ready_time", allocator).Move(), s->ready_time, allocator);
+        int oid = s->obj ? s->obj->mnID : -1;
+        u.AddMember(rapidjson::Value("obj_id", allocator).Move(), oid, allocator);
+        unitsArr.PushBack(u, allocator);
+    }
+    obj.AddMember(rapidjson::Value("units", allocator).Move(), unitsArr, allocator);
+}
 
 /**
 *   case HANGAR: return "Hangr";
@@ -297,7 +383,7 @@ void tcFlightPort::InitTransitionTimes()
 
    /*
    NOWHERE = 0,
-   HANGAR = 1,   ///< longer term storage or repair
+   HANGAR = 1,   ///< inter term storage or repair
    ALERT15 = 2,    ///< out of hangar, on deck
    ALERT5 = 3,   ///< ready to take off
    PRETAKEOFF = 4, ///< a hack to get a/c to stay in launch spot but take some time to takeoff
@@ -436,7 +522,7 @@ tcUpdateStream& tcFlightPort::operator>>(tcUpdateStream& stream)
 {
     // if freeSpace < 0, the message should be rejected anyway so don't worry about special case
     // for this
-    long freeSpace = stream.GetMaxSize() - stream.size() - 2; // 1 byte for update count header, 1 for detailedUpdate
+    int freeSpace = stream.GetMaxSize() - stream.size() - 2; // 1 byte for update count header, 1 for detailedUpdate
 
     tcUpdateStream tempStream1;
     tcUpdateStream tempStream2;
@@ -473,7 +559,7 @@ tcUpdateStream& tcFlightPort::operator>>(tcUpdateStream& stream)
 
         *airState >> tempStream1;
 
-        if ((long)tempStream1.size() <= freeSpace)
+        if ((int)tempStream1.size() <= freeSpace)
         {
             tempStream2 << tempStream1;
             freeSpace -= tempStream1.size();
@@ -537,7 +623,7 @@ tcCommandStream& tcFlightPort::operator<<(tcCommandStream& stream)
 			for (size_t n=0; (n<obj_count)&&(!found); n++)
 			{
 				tcAirState *airstate = units[n];
-				if (airstate->obj->mnID == (long)id)
+				if (airstate->obj->mnID == (int)id)
 				{
 					found = true;
 					SetObjectDestination(n, (teLocation)op, pos);
@@ -588,7 +674,7 @@ tcGameStream& tcFlightPort::operator<<(tcGameStream& stream)
 
     for (size_t n=0; n<nUnits; n++)
     {
-        long objId;
+        int objId;
         stream >> objId;
 
         tcAirState* airstate = new tcAirState;
@@ -998,7 +1084,7 @@ const tcAirState* tcFlightPort::GetAirState(unsigned n) const
 	return units[n];
 }
 
-int tcFlightPort::GetAirStateIdx(long id) const
+int tcFlightPort::GetAirStateIdx(int id) const
 {
     size_t nUnits = units.size();
     for(size_t n=0;n<nUnits;n++) 
@@ -1027,7 +1113,7 @@ std::shared_ptr<tcGameObject> tcFlightPort::GetObject(unsigned n)
 /**
 * @return game object for unit with matching id
 */
-std::shared_ptr<tcGameObject> tcFlightPort::GetObjectById(long id)
+std::shared_ptr<tcGameObject> tcFlightPort::GetObjectById(int id)
 {
 	int idx = GetAirStateIdx(id);
 	if (idx < 0) return 0;
@@ -1049,7 +1135,7 @@ std::shared_ptr<tcGameObject> tcFlightPort::GetObjectByName(const std::string& u
 }
 
 /**
-* @return length of longest runway in meters
+* @return length of intest runway in meters
 */
 float tcFlightPort::GetMaxRunwayLength() const
 {
@@ -1132,12 +1218,12 @@ const std::string& tcFlightPort::GetTimeToDestinationString(const tcAirState* ai
     static std::string readyTimeString;
     readyTimeString.clear();
 
-    long ready_s = long(GetTimeToDestination(airstate) + 0.5f);
+    int ready_s = int(GetTimeToDestination(airstate) + 0.5f);
     if (ready_s > 0)
     {
-	    long hours = ready_s / 3600;
-        long min = (ready_s - 3600*hours)/60;
-        long sec = ready_s % 60;
+	    int hours = ready_s / 3600;
+        int min = (ready_s - 3600*hours)/60;
+        int sec = ready_s % 60;
         
         if (ready_s > 59)
         {
@@ -1258,7 +1344,7 @@ int tcFlightPort::LaunchRunway(int runway)
 }
 
 /// Find runway that object with id is on
-int tcFlightPort::LaunchID(long id)
+int tcFlightPort::LaunchID(int id)
 {
 	if (parent->IsClientMode())
 	{
@@ -1579,7 +1665,7 @@ bool tcFlightPort::IsHeloOnly() const
 * @return true if unit matching id is queued for takeoff 
 * (goal loc == TAKEOFF)
 */
-bool tcFlightPort::IsQueuedForTakeoff(long id) const
+bool tcFlightPort::IsQueuedForTakeoff(int id) const
 {
 	int idx = GetAirStateIdx(id);
 	if (idx < 0) return false;
@@ -1896,7 +1982,7 @@ void tcFlightPort::Update(double t)
 
     UpdateLanded(); // 更新已着陆的单位
 
-    std::vector<long> idsToLaunch; // 初始化待起飞ID队列
+    std::vector<int> idsToLaunch; // 初始化待起飞ID队列
 
     // 遍历每个单位
     size_t obj_count = units.size();
@@ -2063,7 +2149,7 @@ void tcFlightPort::UpdateRefueling(tcAirState *airstate) // 定义UpdateRefuelin
         float weightMargin_kg = aircraft->mpDBObject->maxTakeoffWeight_kg - aircraft->GetTotalWeight(); // 计算飞机的最大起飞重量与当前总重量之差（千克）
         if ((fuelMargin_kg > 1.0f) && (weightMargin_kg > 10.0f)) // 如果剩余燃油容量大于1千克，且重量裕量大于10千克
         {
-            unsigned long fuelToAdd_kg = (unsigned long)floorf(std::min(fuelMargin_kg, weightMargin_kg)); // 计算需要添加的燃油量（千克），取剩余燃油容量和重量裕量中的较小值，并向下取整
+            unsigned int fuelToAdd_kg = (unsigned int)floorf(std::min(fuelMargin_kg, weightMargin_kg)); // 计算需要添加的燃油量（千克），取剩余燃油容量和重量裕量中的较小值，并向下取整
             aircraft->LoadOther("Fuel", fuelToAdd_kg);
             // tcPlatformInterface platformInterface(aircraft); // 创建一个平台接口对象，用于与飞机进行交互
             // platformInterface.LoadOther("Fuel", fuelToAdd_kg); // 通过平台接口为飞机加载指定量的燃油

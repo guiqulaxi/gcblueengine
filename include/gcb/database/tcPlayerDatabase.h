@@ -56,7 +56,7 @@ public:
     
     int GetPlayerAlliance(const std::string& player);
     
-    std::vector<long>& GetPlayerEntities(const std::string& player);
+    std::vector<int>& GetPlayerEntities(const std::string& player);
     
     float GetPlayerFunds(const std::string& player);
     
@@ -71,11 +71,11 @@ public:
     
     
     /// use empty string to add or delete without transferring
-    int TransferEntity(long entity, const std::string& from, 
+    int TransferEntity(int entity, const std::string& from, 
                        const std::string& to);
                        
     /// use empty string to add or delete without transferring
-    int TransferMultipleEntities(std::vector<long>& entityList, 
+    int TransferMultipleEntities(std::vector<int>& entityList, 
                         const std::string& from, const std::string& to);                       
                        
     /// use empty string to add or remove without transferring
@@ -83,7 +83,7 @@ public:
                        const std::string& to);
     
 private:
-    std::vector<long> temporaryEntityList;
+    std::vector<int> temporaryEntityList;
     
         
 };

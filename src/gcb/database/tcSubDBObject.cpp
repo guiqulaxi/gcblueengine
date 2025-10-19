@@ -3,7 +3,15 @@
 */  
 /*
 **  Copyright (c) 2014, GCBLUE PROJECT
-**  All rights reserved.
+    tcDatabaseObject::SerializeToJson(obj, allocator);
+
+    obj.AddMember(rapidjson::Value("draft_m", allocator).Move(), draft_m, allocator);
+    obj.AddMember(rapidjson::Value("surfaceSpeed_kts", allocator).Move(), surfaceSpeed_kts, allocator);
+    obj.AddMember(rapidjson::Value("maxDepth_m", allocator).Move(), mfMaxDepth_m, allocator);
+    obj.AddMember(rapidjson::Value("isDieselElectric", allocator).Move(), isDieselElectric ? 1 : 0, allocator);
+    obj.AddMember(rapidjson::Value("batteryCapacity_kJ", allocator).Move(), batteryCapacity_kJ, allocator);
+    obj.AddMember(rapidjson::Value("batteryRate_kW", allocator).Move(), batteryRate_kW, allocator);
+    obj.AddMember(rapidjson::Value("batteryCharge_kW", allocator).Move(), batteryCharge_kW, allocator);
 **
 **  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 **
@@ -31,6 +39,7 @@
 #include "common/math_constants.h"
 #include <sstream>
 #include "tcSubObject.h"
+#include "rapidjson/document.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -219,5 +228,25 @@ std::shared_ptr<tcGameObject>tcSubDBObject::CreateGameObject()
     return obj;
 }
 
+
+}
+
+void tcSubDBObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    tcPlatformDBObject::SerializeToJson(obj, allocator);
+
+    obj.AddMember(rapidjson::Value("draft_m", allocator).Move(), draft_m, allocator);
+    obj.AddMember(rapidjson::Value("surfaceSpeed_kts", allocator).Move(), surfaceSpeed_kts, allocator);
+    obj.AddMember(rapidjson::Value("mfMaxDepth_m", allocator).Move(), mfMaxDepth_m, allocator);
+    obj.AddMember(rapidjson::Value("isDieselElectric", allocator).Move(), isDieselElectric ? 1 : 0, allocator);
+    obj.AddMember(rapidjson::Value("batteryCapacity_kJ", allocator).Move(), batteryCapacity_kJ, allocator);
+    obj.AddMember(rapidjson::Value("batteryRate_kW", allocator).Move(), batteryRate_kW, allocator);
+    obj.AddMember(rapidjson::Value("batteryCharge_kW", allocator).Move(), batteryCharge_kW, allocator);
+    
+    // calculated parameters
+    obj.AddMember(rapidjson::Value("invMaxSpeed_mps", allocator).Move(), invMaxSpeed_mps, allocator);
+    obj.AddMember(rapidjson::Value("invDraft_m", allocator).Move(), invDraft_m, allocator);
+    obj.AddMember(rapidjson::Value("batteryDrainConstant", allocator).Move(), batteryDrainConstant, allocator);
+    
 
 }

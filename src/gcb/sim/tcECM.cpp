@@ -37,6 +37,9 @@
 #include "tcSimState.h"
 ////#include "tcMessageInterface.h"
 #include <cassert>
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -76,7 +79,7 @@ std::shared_ptr<tcRadar> RadarInterface::GetRadar()
     return 0;
 }
 
-RadarInterface::RadarInterface(long id_, unsigned idx_)
+RadarInterface::RadarInterface(int id_, unsigned idx_)
 : id(id_), idx(idx_)
 {
 }
@@ -161,7 +164,7 @@ void tcECM::ClearJamList()
 /**
 * @return false if key not found in database
 */
-bool tcECM::InitFromDatabase(long key)
+bool tcECM::InitFromDatabase(int key)
 {
 	assert(database);
 
@@ -433,5 +436,25 @@ tcECM::tcECM(std::shared_ptr<tcECMDBObject> dbObj)
 tcECM::~tcECM() 
 {
     ClearJamList();
+}
+
+void tcECM::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    // start with base sensor fields
+    tcSensorState::SerializeToJson(obj, allocator);
+
+    // ECM-specific fields
+    obj.AddMember(rapidjson::Value("dbClass", allocator).Move(), rapidjson::Value(database->GetObjectClassName(mnDBKey).c_str(), allocator).Move(), allocator);
+
+    // jam list
+    rapidjson::Value jamArray(rapidjson::kArrayType);
+    for (size_t i=0; i<jamList.size(); ++i)
+    {
+        rapidjson::Value jamObj(rapidjson::kObjectType);
+        jamObj.AddMember(rapidjson::Value("id", allocator).Move(), jamList[i].id, allocator);
+        jamObj.AddMember(rapidjson::Value("idx", allocator).Move(), jamList[i].idx, allocator);
+        jamArray.PushBack(jamObj, allocator);
+    }
+    obj.AddMember(rapidjson::Value("jamList", allocator).Move(), jamArray, allocator);
 }
 

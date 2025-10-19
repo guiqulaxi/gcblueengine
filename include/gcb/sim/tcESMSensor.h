@@ -53,7 +53,7 @@ public:
     std::shared_ptr<tcESMDBObject> mpDBObj;
 
     virtual bool CanDetectTarget(std::shared_ptr<const tcGameObject> target, float& range_km, bool useRandom=true);
-    virtual bool InitFromDatabase(long key); ///< initializes sensor using database data at key
+    virtual bool InitFromDatabase(int key); ///< initializes sensor using database data at key
     bool IsDetected(std::shared_ptr<const tcSensorState> emitter, float ERP_dBW, float& az_rad);
     bool IsDetectedECM( std::shared_ptr<const tcECM> emitter, float& az_rad);
     bool IsDetectedRadar(std::shared_ptr<const tcRadar> emitter, float& az_rad);
@@ -76,6 +76,9 @@ public:
     tcESMSensor(std::shared_ptr<tcESMDBObject> dbObj);
     virtual ~tcESMSensor();
 
+    // JSON serialization
+    virtual void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const;
+
 private:
     double lastRWRupdate;
     unsigned char rwrWarningLevel; ///< 0 - none, 1 - targeted non-missile, 2 - targeted missile
@@ -88,7 +91,7 @@ private:
 
     bool UpdateScanRWR(double t);
 	void ProcessESMDetection(std::shared_ptr<tcGameObject> target, double t);
-    void UpdateSensorMap(std::shared_ptr<const tcGameObject> target, long* emitters, unsigned int nEmitters,
+    void UpdateSensorMap(std::shared_ptr<const tcGameObject> target, int* emitters, unsigned int nEmitters,
 		float az_rad, double t);
 	void UpdateSeeker(double t);
 	void UpdateSurveillance(double t);

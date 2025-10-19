@@ -61,13 +61,13 @@ public:
 
     static void LoadAnchorIcons(const std::string& filename_on, const std::string& filename_off);
 
-    tcPlatformAreaEditObject(long platformId_, long missionId_);
+    tcPlatformAreaEditObject(int platformId_, int missionId_);
     virtual ~tcPlatformAreaEditObject();
 
 private:
     enum {DRAG_ALL = 0, DRAG_POINT = 1};
-    long platformId; // platform or host of mission
-    long missionId; // mission id or -1 if not a mission
+    int platformId; // platform or host of mission
+    int missionId; // mission id or -1 if not a mission
 
     Vector4d lineColor;
     std::string caption;

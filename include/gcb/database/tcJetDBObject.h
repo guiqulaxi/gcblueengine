@@ -95,6 +95,7 @@ namespace database
         virtual ~tcJetDBObject();
         std::shared_ptr<tcGameObject>CreateGameObject() override;
         void CalculateParams();
+        void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const override;
 
     private:
         // calculated parameters

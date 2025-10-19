@@ -52,13 +52,13 @@ class CsvTranslator
 	std::string GetField(int n);
     float GetFieldAsFloat(int n);
     int GetFieldAsInt(int n);
-	long GetFieldAsLong(int n);
+	int GetFieldAsint(int n);
 	int GetFieldCount() const { return nfield; }
     void SetInputStream(std::istream* _inputStream) {inputStream = _inputStream;}
     void SetOutputStream(std::ostream* _outputStream);
     void SetWriteLineBlock(bool isBlocked) {isWriteLineBlocked = isBlocked;}
     void WriteField(double val);  ///< writes double to next field
-    void WriteField(long val);    ///< writes long to next field
+    void WriteField(int val);    ///< writes int to next field
     void WriteField(std::string s);    ///< writes string to next field
     int WriteLine();  ///< writes fields to next line of CSV file
 
@@ -68,12 +68,12 @@ class CsvTranslator
 	CsvTranslator& operator>>(short& val);
     CsvTranslator& operator>>(unsigned int& val);
 	CsvTranslator& operator>>(unsigned short& val);
-    CsvTranslator& operator>>(long& val); 
-	CsvTranslator& operator>>(unsigned long& val); 
+    //CsvTranslator& operator>>(int& val);
+    //CsvTranslator& operator>>(unsigned int& val);
     CsvTranslator& operator>>(std::string& s);   
 
     CsvTranslator& operator<<(double val);
-    CsvTranslator& operator<<(long val);   
+    CsvTranslator& operator<<(int val);   
     CsvTranslator& operator<<(std::string s);   
 
   private:

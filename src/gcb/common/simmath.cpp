@@ -173,7 +173,7 @@ int AngleWithinRange(float afAngle_rad, float afAngle1_rad, float afAngle2_rad)
 
 
 /**
-* operates in radian longitude, latitude, bearing
+* operates in radian intitude, latitude, bearing
 */
 bool TriangulateBearings(const tcPoint& p1, float bearing1_rad, const tcPoint& p2, float bearing2_rad,
                          tcPoint& result)
@@ -251,7 +251,7 @@ void tcPoint::Offset(float distance, float angle_rad)
 /******************************* tcGeoRect ********************************/
 
 /**
-* @param x longitude in radians
+* @param x intitude in radians
 * @param y latitude in radians
 * @return true if point (lon,lat) in radians is within
 * @return region.
@@ -316,7 +316,7 @@ void tcGeoRect::Set(float x1,float x2,float y1,float y2) {
 }
 
 /**
-* accepts longitude and latitude arguments in degrees units
+* accepts intitude and latitude arguments in degrees units
 */
 void tcGeoRect::SetDegrees(float lon1_deg, float lon2_deg, float lat1_deg, float lat2_deg)
 {
@@ -565,7 +565,7 @@ float tcKinematics::CalculateCollisionPoint(const tcKinematics& collider, float&
 * This has not been tested.
 * 
 * @param terrainHeight_m assumed terrain height in meters
-* @param lon_rad longitude in radians of impact point
+* @param lon_rad intitude in radians of impact point
 * @param lat_rad latitude in radians of impact point
 * @return time of impact in seconds, negative indicates past
 */

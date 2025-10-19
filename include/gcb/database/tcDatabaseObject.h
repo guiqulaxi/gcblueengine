@@ -36,6 +36,7 @@
 #include "tcFile.h"
 //#include "tcDBString.h"
 #include "gctypes.h"
+#include <rapidjson/document.h>
 #include <memory>
 #include <vector>
 #include "tcComponentDBObject.h"
@@ -130,7 +131,7 @@ void ClassificationToString(UINT16 anType, char *azString);
         enum {DESCRIPTION_STRING_LENGTH = 2048}; // max length for file descriptions
         std::string mzClass;                 ///< name of platform class, e.g. "Spruance"
         std::string natoClass;              ///< NATO/ASCC name for display purposes
-        long mnKey;                         ///< key of this object in map
+        int mnKey;                         ///< key of this object in map
         UINT mnType;                        ///< functional classification type: helo, air, surf, sub, land
         UINT mnModelType;                   ///< model class to use, e.g. tcSurfaceObject, tcAirObject
         float cost;                         ///< default cost for scoring purposes
@@ -164,6 +165,9 @@ void ClassificationToString(UINT16 anType, char *azString);
 //        void Load3DModel();
 		void LoadIcon();
         virtual void PrintToFile(tcFile& file);
+
+    // JSON serialization: default serializes class name and key
+    virtual void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const;
 
         virtual teWeaponLaunchMode GetLaunchMode() const;
 

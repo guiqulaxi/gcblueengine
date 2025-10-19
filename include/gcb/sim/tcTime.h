@@ -39,7 +39,7 @@ public:
     static tcTime* Get(); ///< accessor for singleton instance
 
     unsigned int snCount_30Hz; ///< 30 Hz counter value
-//    unsigned long snFrequency;
+//    unsigned int snFrequency;
 //    unsigned int snDeltaCount;
 //    unsigned int snLastCount;
 

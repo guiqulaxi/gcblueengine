@@ -55,16 +55,16 @@ namespace ai
 
         void Erase(const std::string& key, double priority);
         void EraseAll(); 
-        void EraseAllFromAuthor(long author);
+        void EraseAllFromAuthor(int author);
         
         bool KeyExists(const std::string& key) const;
         BlackboardItem Read(const std::string& key);
-        long ReadAuthor(const std::string& key);
+        int ReadAuthor(const std::string& key);
         const std::string ReadMessage(const std::string& key) const;        
         double ReadPriority(const std::string& key);
         void SaveToPython(scriptinterface::tcScenarioLogger& logger);
         bool Write(const std::string& key, const BlackboardItem& item);
-        bool Write(const std::string& key, long author, double priority, const std::string& message);
+        bool Write(const std::string& key, int author, double priority, const std::string& message);
 
 		tcCommandStream& operator<<(tcCommandStream& stream);
 		tcCommandStream& operator>>(tcCommandStream& stream);

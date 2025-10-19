@@ -51,6 +51,7 @@ namespace database
         virtual std::shared_ptr<tcGameObject> CreateGameObject() override;///<创建平台
         void WritePythonValue(std::string &valueString) const;
         void WritePython(std::string &valueString) const;
+        void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const override;
 
 	private:
 		

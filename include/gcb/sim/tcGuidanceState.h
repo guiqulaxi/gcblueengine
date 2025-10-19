@@ -39,7 +39,7 @@ class tcStream;
  */
 struct tsGuidanceParameters
 {
-    long mnTargetID;
+    int mnTargetID;
     double mfInterceptTime;
 };
 

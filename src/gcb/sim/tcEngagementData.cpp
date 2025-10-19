@@ -32,7 +32,7 @@ tcEngagementData::tcEngagementData()
     mnCount = 0;
 }
 
-void tcEngagementData::Update(long* aaTracks, float* afRanges, unsigned anCount)
+void tcEngagementData::Update(int* aaTracks, float* afRanges, unsigned anCount)
 {
     float fMaxRange; // range and index of largest range in current engagement list
     unsigned nMaxIdx;

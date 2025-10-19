@@ -44,14 +44,14 @@
 * Adds contents of bin <bin> to back of vector <v>. If the bin is empty
 * nothing is added
 */
-void tcPositionRegistry::AppendBinContents(std::vector<long>& v, long bin)
+void tcPositionRegistry::AppendBinContents(std::vector<int>& v, int bin)
 {
-    std::map<long, std::map<long, bool> >::const_iterator iter = 
+    std::map<int, std::map<int, bool> >::const_iterator iter = 
         positionMap.find(bin);
     
     if (iter == positionMap.end()) return;
     
-    std::map<long, bool>::const_iterator binIter = iter->second.begin();
+    std::map<int, bool>::const_iterator binIter = iter->second.begin();
     while (binIter != iter->second.end())
     {
         v.push_back(binIter->first);
@@ -81,27 +81,27 @@ void tcPositionRegistry::ConformLonLat(double& lon_west, double& lon_east,
     else if (lat_north > piovertwo) lat_north = piovertwo;    
 }
 
-std::vector<long>& tcPositionRegistry::GetAllWithinRegion(double lon_west, double lon_east, 
+std::vector<int>& tcPositionRegistry::GetAllWithinRegion(double lon_west, double lon_east, 
                                                           double lat_south, double lat_north)
 {
-    static std::vector<long> idVect;
+    static std::vector<int> idVect;
     
     idVect.clear();
     
     assert(lat_north >= lat_south);
     ConformLonLat(lon_west, lon_east, lat_south, lat_north);
     
-    long lat_south_idx = LatToIndex(lat_south);
-    long lat_north_idx = LatToIndex(lat_north);
-    long lon_west_idx = LonToIndex(lon_west);
-    long lon_east_idx = LonToIndex(lon_east);
+    int lat_south_idx = LatToIndex(lat_south);
+    int lat_north_idx = LatToIndex(lat_north);
+    int lon_west_idx = LonToIndex(lon_west);
+    int lon_east_idx = LonToIndex(lon_east);
     
-    for (long lat_idx = lat_south_idx; lat_idx <= lat_north_idx; lat_idx++)
+    for (int lat_idx = lat_south_idx; lat_idx <= lat_north_idx; lat_idx++)
     {
-        long lat_offset = nLatBins * lat_idx;
-        for (long lon_idx = lon_west_idx; lon_idx <= lon_east_idx; lon_idx++)
+        int lat_offset = nLatBins * lat_idx;
+        for (int lon_idx = lon_west_idx; lon_idx <= lon_east_idx; lon_idx++)
         {
-            long bin = lat_offset + lon_idx;
+            int bin = lat_offset + lon_idx;
             
             AppendBinContents(idVect, bin);
         }
@@ -110,7 +110,7 @@ std::vector<long>& tcPositionRegistry::GetAllWithinRegion(double lon_west, doubl
     return idVect;
 }
 
-void tcPositionRegistry::AddIdToBin(long id, long bin)
+void tcPositionRegistry::AddIdToBin(int id, int bin)
 {
     positionMap[bin][id] = true;
 }
@@ -123,9 +123,9 @@ void tcPositionRegistry::RemoveAll()
     entryLookup.clear();
 }
 
-void tcPositionRegistry::RemoveIdFromBin(long id, long bin)
+void tcPositionRegistry::RemoveIdFromBin(int id, int bin)
 {
-    std::map<long, std::map<long, bool> >::iterator posIter = 
+    std::map<int, std::map<int, bool> >::iterator posIter = 
             positionMap.find(bin);
     if (posIter == positionMap.end())
     {
@@ -136,7 +136,7 @@ void tcPositionRegistry::RemoveIdFromBin(long id, long bin)
         return;
     }   
     
-    std::map<long, bool>::iterator binIter = 
+    std::map<int, bool>::iterator binIter = 
         posIter->second.find(id);
     if (binIter == posIter->second.end())
     {
@@ -159,10 +159,10 @@ void tcPositionRegistry::RemoveIdFromBin(long id, long bin)
 }
 
 
-void tcPositionRegistry::RemoveId(long id)
+void tcPositionRegistry::RemoveId(int id)
 {
     // check if id exists in entryLookup
-    std::map<long, long>::iterator entryIter = entryLookup.find(id);
+    std::map<int, int>::iterator entryIter = entryLookup.find(id);
     
     if (entryIter == entryLookup.end())
     {
@@ -171,23 +171,23 @@ void tcPositionRegistry::RemoveId(long id)
         return;
     }   
     
-    long bin = entryIter->second;
+    int bin = entryIter->second;
     entryLookup.erase(entryIter);
     
     //fprintf(stdout, "removing id %d from bin %d\n", id, bin);
     RemoveIdFromBin(id, bin);
 }
 
-void tcPositionRegistry::UpdatePosition(long id, double lon, double lat)
+void tcPositionRegistry::UpdatePosition(int id, double lon, double lat)
 {
     assert(id != -1);
     assert((lon >= -pi) && (lon < pi));
     assert((lat >= -piovertwo) && (lat < piovertwo));
     
-    long bin = LonLatToBinLocation(lon, lat);
+    int bin = LonLatToBinLocation(lon, lat);
     
     // check if id exists in entryLookup
-    std::map<long, long>::iterator entryIter = entryLookup.find(id);
+    std::map<int, int>::iterator entryIter = entryLookup.find(id);
     if (entryIter == entryLookup.end())
     {
         entryLookup[id] = bin; // add for first time
@@ -196,7 +196,7 @@ void tcPositionRegistry::UpdatePosition(long id, double lon, double lat)
         return;
     }   
     
-    long previousBin = entryIter->second;
+    int previousBin = entryIter->second;
     if (previousBin == bin) return; // no change, return
     
     RemoveIdFromBin(id, previousBin);
@@ -207,29 +207,29 @@ void tcPositionRegistry::UpdatePosition(long id, double lon, double lat)
 }
 
 
-long tcPositionRegistry::LatToIndex(double lat)
+int tcPositionRegistry::LatToIndex(double lat)
 {
     assert(lat > -C_PIOVER2);
 
-    long idx = long((lat + piovertwo) * invBinWidth);
+    int idx = int((lat + piovertwo) * invBinWidth);
     
     return idx;          
 }
 
-long tcPositionRegistry::LonToIndex(double lon)
+int tcPositionRegistry::LonToIndex(double lon)
 {
     assert(lon > -C_PI);
 
-    long idx = long((lon + pi) * invBinWidth);
+    int idx = int((lon + pi) * invBinWidth);
     
     return idx;           
 }
 
 
-long tcPositionRegistry::LonLatToBinLocation(double lon, double lat)
+int tcPositionRegistry::LonLatToBinLocation(double lon, double lat)
 {
     double bin = (nLatBins * LatToIndex(lat)) + LonToIndex(lon);
-    long nBin = long(bin);
+    int nBin = int(bin);
     
     return nBin;           
 }

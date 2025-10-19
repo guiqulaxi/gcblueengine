@@ -57,14 +57,14 @@ tcUpdateStream& tcAllianceSensorMap::operator<<(tcUpdateStream& stream)
 
     for (unsigned int n=0; n<nUpdates; n++)
     {
-        long nTrackID;
+        int nTrackID;
         stream >> nTrackID;
 
-        long nIdx = maTrackToSensorTrack[nTrackID];
+        int nIdx = maTrackToSensorTrack[nTrackID];
         if (nIdx == NULL_INDEX)
         {
             std::shared_ptr<tcSensorMapTrack>psmtrack = std::make_shared<tcSensorMapTrack>();
-            long nKey;
+            int nKey;
             maTrack.AddElement(psmtrack, nKey);
             maTrackToSensorTrack[nTrackID] = nKey;
             (*psmtrack) << stream;
@@ -93,7 +93,7 @@ tcUpdateStream& tcAllianceSensorMap::operator<<(tcUpdateStream& stream)
 */
 tcUpdateStream& tcAllianceSensorMap::operator>>(tcUpdateStream& stream)
 {
-    long freeSpace = stream.GetMaxSize() - stream.size() - sizeof(unsigned int); // unsigned int for update count header
+    int freeSpace = stream.GetMaxSize() - stream.size() - sizeof(unsigned int); // unsigned int for update count header
 
     // if freeSpace < 0, the message should be rejected anyway so don't worry about special case
     // for this
@@ -102,7 +102,7 @@ tcUpdateStream& tcAllianceSensorMap::operator>>(tcUpdateStream& stream)
     tcUpdateStream tempStream2;
     unsigned int nUpdates = 0;
 
-    long pos;
+    int pos;
     if (nextUpdateKey == -1)
     {
         pos = maTrack.GetStartPosition();
@@ -128,7 +128,7 @@ tcUpdateStream& tcAllianceSensorMap::operator>>(tcUpdateStream& stream)
             tempStream1 << sensorMapTrack->mnID;
             *sensorMapTrack >> tempStream1;
 
-            if ((long)tempStream1.size() <= freeSpace)
+            if ((int)tempStream1.size() <= freeSpace)
             {
                 tempStream2 << tempStream1;
                 freeSpace -= tempStream1.size();
@@ -235,7 +235,7 @@ tcGameStream& tcAllianceSensorMap::operator<<(tcGameStream& stream)
 
         *track << stream;
 
-        long mapId = maTrackToSensorTrack[track->mnID];
+        int mapId = maTrackToSensorTrack[track->mnID];
         maTrack.AddElementForceKey(track, mapId);
     }
 
@@ -254,12 +254,12 @@ void tcAllianceSensorMap::AddAlwaysVisibleTrack(std::shared_ptr<tcGameObject> ob
     if (obj == 0) return;
 
     std::shared_ptr<tcSensorMapTrack>track =nullptr;
-    long nTrackID = obj->mnID;
-    long nIdx = maTrackToSensorTrack[nTrackID];
+    int nTrackID = obj->mnID;
+    int nIdx = maTrackToSensorTrack[nTrackID];
     if (nIdx == NULL_INDEX)
     {
         track = std::make_shared<tcSensorMapTrack>();
-        long nKey;
+        int nKey;
         maTrack.AddElement(track, nKey);
         maTrackToSensorTrack[nTrackID] = nKey;
     }
@@ -308,8 +308,8 @@ void tcAllianceSensorMap::MarkObjectDestroyed(std::shared_ptr<const tcGameObject
 
     std::shared_ptr<tcSensorMapTrack>track =nullptr;
 
-    long objectID = obj->mnID;
-    long nIdx = maTrackToSensorTrack[objectID];
+    int objectID = obj->mnID;
+    int nIdx = maTrackToSensorTrack[objectID];
     if (nIdx != NULL_INDEX)
     {
 		maTrack.Lookup(nIdx, track);
@@ -325,14 +325,14 @@ void tcAllianceSensorMap::MarkObjectDestroyed(std::shared_ptr<const tcGameObject
 
 
 
-tcSensorReport* tcAllianceSensorMap::GetOrCreateReport(long platformID, long sensorID, long trackID, std::shared_ptr<tcSensorMapTrack>& pSMTrack)
+tcSensorReport* tcAllianceSensorMap::GetOrCreateReport(int platformID, int sensorID, int trackID, std::shared_ptr<tcSensorMapTrack>& pSMTrack)
 {
     pSMTrack = 0;
-    long nIdx = maTrackToSensorTrack[trackID];
+    int nIdx = maTrackToSensorTrack[trackID];
     if (nIdx == NULL_INDEX) 
     {
         std::shared_ptr<tcSensorMapTrack>psmtrack = std::make_shared<tcSensorMapTrack>();
-        long nKey;
+        int nKey;
         maTrack.AddElement(psmtrack, nKey);
         maTrackToSensorTrack[trackID] = nKey;
         psmtrack->mnID = trackID;
@@ -363,12 +363,12 @@ tcSensorReport* tcAllianceSensorMap::GetOrCreateReport(long platformID, long sen
 void tcAllianceSensorMap::ValidateMap()
 {
 #ifdef _DEBUG
-    long cmappos = maTrack.GetStartPosition();
-    long nSize = maTrack.GetCount();
-    long nKey;
+    int cmappos = maTrack.GetStartPosition();
+    int nSize = maTrack.GetCount();
+    int nKey;
     std::shared_ptr<tcSensorMapTrack> psmtrack;
 
-    for (long i=0;i<nSize;i++) 
+    for (int i=0;i<nSize;i++) 
     {
         maTrack.GetNextAssoc(cmappos,nKey,psmtrack);
 
@@ -380,7 +380,7 @@ void tcAllianceSensorMap::ValidateMap()
         assert(psmtrack->GetContributorCount() <= tcSensorMapTrack::MAX_SENSOR_REPORTS);
         assert(nKey >= 0);
 
-        long poolKey = maTrackToSensorTrack[psmtrack->mnID];
+        int poolKey = maTrackToSensorTrack[psmtrack->mnID];
         assert(poolKey == nKey);
 
         unsigned int nContributors = psmtrack->GetContributorCount();
@@ -395,7 +395,7 @@ void tcAllianceSensorMap::ValidateMap()
 
     for (size_t n=0; n<MAX_TRACKS; n++)
     {
-        long idx = maTrackToSensorTrack[n];
+        int idx = maTrackToSensorTrack[n];
         if (idx != NULL_INDEX) 
         {
             std::shared_ptr<tcSensorMapTrack> psmtrack;
@@ -414,20 +414,20 @@ int tcAllianceSensorMap::GetTrackCount()
     return maTrack.GetCount();
 }
 
-long tcAllianceSensorMap::GetStartTrackPosition() 
+int tcAllianceSensorMap::GetStartTrackPosition() 
 {
     return maTrack.GetStartPosition();
 }
 
-void tcAllianceSensorMap::GetNextTrack(long& pos, std::shared_ptr<tcSensorMapTrack>& pTrack)
+void tcAllianceSensorMap::GetNextTrack(int& pos, std::shared_ptr<tcSensorMapTrack>& pTrack)
 {
-    long nKey;
+    int nKey;
     maTrack.GetNextAssoc(pos, nKey, pTrack);
 }
 
 #define SENSORMAP_AGEOUTTIME 30.0f
 
-void tcAllianceSensorMap::DropTrack(long anID)
+void tcAllianceSensorMap::DropTrack(int anID)
 {
     std::shared_ptr<tcSensorMapTrack> track = GetSensorMapTrack(anID);
 	if (track == 0)
@@ -438,7 +438,7 @@ void tcAllianceSensorMap::DropTrack(long anID)
 
 	track->Clear();
 
-    long nKey = maTrackToSensorTrack[anID];
+    int nKey = maTrackToSensorTrack[anID];
     if (nKey == NULL_INDEX) 
 	{
 		fprintf(stderr, "Error - tcAllianceSensorMap::DropTrack - track does not exist (B)\n");
@@ -452,12 +452,12 @@ void tcAllianceSensorMap::DropTrack(long anID)
 
 void tcAllianceSensorMap::UpdateMultiplayerClient(double statusTime)
 {
-    long cmappos = maTrack.GetStartPosition();
-    long nSize = maTrack.GetCount();
-    long nKey;
+    int cmappos = maTrack.GetStartPosition();
+    int nSize = maTrack.GetCount();
+    int nKey;
     std::shared_ptr<tcSensorMapTrack> psmtrack;
 
-    for (long i=0;i<nSize;i++) 
+    for (int i=0;i<nSize;i++) 
     {
         maTrack.GetNextAssoc(cmappos,nKey,psmtrack);
 
@@ -510,9 +510,9 @@ void tcAllianceSensorMap::Update(double statusTime)
     }
 
     // 获取追踪列表的起始位置和大小
-    long cmappos = maTrack.GetStartPosition();
-    long nSize = maTrack.GetCount();
-    long nKey;
+    int cmappos = maTrack.GetStartPosition();
+    int nSize = maTrack.GetCount();
+    int nKey;
     std::shared_ptr<tcSensorMapTrack> psmtrack;
 
     // 检查是否需要更新交战信息
@@ -524,7 +524,7 @@ void tcAllianceSensorMap::Update(double statusTime)
     }
 
     // 遍历所有追踪项
-    for (long i=0; i<nSize; i++)
+    for (int i=0; i<nSize; i++)
     {
         maTrack.GetNextAssoc(cmappos,nKey,psmtrack);
 
@@ -627,9 +627,9 @@ unsigned int tcAllianceSensorMap::GetAlliance() const
 }
 
 /*******************************************************************************/
-std::shared_ptr<tcSensorMapTrack> tcAllianceSensorMap::GetSensorMapTrack(long anTrackID)
+std::shared_ptr<tcSensorMapTrack> tcAllianceSensorMap::GetSensorMapTrack(int anTrackID)
 {
-    long nMapID;
+    int nMapID;
     std::shared_ptr<tcSensorMapTrack> psmtrack;
 
     if (anTrackID >= MAX_TRACKS) {return NULL;}
@@ -639,11 +639,11 @@ std::shared_ptr<tcSensorMapTrack> tcAllianceSensorMap::GetSensorMapTrack(long an
     return psmtrack;
 }
 
-std::vector<tcSensorReport > tcAllianceSensorMap::GetSensorReport(long platformID)
+std::vector<tcSensorReport > tcAllianceSensorMap::GetSensorReport(int platformID)
 {
     std::vector<tcSensorReport> result;
-    long cmappos = maTrack.GetStartPosition();
-    long nKey;
+    int cmappos = maTrack.GetStartPosition();
+    int nKey;
      std::shared_ptr<tcSensorMapTrack>  track;
     tcSimState* simState = tcSimState::Get();
        std::shared_ptr<tcPlatformObject> pPlatformObj = std::dynamic_pointer_cast<tcPlatformObject>(simState->GetObject(platformID));
@@ -672,7 +672,7 @@ std::vector<tcSensorReport > tcAllianceSensorMap::GetSensorReport(long platformI
     return result;
 }
 /*******************************************************************************/
-bool tcAllianceSensorMap::GetTrack(long anTrackID, tcTrack& track) 
+bool tcAllianceSensorMap::GetTrack(int anTrackID, tcTrack& track) 
 {
     std::shared_ptr<tcSensorMapTrack> pSensorTrack = GetSensorMapTrack(anTrackID);
 
@@ -688,7 +688,7 @@ bool tcAllianceSensorMap::GetTrack(long anTrackID, tcTrack& track)
 void tcAllianceSensorMap::Clear() 
 {
     maTrack.RemoveAll();
-    for(long k=0;k<MAX_TRACKS;k++) 
+    for(int k=0;k<MAX_TRACKS;k++) 
     {
         maTrackToSensorTrack[k] = NULL_INDEX;
     }
@@ -701,19 +701,19 @@ void tcAllianceSensorMap::Clear()
 }
 /********************************************************************/
 int tcAllianceSensorMap::Serialize(tcFile& file, bool mbLoad) {
-    long nMapSize, nKey;
+    int nMapSize, nKey;
     std::shared_ptr<tcSensorMapTrack> psmtrack;
 
     /* load SensorMap from file */
     if (mbLoad) {
         Clear();
 
-        file.Read(maTrackToSensorTrack,MAX_TRACKS*sizeof(long));
+        file.Read(maTrackToSensorTrack,MAX_TRACKS*sizeof(int));
         file.Read(&nMapSize,sizeof(nMapSize));
         for(int i=0;i<nMapSize;i++) {
             psmtrack = std::make_shared<tcSensorMapTrack>();
             file.Read(psmtrack.get(),sizeof(tcSensorMapTrack));
-            if ((unsigned long)psmtrack->mnID >= MAX_TRACKS) {
+            if ((unsigned int)psmtrack->mnID >= MAX_TRACKS) {
                 WTL("tcAllianceSensorMap::Serialize - corrupt scenario file");
                 return false;
             }
@@ -723,13 +723,13 @@ int tcAllianceSensorMap::Serialize(tcFile& file, bool mbLoad) {
     }
     /* save to file */
     else {   
-        long cmappos = maTrack.GetStartPosition();
+        int cmappos = maTrack.GetStartPosition();
 
-        file.Write(maTrackToSensorTrack,MAX_TRACKS*sizeof(long));
+        file.Write(maTrackToSensorTrack,MAX_TRACKS*sizeof(int));
 
         nMapSize = maTrack.GetCount();
         file.Write(&nMapSize,sizeof(nMapSize));
-        for (long i=0;i<nMapSize;i++) {
+        for (int i=0;i<nMapSize;i++) {
             maTrack.GetNextAssoc(cmappos,nKey,psmtrack);
             file.Write(psmtrack.get(),sizeof(tcSensorMapTrack));
         }  

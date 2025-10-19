@@ -42,7 +42,7 @@ namespace database
 class tcGameStream;
 
 /**
-* Represents a vehicle that moves along the ground, e.g. a mobile SAM
+* Represents a vehicle that moves aint the ground, e.g. a mobile SAM
 *
 * @see tcPlatformObject
 */

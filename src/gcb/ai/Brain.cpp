@@ -222,7 +222,7 @@ tcGameStream& Brain::operator<<(tcGameStream& stream)
         stream >> taskName;
 
        
-        long id;
+        int id;
         double priority;
         int attributes;
 
@@ -280,7 +280,7 @@ tcGameStream& Brain::operator>>(tcGameStream& stream)
         stream << taskName;
 
         Task* task = iter->second;
-        long id = task->GetAuthor();
+        int id = task->GetAuthor();
         double priority = task->GetPriority();
         int attributes = task->GetAttributes();
 
@@ -367,7 +367,7 @@ Task* Brain::GetTask(const std::string& taskName)
 /**
 * @return target id for platform
 */
-long Brain::GetTarget() const
+int Brain::GetTarget() const
 {
     return target;
 }
@@ -457,7 +457,7 @@ void Brain::SetNewCommand()
 /**
 * Set target id for platform
 */
-void Brain::SetTarget(long target_)
+void Brain::SetTarget(int target_)
 {
     if (target == target_) return;
 
@@ -675,7 +675,7 @@ void Brain::RemovePending()
         nRemoved++;
     }
 
-    // if no longer tasked after remove, add a loiter task to keep unit from
+    // if no inter tasked after remove, add a loiter task to keep unit from
     // flying/sailing off the map
     if ((nRemoved == 0) || !wasTasked) return;
 
@@ -927,7 +927,7 @@ void Brain::TransformPatrolAreaForAnchor(std::vector<GeoPoint>& patrolArea, cons
                 for (size_t n=0; n<patrolArea.size(); n++)
                 {
                     float dx_rad = patrolArea[n].mfLon_rad; // cross-track
-                    float dy_rad = patrolArea[n].mfLat_rad; // along-track
+                    float dy_rad = patrolArea[n].mfLat_rad; // aint-track
 
                     patrolArea[n].mfLon_rad = lon_rad + sec_lat*(cos_hdg*dx_rad + sin_hdg*dy_rad);
                     patrolArea[n].mfLat_rad = lat_rad - sin_hdg*dx_rad + cos_hdg*dy_rad;
@@ -973,7 +973,7 @@ bool Brain::GetAnchorInfo(std::string& anchorUnit, int& anchorMode) const
 
 
     try {
-         long val=std::stol (modeString);
+         int val=std::stol (modeString);
          anchorMode = int(val);
          return true;
 
@@ -982,7 +982,7 @@ bool Brain::GetAnchorInfo(std::string& anchorUnit, int& anchorMode) const
         anchorUnit.clear();
         return false;
     }
-//    if (modeString.ToLong(&val))
+//    if (modeString.Toint(&val))
 //    {
 //        anchorMode = int(val);
         

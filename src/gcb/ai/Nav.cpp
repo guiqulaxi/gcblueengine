@@ -161,7 +161,7 @@ void Nav::EditWaypoint(size_t idx, double lon_rad, double lat_rad, float alt_m, 
 	}
 }
 
-void Nav::EditWaypointReference(size_t idx, unsigned char referenceMode, long referencePlatform)
+void Nav::EditWaypointReference(size_t idx, unsigned char referenceMode, int referencePlatform)
 {
     Route::EditWaypointReference(idx, referenceMode, referencePlatform);
 
@@ -313,7 +313,7 @@ void Nav::SetRoute(const Route* route)
 
 
 Nav::Nav(std::shared_ptr<tcPlatformObject> platform_, Blackboard* bb, 
-                                   long id_, double priority_, int attributes_, const std::string& taskName_)
+                                   int id_, double priority_, int attributes_, const std::string& taskName_)
 : Task(platform_, bb, id_, priority_, attributes_, taskName_),
   Route()
 {

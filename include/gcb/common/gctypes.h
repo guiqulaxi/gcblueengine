@@ -30,17 +30,17 @@ typedef unsigned char UCHAR;
 #endif
 
 #ifndef DWORD
-typedef unsigned long DWORD;
+typedef unsigned int DWORD;
 #endif
 
-//#ifndef ULONG_PTR
-//typedef unsigned long ULONG_PTR;
+//#ifndef Uint_PTR
+//typedef unsigned int Uint_PTR;
 //#endif
 
 #ifndef WIN32 // to avoid visual 7 error related to redefinition
 
 #ifndef LARGE_INTEGER
-typedef int long LARGE_INTEGER;
+typedef long long LARGE_INTEGER;
 #endif
 
 
@@ -48,8 +48,8 @@ typedef int long LARGE_INTEGER;
 typedef unsigned int WCHAR;
 #endif
 
-#ifndef LONGLONG
-typedef unsigned long LONGLONG;
+#ifndef intint
+typedef unsigned int intint;
 #endif
 
 #endif // WIN32

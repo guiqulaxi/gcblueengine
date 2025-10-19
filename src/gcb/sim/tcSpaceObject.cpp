@@ -77,7 +77,7 @@ void tcSpaceObject::Move(float dt_s)
     else
         m_v = C_TWOPI - std::acos((std::cos(m_E) - m_e) / (1.0 - m_e * std::cos(m_E))); // 当E在(π, 2π)时
     GeoPoint p=GetPositionPoint();
-    mcKin. mfLon_rad=p.mfLon_rad;              ///< longitude [rad]
+    mcKin. mfLon_rad=p.mfLon_rad;              ///< intitude [rad]
     mcKin. mfLat_rad=p.mfLat_rad;              ///< latitude [rad]
     mcKin. mfAlt_m=p.mfAlt_m-C_REARTHM; ;                 ///< altitude, negative is subsurface depth [m]
     mcKin. mfHeading_rad=0;           ///< relative to north [rad] 顺时针

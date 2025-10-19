@@ -46,8 +46,8 @@ class tcLOS
 public:
     static tcLOS* Get(); ///< singleton instance accessor
 
-    bool HasLOS(long key, double t, const GeoPoint& p1, const GeoPoint& p2);
-    bool HasLOSSimple(long key, double t, const GeoPoint& p1, const GeoPoint& p2);
+    bool HasLOS(int key, double t, const GeoPoint& p1, const GeoPoint& p2);
+    bool HasLOSSimple(int key, double t, const GeoPoint& p1, const GeoPoint& p2);
 
     size_t GetRayCount() const;
 
@@ -64,7 +64,7 @@ private:
         float terrainClearance_m;
     };
 
-    std::map<long, RayData> rayCache;
+    std::map<int, RayData> rayCache;
     tcMapData* mapData;
     double lastUpdateTime;
 

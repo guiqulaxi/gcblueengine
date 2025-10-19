@@ -103,7 +103,7 @@ private:
     unsigned char alliance;
 	unsigned short flags; ///< flags governing control permission
 	std::string controller; ///< username of player controlling object
-    std::string country; ///< country that this object belongs to
+    std::string country; ///< country that this object beints to
 
 	static tcUserInfo* userInfo;
     static tcAllianceInfo* allianceInfo;

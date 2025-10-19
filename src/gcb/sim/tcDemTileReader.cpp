@@ -120,9 +120,9 @@ void tcDemTileReader::GetTileName(std::string& nameString, int lat_deg, int lon_
 
 bool tcDemTileReader::IsTileAvailable(int lat, int lon, int resolution)
 {
-    static std::map<long, bool> nullMap;
+    static std::map<int, bool> nullMap;
 
-    std::map<long, bool>& statusMap = nullMap;
+    std::map<int, bool>& statusMap = nullMap;
 
     switch (resolution)
     {
@@ -143,9 +143,9 @@ bool tcDemTileReader::IsTileAvailable(int lat, int lon, int resolution)
         return false;
     }
 
-	std::map<long, bool>::const_iterator mapIter;
+	std::map<int, bool>::const_iterator mapIter;
 
-	long key = LatLonToKey(lat, lon);
+	int key = LatLonToKey(lat, lon);
 
     mapIter = statusMap.find(key);
     if (mapIter == statusMap.end())  // not found
@@ -162,13 +162,13 @@ bool tcDemTileReader::IsTileAvailable(int lat, int lon, int resolution)
 	}
 }
 
-void tcDemTileReader::KeyToLatLon(long key, int& lat, int& lon)
+void tcDemTileReader::KeyToLatLon(int key, int& lat, int& lon)
 {
 	lon = (key / 256) - 180;
 	lat = (key % 256) - 90;
 }
 
-long tcDemTileReader::LatLonToKey(int lat, int lon)
+int tcDemTileReader::LatLonToKey(int lat, int lon)
 {
 	return (lat + 90) + 256 * (lon + 180);
 }
@@ -178,7 +178,7 @@ long tcDemTileReader::LatLonToKey(int lat, int lon)
 * (lat_deg, lon_deg). If tile does not exist no load takes place.
 * @param lat_deg latitude of Northwest corner point in deg
 * @param lat_deg should be mult of 10 deg between -80 and 90
-* @param lon_deg longitude of Northwest corner point in deg
+* @param lon_deg intitude of Northwest corner point in deg
 * @param lon_deg should be mult of 10 deg between -180 and 170
 */
 void tcDemTileReader::LoadDemTile(tcFile& tileFile, int lat_deg, int lon_deg, int resolution)
@@ -201,9 +201,9 @@ void tcDemTileReader::LoadDemTile(tcFile& tileFile, int lat_deg, int lon_deg, in
 
 void tcDemTileReader::MarkTileUnavailable(int lat, int lon, int resolution)
 {
-    static std::map<long, bool> nullMap;
+    static std::map<int, bool> nullMap;
 
-    std::map<long, bool>& statusMap = nullMap;
+    std::map<int, bool>& statusMap = nullMap;
 
     switch (resolution)
     {
@@ -224,7 +224,7 @@ void tcDemTileReader::MarkTileUnavailable(int lat, int lon, int resolution)
         return;
     }
 
-	long key = LatLonToKey(lat, lon);
+	int key = LatLonToKey(lat, lon);
     
 	statusMap[key] = false;
 }

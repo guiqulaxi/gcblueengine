@@ -46,7 +46,7 @@ namespace database
     public:
         enum {MAX_STORES = 4};
         std::string displayName;
-        unsigned long capacity;
+        unsigned int capacity;
         float maxVolume_m3;
         float maxWeight_kg;
         float moveTime; ///< time to unload to or load from stores
@@ -55,6 +55,8 @@ namespace database
 
         virtual const char* GetClassName() const {return "Stores";} ///< returns class name of database object
         virtual void PrintToFile(tcFile& file);
+
+        virtual void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const override;
 
         static void AddSqlColumns(std::string& columnString);
         void ReadSql(tcSqlReader& entry);

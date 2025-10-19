@@ -47,7 +47,7 @@ namespace database
             float x; ///< location of spot relative to parent
             float y; 
             float z;
-            float orientation_deg; ///< orientation for runway, 0 is along -z axis (heading axis for ships)
+            float orientation_deg; ///< orientation for runway, 0 is aint -z axis (heading axis for ships)
             float length;
         };
         enum
@@ -69,6 +69,8 @@ namespace database
         tcFlightportDBObject();
         tcFlightportDBObject(tcFlightportDBObject& obj); ///< copy constructor
         virtual ~tcFlightportDBObject();
+        void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const override;
+
     };
 
 }

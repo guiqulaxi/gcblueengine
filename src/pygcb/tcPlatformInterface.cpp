@@ -131,7 +131,7 @@ namespace scriptinterface {
         return s;
     }
 
-    long tcPlatformInterface::GetPlatformId() const
+    int tcPlatformInterface::GetPlatformId() const
     {
         if (mpPlatformObj != 0)
         {
@@ -166,7 +166,7 @@ namespace scriptinterface {
 
 
     /**
-    * @return longitude in rad
+    * @return intitude in rad
     */
     object tcPlatformInterface::GetPlatformInterface()
     {
@@ -177,7 +177,7 @@ namespace scriptinterface {
             return InterfaceType;
     }
 
-    float tcPlatformInterface::GetLongitude() const
+    float tcPlatformInterface::Getintitude() const
     {
         if (mpPlatformObj != 0)
         {
@@ -454,11 +454,11 @@ namespace scriptinterface {
         SetPitchLimitDeg(85.0);
     }
 
-    void tcPlatformInterface::SetLongitude(float lon_deg)
+    void tcPlatformInterface::Setintitude(float lon_deg)
     {
         if (mpPlatformObj == 0) return;
         if (!mpPlatformObj->IsControlled()) return;
-        mpPlatformObj->SetLongitude(lon_deg);
+        mpPlatformObj->Setintitude(lon_deg);
 
     }
     void tcPlatformInterface::SetLatitude(float lat_deg)
@@ -581,14 +581,14 @@ namespace scriptinterface {
     /**
     * @return id of leader of formation being edited or -1 if none
     */
-//    long tcPlatformInterface::GetFormationEditId() const
+//    int tcPlatformInterface::GetFormationEditId() const
 //    {
 //        assert(tacticalMap != 0);
 
 //        return tacticalMap->GetFormationEditId();
 //    }
 
-    long tcPlatformInterface::GetFormationLeader() const
+    int tcPlatformInterface::GetFormationLeader() const
     {
         if (mpPlatformObj == 0) return -1;
 
@@ -615,7 +615,7 @@ namespace scriptinterface {
     /**
     *
     */
-    void tcPlatformInterface::SetFormationLeader(long id)
+    void tcPlatformInterface::SetFormationLeader(int id)
     {
         if (mpPlatformObj == 0) {return;}
 
@@ -816,14 +816,14 @@ namespace scriptinterface {
         return mpSimState->GetObject(GetTarget());
     }
 
-    void tcPlatformInterface::SetTarget(long anID) 
+    void tcPlatformInterface::SetTarget(int anID) 
     {
         if (mpPlatformObj == 0) return;
 		if (!mpPlatformObj->IsControlled()) return;
         mpPlatformObj->DesignateTarget(anID);
     }
 
-    long tcPlatformInterface::GetTarget() 
+    int tcPlatformInterface::GetTarget() 
     {
         if (mpPlatformObj == 0) return -1;
         return mpPlatformObj->GetBrain()->GetTarget();
@@ -1098,7 +1098,7 @@ namespace scriptinterface {
     * Start in-flight refuel with tanker <id>
     * @return true if success, false if not started for any reason
     */
-    bool tcPlatformInterface::StartRefuelWith(long id)
+    bool tcPlatformInterface::StartRefuelWith(int id)
     {
         if ((mpPlatformObj == 0) || (!mpPlatformObj->IsControlled())) return false;
 
@@ -1111,7 +1111,7 @@ namespace scriptinterface {
     /**
     * @return true if <id> is a tanker aircraft
     */
-    bool tcPlatformInterface::IsTankerAircraft(long id)
+    bool tcPlatformInterface::IsTankerAircraft(int id)
     {
         if ((mpPlatformObj == 0) || (!mpPlatformObj->IsControlled())) return false;
 
@@ -1130,7 +1130,7 @@ namespace scriptinterface {
     /**
     * @return number of tanker spots currently free in tanker <id>
     */
-    unsigned int tcPlatformInterface::GetTankerSpotsFree(long id)
+    unsigned int tcPlatformInterface::GetTankerSpotsFree(int id)
     {
         if ((mpPlatformObj == 0) || (!mpPlatformObj->IsControlled())) return 0;
 
@@ -1220,7 +1220,7 @@ namespace scriptinterface {
         std::vector<tcLauncherInfo> launcherInfoInRange;
         std::vector<tcLauncherInfo> launcherInfoOutOfRange;
 
-        // return longest range launcher if target out of range
+        // return intest range launcher if target out of range
         // or shortest range launcher if target is in range
         int nCount = GetLauncherCount();
 		for (int n=0;n<nCount;n++) 
@@ -1285,7 +1285,7 @@ namespace scriptinterface {
         } // for (int n=0;n<nCount;n++) 
 
 
-        // if any launchers are in range, return one with shortest nominal range (to avoid wasting long-range weapons)
+        // if any launchers are in range, return one with shortest nominal range (to avoid wasting int-range weapons)
         if (launcherInfoInRange.size() > 0)
         {
             best.mfRange_km = 99999;
@@ -1297,7 +1297,7 @@ namespace scriptinterface {
                 }
             }
         }
-        else // report longest range launcher (why do this? FEB 2012)
+        else // report intest range launcher (why do this? FEB 2012)
         {
             best.mfRange_km = 0;
             for (size_t n=0; n<launcherInfoOutOfRange.size(); n++)
@@ -1663,7 +1663,7 @@ namespace scriptinterface {
         mpPlatformObj->DesignateLauncherDatum(p, anLauncher);
     }
 
-    bool tcPlatformInterface::SendTargetToLauncher(long targetId, int anLauncher) 
+    bool tcPlatformInterface::SendTargetToLauncher(int targetId, int anLauncher) 
     {
         if ((mpPlatformObj == 0) || (anLauncher < 0)) return false;
 
@@ -1779,7 +1779,7 @@ namespace scriptinterface {
 
             if (std::shared_ptr<tcMissileObject> missile =  std::dynamic_pointer_cast<tcMissileObject>(iter.Get()))
             {
-                long fireControlPlatform;
+                int fireControlPlatform;
                 if (missile->StillNeedsIlluminator(fireControlPlatform))
                 {
                     if (fireControlPlatform == mpPlatformObj->mnID)
@@ -1896,9 +1896,9 @@ namespace scriptinterface {
 //        std::string parsedItem(item2.c_str());
 //        bracketQuantity = bracketQuantity.AfterFirst('[');
 //        bracketQuantity = bracketQuantity.BeforeFirst(']');
-        unsigned long otherQuantity = 0;
+        unsigned int otherQuantity = 0;
         otherQuantity=std::stoul(bracketQuantity);
-//        if (bracketQuantity.ToULong(&otherQuantity, 10))
+//        if (bracketQuantity.ToUint(&otherQuantity, 10))
 //        {
 //            quantity = otherQuantity;
 //        }
@@ -2121,7 +2121,7 @@ namespace scriptinterface {
     }
 
 
-	void tcPlatformInterface::LoadOther(const std::string& item, unsigned long quantity)
+	void tcPlatformInterface::LoadOther(const std::string& item, unsigned int quantity)
 	{
         if (mpPlatformObj == 0) return;
 
@@ -2513,7 +2513,7 @@ namespace scriptinterface {
         }
     }
 
-    void tcPlatformInterface::EditNavWaypointReference(size_t idx, unsigned char referenceMode, long referencePlatform)
+    void tcPlatformInterface::EditNavWaypointReference(size_t idx, unsigned char referenceMode, int referencePlatform)
     {
         if (ai::Nav* nav = GetNav())
         {
@@ -2714,7 +2714,7 @@ namespace scriptinterface {
             t.mnID = NULL_INDEX;
             return t;
         }
-        long nPos = mpSensorMap->GetStartTrackPosition();
+        int nPos = mpSensorMap->GetStartTrackPosition();
         return GetNextTrack(nPos);
     }
 
@@ -2724,12 +2724,12 @@ namespace scriptinterface {
         return mpSensorMap->GetTrackCount();
     }
 
-    tcTrackIterator tcPlatformInterface::GetNextTrack(long nPos) 
+    tcTrackIterator tcPlatformInterface::GetNextTrack(int nPos) 
     {
         std::shared_ptr<tcSensorMapTrack> psmtrack;
         tcTrackIterator t;
 
-        long nKey = nPos;
+        int nKey = nPos;
 
         mpSensorMap->GetNextTrack(nKey, psmtrack);
         t.mnKey = nKey;
@@ -2780,7 +2780,7 @@ namespace scriptinterface {
 
         int nCount = trackList.Size();
 
-        long nPos = mpSensorMap->GetStartTrackPosition();
+        int nPos = mpSensorMap->GetStartTrackPosition();
         float fMinRange_km = 1e15f;
         for(int n=0; n<nCount; n++) 
         {
@@ -2829,7 +2829,7 @@ namespace scriptinterface {
             return trackList;
         }
 
-        long nPos = mpSensorMap->GetStartTrackPosition();
+        int nPos = mpSensorMap->GetStartTrackPosition();
         for(int n=0;n<nCount;n++) 
         {
             mpSensorMap->GetNextTrack(nPos, pTrack);
@@ -2885,7 +2885,7 @@ namespace scriptinterface {
             return trackList;
         }
 
-        long nPos = mpSensorMap->GetStartTrackPosition();
+        int nPos = mpSensorMap->GetStartTrackPosition();
         for(int n=0;n<nCount;n++) 
         {
             mpSensorMap->GetNextTrack(nPos, pTrack);
@@ -3080,7 +3080,7 @@ namespace scriptinterface {
     }
 
 
-    tcSensorMapTrack tcPlatformInterface::GetTrackById(long id)
+    tcSensorMapTrack tcPlatformInterface::GetTrackById(int id)
     {
         tcSensorMapTrack track;
 
@@ -3267,7 +3267,7 @@ namespace scriptinterface {
 		}
     }
 
-    long tcPlatformInterface::LookupFriendlyId(const std::string& unitName)
+    int tcPlatformInterface::LookupFriendlyId(const std::string& unitName)
     {
         if (mpPlatformObj == 0) return -1;
 
@@ -3284,7 +3284,7 @@ namespace scriptinterface {
         }
     }
     
-    std::string tcPlatformInterface::LookupFriendlyName(long id)
+    std::string tcPlatformInterface::LookupFriendlyName(int id)
     {
         if (mpPlatformObj == 0) return "Error, not platform";
 
@@ -3401,7 +3401,7 @@ namespace scriptinterface {
 	*
 	* @returns track with landing data for platform matching id
 	*/
-	tcTrack tcPlatformInterface::GetLandingData(long id)
+	tcTrack tcPlatformInterface::GetLandingData(int id)
 	{
         static tcTrack errorTrack;
 
@@ -3439,7 +3439,7 @@ namespace scriptinterface {
 			    return data;
             }
         }
-        else // verify that runway length is long enough
+        else // verify that runway length is int enough
         {
             if ((air == 0) || (air->mpDBObject->minimumRunway_m > flightOps->GetFlightPort()->GetMaxRunwayLength()))
             {
@@ -3479,15 +3479,15 @@ namespace scriptinterface {
         std::string missionIdent = bb.ReadMessage("Mission");
         if (missionIdent.size() == 0) return missionInterface;
 
-        long hostId = -1; // id of base hosting mission
-        long missionId = -1; // mission id within base
+        int hostId = -1; // id of base hosting mission
+        int missionId = -1; // mission id within base
 
        hostId= std::stol(strutil::split(missionIdent,'-')[0]);
        missionId= std::stol(strutil::split(missionIdent,'-')[1]);
 //        std::string s = missionIdent.BeforeFirst('-');
-//        s.ToLong(&hostId);
+//        s.Toint(&hostId);
 //        s = missionIdent.AfterFirst('-');
-//        s.ToLong(&missionId);
+//        s.Toint(&missionId);
 
         std::shared_ptr<tcFlightOpsObject> flightOps =  mpSimState->GetObject(hostId)->GetComponent<tcFlightOpsObject>() ;
         if ((flightOps == 0) || (missionId < 1)) return missionInterface;

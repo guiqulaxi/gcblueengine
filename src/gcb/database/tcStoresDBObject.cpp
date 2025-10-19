@@ -44,7 +44,20 @@ using namespace std;
 
 namespace database
 {
+void tcStoresDBObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    tcDatabaseObject::SerializeToJson(obj, allocator);
 
+    if (!displayName.empty()) obj.AddMember(rapidjson::Value("displayName", allocator).Move(), rapidjson::Value(displayName.c_str(), allocator).Move(), allocator);
+    obj.AddMember(rapidjson::Value("capacity", allocator).Move(), capacity, allocator);
+    obj.AddMember(rapidjson::Value("maxVolume_m3", allocator).Move(), maxVolume_m3, allocator);
+    obj.AddMember(rapidjson::Value("maxWeight_kg", allocator).Move(), maxWeight_kg, allocator);
+    obj.AddMember(rapidjson::Value("moveTime", allocator).Move(), moveTime, allocator);
+
+    rapidjson::Value items(rapidjson::kArrayType);
+    for (const auto& item : compatibleItems) items.PushBack(rapidjson::Value(item.c_str(), allocator).Move(), allocator);
+    obj.AddMember(rapidjson::Value("compatibleItems", allocator).Move(), items, allocator);
+}
 
 	void tcStoresDBObject::PrintToFile(tcFile& file) 
 	{
@@ -93,7 +106,7 @@ namespace database
 		tcDatabaseObject::ReadSql(entry);
 
         displayName = entry.GetString("DisplayName");
-		capacity = entry.GetLong("Capacity");
+		capacity = entry.Getint("Capacity");
         maxVolume_m3 = entry.GetDouble("MaxVolume_m3");
         maxWeight_kg = entry.GetDouble("MaxWeight_kg");
 		moveTime = entry.GetDouble("MoveTime_s");

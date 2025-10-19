@@ -61,6 +61,8 @@ namespace database
         float FlashyPaintScheme; ///< vessel has flashy paintjob 船舶是否具有醒目的涂装（同样，float可能不是最佳选择）
         std::string flightportClass; ///< database class name of flightport (or empty if none) 飞行港（或如果没有则为空）的数据库类名
 
+        virtual void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const override;
+
         // std::shared_ptr<tcDatabaseObject> AsDatabaseObject();
         virtual const char* GetClassName() const {return "Ship";} ///< returns class name of database object
         std::shared_ptr<tcFlightportDBObject> GetFlightport();

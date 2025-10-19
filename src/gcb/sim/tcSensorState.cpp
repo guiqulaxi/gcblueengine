@@ -40,6 +40,9 @@
 #include "tcDamageModel.h"
 #include "tcLOS.h"
 #include "tcFloatCompressor.h"
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
 #include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -49,7 +52,7 @@ tcDatabase* tcSensorState::database = 0;
 tcSimState* tcSensorState::simState = 0;
 tcLOS* tcSensorState::los = 0;
 
-long tcSensorState::nextSensorId = 1000;
+int tcSensorState::nextSensorId = 1000;
 float tcSensorState::errorFactor[N_ERROR_FACTOR];
 
 
@@ -111,7 +114,7 @@ bool tcSensorState::ApplyAdvancedDamage(const Damage& damage)
 * Intent is that error is random but consistent if track is dropped and redetected in same location
 * 根据platformId和sensorId计算误差保证误差不会乱跳
 */
-float tcSensorState::GetErrorFactor(long platformId, long sensorId, float targetAz_rad)
+float tcSensorState::GetErrorFactor(int platformId, int sensorId, float targetAz_rad)
 {
     assert((platformId >= 0) && (sensorId >= 0));
     float az_factor = sinf(2*targetAz_rad);
@@ -239,6 +242,34 @@ tcGameStream& tcSensorState::operator>>(tcGameStream& stream)
     return stream;
 }
 
+void tcSensorState::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    obj.SetObject();
+
+    obj.AddMember(rapidjson::Value("active", allocator).Move(), mbActive, allocator);
+    obj.AddMember(rapidjson::Value("dbKey", allocator).Move(), mnDBKey, allocator);
+    obj.AddMember(rapidjson::Value("lastScan", allocator).Move(), mfLastScan, allocator);
+    obj.AddMember(rapidjson::Value("scanPeriod_s", allocator).Move(), mfCurrentScanPeriod_s, allocator);
+    obj.AddMember(rapidjson::Value("mode", allocator).Move(), mnMode, allocator);
+    obj.AddMember(rapidjson::Value("mountAz_rad", allocator).Move(), mountAz_rad, allocator);
+    obj.AddMember(rapidjson::Value("sensorHeight_m", allocator).Move(), mfSensorHeight_m, allocator);
+    obj.AddMember(rapidjson::Value("isHidden", allocator).Move(), isHidden, allocator);
+    obj.AddMember(rapidjson::Value("isDamaged", allocator).Move(), isDamaged, allocator);
+    obj.AddMember(rapidjson::Value("fireControlId", allocator).Move(), fireControlId, allocator);
+    obj.AddMember(rapidjson::Value("sensorId", allocator).Move(), sensorId, allocator);
+
+    // Minimal track summary
+    rapidjson::Value trackObj(rapidjson::kObjectType);
+    trackObj.AddMember(rapidjson::Value("lon", allocator).Move(), mcTrack.mfLon_rad, allocator);
+    trackObj.AddMember(rapidjson::Value("lat", allocator).Move(), mcTrack.mfLat_rad, allocator);
+    trackObj.AddMember(rapidjson::Value("alt", allocator).Move(), mcTrack.mfAlt_m, allocator);
+    trackObj.AddMember(rapidjson::Value("speed_kts", allocator).Move(), mcTrack.mfSpeed_kts, allocator);
+    trackObj.AddMember(rapidjson::Value("heading_rad", allocator).Move(), mcTrack.mfHeading_rad, allocator);
+    trackObj.AddMember(rapidjson::Value("id", allocator).Move(), mcTrack.mnID, allocator);
+
+    obj.AddMember(rapidjson::Value("track", allocator).Move(), trackObj, allocator);
+}
+
 void tcSensorState::CalculateLonLatCovariance(float az_rad, float lat_rad, float sigmaCrossRange_m, float sigmaDownRange_m,
         float& C11, float& C22, float& C12)
 {
@@ -319,7 +350,7 @@ bool tcSensorState::GetAltitudeEstimate(float& altitudeEstimate_m, float& altitu
 /**
 * @return platform id that is fire control parent for this sensor, -1 for none
 */
-long tcSensorState::GetFireControlPlatform() const
+int tcSensorState::GetFireControlPlatform() const
 {
     return fireControlId;
 }
@@ -410,13 +441,13 @@ bool tcSensorState::IsTrackAvailable()
     return false;
 }
 
-bool tcSensorState::RequestTrack(long targetId)
+bool tcSensorState::RequestTrack(int targetId)
 {
     assert(false);
     return false;
 }
 
-bool tcSensorState::ReleaseTrack(long targetId)
+bool tcSensorState::ReleaseTrack(int targetId)
 {
     assert(false);
     return false;
@@ -425,7 +456,7 @@ bool tcSensorState::ReleaseTrack(long targetId)
 /**
 * tcRadar overrides this, otherwise not a radar so return false
 */
-bool tcSensorState::IsTrackingWithRadar(long targetId) const
+bool tcSensorState::IsTrackingWithRadar(int targetId) const
 {
 	return false;
 }
@@ -452,7 +483,7 @@ bool tcSensorState::HasLOS(std::shared_ptr<const tcGameObject> target)
     assert(parent != 0);
     assert(target != 0);
     
-    long key = 0;
+    int key = 0;
     GeoPoint p1;
     GeoPoint p2;
 
@@ -476,7 +507,7 @@ bool tcSensorState::HasLOS(std::shared_ptr<const tcGameObject> target)
 /**
 * @return false if key not found in database
 */
-bool tcSensorState::InitFromDatabase(long key)
+bool tcSensorState::InitFromDatabase(int key)
 {
 	assert(database);
 
@@ -639,7 +670,7 @@ void tcSensorState::SetDamaged(bool state)
 * Sets the info to indentify the fire contorl sensor used by this sensor.
 * If this method is not called, no fire control sensor is used.
 */
-void tcSensorState::SetFireControlSensor(long id, unsigned char idx)
+void tcSensorState::SetFireControlSensor(int id, unsigned char idx)
 {
 	fireControlId = id;
 	fireControlIdx = idx;

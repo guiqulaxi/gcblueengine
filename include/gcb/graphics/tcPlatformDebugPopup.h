@@ -49,21 +49,21 @@ public:
 	void Clear();
     virtual void Draw();
 
-    void ForceTargetId(long id_);
+    void ForceTargetId(int id_);
 
     void SetMessageText(const std::string& text);
     
     static void SetParent(tc3DWindow2* par);
 
-    tcPlatformDebugPopup(long platformId, const wxPoint& pos, const wxSize& size); 
+    tcPlatformDebugPopup(int platformId, const wxPoint& pos, const wxSize& size); 
     virtual ~tcPlatformDebugPopup();
 
 protected:
     static tc3DWindow2* parent;
 
-    long id;
+    int id;
     std::string infoText;
-    long forceId;
+    int forceId;
 
     unsigned int birthCount;
 

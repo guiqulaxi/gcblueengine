@@ -175,8 +175,8 @@ bool tcAccountDatabase::GetUserData(const std::string& user, UserData& userData)
 		userData.alliance = (unsigned int)tableData.getint(LookupFieldIndex("Alliance"));
 		userData.email = tableData.getstring(LookupFieldIndex("Email"));
 		userData.last_ip = tableData.getstring(LookupFieldIndex("LastIP"));
-		userData.last_login = (unsigned long)tableData.getlong(LookupFieldIndex("LastLogin"));
-		userData.last_logout = (unsigned long)tableData.getlong(LookupFieldIndex("LastLogout"));
+		userData.last_login = (unsigned int)tableData.getint(LookupFieldIndex("LastLogin"));
+		userData.last_logout = (unsigned int)tableData.getint(LookupFieldIndex("LastLogout"));
 		userData.login_count = (unsigned int)tableData.getint(LookupFieldIndex("LoginCount"));
 		userData.password_hash = tableData.getstring(LookupFieldIndex("PasswordHash"));
 		userData.score = tableData.getdouble(LookupFieldIndex("Score"));
@@ -255,7 +255,7 @@ int tcAccountDatabase::LogIn(const std::string& user, const std::string ipAddres
 
      std::chrono::system_clock::time_point now =
              std::chrono::system_clock::now();
-    unsigned long currentTime = now.time_since_epoch().count();
+    unsigned int currentTime = now.time_since_epoch().count();
 
 	data.last_ip = ipAddress;
 	data.last_login = currentTime;
@@ -275,7 +275,7 @@ int tcAccountDatabase::LogOut(const std::string& user)
 
      std::chrono::system_clock::time_point now =
              std::chrono::system_clock::now();
-    unsigned long currentTime = now.time_since_epoch().count();
+    unsigned int currentTime = now.time_since_epoch().count();
 
 	data.last_logout = currentTime;
 

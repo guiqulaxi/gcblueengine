@@ -228,7 +228,7 @@ void Blackboard::EraseAll()
     content.clear();
 }
 
-void Blackboard::EraseAllFromAuthor(long author)
+void Blackboard::EraseAllFromAuthor(int author)
 {
     if (author == -1)
     {
@@ -280,7 +280,7 @@ BlackboardItem Blackboard::Read(const std::string& key)
 /**
 * @return -1 if key not found
 */
-long Blackboard::ReadAuthor(const std::string& key)
+int Blackboard::ReadAuthor(const std::string& key)
 {
     std::map<std::string, BlackboardItem>::const_iterator iter = 
         content.find(key);
@@ -388,7 +388,7 @@ bool Blackboard::Write(const std::string& key, const BlackboardItem& item)
 /**
 * @return true if write successful, false if blocked
 */
-bool Blackboard::Write(const std::string& key, long author, double priority, const std::string& message)
+bool Blackboard::Write(const std::string& key, int author, double priority, const std::string& message)
 {
     std::map<std::string, BlackboardItem>::iterator iter = 
         content.find(key);

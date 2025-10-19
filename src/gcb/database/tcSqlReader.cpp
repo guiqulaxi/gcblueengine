@@ -107,18 +107,18 @@ namespace database
 	* throws exception if column <field> not found in map
 	* @return data element from column name <field> as int
 	*/
-	long tcSqlReader::GetLong(const std::string& field)
+	int tcSqlReader::Getint(const std::string& field)
 	{
 		unsigned int index = LookupFieldIndex(field);
 
-		return data.getlong((int)index);
+		return data.getint((int)index);
 	}
 
 	/**
 	* Version that accepts format string with variable arguments
 	* to create field string.
 	*/
-	long tcSqlReader::GetLong(const char* fmt, ...)
+	int tcSqlReader::Getint(const char* fmt, ...)
 	{
 		va_list argp;
    
@@ -127,7 +127,7 @@ namespace database
         _vsnprintf_s(buffer, sizeof(buffer), _TRUNCATE, fmt, argp);
 		va_end(argp);
 
-		return GetLong(std::string(buffer));
+		return Getint(std::string(buffer));
 	}
 
 	/**

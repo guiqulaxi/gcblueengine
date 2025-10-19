@@ -98,9 +98,9 @@ public:
     short int mbActive; ///< 发射器是否激活
 
     std::string displayName; ///< 发射器的显示名称
-    long mnDBKey; ///< 发射器在数据库中的键值
+    int mnDBKey; ///< 发射器在数据库中的键值
     std::shared_ptr<tcLauncherDBObject>mpLauncherDBObj; ///< 发射器的数据库对象
-    long mnChildDBKey; ///< 当前装载的子对象（如导弹、鱼雷）的数据库键值
+    int mnChildDBKey; ///< 当前装载的子对象（如导弹、鱼雷）的数据库键值
     std::shared_ptr<tcDatabaseObject>mpChildDBObj; ///< 当前装载的子对象的数据库对象
     bool isExternalFuelTank; ///< 如果子对象是外部燃料箱，则为true
     float itemWeight_kg; ///< 当前装载物品的单位重量（千克）
@@ -113,7 +113,7 @@ public:
     unsigned char repeatShots; ///< 设置为非零值以自动重复发射（用于火炮）
 
     GeoPoint msDatum; ///< 传递给武器导航的目标点
-    long mnTargetID; ///< 寻的器可以获取的目标ID
+    int mnTargetID; ///< 寻的器可以获取的目标ID
     teWeaponLaunchMode meLaunchMode; ///< 武器发射模式
     short int mnTargetFlags; ///< 目标标志（0x01 - 水面，0x02 - 空中，0x03 - 地面）
     float pointingAngle; ///< 当前瞄准方位角（相对于船头/机头的弧度）
@@ -325,9 +325,9 @@ private:
 //     short int mbActive;
 
 //     std::string displayName;
-//     long mnDBKey; ///< key in launcher database
+//     int mnDBKey; ///< key in launcher database
 //     std::shared_ptr<tcLauncherDBObject>mpLauncherDBObj;
-//     long mnChildDBKey;
+//     int mnChildDBKey;
 //     std::shared_ptr<tcDatabaseObject>mpChildDBObj;
 // 	bool isExternalFuelTank; ///< true if child is fuel tank
 //     float itemWeight_kg; ///< current unit weight of loaded items
@@ -340,7 +340,7 @@ private:
 //     unsigned char repeatShots; ///< set to non-zero to automatically repeat shots (for guns)
 
 //     GeoPoint msDatum; ///< datum to pass to weapon nav guidance
-//     long mnTargetID; ///< track that seeker can acquire
+//     int mnTargetID; ///< track that seeker can acquire
 //     teWeaponLaunchMode meLaunchMode;
 //     short int mnTargetFlags;  ///< 0x01 - surface, 0x02 - air, 0x03 - land
 //     float pointingAngle; ///< current boresight azimuth angle in radians relative nose/bow

@@ -242,11 +242,11 @@ bool tcGameSerializer::LoadHookInfo(tcGameStream& stream)
     stream >> nHooked;
     if (nHooked > 255) return false;
 
-    std::vector<long> hookedId;
+    std::vector<int> hookedId;
 
     for (unsigned int n=0; n<nHooked; n++)
     {
-        long id;
+        int id;
         stream >> id;
         hookedId.push_back(id);
     }
@@ -259,7 +259,7 @@ bool tcGameSerializer::LoadHookInfo(tcGameStream& stream)
 
 void tcGameSerializer::SaveHookInfo(tcGameStream& stream)
 {
-//    std::vector<long> hookedId = tacticalMap->GetHookedGroup();
+//    std::vector<int> hookedId = tacticalMap->GetHookedGroup();
 //    unsigned int nHooked = hookedId.size();
 //    stream << nHooked;
 //    for (unsigned int n=0; n<nHooked; n++)
@@ -313,7 +313,7 @@ bool tcGameSerializer::LoadSimObjects(tcSimState* simState, tcGameStream& stream
         std::string databaseClass;
         stream >> databaseClass;
 
-        long id;
+        int id;
         stream >> id;
 
         std::shared_ptr<tcDatabaseObject> dataObj = database->GetObject(databaseClass);
@@ -444,7 +444,7 @@ bool tcGameSerializer::LoadSimOther(tcSimState* simState, tcGameStream& stream)
     }
     for (size_t k=0; k<nFlightportPlatforms; k++)
     {
-        long val;
+        int val;
         stream >> val;
         simState->flightportPlatforms.push_back(val);
     }
@@ -458,7 +458,7 @@ bool tcGameSerializer::LoadSimOther(tcSimState* simState, tcGameStream& stream)
     }
     for (size_t k=0; k<nLandingPlatforms; k++)
     {
-        long val;
+        int val;
         stream >> val;
         simState->landingPlatforms.push_back(val);
     }
@@ -498,7 +498,7 @@ bool tcGameSerializer::LoadSimOther(tcSimState* simState, tcGameStream& stream)
 
 //        wxXmlNode* objUpdate = new wxXmlNode(update, wxXML_ELEMENT_NODE, "Object", "");
 
-//        long platformId = obj->mnID;
+//        int platformId = obj->mnID;
 //        std::string platformName = obj->mzUnit.c_str();
 //        std::string databaseClass = obj->mpDBObject->mzClass.c_str();
 //        objUpdate->AddAttribute("class", databaseClass);
@@ -536,7 +536,7 @@ void tcGameSerializer::SaveToXml(tinyxml2::XMLDocument &doc)
 tinyxml2::XMLElement* objUpdate=doc.NewElement("Object");
 //        wxXmlNode* objUpdate = new wxXmlNode(update, wxXML_ELEMENT_NODE, "Object", "");
 
-        long platformId = obj->mnID;
+        int platformId = obj->mnID;
         std::string platformName = obj->mzUnit.c_str();
         std::string databaseClass = obj->mpDBObject->mzClass.c_str();
         objUpdate->Attribute("class", databaseClass.c_str());

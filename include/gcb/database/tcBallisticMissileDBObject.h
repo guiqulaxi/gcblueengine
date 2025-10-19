@@ -82,6 +82,7 @@ namespace database
         tcBallisticMissileDBObject(const tcBallisticMissileDBObject& obj); ///< copy constructor
         virtual ~tcBallisticMissileDBObject();
         virtual std::shared_ptr<tcGameObject>CreateGameObject() override;
+        void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const override;
 
 
     };

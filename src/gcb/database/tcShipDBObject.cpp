@@ -279,4 +279,24 @@ std::shared_ptr<tcGameObject>tcShipDBObject::CreateGameObject()
     }
 }
 
+void tcShipDBObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    tcPlatformDBObject::SerializeToJson(obj, allocator);
+
+    obj.AddMember(rapidjson::Value("draft_m", allocator).Move(), draft_m, allocator);
+    obj.AddMember(rapidjson::Value("length_m", allocator).Move(), length_m, allocator);
+    obj.AddMember(rapidjson::Value("beam_m", allocator).Move(), beam_m, allocator);
+    obj.AddMember(rapidjson::Value("PowerPlantType", allocator).Move(), PowerPlantType, allocator);
+    obj.AddMember(rapidjson::Value("TotalShaft_HP", allocator).Move(), TotalShaft_HP, allocator);
+    obj.AddMember(rapidjson::Value("ExhaustStacks", allocator).Move(), ExhaustStacks, allocator);
+    obj.AddMember(rapidjson::Value("PropulsionShafts", allocator).Move(), PropulsionShafts, allocator);
+    obj.AddMember(rapidjson::Value("PropulsiveEfficiency", allocator).Move(), PropulsiveEfficiency, allocator);
+    obj.AddMember(rapidjson::Value("CivilianPaintScheme", allocator).Move(), CivilianPaintScheme, allocator);
+    obj.AddMember(rapidjson::Value("FlashyPaintScheme", allocator).Move(), FlashyPaintScheme, allocator);
+    
+    if (!flightportClass.empty()) obj.AddMember(rapidjson::Value("flightportClass", allocator).Move(), rapidjson::Value(flightportClass.c_str(), allocator).Move(), allocator);
+    
+
+}
+
 }

@@ -104,12 +104,12 @@ int sqlite3_connection::executeint(const std::wstring &sql) {
 	return sqlite3_command(*this, sql).executeint();
 }
 
-long long sqlite3_connection::executeint64(const char *sql) {
+long long  sqlite3_connection::executeint64(const char *sql) {
 	if(!this->db) throw database_error("database is not open");
 	return sqlite3_command(*this, sql).executeint64();
 }
 
-long long sqlite3_connection::executeint64(const wchar_t *sql) {
+long long  sqlite3_connection::executeint64(const wchar_t *sql) {
 	if(!this->db) throw database_error("database is not open");
 	return sqlite3_command(*this, sql).executeint64();
 }
@@ -119,7 +119,7 @@ long long sqlite3_connection::executeint64(const std::string &sql) {
 	return sqlite3_command(*this, sql).executeint64();
 }
 
-long long sqlite3_connection::executeint64(const std::wstring &sql) {
+long long  sqlite3_connection::executeint64(const std::wstring &sql) {
 	if(!this->db) throw database_error("database is not open");
 	return sqlite3_command(*this, sql).executeint64();
 }

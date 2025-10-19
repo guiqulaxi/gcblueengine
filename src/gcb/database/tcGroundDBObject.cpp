@@ -38,18 +38,15 @@
 #include "tcAirfieldObject.h"
 #include "tcGroundVehicleObject.h"
 #include "tcGroundObject.h"
+#include "rapidjson/document.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 
 
-namespace database
-{
+using namespace database;
 
-// std::shared_ptr<tcDatabaseObject> tcGroundDBObject::AsDatabaseObject()
-// {
-// 	return this;
-// }
+
 
 std::shared_ptr<tcFlightportDBObject> tcGroundDBObject::GetFlightport()
 {
@@ -180,5 +177,19 @@ std::shared_ptr<tcGameObject>tcGroundDBObject::CreateGameObject()
         return nullptr;
     }
 }
+
+void tcGroundDBObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    tcPlatformDBObject::SerializeToJson(obj, allocator);
+
+    if (!flightportClass.empty()) obj.AddMember(rapidjson::Value("flightportClass", allocator).Move(), rapidjson::Value(flightportClass.c_str(), allocator).Move(), allocator);
+
+    // include air detection component fields if present
+    if (auto comp = GetComponent<tcAirDetectionDBObject>())
+    {
+        rapidjson::Value compObj(rapidjson::kObjectType);
+        comp->SerializeToJson(compObj, allocator);
+        obj.AddMember(rapidjson::Value("airDetection", allocator).Move(), compObj, allocator);
+    }
 
 }

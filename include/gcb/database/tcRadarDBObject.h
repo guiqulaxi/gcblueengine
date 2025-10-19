@@ -36,57 +36,59 @@
 
 namespace database
 {
-    class tcSqlReader;
+class tcSqlReader;
 
-    class tcRadarDBObject : public tcSensorDBObject 
-    {
-    public:
-        float ERPpeak_dBW;         ///< [dBW] effective radiated power, peak 有效辐射功率，峰值
-        float ERPaverage_dBW;      ///< average ERP 平均ERP
-        unsigned int maxFireControlTracks; ///< max number of simultaneous fire control tracks 同时进行的最大火控跟踪数
-        bool isSemiactive;         ///< set true if this is a semiactive radar 如果这是半主动雷达则设为true
-        float blindSpeed_mps;      ///< targets under this radial speed suffer large detection penalty, 0 for no blind speed 径向速度低于此值的目标会受到较大的探测惩罚，0表示无盲速
-        float lookdownWater_dB;    ///< adjustment for look-down performance over water, negative is penalty 水面下视性能的调整，负值为惩罚
-        float lookdownLand_dB;     ///< adjustment for look-down performance over land, negative is penalty 陆地下视性能的调整，负值为惩罚
-        float bandwidth_Hz;        ///< instantaneous bandwidth used for jamming calculations 用于干扰计算的瞬时带宽
-        float azimuthBeamwidth_deg;
-        float elevationBeamwidth_deg;   ///< beamwidth in elevation used for lookdown calculations, gain calcs  波束宽度 用于下视计算和增益计算的仰角
-        float effectiveSidelobes_dB;    ///< effective SLL considering adaptive cancellation, relative to peak, always negative 考虑自适应取消的有效旁瓣电平，相对于峰值，始终为负
-		bool mbDetectsSurface;     ///< set true if detects surface targets
-		bool mbDetectsAir;         ///< set true if detects airborne targets
-		bool mbDetectsMissile;	   ///< set true if detects missiles
-		bool mbDetectsGround;      ///< set true if detects ground targets
+class tcRadarDBObject : public tcSensorDBObject
+{
+public:
+    float ERPpeak_dBW;         ///< [dBW] effective radiated power, peak 有效辐射功率，峰值
+    float ERPaverage_dBW;      ///< average ERP 平均ERP
+    unsigned int maxFireControlTracks; ///< max number of simultaneous fire control tracks 同时进行的最大火控跟踪数
+    bool isSemiactive;         ///< set true if this is a semiactive radar 如果这是半主动雷达则设为true
+    float blindSpeed_mps;      ///< targets under this radial speed suffer large detection penalty, 0 for no blind speed 径向速度低于此值的目标会受到较大的探测惩罚，0表示无盲速
+    float lookdownWater_dB;    ///< adjustment for look-down performance over water, negative is penalty 水面下视性能的调整，负值为惩罚
+    float lookdownLand_dB;     ///< adjustment for look-down performance over land, negative is penalty 陆地下视性能的调整，负值为惩罚
+    float bandwidth_Hz;        ///< instantaneous bandwidth used for jamming calculations 用于干扰计算的瞬时带宽
+    float azimuthBeamwidth_deg;
+    float elevationBeamwidth_deg;   ///< beamwidth in elevation used for lookdown calculations, gain calcs  波束宽度 用于下视计算和增益计算的仰角
+    float effectiveSidelobes_dB;    ///< effective SLL considering adaptive cancellation, relative to peak, always negative 考虑自适应取消的有效旁瓣电平，相对于峰值，始终为负
+    bool mbDetectsSurface;     ///< set true if detects surface targets
+    bool mbDetectsAir;         ///< set true if detects airborne targets
+    bool mbDetectsMissile;	   ///< set true if detects missiles
+    bool mbDetectsGround;      ///< set true if detects ground targets
 
-        /// calculated parameters
-        float invBlindSpeed_mps;    ///< 1.0f / blindSpeed_mps;
-        float antennaGain;          ///< calculated from az and el beamwidth 根据方位和仰角波束宽度计算得出
-        float antennaGain_dBi;      ///< calculated from az and el beamwidth 根据方位和仰角波束宽度计算得出
-        float invAzBeamwidth_deg;   ///< 1.0f / azimuthBeamwidth_deg
-        float invElBeamwidth_deg;   ///< 1.0f / elevationBeamwidth_deg
-        float cpi_s;                ///< CPI or dwell time calculated based on coverage angle and revisit period 据覆盖角度和回访周期计算出的CPI或驻留时间
-        float jamConstant_dB;       ///< convert dB-W/m2 jam power density to J/N, assuming matched bandwidth and mainlobe
+    /// calculated parameters
+    float invBlindSpeed_mps;    ///< 1.0f / blindSpeed_mps;
+    float antennaGain;          ///< calculated from az and el beamwidth 根据方位和仰角波束宽度计算得出
+    float antennaGain_dBi;      ///< calculated from az and el beamwidth 根据方位和仰角波束宽度计算得出
+    float invAzBeamwidth_deg;   ///< 1.0f / azimuthBeamwidth_deg
+    float invElBeamwidth_deg;   ///< 1.0f / elevationBeamwidth_deg
+    float cpi_s;                ///< CPI or dwell time calculated based on coverage angle and revisit period 据覆盖角度和回访周期计算出的CPI或驻留时间
+    float jamConstant_dB;       ///< convert dB-W/m2 jam power density to J/N, assuming matched bandwidth and mainlobe
 
-        virtual std::shared_ptr<tcSensorState> CreateSensor(std::shared_ptr<tcGameObject> parent); ///< factory method
-        virtual const char* GetClassName() const {return "Radar";} ///< returns class name of database object
-        virtual void PrintToFile(tcFile& file);
-        
-        static void AddSqlColumns(std::string& columnString);
-        void ReadSql(tcSqlReader& entry);
-        void WriteSql(std::string& valueString) const;
-        void WritePythonValue(std::string& valueString) const;
-        void WritePython(std::string &valueString) const;
+    virtual std::shared_ptr<tcSensorState> CreateSensor(std::shared_ptr<tcGameObject> parent); ///< factory method
+    virtual const char* GetClassName() const {return "Radar";} ///< returns class name of database object
+    virtual void PrintToFile(tcFile& file);
 
-		float EstimateDetectionRange(float rcs_dBsm, bool overWater, bool overLand) const;
-        virtual const char* GetTypeDescription() const;
-        float CalculateFL(float& lambda2);
+    static void AddSqlColumns(std::string& columnString);
+    void ReadSql(tcSqlReader& entry);
+    void WriteSql(std::string& valueString) const;
+    void WritePythonValue(std::string& valueString) const;
+    void WritePython(std::string &valueString) const;
 
-        tcRadarDBObject();
-        tcRadarDBObject(const tcRadarDBObject& obj); ///< copy constructor
-        virtual ~tcRadarDBObject();
-  void CalculateParams();
-    private:
+    float EstimateDetectionRange(float rcs_dBsm, bool overWater, bool overLand) const;
+    virtual const char* GetTypeDescription() const;
+    float CalculateFL(float& lambda2);
 
-    };
+    tcRadarDBObject();
+    tcRadarDBObject(const tcRadarDBObject& obj); ///< copy constructor
+    virtual ~tcRadarDBObject();
+    void CalculateParams();
+    void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const override;
+
+private:
+
+};
 
 } // namespace database
 

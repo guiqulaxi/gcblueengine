@@ -60,7 +60,7 @@ public:
     virtual void AddMissionAircraft(const std::string& name, const std::string& role);
     virtual void RemoveMissionAircraft(const std::string& name);
     void RenameMissionAircraft(const std::string& oldName, const std::string& newName);
-    void SwapMissionAircraft(const std::string& air1, long id1, const std::string& air2, long id2);
+    void SwapMissionAircraft(const std::string& air1, int id1, const std::string& air2, int id2);
 
 	bool AllMissionAircraftDeparted() const;
     bool AllMissionAircraftLanded() const;

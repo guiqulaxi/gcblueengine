@@ -166,7 +166,7 @@ float CsvTranslator::GetFieldAsFloat(int n)
     }
 
     if (field[n].size() == 0) return 0; // do not log an error for null fields
-// Change %d to %ld for long, %f for float, %lf for double
+// Change %d to %ld for int, %f for float, %lf for double
     int scanCount = sscanf(field[n].c_str(),"%f",&f);
     if (scanCount != 1)
     {
@@ -205,14 +205,14 @@ int CsvTranslator::GetFieldAsInt(int n)
 }
 
 /**
-* @return field as long integer. This will truncate a float.
+* @return field as int integer. This will truncate a float.
 * Zero is returned if the field is empty. If the field
 * has a bad format (e.g. a string field instead of a 
 * numerical field), zero is returned and an error is logged.
 */
-long CsvTranslator::GetFieldAsLong(int n)
+int CsvTranslator::GetFieldAsint(int n)
 {
-    long val;
+    int val;
 
 	if (n < 0 || n >= nfield)
     {
@@ -224,7 +224,7 @@ long CsvTranslator::GetFieldAsLong(int n)
     int scanCount = sscanf(field[n].c_str(), "%d", &val);
     if (scanCount != 1)
     {
-        fprintf(stderr, "Bad field type: '%s'(GetFieldAsLong)\n",
+        fprintf(stderr, "Bad field type: '%s'(GetFieldAsint)\n",
             field[n].c_str());
 		return 0;
     }
@@ -254,9 +254,9 @@ void CsvTranslator::WriteField(double val)
 
 
 /**
-* Use for int or long int
+* Use for int or int int
 */
-void CsvTranslator::WriteField(long val)
+void CsvTranslator::WriteField(int val)
 {
     char buff[64];
     sprintf(buff,"%ld",val);
@@ -317,23 +317,23 @@ CsvTranslator& CsvTranslator::operator>>(unsigned short& val)
 	return *this;
 }
 
-CsvTranslator& CsvTranslator::operator>>(long& val)
-{
-    val = GetFieldAsInt(fieldIdx++);
-    return *this;
-} 
+// CsvTranslator& CsvTranslator::operator>>(int& val)
+// {
+//     val = GetFieldAsInt(fieldIdx++);
+//     return *this;
+// }
 
-CsvTranslator& CsvTranslator::operator>>(unsigned long& val)
-{
-    val = GetFieldAsInt(fieldIdx++);
-    return *this;
-} 
+// CsvTranslator& CsvTranslator::operator>>(unsigned int& val)
+// {
+//     val = GetFieldAsInt(fieldIdx++);
+//     return *this;
+// }
 
-CsvTranslator& CsvTranslator::operator>>(std::string& s)
-{
-    s = GetField(fieldIdx++);
-    return *this;
-}   
+// CsvTranslator& CsvTranslator::operator>>(std::string& s)
+// {
+//     s = GetField(fieldIdx++);
+//     return *this;
+// }
 
 CsvTranslator& CsvTranslator::operator<<(double val)
 {
@@ -341,7 +341,7 @@ CsvTranslator& CsvTranslator::operator<<(double val)
     return *this;
 }
 
-CsvTranslator& CsvTranslator::operator<<(long val)
+CsvTranslator& CsvTranslator::operator<<(int val)
 {
     WriteField(val);
     return *this;

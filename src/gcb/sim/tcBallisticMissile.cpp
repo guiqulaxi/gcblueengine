@@ -29,6 +29,10 @@
 #include "common/tcObjStream.h"
 #include "common/tcGameStream.h"
 #include "database/tcPlatformDBObject.h"
+#include "tcWeaponObject.h"
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
 
 ////#include "tc3DModel.h"
 //#include "tcParticleEffect.h"
@@ -228,6 +232,47 @@ void tcBallisticMissile::LaunchFrom(std::shared_ptr<tcGameObject> obj, unsigned 
 	// This is a tcWeaponObject method
 	SetIntendedTarget(pLauncher->mnTargetID);
 
+}
+
+void tcBallisticMissile::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    // start with weapon fields
+    tcWeaponObject::SerializeToJson(obj, allocator);
+
+    // basic missile-specific scalars
+    obj.AddMember(rapidjson::Value("subSurfaceLaunch", allocator).Move(), subSurfaceLaunch, allocator);
+    obj.AddMember(rapidjson::Value("flightTime_s", allocator).Move(), flightTime_s, allocator);
+    obj.AddMember(rapidjson::Value("thrustShutoffTime_s", allocator).Move(), thrustShutoffTime_s, allocator);
+
+    // target datum
+    rapidjson::Value td(rapidjson::kObjectType);
+    td.AddMember("lon_rad", targetDatum.mfLon_rad, allocator);
+    td.AddMember("lat_rad", targetDatum.mfLat_rad, allocator);
+    td.AddMember("alt_m", targetDatum.mfAlt_m, allocator);
+    obj.AddMember(rapidjson::Value("targetDatum", allocator).Move(), td, allocator);
+
+    // ECEF position and velocity as compact arrays
+    rapidjson::Value ecefPos(rapidjson::kArrayType);
+    ecefPos.PushBack(x, allocator);
+    ecefPos.PushBack(y, allocator);
+    ecefPos.PushBack(z, allocator);
+    obj.AddMember(rapidjson::Value("ecef", allocator).Move(), ecefPos, allocator);
+
+    rapidjson::Value ecefVel(rapidjson::kArrayType);
+    ecefVel.PushBack(vx, allocator);
+    ecefVel.PushBack(vy, allocator);
+    ecefVel.PushBack(vz, allocator);
+    obj.AddMember(rapidjson::Value("ecefVel", allocator).Move(), ecefVel, allocator);
+
+    // target ECEF
+    rapidjson::Value ecefT(rapidjson::kArrayType);
+    ecefT.PushBack(xt, allocator);
+    ecefT.PushBack(yt, allocator);
+    ecefT.PushBack(zt, allocator);
+    obj.AddMember(rapidjson::Value("ecefTarget", allocator).Move(), ecefT, allocator);
+
+    obj.AddMember(rapidjson::Value("speed_mps", allocator).Move(), speed_mps, allocator);
+    obj.AddMember(rapidjson::Value("speed2_mps2", allocator).Move(), speed2_mps2, allocator);
 }
 
 

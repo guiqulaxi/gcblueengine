@@ -311,7 +311,7 @@ const char* tcAttackMission::GetMissionType() const
     return missionType.c_str();
 }
 
-long tcAttackMission::GetSecondsToLaunch() const
+int tcAttackMission::GetSecondsToLaunch() const
 {
     tcSimState* simState = tcSimState::Get();
     tcDateTime current = simState->GetDateTime();
@@ -322,7 +322,7 @@ long tcAttackMission::GetSecondsToLaunch() const
     //    float dt_s = days_to_sec * (launch.GetJulianDate() - current.GetJulianDate());
     float dt_s = 0.001 * (launch.GetTimeT() - current.GetTimeT());
 
-    return long(dt_s + 0.5f);
+    return int(dt_s + 0.5f);
 }
 
 float tcAttackMission::GetTargetLon() const
@@ -554,12 +554,12 @@ void tcAttackMission::SetLaunchTimeFromString(const char* s)
     tcSimState* simState = tcSimState::Get();
     tcDateTime current = simState->GetDateTime();
     
-    long nYear = current.GetYear();
-    long nMonth = current.GetMonth();
-    long nDay = current.GetDay();
-    long nHour = current.GetHour();
-    long nMin = current.GetMinute();
-    long nSec = 0;
+    int nYear = current.GetYear();
+    int nMonth = current.GetMonth();
+    int nDay = current.GetDay();
+    int nHour = current.GetHour();
+    int nMin = current.GetMinute();
+    int nSec = 0;
     double launch_window = 0;
     double repeat_interval = 0;
 
@@ -617,28 +617,28 @@ void tcAttackMission::SetLaunchTimeFromString(const char* s)
     //    if (s2.Contains('/'))
     //    { // assume YYYY/MM/DD HH:MM:SS format
     //        std::string yyyy = s2.BeforeFirst('/');
-    //        yyyy.ToLong(&nYear);
+    //        yyyy.Toint(&nYear);
     //        s2 = s2.AfterFirst('/');
 
     //        std::string mm = s2.BeforeFirst('/');
-    //        mm.ToLong(&nMonth);
+    //        mm.Toint(&nMonth);
     //        s2 = s2.AfterFirst('/');
 
     //        std::string dd = s2.BeforeFirst(' ');
-    //        dd.ToLong(&nDay);
+    //        dd.Toint(&nDay);
     //        s2 = s2.AfterFirst(' ');
     //    }
 
     //    std::string hh = s2.BeforeFirst(':');
-    //    hh.ToLong(&nHour);
+    //    hh.Toint(&nHour);
     //    s2 = s2.AfterFirst(':');
 
     //    std::string minmin = s2.BeforeFirst(':');
-    //    minmin.ToLong(&nMin);
+    //    minmin.Toint(&nMin);
     //    s2 = s2.AfterFirst(':');
 
     //    std::string ss = s2.BeforeFirst('+');
-    //    ss.ToLong(&nSec);
+    //    ss.Toint(&nSec);
 
     //    std::string randmin = s2.AfterFirst('+');
     //    randmin = randmin.BeforeFirst('m');
@@ -1441,7 +1441,7 @@ void tcAttackMission::UploadUnitMissionInfo( std::shared_ptr<tcAirObject> air)
     {
         std::string lonString = strutil::format("%.7f", targetLon_rad);
         std::string latString = strutil::format("%.7f", targetLat_rad);
-        bb.Write("DatumLongitude", lonString);
+        bb.Write("Datumintitude", lonString);
         bb.Write("DatumLatitude", latString);
     }
 

@@ -610,7 +610,7 @@ void tcMissileObject::UpdateDetonation()
     std::shared_ptr<tcSensorState> sensor = GetComponent<tcSensorPlatform>()->GetSensorMutable(0);
     bool isTerminalSeekerGuidance = (sensor != 0) && (sensor->mnMode == SSMODE_SEEKERTRACK);
 
-    long targetID = -1;
+    int targetID = -1;
 
     if (isTerminalSeekerGuidance)
     {
@@ -1447,7 +1447,7 @@ void tcMissileObject::Clear()
 /**
 *
 */
-void tcMissileObject::DesignateTarget(long anID) 
+void tcMissileObject::DesignateTarget(int anID) 
 {
     SetSeekerTarget(anID);
 
@@ -1572,7 +1572,7 @@ float tcMissileObject::EstimateRangeFaster(float evalMin_km, float evalMax_km, u
 
     struct CacheInfo
     {
-        long id;
+        int id;
         float launchSpeed_kts;
         float launchAltitude_m;
         float targetAltitude_m;
@@ -2044,7 +2044,7 @@ void tcMissileObject::Serialize(tcFile& file, bool mbLoad)
 	}
 }
 
-void tcMissileObject::SetSeekerTarget(long id)
+void tcMissileObject::SetSeekerTarget(int id)
 {
     std::shared_ptr<tcSensorState> sensor = GetComponent<tcSensorPlatform>()->GetSensorMutable(0);
 	if (sensor == 0)
@@ -2053,7 +2053,7 @@ void tcMissileObject::SetSeekerTarget(long id)
 		return;
 	}
 
-    long currentTarget = sensor->mcTrack.mnID;
+    int currentTarget = sensor->mcTrack.mnID;
 
     if (std::shared_ptr<tcGameObject> target = simState->GetObject(currentTarget))
     {
@@ -2073,7 +2073,7 @@ void tcMissileObject::SetSeekerTarget(long id)
 * future guidance segment
 * @param platformId set to id of illuminating platform
 */
-bool tcMissileObject::StillNeedsIlluminator(long& platformId) const
+bool tcMissileObject::StillNeedsIlluminator(int& platformId) const
 {
     platformId = -1;
     std::shared_ptr<tcSensorState> sensor = GetComponent<tcSensorPlatform>()->GetSensorMutable(0);
@@ -2226,4 +2226,43 @@ tcMissileObject::tcMissileObject(std::shared_ptr<tcMissileDBObject>obj)
 *
 */
 tcMissileObject::~tcMissileObject() {}
+
+void tcMissileObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    tcWeaponObject::SerializeToJson(obj, allocator);
+
+    obj.AddMember("goalHeading_rad", rapidjson::Value().SetFloat(goalHeading_rad), allocator);
+    obj.AddMember("goalPitch_rad", rapidjson::Value().SetFloat(goalPitch_rad), allocator);
+    obj.AddMember("goalAltitude_m", rapidjson::Value().SetFloat(goalAltitude_m), allocator);
+    obj.AddMember("mfInterceptTime", rapidjson::Value().SetDouble(mfInterceptTime), allocator);
+    obj.AddMember("isTerminal", rapidjson::Value().SetBool(isTerminal), allocator);
+    obj.AddMember("isCommandHandoff", rapidjson::Value().SetBool(isCommandHandoff), allocator);
+
+    // waypoint
+    rapidjson::Value wp(rapidjson::kObjectType);
+    wp.AddMember("lon_rad", rapidjson::Value().SetDouble(msWaypoint.mfLon_rad), allocator);
+    wp.AddMember("lat_rad", rapidjson::Value().SetDouble(msWaypoint.mfLat_rad), allocator);
+    wp.AddMember("alt_m", rapidjson::Value().SetDouble(msWaypoint.mfAlt_m), allocator);
+    obj.AddMember("waypoint", wp, allocator);
+
+    // preplanRoute summary (up to 8 points)
+    rapidjson::Value routeArr(rapidjson::kArrayType);
+    size_t n = std::min(preplanRoute.size(), (size_t)8);
+    for (size_t i=0;i<n;i++)
+    {
+        rapidjson::Value p(rapidjson::kObjectType);
+        p.AddMember("lon_rad", rapidjson::Value().SetDouble(preplanRoute[i].mfLon_rad), allocator);
+        p.AddMember("lat_rad", rapidjson::Value().SetDouble(preplanRoute[i].mfLat_rad), allocator);
+        routeArr.PushBack(p, allocator);
+    }
+    obj.AddMember("preplanRoute", routeArr, allocator);
+
+    // msKState summary
+    rapidjson::Value kst(rapidjson::kObjectType);
+    kst.AddMember("speed_mps", rapidjson::Value().SetFloat(msKState.mfSpeed_mps), allocator);
+    kst.AddMember("heading_rad", rapidjson::Value().SetFloat(msKState.mfHeading_rad), allocator);
+    kst.AddMember("pitch_rad", rapidjson::Value().SetFloat(msKState.mfPitch_rad), allocator);
+    kst.AddMember("altitude_m", rapidjson::Value().SetFloat(msKState.mfAltitude_m), allocator);
+    obj.AddMember("msKState", kst, allocator);
+}
 

@@ -91,11 +91,11 @@ long long sqlite3_reader::getint64(int index) {
 /**
 * Modified code, using 2.x atol on string version here
 */
-long sqlite3_reader::getlong(int index) 
-{
-	std::string s = this->getstring(index);
-	return atol(s.c_str());
-}
+// int sqlite3_reader::getint(int index)
+// {
+// 	std::string s = this->getstring(index);
+// 	return atol(s.c_str());
+// }
 
 double sqlite3_reader::getdouble(int index) {
 	if(!this->cmd) throw database_error("reader is closed");

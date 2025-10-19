@@ -44,11 +44,11 @@ void tcUserSelectedGroups::ClearGroups()
 /**
 *
 */
-std::vector<long> tcUserSelectedGroups::GetGroup(int idx)
+std::vector<int> tcUserSelectedGroups::GetGroup(int idx)
 {
-	std::vector<long> platforms;
+	std::vector<int> platforms;
 
-	std::map<int, std::vector<long> >::iterator iter;
+	std::map<int, std::vector<int> >::iterator iter;
 
 	iter = groupMap.find(idx);
 	if (iter != groupMap.end())
@@ -62,7 +62,7 @@ std::vector<long> tcUserSelectedGroups::GetGroup(int idx)
 /**
 *
 */
-void tcUserSelectedGroups::SetGroup(int idx, const std::vector<long>& platforms)
+void tcUserSelectedGroups::SetGroup(int idx, const std::vector<int>& platforms)
 {
 	groupMap[idx] = platforms;
 }

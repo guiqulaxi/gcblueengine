@@ -69,9 +69,9 @@ BEGIN_NAMESPACE(network)
 * Erases map entry for id. Used to force server to resend
 * create message for id.
 */
-void tcPlayerStatus::EraseEntry(long id)
+void tcPlayerStatus::EraseEntry(int id)
 {
-    std::map<long, UpdateInfo>::iterator iter;
+    std::map<int, UpdateInfo>::iterator iter;
 
     if (id == -1) return;
 
@@ -103,9 +103,9 @@ unsigned char tcPlayerStatus::GetGameSpeed() const
 * @param updateTime [30 Hz tics] set to last updateTime for obj id
 * @return true if id exists in update map, false otherwise
 */
-bool tcPlayerStatus::GetLastUpdate(long id, unsigned int& updateTime, unsigned int& detailedUpdateTime)
+bool tcPlayerStatus::GetLastUpdate(int id, unsigned int& updateTime, unsigned int& detailedUpdateTime)
 {
-    std::map<long, UpdateInfo>::iterator mapIter;
+    std::map<int, UpdateInfo>::iterator mapIter;
 
     if (id == -1) return false;
 
@@ -216,7 +216,7 @@ void tcPlayerStatus::SetSurrender(bool state)
 * Updates lastUpdate time. 
 * A new map entry is created if this is the first update.
 */
-void tcPlayerStatus::SetUpdate(long id, unsigned int updateTime)
+void tcPlayerStatus::SetUpdate(int id, unsigned int updateTime)
 {
     if (id == -1) return; // return and do nothing if null idx passed
 
@@ -232,7 +232,7 @@ void tcPlayerStatus::SetXmlObserver(bool state)
 * Updates lastUpdate detailed update time. 
 * A new map entry is created if this is the first update.
 */
-void tcPlayerStatus::SetDetailedUpdate(long id, unsigned int detailedUpdateTime)
+void tcPlayerStatus::SetDetailedUpdate(int id, unsigned int detailedUpdateTime)
 {
     if (id == -1) return; // return and do nothing if null idx passed
 
@@ -1174,8 +1174,8 @@ void tcMultiplayerInterface::ProcessAllianceCommand(tcPlayerStatus& player, cons
     if (changeAllowed)
     {
     	wxString allianceText = args; 
-    	long alliance;
-    	if (allianceText.ToLong(&alliance))
+    	int alliance;
+    	if (allianceText.Toint(&alliance))
     	{
     		player.alliance = alliance;
     		tcAccountDatabase::Get()->SetUserAlliance(player.GetName(), player.alliance);
@@ -1357,8 +1357,8 @@ void tcMultiplayerInterface::ProcessGameMasterCommand(tcPlayerStatus& player, co
         }
         else if (command == "destroy")
         {
-    	    long id;
-    	    if (params.ToLong(&id))
+    	    int id;
+    	    if (params.Toint(&id))
     	    {
                 syntaxError = false;
                 simState->DeleteObject(id);
@@ -1379,8 +1379,8 @@ void tcMultiplayerInterface::ProcessGameMasterCommand(tcPlayerStatus& player, co
         }
         else if (command == "repair")
         {
-            long id;
-    	    if (params.ToLong(&id))
+            int id;
+    	    if (params.Toint(&id))
     	    {
                 syntaxError = false;
                 if (std::shared_ptr<tcGameObject> obj = simState->GetObject(id))
@@ -1425,8 +1425,8 @@ void tcMultiplayerInterface::ProcessGameSpeed(tcPlayerStatus& player, const wxSt
    
 	//tcSimState* simState = tcSimState::Get();
 
-    long val;
-    if (!args.ToLong(&val) || (val < 0) || (val > 32))
+    int val;
+    if (!args.Toint(&val) || (val < 0) || (val > 32))
     {
         wxString msg = wxString::Format("*** Error - bad game speed argument (%s)",
                       args.c_str());
@@ -1497,8 +1497,8 @@ void tcMultiplayerInterface::ProcessGMCreate(const wxString& args, wxString& msg
 	params = params.AfterFirst(' ');
 	wxString s1 = params.BeforeFirst(' ');
 
-    long alliance = 0;
-    if ((!s1.ToLong(&alliance)) || (alliance < 0))
+    int alliance = 0;
+    if ((!s1.Toint(&alliance)) || (alliance < 0))
     {
         msg = wxString::Format("*** Bad alliance value for create, class '%s', unit '%s'",
            unitClass.c_str(), unitName.c_str());   
@@ -1519,7 +1519,7 @@ void tcMultiplayerInterface::ProcessGMCreate(const wxString& args, wxString& msg
     s1 = params.BeforeFirst(' ');
     if (!s1.ToDouble(&lon_deg))
     {
-        msg = wxString::Format("*** Bad longitude for /gm create");
+        msg = wxString::Format("*** Bad intitude for /gm create");
         return;  
     }
     
@@ -1552,7 +1552,7 @@ void tcMultiplayerInterface::ProcessGMCreate(const wxString& args, wxString& msg
     {
         std::shared_ptr<tcGameObject> obj = scenarioInterface->GetLastObjectAdded();
         wxASSERT(obj);
-        long id = obj->mnID;
+        int id = obj->mnID;
         
         msg = wxString::Format("*** Created %d, class '%s', unit '%s' alliance %d",
             id, unitClass.c_str(), unitName.c_str(), alliance);    
@@ -1601,8 +1601,8 @@ void tcMultiplayerInterface::ProcessGMMove(const wxString& args, wxString& msg)
     wxString params = args.AfterFirst(' ');
     wxString s1 = params.BeforeFirst(' ');
     
-    long id = -1;
-    if (!s1.ToLong(&id))
+    int id = -1;
+    if (!s1.Toint(&id))
     {
         msg = wxString::Format("*** Syntax error for /gm move");
         return;
@@ -1672,8 +1672,8 @@ void tcMultiplayerInterface::ProcessGMSetController(const wxString& args, wxStri
     wxString params = args.AfterFirst(' ');
     wxString s1 = params.BeforeFirst(' ');
     
-    long id = -1;
-    if (!s1.ToLong(&id))
+    int id = -1;
+    if (!s1.Toint(&id))
     {
         msg = wxString::Format("*** Syntax error for /gm setcontroller, bad id");
         return;
@@ -1723,8 +1723,8 @@ void tcMultiplayerInterface::ProcessGMSetTeamChanges(const wxString& args, wxStr
 {
     wxString s1 = args.BeforeFirst(' ');
     
-    long id = -1;
-    if (!s1.ToLong(&id))
+    int id = -1;
+    if (!s1.Toint(&id))
     {
         msg = wxString::Format("*** Syntax error for /gm setteamchanges, parameter should be 0 or 1");
         return;
@@ -2224,9 +2224,9 @@ void tcMultiplayerInterface::SendControlMessageUDPAck(int destination, int messa
 /**
 * Sends control request message to server requesting control of object id by player
 */
-void tcMultiplayerInterface::SendControlRelease(long id)
+void tcMultiplayerInterface::SendControlRelease(int id)
 {
-    static std::vector<long> id_list;
+    static std::vector<int> id_list;
 
     id_list.clear();
     id_list.push_back(id);
@@ -2238,7 +2238,7 @@ void tcMultiplayerInterface::SendControlRelease(long id)
 /**
 * Sends control request message to server requesting release of control of object id by player
 */
-void tcMultiplayerInterface::SendControlRelease(const std::vector<long>& id)
+void tcMultiplayerInterface::SendControlRelease(const std::vector<int>& id)
 {
 	if (IsServer())
 	{
@@ -2280,9 +2280,9 @@ void tcMultiplayerInterface::SendControlRelease(const std::vector<long>& id)
 /**
 * Sends control request message to server requesting control of object id by player
 */
-void tcMultiplayerInterface::SendControlRequest(long id)
+void tcMultiplayerInterface::SendControlRequest(int id)
 {
-    static std::vector<long> id_list;
+    static std::vector<int> id_list;
 
     id_list.clear();
     id_list.push_back(id);
@@ -2294,7 +2294,7 @@ void tcMultiplayerInterface::SendControlRequest(long id)
 /**
 * Sends control request message to server requesting control of object id by player
 */
-void tcMultiplayerInterface::SendControlRequest(const std::vector<long>& id)
+void tcMultiplayerInterface::SendControlRequest(const std::vector<int>& id)
 {
 	if (IsServer())
 	{
@@ -2393,7 +2393,7 @@ void tcMultiplayerInterface::SendDatabaseInfo(int destination)
 	tcUpdateMessageHandler::InitializeMessage(tcUpdateMessageHandler::DATABASE_INFO, stream);
     size_t nInfo = 0;
 
-    stream << long(-1); // -1 is signal to clear database on receipt of this message
+    stream << int(-1); // -1 is signal to clear database on receipt of this message
 
     for (iter.First(); !iter.IsDone(); iter.Next())
     {
@@ -2423,7 +2423,7 @@ void tcMultiplayerInterface::SendDatabaseInfo(int destination)
 }
 
 
-void tcMultiplayerInterface::SendSoundEffect(const std::string& player, const std::string& effect, long id)
+void tcMultiplayerInterface::SendSoundEffect(const std::string& player, const std::string& effect, int id)
 {
 	int connectionId = GetPlayerConnectionId(player);
 
@@ -2433,7 +2433,7 @@ void tcMultiplayerInterface::SendSoundEffect(const std::string& player, const st
 	}
 }
 
-void tcMultiplayerInterface::SendSoundEffect(int destination, const std::string& effect, long id)
+void tcMultiplayerInterface::SendSoundEffect(int destination, const std::string& effect, int id)
 {
 	tcStream stream;
 	tcUpdateMessageHandler::InitializeMessage(tcUpdateMessageHandler::SOUND_EFFECT, stream);
@@ -2674,16 +2674,16 @@ void tcMultiplayerInterface::UpdateDestroyedEntities(tcPlayerStatus& pstatus)
     wxASSERT(simState);
 
     /* iterate through all pstatus objects and add to destroy stream if
-    ** the object no longer exists
+    ** the object no inter exists
     */
     tcStream stream;
     tcUpdateMessageHandler::InitializeMessage(tcUpdateMessageHandler::DESTROY, stream);
 
     unsigned destroyCount = 0;
-    for (std::map<long, tcPlayerStatus::UpdateInfo>::iterator iter = pstatus.lastUpdate.begin();
+    for (std::map<int, tcPlayerStatus::UpdateInfo>::iterator iter = pstatus.lastUpdate.begin();
         iter != pstatus.lastUpdate.end(); ) 
     {
-        long id = iter->first;
+        int id = iter->first;
         if (simState->GetObject(id))
         {
             ++iter;
@@ -3487,11 +3487,11 @@ void tcMultiplayerInterface::UpdateTeamStatus()
 void tcMultiplayerInterface::UpdateTime()
 {
     static unsigned lastUpdate = 0;    
-    static long lastAccel = 0;
+    static int lastAccel = 0;
     
     // send time update if acceleration has changed
     tcSimState* simState = tcSimState::Get();
-    long currentAccel = simState->GetTimeAcceleration();
+    int currentAccel = simState->GetTimeAcceleration();
     if (currentAccel != lastAccel)
     {
         BroadcastControlMessage(tcControlMessageHandler::CM_TIME);
@@ -3506,8 +3506,8 @@ void tcMultiplayerInterface::UpdateTime()
     // update time acceleration
     const std::list<int>& connectionList = networkInterface->GetConnectionList();
     std::list<int>::const_iterator iter = connectionList.begin();
-    long minVal = 999;
-    long maxVal = -1;
+    int minVal = 999;
+    int maxVal = -1;
 
     for( ; iter != connectionList.end(); ++iter)
     {
@@ -3517,7 +3517,7 @@ void tcMultiplayerInterface::UpdateTime()
         
         if (player.IsCommander())
         {
-            long requestedSpeed = (long)player.GetGameSpeed();
+            int requestedSpeed = (int)player.GetGameSpeed();
             minVal = std::min(minVal, requestedSpeed);
             maxVal = std::max(maxVal, requestedSpeed);
         }
@@ -3531,8 +3531,8 @@ void tcMultiplayerInterface::UpdateTime()
     {
         wxEvtHandler* evtHandler = this->GetEvtHandler();
 		wxCommandEvent command(wxEVT_COMMAND_BUTTON_CLICKED, ID_SETTIMEACCEL);
-        //command.m_extraLong = minVal; // 2.6.3 code
-        command.SetExtraLong(minVal);
+        //command.m_extraint = minVal; // 2.6.3 code
+        command.SetExtraint(minVal);
 		evtHandler->AddPendingEvent(command);
     }
     

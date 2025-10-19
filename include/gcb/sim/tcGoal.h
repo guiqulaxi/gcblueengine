@@ -104,7 +104,7 @@ public:
     virtual tcGoal* Clone();
     virtual int GetType() const;
     virtual std::string GetTypeString() const;
-    unsigned long GetId() const;
+    unsigned int GetId() const;
 
     virtual tcGameStream& operator>>(tcGameStream& stream);
     virtual tcGameStream& operator<<(tcGameStream& stream);
@@ -115,14 +115,14 @@ public:
     tcGoal(const tcGoal& goal);
     virtual ~tcGoal();
 protected:
-    static unsigned long nextId;
+    static unsigned int nextId;
 //    static tcMapOverlay* mapOverlay;
 
 	const std::string indentString;
     float failScore;
     float passScore;
-    unsigned long id; // id for each goal
-    long mapObjectId; ///< tcRegistered window id for goals with active GUI object
+    unsigned int id; // id for each goal
+    int mapObjectId; ///< tcRegistered window id for goals with active GUI object
     unsigned int alliance;
 
     void CloseMapObject();
@@ -371,7 +371,7 @@ public:
     void AddGoal(tcGoal& newGoal);
     unsigned int GetSubGoalCount() const;
     tcGoalWrap GetSubGoal(unsigned int idx);
-    unsigned long GetId() const;
+    unsigned int GetId() const;
 
     tcCompoundGoalWrap(tcCompoundGoal* g);    
     tcCompoundGoalWrap();
@@ -387,7 +387,7 @@ public:
     void SetFailTimeout(double t);
     double GetPassTimeout() const;
     void SetPassTimeout(double t);
-    unsigned long GetId() const;
+    unsigned int GetId() const;
 
     tcTimeGoalWrap(tcTimeGoal* g);    
     tcTimeGoalWrap();
@@ -405,7 +405,7 @@ public:
     unsigned int GetQuantity() const;
     unsigned int GetTargetCount() const;
     std::string GetTargetName(unsigned int index);
-    unsigned long GetId() const;
+    unsigned int GetId() const;
 
     tcDestroyGoalWrap(tcDestroyGoal* g);    
     tcDestroyGoalWrap();
@@ -423,7 +423,7 @@ public:
     unsigned int GetQuantity() const;
     unsigned int GetTargetCount() const;
     std::string GetTargetName(unsigned int index);
-    unsigned long GetId() const;
+    unsigned int GetId() const;
 
     tcProtectGoalWrap(tcProtectGoal* g);    
     tcProtectGoalWrap();
@@ -450,7 +450,7 @@ public:
     void SetQuantity(unsigned int val);
     unsigned int GetQuantity() const;
 
-    unsigned long GetId() const;
+    unsigned int GetId() const;
 
     tcAreaGoalWrap(tcAreaGoal* g);    
     tcAreaGoalWrap();
@@ -464,7 +464,7 @@ private:
 class tcGoalWrap
 {
 public:
-    unsigned long GetId() const;
+    unsigned int GetId() const;
     std::string GetTypeString() const;
     tcCompoundGoalWrap AsCompoundGoal();
     tcTimeGoalWrap AsTimeGoal();

@@ -52,14 +52,14 @@ public:
     void SetPriority(double priority_);
 
     BlackboardInterface GetBlackboardInterface();
-    long GetAuthor() const;
+    int GetAuthor() const;
     double GetPriority() const;
 
     /// blackboard interface
     void Erase(const std::string& key);
     bool KeyExists(const std::string& key) const;
     BlackboardItem Read(const std::string& key);
-    long ReadAuthor(const std::string& key);
+    int ReadAuthor(const std::string& key);
     const std::string ReadMessage(const std::string& key);
     double ReadPriority(const std::string& key);
     bool Write(const std::string& key, const std::string& message);
@@ -70,10 +70,10 @@ public:
 
     BlackboardInterface();
     BlackboardInterface(const BlackboardInterface& source);
-    BlackboardInterface(Blackboard* bb, long author_, 
+    BlackboardInterface(Blackboard* bb, int author_, 
         double priority_);
     ~BlackboardInterface();
-    const long author;
+    const int author;
     double priority;
 protected:
     Blackboard* const board;

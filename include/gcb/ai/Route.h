@@ -58,7 +58,7 @@ public:
         float speed_kts; ///< <=0 means don't adjust speed
         std::vector<std::string> tasks; ///< list of task scripts to start when waypoint is reached
         unsigned char referenceMode; ///< 0 - absolute, 1 - platform, 2 - platform with heading
-        long referencePlatform; ///< for referenced waypoints, -1 if absolute pos
+        int referencePlatform; ///< for referenced waypoints, -1 if absolute pos
         float bearing_rad;
         float range_km;
     };
@@ -82,14 +82,14 @@ public:
     std::vector<WaypointData>& GetWaypointsMutable();
 	void SetLoopState(bool state);
     
-    void EditWaypointReference(size_t idx, unsigned char referenceMode, long referencePlatform);
+    void EditWaypointReference(size_t idx, unsigned char referenceMode, int referencePlatform);
     void UpdateRelativeWaypointCoordinate(size_t idx);
     void UpdateRelativeWaypointOffset(size_t idx);
 
     void SetMaxPathAltitude_m(float alt_m);
     float GetMaxPathAltitude_m() const;
     bool IsPathfindingActive() const;
-    void SetPlatformId(long id);
+    void SetPlatformId(int id);
 
     tcCommandStream& operator<<(tcCommandStream& stream);
     tcCommandStream& operator>>(tcCommandStream& stream);
@@ -108,7 +108,7 @@ protected:
     unsigned currentWaypoint;
 	bool loop; ///< true to loop back to first waypoint
     float maxPathAltitude_m;
-    long platformId; ///< for getting current position, pathfinding with first waypoint
+    int platformId; ///< for getting current position, pathfinding with first waypoint
 
     bool GetBestPath(const WaypointData& destination, std::vector<WaypointData>& newPoints);
 };

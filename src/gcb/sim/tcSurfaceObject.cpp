@@ -558,6 +558,26 @@ tcSurfaceObject::~tcSurfaceObject()
 {
 }
 
+void tcSurfaceObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    tcPlatformObject::SerializeToJson(obj, allocator);
+
+    obj.AddMember("doneSinking", rapidjson::Value().SetBool(doneSinking), allocator);
+
+    // positionHistory: include up to last 8 points as array of {lon,lat}
+    rapidjson::Value histArr(rapidjson::kArrayType);
+    size_t count = std::min(positionHistory.size(), (size_t)8);
+    size_t idx = 0;
+    for (auto it = positionHistory.begin(); (idx < count) && (it != positionHistory.end()); ++it, ++idx)
+    {
+        rapidjson::Value pt(rapidjson::kObjectType);
+        pt.AddMember("lon_rad", rapidjson::Value().SetDouble(it->x), allocator);
+        pt.AddMember("lat_rad", rapidjson::Value().SetDouble(it->y), allocator);
+        histArr.PushBack(pt, allocator);
+    }
+    obj.AddMember("positionHistory", histArr, allocator);
+}
+
 void tcSurfaceObject::Construct()
 {
     tcPlatformObject::Construct();

@@ -80,7 +80,7 @@ void tcUpdateMessageHandler::AddAirMissionUpdate(std::shared_ptr<tcFlightOpsObje
     tcFlightPort* flightPort = obj->GetFlightPort();
     wxASSERT(flightPort != 0);
 
-    long platformId = obj->GetParentId();
+    int platformId = obj->GetParentId();
     stream << platformId;
 
     tcMissionManager* missionManager = flightPort->GetMissionManager();
@@ -90,7 +90,7 @@ void tcUpdateMessageHandler::AddAirMissionUpdate(std::shared_ptr<tcFlightOpsObje
 }
 
 
-void tcUpdateMessageHandler::AddBriefingText(long alliance, tcStream& stream)
+void tcUpdateMessageHandler::AddBriefingText(int alliance, tcStream& stream)
 {
 
 	tcScenarioInterface* scenarioInterface = tcSimPythonInterface::Get()->GetScenarioInterface();
@@ -137,7 +137,7 @@ void tcUpdateMessageHandler::AddCommandUpdate(std::shared_ptr<tcGameObject> obj,
     stream << temp;
 }
 
-void tcUpdateMessageHandler::AddControlRelease(long id, tcStream& stream)
+void tcUpdateMessageHandler::AddControlRelease(int id, tcStream& stream)
 {
 	bool releaseControl = true;
 
@@ -145,7 +145,7 @@ void tcUpdateMessageHandler::AddControlRelease(long id, tcStream& stream)
 	stream << id;
 }
 
-void tcUpdateMessageHandler::AddControlRequest(long id, tcStream& stream)
+void tcUpdateMessageHandler::AddControlRequest(int id, tcStream& stream)
 {
 	bool releaseControl = false;
 
@@ -160,14 +160,14 @@ void tcUpdateMessageHandler::AddControlRequest(long id, tcStream& stream)
 */
 bool tcUpdateMessageHandler::AddCreate(std::shared_ptr<tcGameObject> obj, tcCreateStream& stream)
 {
-    long freeSpace = (long)stream.GetMaxSize() - (long)stream.size();
+    int freeSpace = (int)stream.GetMaxSize() - (int)stream.size();
     if (freeSpace < 1) return false;
 
     // temporary stream for command data
     tcCommandStream tempCommand;
     tempCommand.SetDetailLevel(tcStream::WRITE_ALL);
     *obj >> tempCommand;
-    freeSpace -= (long)tempCommand.size();
+    freeSpace -= (int)tempCommand.size();
     if (freeSpace < 1) return false;
 
     // temporary create stream
@@ -192,7 +192,7 @@ bool tcUpdateMessageHandler::AddCreate(std::shared_ptr<tcGameObject> obj, tcCrea
 /**
 * 
 */
-void tcUpdateMessageHandler::AddCreateRequest(long id, tcStream& stream)
+void tcUpdateMessageHandler::AddCreateRequest(int id, tcStream& stream)
 {
     stream << id;
 }
@@ -200,12 +200,12 @@ void tcUpdateMessageHandler::AddCreateRequest(long id, tcStream& stream)
 /**
 * Saves destroy information to stream to destroy object with id
 */
-void tcUpdateMessageHandler::AddDestroy(long id, tcStream& stream)
+void tcUpdateMessageHandler::AddDestroy(int id, tcStream& stream)
 {
     stream << id;
 }
 
-void tcUpdateMessageHandler::AddGoalStatus(long alliance, tcUpdateStream& stream)
+void tcUpdateMessageHandler::AddGoalStatus(int alliance, tcUpdateStream& stream)
 {
 	stream.SetDetailLevel(alliance);
 
@@ -244,7 +244,7 @@ void tcUpdateMessageHandler::AddScenarioInfo(tcUpdateStream& stream)
 * Adds header information to sensor update stream
 * Currently this is just an alliance field
 */
-void tcUpdateMessageHandler::AddSensorUpdateHeader(long alliance, tcStream& stream)
+void tcUpdateMessageHandler::AddSensorUpdateHeader(int alliance, tcStream& stream)
 {
     stream << alliance;
 }
@@ -253,7 +253,7 @@ void tcUpdateMessageHandler::AddSensorUpdateHeader(long alliance, tcStream& stre
 * Adds sound effect info to stream
 * @param id entity id that sound effect is associated with
 */
-void tcUpdateMessageHandler::AddSoundEffect(long id, const std::string& effect, tcStream& stream)
+void tcUpdateMessageHandler::AddSoundEffect(int id, const std::string& effect, tcStream& stream)
 {
 	stream << id;
 	stream << effect;
@@ -326,7 +326,7 @@ void tcUpdateMessageHandler::AddTeamStatus(tcStream& stream)
 */
 bool tcUpdateMessageHandler::AddUpdate(std::shared_ptr<tcGameObject> obj, tcUpdateStream& stream)
 {
-    long freeSpace = (long)stream.GetMaxSize() - (long)stream.size() - sizeof(long) - sizeof(unsigned int);
+    int freeSpace = (int)stream.GetMaxSize() - (int)stream.size() - sizeof(int) - sizeof(unsigned int);
     if (freeSpace < 1) return false;
 
     /** 
@@ -596,11 +596,11 @@ void tcUpdateMessageHandler::HandleAirMissionUpdate(tcUpdateStream& stream)
     wxASSERT(simState);
 
     // since updates are complete, clear all missions on non-updated platforms
-    std::map<long, bool> updatedPlatforms;
+    std::map<int, bool> updatedPlatforms;
 
     size_t nUpdates = 0;
 
-    long platformId;
+    int platformId;
 
     while (((stream >> platformId).eof() == false) && (nUpdates++ < 32))
     {
@@ -651,7 +651,7 @@ void tcUpdateMessageHandler::HandleAirMissionUpdate(tcUpdateStream& stream)
 
             tcMissionManager* missionManager = flightPort->GetMissionManager();
 
-            std::map<long, bool>::const_iterator iter = 
+            std::map<int, bool>::const_iterator iter = 
                 updatedPlatforms.find(gameObj->mnID);
 
             if ((iter == updatedPlatforms.end()) && (missionManager != 0))
@@ -667,7 +667,7 @@ void tcUpdateMessageHandler::HandleAirMissionUpdate(tcUpdateStream& stream)
 
 void tcUpdateMessageHandler::HandleBriefingText(tcStream& stream)
 {
-	long alliance;
+	int alliance;
 	std::string briefingText;
 
 	stream >> alliance;
@@ -694,7 +694,7 @@ void tcUpdateMessageHandler::HandleCommandAck(tcCommandStream& stream)
 
     fprintf(stdout, "<< Received obj cmd acks, time %.1f: ", simState->GetTime());
 
-    long id;
+    int id;
 
     while ((stream >> id).eof() == false)
     {
@@ -731,7 +731,7 @@ void tcUpdateMessageHandler::HandleCommandUpdate(tcCommandStream& stream, int co
 
     fprintf(stdout, "<< Received obj cmds, time %.1f: ", simState->GetTime());
 
-    long id;
+    int id;
     
 	const bool isServer = tcMultiplayerInterface::Get()->IsServer();
 	const std::string& playerName = tcMultiplayerInterface::Get()->GetPlayerName(connectionId);
@@ -801,7 +801,7 @@ void tcUpdateMessageHandler::HandleControlRequest(tcStream& stream, int connecti
     fprintf(stdout, "<< Received obj control req msg, time %.1f: ", simState->GetTime());
 
 	bool releaseControl;
-	long id;
+	int id;
     
     while ((stream >> releaseControl).eof() == false)
     {
@@ -856,7 +856,7 @@ void tcUpdateMessageHandler::HandleCreate(tcCreateStream& stream)
 
     fprintf(stdout, "<< Received obj create msg, time %.1f: ", simState->GetTime());
 
-    long id;
+    int id;
     
     while ((stream >> id).eof() == false)
     {
@@ -919,7 +919,7 @@ void tcUpdateMessageHandler::HandleCreateRequest(tcStream& stream, int connectio
     tcPlayerStatus& pstatus = 
         tcMultiplayerInterface::Get()->GetPlayerStatus(connectionId);
 
-    long id;
+    int id;
 
     fprintf(stdout, "<< Received create req for objs: ");
 
@@ -943,13 +943,13 @@ void tcUpdateMessageHandler::HandleDatabaseInfo(tcStream& stream)
 
     size_t nInfo = 0;
 
-    long databaseKey;
+    int databaseKey;
 
-    std::vector<long> loadedKeys;
+    std::vector<int> loadedKeys;
 
     while (((stream >> databaseKey).eof() == false) && (nInfo++ < 512))
     {
-        // if first long is -1 then ignore this record and clear database (signals start of new db info)
+        // if first int is -1 then ignore this record and clear database (signals start of new db info)
         bool clearDatabase = (databaseKey == -1) && (nInfo == 1); 
 
         if (!clearDatabase)
@@ -985,7 +985,7 @@ void tcUpdateMessageHandler::HandleDestroy(tcStream& stream)
 
     fprintf(stdout, "<< Received destroy objs msg, time %.1f: ", simState->GetTime());
 
-    long id;
+    int id;
     
     while ((stream >> id).eof() == false)
     {
@@ -1087,7 +1087,7 @@ void tcUpdateMessageHandler::HandleSensorUpdate(tcUpdateStream& stream)
     tcSimState* simState = tcSimState::Get();
     wxASSERT(simState);
 
-    long alliance;
+    int alliance;
     stream >> alliance;
     if ((alliance < 0) || (alliance > 255))
     {
@@ -1118,7 +1118,7 @@ void tcUpdateMessageHandler::HandleSoundEffect(tcStream& stream)
 {
 	wxASSERT(!isServer);
 
-	long id;
+	int id;
 	unsigned int nEffects = 0;
 	while (((stream >> id).eof() == false) && (nEffects++ < 8))
     {
@@ -1196,7 +1196,7 @@ void tcUpdateMessageHandler::HandleUpdate(tcUpdateStream& stream, int connection
     wxASSERT(simState);
 
 
-    std::queue<long> missingIds;    // queue to keep track of ids that are missing locally
+    std::queue<int> missingIds;    // queue to keep track of ids that are missing locally
 
 
     // Load time info from stream
@@ -1207,7 +1207,7 @@ void tcUpdateMessageHandler::HandleUpdate(tcUpdateStream& stream, int connection
 
 
     unsigned nUnknowns = 0;
-    long id;
+    int id;
     
     while (((stream >> id).eof() == false) && (nUnknowns < 64))
     {
@@ -1255,7 +1255,7 @@ void tcUpdateMessageHandler::HandleUpdate(tcUpdateStream& stream, int connection
         fprintf(stdout, ">> Sending create request msg, time %.1f, ids: ", simState->GetTime());
         while (!missingIds.empty())
         {
-            long id = missingIds.front();
+            int id = missingIds.front();
             missingIds.pop();
             tcUpdateMessageHandler::AddCreateRequest(id, createReqStream);
             fprintf(stdout, "%d ", id);

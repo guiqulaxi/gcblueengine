@@ -64,10 +64,13 @@ public:
     tcSonobuoy(std::shared_ptr<tcSonobuoyDBObject> obj);
     virtual ~tcSonobuoy();
 
+    // JSON serialization
+    virtual void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const;
+
 private:
     std::shared_ptr<tcSonobuoyDBObject> mpDBObject;
     float batteryTimeRemaining_s; ///<减少电池剩余时间
-    long parentId;
+    int parentId;
     float sonobuoyDepth_m; ///<浮标工作深度
 
     void UpdateDrop(float dt_s);

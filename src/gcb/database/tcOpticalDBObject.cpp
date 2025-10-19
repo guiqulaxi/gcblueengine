@@ -156,14 +156,14 @@ void tcOpticalDBObject::WriteSql(std::string& valueString) const
 
 	s << ",";
 
-    s << (long)maxFireControlTracks << ",";
-	s << (long)isSemiactive << ",";
-    s << (long)isDesignator << ",";
-	s << (long)mbDetectsSurface << ",";
-	s << (long)mbDetectsAir << ",";
-	s << (long)mbDetectsMissile << ",";
-	s << (long)mbDetectsGround << ",";
-	s << (long)isIR << ",";
+    s << (int)maxFireControlTracks << ",";
+    s << (int)isSemiactive << ",";
+    s << (int)isDesignator << ",";
+    s << (int)mbDetectsSurface << ",";
+    s << (int)mbDetectsAir << ",";
+    s << (int)mbDetectsMissile << ",";
+    s << (int)mbDetectsGround << ",";
+    s << (int)isIR << ",";
 	s << nightFactor;
 
 	valueString += s.str();
@@ -197,6 +197,21 @@ void tcOpticalDBObject::WritePython(std::string &valueString) const
     valueString+="    dbObj.CalculateParams()\n";
 
     valueString+="    return dbObj\n";;
+}
+
+void tcOpticalDBObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    tcSensorDBObject::SerializeToJson(obj, allocator);
+
+    obj.AddMember(rapidjson::Value("maxFireControlTracks", allocator).Move(), maxFireControlTracks, allocator);
+    obj.AddMember(rapidjson::Value("isSemiactive", allocator).Move(), isSemiactive ? 1 : 0, allocator);
+    obj.AddMember(rapidjson::Value("isDesignator", allocator).Move(), isDesignator ? 1 : 0, allocator);
+    obj.AddMember(rapidjson::Value("mbDetectsSurface", allocator).Move(), mbDetectsSurface ? 1 : 0, allocator);
+    obj.AddMember(rapidjson::Value("mbDetectsAir", allocator).Move(), mbDetectsAir ? 1 : 0, allocator);
+    obj.AddMember(rapidjson::Value("mbDetectsMissile", allocator).Move(), mbDetectsMissile ? 1 : 0, allocator);
+    obj.AddMember(rapidjson::Value("mbDetectsGround", allocator).Move(), mbDetectsGround ? 1 : 0, allocator);
+    obj.AddMember(rapidjson::Value("isIR", allocator).Move(), isIR ? 1 : 0, allocator);
+    obj.AddMember(rapidjson::Value("nightFactor", allocator).Move(), nightFactor, allocator);
 }
 
 tcOpticalDBObject::tcOpticalDBObject() : tcSensorDBObject() 

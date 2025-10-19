@@ -47,6 +47,9 @@
 #include "tcGameStream.h"
 #include "tcAllianceInfo.h"
 #include "tcEventManager.h"
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
 #include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -72,7 +75,7 @@ tcUpdateStream& tcRadar::operator<<(tcUpdateStream& stream)
 
 	for (unsigned char n=0; n<fireControlTrackCount; n++)
 	{
-		long trackId;
+		int trackId;
 		stream >> trackId;
 		fireControlTracks.push_back(trackId);
 	}
@@ -113,7 +116,7 @@ tcGameStream& tcRadar::operator<<(tcGameStream& stream)
 
 	for (unsigned char n=0; n<fireControlTrackCount; n++)
 	{
-		long trackId;
+		int trackId;
 		stream >> trackId;
 		fireControlTracks.push_back(trackId);
 	}
@@ -131,7 +134,7 @@ tcGameStream& tcRadar::operator<<(tcGameStream& stream)
     for (size_t k=0; k<nJam; k++)
     {
         JamInfo ji;
-        long id;
+        int id;
 
         stream >> id;
         stream >> ji.az_rad;
@@ -170,11 +173,11 @@ tcGameStream& tcRadar::operator>>(tcGameStream& stream)
 
     size_t nJam = jamMap.size();
     stream << nJam;
-    std::map<long, JamInfo>::const_iterator iter = jamMap.begin();
+    std::map<int, JamInfo>::const_iterator iter = jamMap.begin();
 
     for (; iter != jamMap.end(); ++iter)
     {
-        long id = iter->first;
+        int id = iter->first;
 
         stream << id;
         stream << (float)iter->second.az_rad;
@@ -213,9 +216,9 @@ tcRadar& tcRadar::operator=(tcRadar& ss)
 * @param az_rad 干扰器相对于雷达的方位角（以弧度为单位）。
 * @param el_rad 干扰器相对于雷达的俯仰角（以弧度为单位）。
 */
-void tcRadar::AddOrUpdateJammer(long id, float JNR_dB, float az_rad, float el_rad)
+void tcRadar::AddOrUpdateJammer(int id, float JNR_dB, float az_rad, float el_rad)
 {
-    std::map<long, JamInfo>::iterator iter = jamMap.find(id);
+    std::map<int, JamInfo>::iterator iter = jamMap.find(id);
     if (iter != jamMap.end())
     {
         // update
@@ -235,6 +238,39 @@ void tcRadar::AddOrUpdateJammer(long id, float JNR_dB, float az_rad, float el_ra
         fprintf(stdout, "New jammer, %d jamming %d, az: %f, JNR_dB: %f\n", id, parent->mnID, az_rad, JNR_dB);
 #endif
     }
+}
+
+void tcRadar::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    // start with base sensor state
+    tcSensorState::SerializeToJson(obj, allocator);
+
+    obj.AddMember(rapidjson::Value("isSemiactive", allocator).Move(), isSemiactive, allocator);
+    obj.AddMember(rapidjson::Value("last_range_km", allocator).Move(), last_range_km, allocator);
+    obj.AddMember(rapidjson::Value("isJammed", allocator).Move(), isJammed, allocator);
+    obj.AddMember(rapidjson::Value("jammingDegradation_dB", allocator).Move(), jammingDegradation_dB, allocator);
+    obj.AddMember(rapidjson::Value("jamTime_s", allocator).Move(), jamTime_s, allocator);
+
+    // fireControlTracks array
+    rapidjson::Value fctArr(rapidjson::kArrayType);
+    for (size_t i=0;i<fireControlTracks.size();++i)
+    {
+        fctArr.PushBack(rapidjson::Value(fireControlTracks[i]).Move(), allocator);
+    }
+    obj.AddMember(rapidjson::Value("fireControlTracks", allocator).Move(), fctArr, allocator);
+
+    // jamMap summary
+    rapidjson::Value jams(rapidjson::kArrayType);
+    for (auto it = jamMap.begin(); it != jamMap.end(); ++it)
+    {
+        rapidjson::Value jamObj(rapidjson::kObjectType);
+        jamObj.AddMember(rapidjson::Value("id", allocator).Move(), it->first, allocator);
+        jamObj.AddMember(rapidjson::Value("JNR_dB", allocator).Move(), it->second.JNR_dB, allocator);
+        jamObj.AddMember(rapidjson::Value("az_rad", allocator).Move(), it->second.az_rad, allocator);
+        jamObj.AddMember(rapidjson::Value("el_rad", allocator).Move(), it->second.el_rad, allocator);
+        jams.PushBack(jamObj, allocator);
+    }
+    obj.AddMember(rapidjson::Value("jamMap", allocator).Move(), jams, allocator);
 }
 
 
@@ -273,7 +309,7 @@ float tcRadar::CalculateJammingDegradation()
 
     float maxPdens_dB = -999.0f;
 
-    std::map<long, JamInfo>::iterator iter = jamMap.begin();
+    std::map<int, JamInfo>::iterator iter = jamMap.begin();
     for(;iter != jamMap.end(); ++iter)
     {
         float effectivePowerDensity = iter->second.powerDensity;
@@ -335,7 +371,7 @@ float tcRadar::CalculateJammingDegradation2(float az_rad, float el_rad)
     float jnr_sum = 0;
 
     // 遍历干扰映射表
-    std::map<long, JamInfo>::iterator iter = jamMap.begin();
+    std::map<int, JamInfo>::iterator iter = jamMap.begin();
     for(;iter != jamMap.end(); ++iter)
     {
         // 获取当前干扰源的干扰噪声比（dB值）
@@ -500,9 +536,9 @@ void tcRadar::RemoveAllJammers()
     jamMap.clear();
 }
 
-void tcRadar::RemoveJammer(long id)
+void tcRadar::RemoveJammer(int id)
 {
-    std::map<long, JamInfo>::iterator iter = jamMap.find(id);
+    std::map<int, JamInfo>::iterator iter = jamMap.find(id);
     if (iter != jamMap.end())
     {
         jamMap.erase(iter);
@@ -827,7 +863,7 @@ bool tcRadar::CanDetectTarget(std::shared_ptr<const tcGameObject> target, float&
 /**
 * @return false if key not found in database
 */
-bool tcRadar::InitFromDatabase(long key)
+bool tcRadar::InitFromDatabase(int key)
 {
 	assert(database);
 
@@ -877,7 +913,7 @@ void tcRadar::Serialize(tcFile& file, bool mbLoad)
 * isCommandReceiver indicates the "radar" is a simple receiver of command
 * guidance from the fire control radar.
 */
-void tcRadar::SetFireControlSensor(long id, unsigned char idx)
+void tcRadar::SetFireControlSensor(int id, unsigned char idx)
 {
     assert((id == -1) || isSemiactive || isCommandReceiver);
 
@@ -932,7 +968,7 @@ bool tcRadar::IsTrackAvailable()
  * @param targetId 目标的唯一ID。
  * @return 如果成功保留跟踪，则返回 `true`，否则返回 `false`。
  */
-bool tcRadar::RequestTrack(long targetId)
+bool tcRadar::RequestTrack(int targetId)
 {
     // 检查是否有可用的跟踪
     if (!IsTrackAvailable())
@@ -964,9 +1000,9 @@ bool tcRadar::RequestTrack(long targetId)
  * @param targetId 目标的唯一ID。
  * @return 如果成功释放跟踪，则返回 `true`，否则返回 `false`。
  */
-bool tcRadar::ReleaseTrack(long targetId)
+bool tcRadar::ReleaseTrack(int targetId)
 {
-    std::vector<long> updatedTracks;
+    std::vector<int> updatedTracks;
 
     // 遍历火控跟踪列表，移除目标ID
     for (size_t n = 0; n < fireControlTracks.size(); n++)
@@ -1022,7 +1058,7 @@ bool tcRadar::ReleaseTrack(long targetId)
  * @param targetId 目标的唯一ID。
  * @return 如果雷达正在跟踪目标，则返回 `true`，否则返回 `false`。
  */
-bool tcRadar::IsTrackingWithRadar(long targetId) const
+bool tcRadar::IsTrackingWithRadar(int targetId) const
 {
     size_t nFireControlTracks = fireControlTracks.size();
 
@@ -1042,7 +1078,7 @@ bool tcRadar::IsTrackingWithRadar(long targetId) const
  */
 void tcRadar::UpdateSeeker(double t)
 {
-    long nTargetID;
+    int nTargetID;
     std::shared_ptr<tcGameObject> ptarget = 0;
     bool bFound = false;
     bool isEligible = false;
@@ -1150,7 +1186,7 @@ void tcRadar::UpdateSeeker(double t)
         tcGameObjIterator iter(region);
         float minRange = 1e15f;
         float maxRCS = -12345.0f;
-        long minID = NULL_INDEX;
+        int minID = NULL_INDEX;
 
         // 查找可检测到的最近目标
         for (iter.First(); iter.NotDone(); iter.Next())

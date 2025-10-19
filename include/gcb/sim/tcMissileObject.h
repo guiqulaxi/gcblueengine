@@ -77,17 +77,17 @@ public:
     teAltitudeMode GetCurrentAltitudeMode(); /// 获取当前高度模式
     teGuidanceMode GetCurrentGuidanceMode(); /// 获取当前制导模式
     float GetDistanceFromLaunch() const; /// 获取从发射点开始的距离
-    void SetSeekerTarget(long id); /// 设置传感器目标
+    void SetSeekerTarget(int id); /// 设置传感器目标
     virtual void ApplyRepairs(float repair); /// 应用修复
 
     void UpdateTargetPos(float lon_rad, float lat_rad); /// 更新目标位置
 
     virtual std::shared_ptr<tcRadar> GetSeekerRadar() const; /// 获取传感器雷达
     virtual std::shared_ptr<tcSensorState> GetSeekerSensor() const; /// 获取传感器状态
-    virtual void DesignateTarget(long anID); /// 指定目标
+    virtual void DesignateTarget(int anID); /// 指定目标
     virtual int GetGuidanceParameters(tsGuidanceParameters& gp); /// 获取制导参数
     float RuntimeRemaining(); /// 获取剩余运行时间
-    bool StillNeedsIlluminator(long& platformId) const; /// 检查是否仍需要照射器
+    bool StillNeedsIlluminator(int& platformId) const; /// 检查是否仍需要照射器
 
     virtual float GetOpticalCrossSection() const; /// 获取光学横截面
     virtual float GetIRSignature(float az_deg) const; /// 获取红外特征
@@ -98,6 +98,9 @@ public:
     void SaveToFile(tcFile& file) override; /// 保存到文件
     void LoadFromFile(tcFile& file); /// 从文件加载
     virtual void Serialize(tcFile& file, bool mbLoad); /// 序列化
+
+    // JSON serialization
+    virtual void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const override;
 
     virtual tcUpdateStream& operator<<(tcUpdateStream& stream); /// 更新流操作符重载
     virtual tcUpdateStream& operator>>(tcUpdateStream& stream); /// 更新流操作符重载

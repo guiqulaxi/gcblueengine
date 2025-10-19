@@ -103,6 +103,8 @@ namespace database
         tcAirDBObject(const tcAirDBObject& obj); ///< copy constructor
         virtual ~tcAirDBObject();
         void CalculateParams();
+        void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const override;
+
     //     virtual void SetAirDetectionDBObject(std::shared_ptr<tcAirDetectionDBObject> obj)
     //     {
     //         airDetectionDBObject=obj;

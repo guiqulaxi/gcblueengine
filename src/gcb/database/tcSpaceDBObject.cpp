@@ -4,6 +4,7 @@
 #include "tcFlightportDBObject.h"
 #include "database/tcSqlReader.h"
 #include "tcSpaceObject.h"
+#include "rapidjson/document.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -122,5 +123,6 @@ std::shared_ptr<tcGameObject>tcSpaceDBObject::CreateGameObject()
     auto obj= std::make_shared<tcSpaceObject>(std::dynamic_pointer_cast<tcSpaceDBObject>(tcDatabaseObject::shared_from_this()));
     obj->Construct();
 }
+
 
 }

@@ -124,7 +124,7 @@ void tcPythonInterface::Test4()
 
 //   tcTest::mpOutside = &outside;
 
-//   PyDict_SetItemString(main_namespace.ptr(), "Y", PyInt_FromLong(2));      /* dict['Y']=2 */
+//   PyDict_SetItemString(main_namespace.ptr(), "Y", PyInt_Fromint(2));      /* dict['Y']=2 */
    
 //   object class_a = class_<tcTest>("test")
 //      .def_readwrite("x", &tcTest::x)

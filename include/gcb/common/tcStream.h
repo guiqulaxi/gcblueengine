@@ -84,7 +84,7 @@ public:
 
     /// write operators
     tcStream& operator<<(const int& val);
-    tcStream& operator<<(const long& val);
+    // tcStream& operator<<(const int& val);
     tcStream& operator<<(const size_t& val);
     tcStream& operator<<(const short& val);
     tcStream& operator<<(const bool& val);
@@ -92,7 +92,7 @@ public:
     tcStream& operator<<(const unsigned char& val);
     tcStream& operator<<(const unsigned short& val);
     tcStream& operator<<(const unsigned int& val);
-	tcStream& operator<<(const unsigned long& val);
+    // tcStream& operator<<(const unsigned int& val);
     tcStream& operator<<(const float& val);
     tcStream& operator<<(const double& val);
     tcStream& operator<<(const std::string& val);
@@ -103,7 +103,7 @@ public:
 
     /// read operators
     tcStream& operator>>(int& val);
-    tcStream& operator>>(long& val);
+    // tcStream& operator>>(int& val);
     tcStream& operator>>(size_t& val);
     tcStream& operator>>(short& val);
     tcStream& operator>>(bool& val);
@@ -111,7 +111,7 @@ public:
     tcStream& operator>>(unsigned char& val);
     tcStream& operator>>(unsigned short& val);
     tcStream& operator>>(unsigned int& val);
-	tcStream& operator>>(unsigned long& val);
+    // tcStream& operator>>(unsigned int& val);
     tcStream& operator>>(float& val);
     tcStream& operator>>(double& val);
     tcStream& operator>>(std::string& val);

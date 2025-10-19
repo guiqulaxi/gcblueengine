@@ -10,6 +10,7 @@
 #include "tcDatabaseObject.h"
 #include "tcGameStream.h"
 #include <memory>
+#include "rapidjson/document.h"
 
 namespace database {
     class tcCommDeviceDBObject;
@@ -37,7 +38,7 @@ public:
 
     // 基本状态
     bool mbActive;                  ///< 设备是否激活
-    long mnDBKey;
+    int mnDBKey;
     std::shared_ptr<tcGameObject> parent; ///< 所属平台对象
     std::shared_ptr<database::tcCommDeviceDBObject> mpDBObj; ///< 关联的数据库对象
 
@@ -49,7 +50,7 @@ public:
     double mfLastUpdateTime;        ///< 上次状态更新时间
 
     // 网络节点功能
-    std::vector<long> connectedDevices; ///< 已连接的设备ID列表（若为网络节点）
+    std::vector<int> connectedDevices; ///< 已连接的设备ID列表（若为网络节点）
 
     float mountAz_rad;       ///< mounted azimuth of boresight relative to nose/bow of platform 安装方位角，这是瞄准镜安装后的方位角，相对于平台的机头/船头。
     float mfCommHeight_m;     ///< height of comm relative to platform altitude 传感器高度，即传感器相对于平台高度的高度差
@@ -67,15 +68,18 @@ public:
 
 
     // 连接管理
-    bool RequestConnection(long deviceId);
-    bool ReleaseConnection(long deviceId);
-    bool IsConnected(long deviceId) const;
+    bool RequestConnection(int deviceId);
+    bool ReleaseConnection(int deviceId);
+    bool IsConnected(int deviceId) const;
 
     // 序列化
     virtual tcUpdateStream& operator<<(tcUpdateStream& stream);
     virtual tcUpdateStream& operator>>(tcUpdateStream& stream);
     virtual tcGameStream& operator<<(tcGameStream& stream);
     virtual tcGameStream& operator>>(tcGameStream& stream);
+
+    // JSON 序列化: 将运行时状态写入 rapidjson::Value
+    virtual void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const;
 
     // 状态控制
     void SetActive(bool active);
@@ -84,7 +88,7 @@ public:
     virtual void Update(double t);  ///< 主状态更新方法
 
     // 数据库初始化
-    virtual bool InitFromDatabase(long key);
+    virtual bool InitFromDatabase(int key);
     bool IsActive() const;
     bool IsDamaged() const;
     bool IsHidden() const;

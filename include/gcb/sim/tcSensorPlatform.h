@@ -38,6 +38,7 @@
 #include "tcCommandObject.h"
 #include <vector>
 #include "tcComponent.h"
+#include "rapidjson/document.h"
 
 class tcStream;
 class tcCommandStream;
@@ -74,6 +75,7 @@ public:
 		ACTIVE_SONAR_ACTIVE = 2,
         ECM_ACTIVE = 4
 	};
+    virtual std::string GetType() const override{return "tcSensorPlatform" ;}
 
     std::vector<std::shared_ptr<tcSensorState>> sensorState;
 
@@ -88,7 +90,7 @@ public:
     std::shared_ptr<tcSensorState> GetSensorMutable(unsigned idx) const;
     std::shared_ptr<tcSensorState> GetSensorMutable(const std::string& sensorClass) const;    
     std::shared_ptr<tcSensorState> GetSensorMutable(const std::string& sensorClass, unsigned int& idx) const;
-    std::shared_ptr<const tcSensorState> GetSensorByDatabaseID(long id) const;
+    std::shared_ptr<const tcSensorState> GetSensorByDatabaseID(int id) const;
     const std::shared_ptr<tcSonar> GetStrongestActiveSonar() const;
     void Init(std::shared_ptr<tcSensorPlatformDBObject> obj, std::shared_ptr<tcGameObject> parent); 
 	void Init(const char* databaseClass, std::shared_ptr<tcGameObject> parent); 
@@ -117,6 +119,8 @@ public:
 
     void ClearNewCommand();
     bool HasNewCommand() const;
+    
+    void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const;
 
     tcSensorPlatform();
     tcSensorPlatform(const tcSensorPlatform&);

@@ -437,7 +437,7 @@ const std::string& tcSonarEnvironment::GetTemplateName(unsigned int id) const
 * @return transmission loss in dB (positive loss)
 * @param depth_m depth of sonar
 */
-float tcSonarEnvironment::GetTL(long key, double t, float depth_m, float targetRange_m, float targetDepth_m, float bottomDepth_m)
+float tcSonarEnvironment::GetTL(int key, double t, float depth_m, float targetRange_m, float targetDepth_m, float bottomDepth_m)
 {
     if ((targetRange_m < 2000.0f) || UsingSimplePropagation())
     {
@@ -446,7 +446,7 @@ float tcSonarEnvironment::GetTL(long key, double t, float depth_m, float targetR
 
     bottomDepth_m = std::max(bottomDepth_m, 10.0f); // don't allow bottom < 10 m deep
 
-    std::map<long, BeamData>::iterator iter = beamCache.find(key);
+    std::map<int, BeamData>::iterator iter = beamCache.find(key);
     if (iter == beamCache.end())
     {
         BeamData beamData;
@@ -747,9 +747,9 @@ void tcSonarEnvironment::Update(double t)
     if (t - lastUpdateTime < 61.0) return;
     lastUpdateTime = t;
 
-    std::map<long, BeamData> temp;
+    std::map<int, BeamData> temp;
 
-    std::map<long, BeamData>::iterator iter = beamCache.begin();
+    std::map<int, BeamData>::iterator iter = beamCache.begin();
     for (;iter != beamCache.end(); ++iter)
     {
         if ((t - iter->second.t_update) < 60.0)

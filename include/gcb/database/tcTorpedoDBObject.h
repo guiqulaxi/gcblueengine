@@ -96,6 +96,7 @@ namespace database
         virtual ~tcTorpedoDBObject();
         virtual std::shared_ptr<tcGameObject>CreateGameObject() override;
         void CalculateParams()override;
+        void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const override;
 
 
     private:

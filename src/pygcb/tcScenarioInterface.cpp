@@ -597,7 +597,7 @@ bool tcScenarioInterface::AddUnitToFlightDeck(std::string parentName,
     * Adds items (normally weapons) to first compatible magazine of unit
     */
 void tcScenarioInterface::AddToUnitMagazine(const std::string& unitName,
-                                            const std::string& item, unsigned long quantity)
+                                            const std::string& item, unsigned int quantity)
 {
     assert(simState);
     std::shared_ptr<tcGameObject> parentObj = simState->GetObjectByName(unitName);
@@ -704,7 +704,7 @@ tcPlatformInterface tcScenarioInterface::GetUnitInterface(const std::string& uni
     }
 }
 
-std::string tcScenarioInterface::GetUnitNameById(long id) const
+std::string tcScenarioInterface::GetUnitNameById(int id) const
 {
     std::shared_ptr<tcGameObject> obj = simState->GetObject(id);
 
@@ -718,7 +718,7 @@ std::string tcScenarioInterface::GetUnitNameById(long id) const
     }
 }
 
-long tcScenarioInterface::GetUnitIdByName(const std::string& unitName) const
+int tcScenarioInterface::GetUnitIdByName(const std::string& unitName) const
 {
     assert(simState != 0);
     std::shared_ptr<tcGameObject> obj = simState->GetObjectByName(unitName);
@@ -966,7 +966,7 @@ tcScenarioUnit tcScenarioInterface::GetDefaultUnit()
 }
 
 /**
-    * @param lon reference longitude in deg
+    * @param lon reference intitude in deg
     * @param lat ref latitude in deg
     * @param min_alt minimum terrain elevation (depth negative) in meters
     * @param max_alt max terrain elevation in meters
@@ -1018,12 +1018,12 @@ std::string tcScenarioInterface::GetRandomPlatformName(const std::string& databa
 
     std::string root;
     std::string separator;
-    long id = 0;
+    int id = 0;
     bool isParsed = ParseUnitName(referenceName, root, separator, id);
-    const long maxIdToTry = 30;
+    const int maxIdToTry = 30;
     if (isParsed)
     {
-        for (long id_try=id+1; id_try<id+maxIdToTry; id_try++)
+        for (int id_try=id+1; id_try<id+maxIdToTry; id_try++)
         {
             std::string name_try = strutil::format("%s%s%d", root.c_str(), separator.c_str(), id_try);
             if (simState->GetObjectByName(name_try) == 0)
@@ -1056,7 +1056,7 @@ tcParsedUnitName tcScenarioInterface::GetParsedUnitName(const std::string& refer
 
     std::string root;
     std::string separator;
-    long id;
+    int id;
 
     result.isValid = ParseUnitName(referenceName, root, separator, id);
     result.root = root.c_str();
@@ -1069,7 +1069,7 @@ tcParsedUnitName tcScenarioInterface::GetParsedUnitName(const std::string& refer
 /**
     * @return true if referenceName can be parsed into <root> + <separator> + <number> form, e.g. Frog-1 is "Frog", "-", and 1
     */
-bool tcScenarioInterface::ParseUnitName(const std::string& referenceName, std::string& root, std::string& separator, long& id) const
+bool tcScenarioInterface::ParseUnitName(const std::string& referenceName, std::string& root, std::string& separator, int& id) const
 {
     std::string ref(referenceName.c_str());
     strutil::trim(ref);
@@ -1109,7 +1109,7 @@ bool tcScenarioInterface::ParseUnitName(const std::string& referenceName, std::s
     //            std::string sn(ref.substr(0,n+1));
     //            if (sn.IsNumber())
     //            {
-    //                sn.ToLong(&id);
+    //                sn.Toint(&id);
     //            }
     //            else
     //            {
@@ -1236,17 +1236,17 @@ tcGoalWrap tcScenarioInterface::GetAllianceGoal(int alliance)
     return tcGoalWrap(tcGoalTracker::Get()->GetAllianceGoal(alliance));
 }
 
-tcGoalWrap tcScenarioInterface::GetGoalById(unsigned long id)
+tcGoalWrap tcScenarioInterface::GetGoalById(unsigned int id)
 {
     return tcGoalWrap(tcGoalTracker::Get()->LookupGoalById(id));
 }
 
-void tcScenarioInterface::AddChildGoalToId(unsigned long id, tcGoal& goal)
+void tcScenarioInterface::AddChildGoalToId(unsigned int id, tcGoal& goal)
 {
     tcGoalTracker::Get()->AddChildGoalToId(id, &goal);
 }
 
-void tcScenarioInterface::DeleteGoalById(unsigned long id)
+void tcScenarioInterface::DeleteGoalById(unsigned int id)
 {
     tcGoalTracker::Get()->DeleteGoalById(id);
 }
@@ -1554,7 +1554,7 @@ void tcScenarioInterface::SetUserAlliance(int alliance)
 //	* Changes tactical map theater. The theater is the high resolution view
 //	* area that is accessible from the tactical map.
 //	*
-//    * @param lon_deg longitude in deg for center of new theater
+//    * @param lon_deg intitude in deg for center of new theater
 //    * @param lat_deg latitude in deg for center of new theater
 //    */
 //	void tcScenarioInterface::ChangeMapTheater(double lon_deg, double lat_deg)
@@ -1563,11 +1563,11 @@ void tcScenarioInterface::SetUserAlliance(int alliance)
 ////        wxCommandEvent command(wxEVT_COMMAND_BUTTON_CLICKED, ID_SETTHEATER);
 ////        command.SetEventObject(overlay);
 
-////        long lon = (lon_deg > 0) ? long(8.0f*lon_deg + 0.5f) : long(8.0f*lon_deg - 0.5f);
-////        long lat = (lat_deg > 0) ? long(8.0f*lat_deg + 0.5f) : long(8.0f*lat_deg - 0.5f);
+////        int lon = (lon_deg > 0) ? int(8.0f*lon_deg + 0.5f) : int(8.0f*lon_deg - 0.5f);
+////        int lat = (lat_deg > 0) ? int(8.0f*lat_deg + 0.5f) : int(8.0f*lat_deg - 0.5f);
 
-////        long coordField = (lat << 16) + (lon & 0xFFFF);
-////        command.SetExtraLong(coordField); // 2.6.3 m_extraLong = coordField;
+////        int coordField = (lat << 16) + (lon & 0xFFFF);
+////        command.SetExtraint(coordField); // 2.6.3 m_extraint = coordField;
 ////        overlay->GetEventHandler()->AddPendingEvent(command);
 
 //  //      assert(director);
@@ -1578,9 +1578,9 @@ void tcScenarioInterface::SetUserAlliance(int alliance)
 //	}
 
 //    /**
-//    * @param lon_deg longitude in deg for center of view
+//    * @param lon_deg intitude in deg for center of view
 //    * @param lat_deg latitude in deg for center of view
-//    * @param lonSpan_deg longitude span in deg for width of view
+//    * @param lonSpan_deg intitude span in deg for width of view
 //    */
 //    void tcScenarioInterface::ChangeMapView(double lon_deg, double lat_deg,
 //        double lonSpan_deg)
@@ -1592,9 +1592,9 @@ void tcScenarioInterface::SetUserAlliance(int alliance)
 //    }
 
 //    /**
-//    * @param lon_deg longitude in deg for center of view
+//    * @param lon_deg intitude in deg for center of view
 //    * @param lat_deg latitude in deg for center of view
-//    * @param lonSpan_deg longitude span in deg for width of view
+//    * @param lonSpan_deg intitude span in deg for width of view
 //    */
 //    void tcScenarioInterface::ChangeWorldMapView(double lon_deg, double lat_deg,
 //        double lonSpan_deg)
@@ -2286,7 +2286,7 @@ void tcScenarioInterface::SetEditMode(bool state)
     tcGameObject::SetEditMode(state);
 }
 
-void tcScenarioInterface::SetTimeAccel(long accel)
+void tcScenarioInterface::SetTimeAccel(int accel)
 {
     assert(simState);
     simState->SetTimeAcceleration(accel);

@@ -87,7 +87,7 @@ bool tcDBObjSerializer<T>::LoadCsv()
 
     while (csv.GetLine(line) != 0)
     {
-        long key;
+        int key;
         std::shared_ptr<T> obj = std::make_shared<T>();
         obj->SerializeCSV(&csv, true); // load obj data from file
         database->mcObjectData.AddElement(obj, key); // add to database, key gets new key val
@@ -108,12 +108,12 @@ bool tcDBObjSerializer<T>::SaveCsv()
     errorString += fileName;
     
     
-    long key;
-    long nEntries = database->mcObjectData.GetCount();
+    int key;
+    int nEntries = database->mcObjectData.GetCount();
     std::shared_ptr<tcDatabaseObject>dbObj;
     
     
-    long pos = database->mcObjectData.GetStartPosition();
+    int pos = database->mcObjectData.GetStartPosition();
     outfile.open(fileName.c_str());
     if (outfile.fail()) 
     {
@@ -122,7 +122,7 @@ bool tcDBObjSerializer<T>::SaveCsv()
     }
     csv.SetOutputStream(&outfile);
     T::WriteCSVHeader(&csv);
-    for (long n=0;n<nEntries;n++) 
+    for (int n=0;n<nEntries;n++) 
     {
         database->mcObjectData.GetNextAssoc(pos,key,dbObj);
         if (std::shared_ptr<T> obj =  std::dynamic_pointer_cast<T>(dbObj))

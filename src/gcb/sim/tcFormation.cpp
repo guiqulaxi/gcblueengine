@@ -71,7 +71,7 @@ tcCommandStream& tcFormation::operator<<(tcCommandStream& stream)
 
     for (unsigned char k=0; k<nFollowers; k++)
     {
-        long id;
+        int id;
         stream >> id;
         followers.push_back(id);
     }
@@ -133,7 +133,7 @@ tcGameStream& tcFormation::operator<<(tcGameStream& stream)
 
     for (unsigned char k=0; k<nFollowers; k++)
     {
-        long id;
+        int id;
         stream >> id;
         followers.push_back(id);
     }
@@ -172,7 +172,7 @@ tcGameStream& tcFormation::operator>>(tcGameStream& stream)
 
 
 
-void tcFormation::AddFollower(long id)
+void tcFormation::AddFollower(int id)
 {
     assert(IsLeader());
 
@@ -620,7 +620,7 @@ void tcFormation::RemoveAllFollowers()
 }
 
 
-void tcFormation::RemoveFollower(long id)
+void tcFormation::RemoveFollower(int id)
 {
     if (followers.size() == 0)
     {
@@ -640,7 +640,7 @@ void tcFormation::RemoveFollower(long id)
     }
 #endif
 
-    std::vector<long> updatedFollowers;
+    std::vector<int> updatedFollowers;
     for (size_t k=0;k<followers.size();k++)
     {
         if (followers[k] != id) updatedFollowers.push_back(followers[k]);
@@ -733,7 +733,7 @@ void tcFormation::SetNewCommand()
     hasNewCommand = true;
 }
 
-void tcFormation::SetPlatformId(long id)
+void tcFormation::SetPlatformId(int id)
 {
     platformId = id;
 }

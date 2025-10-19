@@ -214,5 +214,13 @@ namespace database
         }
     }
 
+void tcCounterMeasureDBObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    tcDatabaseObject::SerializeToJson(obj, allocator);
+
+    obj.AddMember(rapidjson::Value("airDragFactor", allocator).Move(), airDragFactor , allocator);
+    obj.AddMember(rapidjson::Value("isFlare", allocator).Move(), isFlare ? 1 : 0, allocator);
+
+}
 }
 

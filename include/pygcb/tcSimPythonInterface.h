@@ -95,7 +95,7 @@ namespace scriptinterface
         bool CallTaskScript(ScriptedTask* task, const char* azCommand);
 		std::shared_ptr<tcPlatformObject> GetHookedObj() const;
 		tcFlightPort* GetHookedObjFlightPort();
-        bool IsHooked(long id) const;
+        bool IsHooked(int id) const;
 
         void GetObjectStringByMode(char *str); // gets name of python object to pass to python function
         tcScenarioInterface* GetScenarioInterface() const;
@@ -112,26 +112,26 @@ namespace scriptinterface
 
 
 
-        void ProcessCommand(const std::string& command, const std::vector<long>& id, 
+        void ProcessCommand(const std::string& command, const std::vector<int>& id, 
             int param = -1, std::string textParam = "");
-		void ProcessCommandWithArguments(const std::string& command, const std::vector<long>& id, 
+		void ProcessCommandWithArguments(const std::string& command, const std::vector<int>& id, 
             const std::string& argString);
-        void ProcessCallback(const std::string& command, const std::vector<long>& id);
-        void ProcessCallback(const std::string& command, const std::vector<long>& id, 
+        void ProcessCallback(const std::string& command, const std::vector<int>& id);
+        void ProcessCallback(const std::string& command, const std::vector<int>& id, 
 			float afData, int param, const std::string& textParam);
-        void ProcessCallback(const std::string& command, const std::vector<long>& id, 
+        void ProcessCallback(const std::string& command, const std::vector<int>& id, 
 			float afData1, float afData2, int param, const std::string& textParam);
-		void ProcessCallback(const std::string& command, const std::vector<long>& id, 
-			long anData, int param, const std::string& textParam);
-		void ProcessCallback(const std::string& command, const std::vector<long>& id, 
+		void ProcessCallback(const std::string& command, const std::vector<int>& id, 
+			int anData, int param, const std::string& textParam);
+		void ProcessCallback(const std::string& command, const std::vector<int>& id, 
 			const std::string& text, int param = -1);
-        void ProcessCallbackArgList(const std::string& command, const std::vector<long>& id, 
+        void ProcessCallbackArgList(const std::string& command, const std::vector<int>& id, 
 										   const std::string& arguments);
-		void ProcessCallbackString(const std::string& command, const std::vector<long>& id);
+		void ProcessCallbackString(const std::string& command, const std::vector<int>& id);
         void ReportError(const char* text);
 
 		
-        void UpdateForDestroyedPlatform(long id);
+        void UpdateForDestroyedPlatform(int id);
 
 		void Update(); ///< call periodically to send output and error text to console
 
@@ -200,12 +200,12 @@ namespace scriptinterface
 
         bool isModePushed; ///< true if mode is pushed and available for recall with PopMode
         teInterfaceMode pushedMode;
-        std::vector<long> pushedPlatformIds;
+        std::vector<int> pushedPlatformIds;
 
 		struct ClientCommand
 		{
             char menuMode;
-			std::vector<long> idList;
+			std::vector<int> idList;
 			std::string commandText;
 		};
 		std::vector<ClientCommand> clientCommands; ///< commands to send to server

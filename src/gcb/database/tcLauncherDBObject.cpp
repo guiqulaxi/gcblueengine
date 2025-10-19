@@ -31,6 +31,7 @@
 
 
 #include "tcLauncherDBObject.h"
+#include "rapidjson/document.h"
 #include "math_constants.h"
 #include "randfn.h"
 #include "CsvTranslator.h"
@@ -249,7 +250,7 @@ void tcLauncherDBObject::PrintToFile(tcFile& file)
 	*/
 void tcLauncherDBObject::AddSqlColumns(std::string& columnString)
 {
-    assert(false); // no longer using this table (for now 13Jun2009)
+    assert(false); // no inter using this table (for now 13Jun2009)
     tcDatabaseObject::AddSqlColumns(columnString);
 
     columnString += ",";
@@ -260,7 +261,7 @@ void tcLauncherDBObject::AddSqlColumns(std::string& columnString)
 
 void tcLauncherDBObject::ReadSql(tcSqlReader& entry)
 {
-    assert(false); // no longer using this table (for now 13Jun2009)
+    assert(false); // no inter using this table (for now 13Jun2009)
     tcDatabaseObject::ReadSql(entry);
 
     //cycleTime = entry.GetDouble("CycleTime_s");
@@ -269,7 +270,7 @@ void tcLauncherDBObject::ReadSql(tcSqlReader& entry)
 
 void tcLauncherDBObject::WriteSql(std::string& valueString) const
 {
-    assert(false); // no longer using this table (for now 13Jun2009)
+    assert(false); // no inter using this table (for now 13Jun2009)
     tcDatabaseObject::WriteSql(valueString);
 
     std::stringstream s;
@@ -336,4 +337,27 @@ tcLauncherDBObject::~tcLauncherDBObject()
 
 
 
+
+void tcLauncherDBObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    tcDatabaseObject::SerializeToJson(obj, allocator);
+
+    // childClassList (strings)
+    rapidjson::Value arr(rapidjson::kArrayType);
+    for (const auto& s : childClassList) arr.PushBack(rapidjson::Value(s.c_str(), allocator).Move(), allocator);
+    obj.AddMember(rapidjson::Value("childClassList", allocator).Move(), arr, allocator);
+
+    rapidjson::Value arrCap(rapidjson::kArrayType);
+    for (const auto& c : childCapacityList) arrCap.PushBack(c, allocator);
+    obj.AddMember(rapidjson::Value("childCapacityList", allocator).Move(), arrCap, allocator);
+
+    rapidjson::Value arrLoad(rapidjson::kArrayType);
+    for (const auto& f : childLoadTime_s) arrLoad.PushBack(f, allocator);
+    obj.AddMember(rapidjson::Value("childLoadTime_s", allocator).Move(), arrLoad, allocator);
+
+    rapidjson::Value arrCycle(rapidjson::kArrayType);
+    for (const auto& f : childCycleTime_s) arrCycle.PushBack(f, allocator);
+    obj.AddMember(rapidjson::Value("childCycleTime_s", allocator).Move(), arrCycle, allocator);
 }
+}
+

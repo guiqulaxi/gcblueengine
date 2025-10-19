@@ -106,7 +106,7 @@ BlackboardItem::BlackboardItem(const BlackboardItem& src)
 {
 }
 
-BlackboardItem::BlackboardItem(long author_, double priority_, const std::string& message_)
+BlackboardItem::BlackboardItem(int author_, double priority_, const std::string& message_)
 : author(author_),
   priority(priority_),
   message(message_)

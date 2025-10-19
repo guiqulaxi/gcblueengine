@@ -161,12 +161,12 @@ namespace database
         s << DI << ",";
         /*s << minFrequency_Hz << ",";
         s << maxFrequency_Hz << ",";*/
-        s << (long)isPassive << ",";
+        s << (int)isPassive << ",";
 
-        s << (long)isActive << ",";
-        s << (long)isTowed << ",";
+        s << (int)isActive << ",";
+        s << (int)isTowed << ",";
         s << maxScope_m << ",";
-        s << (long)isWakeHoming;
+        s << (int)isWakeHoming;
 
         valueString += s.str();
     }
@@ -192,6 +192,13 @@ namespace database
         WritePythonValue(valueString);
         valueString+="    dbObj.CalculateParams()\n";
         valueString+="    return dbObj\n";
+
+    }
+
+    void tcSonarDBObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+    {
+        tcSensorDBObject::SerializeToJson(obj, allocator);
+
 
     }
 

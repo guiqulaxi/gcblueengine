@@ -88,12 +88,12 @@ struct tsCommandInfo
     CommandType commandType;
     teGameCommand meCmd;
     float mfData;
-    long mnData;
+    int mnData;
     int mnData2;
     char mzString[MZ_STRING_SIZE];
     char mzUserInput[MZ_USER_INPUT_SIZE]; ///< Heading, Target, Datum
     std::string textParam; ///< string parameter for python
-    std::vector<long> platformID; ///< -1 or empty to use current hooked
+    std::vector<int> platformID; ///< -1 or empty to use current hooked
 };
 
 

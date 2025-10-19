@@ -39,6 +39,10 @@
 #define new DEBUG_NEW
 #endif
 
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
+
 /**
 * Load state from game stream
 */
@@ -263,6 +267,16 @@ tcAirCM::tcAirCM()
     vup_mps(0)
 {
 
+}
+
+void tcAirCM::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+        tcGameObject::SerializeToJson(obj, allocator);
+
+        obj.AddMember("typeCode", rapidjson::Value().SetInt(typeCode), allocator);
+        obj.AddMember("timeRemaining_s", rapidjson::Value().SetFloat(timeRemaining_s), allocator);
+        obj.AddMember("vg_mps", rapidjson::Value().SetFloat(vg_mps), allocator);
+        obj.AddMember("vup_mps", rapidjson::Value().SetFloat(vup_mps), allocator);
 }
 
 

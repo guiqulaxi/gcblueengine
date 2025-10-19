@@ -34,7 +34,7 @@
 
 struct MissionAircraftInfo
 {
-	long id;
+	int id;
 	std::string name;
     std::string role; ///< for e.g. separating strike from escort aircraft
     std::string loadout; ///< loadout string for reloading

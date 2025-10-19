@@ -71,7 +71,7 @@ public:
 
     static void AttachSimState(tcSimState* ss) {simState = ss;}
 
-    void AddFullLauncher(long anKey, float azimuth_rad, float elevation_rad, float fov_deg,
+    void AddFullLauncher(int anKey, float azimuth_rad, float elevation_rad, float fov_deg,
 		const std::string& displayName, bool isReloadable);
 	float EstimateInterceptTimeForLauncher(unsigned nLauncher, tcTrack& track);
     std::shared_ptr<tcLauncher> GetLauncher(unsigned int nLauncher);
@@ -84,7 +84,7 @@ public:
     bool IsDatumLaunch(unsigned anLauncher);
     bool IsSeekerLaunch(unsigned anLauncher);
 
-    void Launch(long& key, unsigned& nLauncher); ///< needs to be reworked
+    void Launch(int& key, unsigned& nLauncher); ///< needs to be reworked
 
     tcCommandStream& operator<<(tcCommandStream& stream);
     tcUpdateStream& operator<<(tcUpdateStream& stream);
@@ -102,7 +102,7 @@ public:
     int SetLaunch(int nLauncher, int quantity);
     bool SetLauncherDatum(unsigned nLauncher, 
 		double lon_rad, double lat_rad, float alt_m);
-    bool SetLauncherTarget(unsigned nLauncher, long targetID);
+    bool SetLauncherTarget(unsigned nLauncher, int targetID);
     void SetParent(std::shared_ptr<tcPlatformObject>obj) {parent = obj;}
     static std::string TranslateLauncherStatus(int status);
     void Update(float dt_s);

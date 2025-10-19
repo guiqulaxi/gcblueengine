@@ -70,7 +70,7 @@ unsigned tcTime::GetUpdated30HzCount()
 void tcTime::Init()
 {
         snLastTime = std::chrono::high_resolution_clock::now();
-//        snFrequency = (unsigned long)frequency.QuadPart;
+//        snFrequency = (unsigned int)frequency.QuadPart;
 
 //        snDeltaCount = (unsigned int)(snFrequency/30); // 30 updates per second
 
@@ -80,7 +80,7 @@ void tcTime::Init()
 //		MessageBox(NULL, L"Error - high performance counter", L"Error", MB_OK);
 //		return;
 //	}
-//	snFrequency = (unsigned long)frequency.QuadPart;
+//	snFrequency = (unsigned int)frequency.QuadPart;
 
 //	snDeltaCount = (unsigned int)(snFrequency/30); // 30 updates per second
 }
@@ -105,7 +105,7 @@ void tcTime::Update()
 
 //	QueryPerformanceCounter(&nCurrentCount);
 
-//	unsigned long currentTime = (unsigned long)nCurrentCount.QuadPart;
+//	unsigned int currentTime = (unsigned int)nCurrentCount.QuadPart;
 
 //	while ((currentTime - snLastCount) >= snDeltaCount)
 //	{

@@ -63,6 +63,9 @@ namespace database
         void WriteSql(std::string& valueString) const;
         void WritePythonValue(std::string& valueString) const;
         void WritePython(std::string& valueString) const;
+
+	// JSON serialization (default implemented in tcDatabaseObject)
+	virtual void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const;
 	};
 
 } // namespace database

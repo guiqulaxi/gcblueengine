@@ -200,7 +200,7 @@ void InitGoalPython()
 
 tcSimState* tcGoal::simState = 0;
 //tcMapOverlay* tcGoal::mapOverlay = 0;
-unsigned long tcGoal::nextId = 100;
+unsigned int tcGoal::nextId = 100;
 
 /*** tcGoal ***/
 
@@ -311,7 +311,7 @@ unsigned int tcGoal::GetAlliance() const
     return alliance;
 }
 
-unsigned long tcGoal::GetId() const
+unsigned int tcGoal::GetId() const
 {
     return id;
 }
@@ -524,7 +524,7 @@ std::string tcGoalWrap::GetTypeString() const
     }
 }
 
-unsigned long tcGoalWrap::GetId() const
+unsigned int tcGoalWrap::GetId() const
 {
     if (goal != 0)
     {
@@ -595,7 +595,7 @@ tcGoalWrap tcCompoundGoalWrap::GetSubGoal(unsigned int idx)
     }
 }
 
-unsigned long tcCompoundGoalWrap::GetId() const
+unsigned int tcCompoundGoalWrap::GetId() const
 {
     if (compoundGoal != 0)
     {
@@ -673,7 +673,7 @@ void tcTimeGoalWrap::SetPassTimeout(double t)
     }
 }
 
-unsigned long tcTimeGoalWrap::GetId() const
+unsigned int tcTimeGoalWrap::GetId() const
 {
     if (timeGoal != 0)
     {
@@ -771,7 +771,7 @@ std::string tcDestroyGoalWrap::GetTargetName(unsigned int index)
 
 
 
-unsigned long tcDestroyGoalWrap::GetId() const
+unsigned int tcDestroyGoalWrap::GetId() const
 {
     if (destroyGoal != 0)
     {
@@ -868,7 +868,7 @@ std::string tcProtectGoalWrap::GetTargetName(unsigned int index)
     }
 }
 
-unsigned long tcProtectGoalWrap::GetId() const
+unsigned int tcProtectGoalWrap::GetId() const
 {
     if (protectGoal != 0)
     {
@@ -1034,7 +1034,7 @@ unsigned int tcAreaGoalWrap::GetQuantity() const
 
 
 
-unsigned long tcAreaGoalWrap::GetId() const
+unsigned int tcAreaGoalWrap::GetId() const
 {
     if (areaGoal != 0)
     {
@@ -2468,7 +2468,7 @@ GeoPoint tcAreaGoal::GetRandomPointWithinArea(const std::vector<GeoPoint>& area)
         }
     }
 
-    // pick two neighboring vertices and return point along line
+    // pick two neighboring vertices and return point aint line
     size_t n1 = floorf(randf(float(area.size())));
     size_t n2 = (n1 + 1) % area.size();
     float alpha = randf();

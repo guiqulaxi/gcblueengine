@@ -48,7 +48,7 @@ public:
 
     void AddCommand(const tsCommandInfo& newcmd);
 
-    void AddCommand(teGameCommand aeCmd, float afData, long anData, int anData2 = 0);
+    void AddCommand(teGameCommand aeCmd, float afData, int anData, int anData2 = 0);
     
     void AddCommand(const char *azCommand, int param = -1);
  
@@ -56,20 +56,20 @@ public:
    
     void AddPythonCommand(const char *azCommand, const std::string& textParam);
 
-	void AddPythonCommandGeneral(const std::string& command, const std::string& args, const std::vector<long>& platformID);
+	void AddPythonCommandGeneral(const std::string& command, const std::string& args, const std::vector<int>& platformID);
 
 	void GetUserInput(const char *azCallback, const char *azUserInput, int param, const std::string& textParam);
 
     void GetUserInputForID(const char *azCallback, const char *azUserInput,
-        std::vector<long>& platformID, int param = -1);
+        std::vector<int>& platformID, int param = -1);
 
     void GetUserInputForID(const char *azCallback, const char *azUserInput,
-        std::vector<long>& platformID, const std::string& args);
+        std::vector<int>& platformID, const std::string& args);
 
     void AddPythonCallback(const char *azCallback, const char *azUserInput, int param = -1);
     
     void AddPythonCallbackForID(const char *azCallback, const char *azUserInput, 
-		std::vector<long>& platformID, int param, const std::string& textParam);
+		std::vector<int>& platformID, int param, const std::string& textParam);
 
     void DisplayInfoMessage(const char *azString);
 

@@ -185,7 +185,7 @@ unsigned int tcConnectionData::GetPingCount() const
 /**
 * @return total number of bytes read from this connection
 */
-unsigned long tcConnectionData::GetReadCount() const
+unsigned int tcConnectionData::GetReadCount() const
 {
     return readCount;
 }
@@ -211,7 +211,7 @@ wxSocketBase* tcConnectionData::GetSocket()
 /**
 * @return total number of bytes written to this connection
 */
-unsigned long tcConnectionData::GetWriteCount() const
+unsigned int tcConnectionData::GetWriteCount() const
 {
     return writeCount;
 }

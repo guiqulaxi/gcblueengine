@@ -56,15 +56,15 @@ public:
 	float GetDetonationDelay() const;
 
 	/// returns intended target for weap or -1 if none exists
-	long GetIntendedTarget() const;
+	int GetIntendedTarget() const;
 
 	/// returns radius around detonation point to consider for target damage
 	virtual float GetDamageEffectRadius() const;
     
 	bool IsDetonated();
     bool IsDirectHit() const;
-    long GetDirectHitTargetId() const;
-    void SetDirectHitTargetId(long id);
+    int GetDirectHitTargetId() const;
+    void SetDirectHitTargetId(int id);
 
     bool IsGoodDetonation() const;
     bool IsGroundFused() const;
@@ -76,9 +76,9 @@ public:
     const database::tcWeaponDamage* GetDamageModel() const;
 
     /// returns true if id is intended target of this weapon
-    bool IsIntendedTarget(long id);
+    bool IsIntendedTarget(int id);
 	/// true if launched by platform id
-	bool WasLaunchedBy(long id) const;
+	bool WasLaunchedBy(int id) const;
 
 	void SetDetonationDelay(float delay_s);
     
@@ -89,14 +89,14 @@ public:
 
 
     /// sets intended target
-    void SetIntendedTarget(long targetId);
+    void SetIntendedTarget(int targetId);
 
     virtual float ApplyAdvancedDamage(const Damage& damage, std::shared_ptr<tcGameObject> damager); ///< called when new damage occurs
-    
+    void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const override;
 protected:
-    long intendedTarget;
+    int intendedTarget;
     bool fuseHasTriggered; ///< set true when weapon detonates 保险开关
-    long directHitTargetId; ///< set to target id when weapon collides/impacts target as part of detonation, -1 otherwise
+    int directHitTargetId; ///< set to target id when weapon collides/impacts target as part of detonation, -1 otherwise
     bool goodDetonation; ///< true if weapon not dud
     Vector3d impactPoint; ///< direct hit point in relative world coordinates
     Vector3d launchingPoint;///<发射点
@@ -106,7 +106,7 @@ protected:
     // mid-course guidance parameters
     bool datalinkActive;
 
-    long launchingPlatform;
+    int launchingPlatform;
 
     std::shared_ptr<tcWeaponDBObject> mpDBObject;  
 

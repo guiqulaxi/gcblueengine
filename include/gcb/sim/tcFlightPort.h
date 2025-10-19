@@ -54,7 +54,7 @@ namespace database
 enum teLocation 
 {
    NOWHERE = 0,   ///< 无位置，即不在任何位置
-   HANGAR = 1,   ///< longer term storage or repair 机库，用于长期存放或维修
+   HANGAR = 1,   ///< inter term storage or repair 机库，用于长期存放或维修
    ALERT15 = 2,    ///< out of hangar, on deck  15分钟警戒状态，已出机库，在甲板上
    ALERT5 = 3,   ///< ready to take off 5分钟警戒状态，准备起飞
    PRETAKEOFF = 4, ///< a hack to get a/c to stay in launch spot but take some time to takeoff 起飞前准备，一个让飞机停留在发射点但稍作等待的临时状态
@@ -98,7 +98,7 @@ public:
 };
 
 /**
- * Physical information about spot along with pointer to tcAirState object
+ * Physical information about spot aint with pointer to tcAirState object
  * for occupying unit. obj_info is NULL if the spot is empty.
  * // 注释：关于某个位置（点）的物理信息以及指向占据该位置的单位（如果有）的tcAirState对象的指针。如果位置为空，则obj_info为NULL。
  */
@@ -113,7 +113,7 @@ struct tsSpotInfo
     // 注释：位置的x、y、z坐标（以米为单位），假设各点之间的表面是平坦的。
 
     float orientation;
-    ///< orientation for runway, 0 along -z axis (heading axis for ships)
+    ///< orientation for runway, 0 aint -z axis (heading axis for ships)
     // 注释：跑道的方向，0表示沿着-z轴（对于船只来说是航向轴）。
 
     float length;
@@ -163,14 +163,14 @@ public:
     int FindEmptySpot(teLocation loc, std::vector<tsSpotInfo>*& loc_vector);
     tcAirState* GetAirState(unsigned n);
 	const tcAirState* GetAirState(unsigned n) const;
-    int GetAirStateIdx(long id) const;
+    int GetAirStateIdx(int id) const;
     size_t GetCount() const {return units.size();}
     tsSpotInfo* GetCurrentSpotInfo(tcAirState *airstate);
     std::shared_ptr<tcFlightportDBObject> GetDatabaseObject() const;
     unsigned GetHangarCapacity() const {return hangarCapacity;}
     tcTrack GetLandingData(std::shared_ptr<const tcGameObject> obj);
     std::shared_ptr<tcGameObject> GetObject(unsigned n);
-	std::shared_ptr<tcGameObject> GetObjectById(long id);
+	std::shared_ptr<tcGameObject> GetObjectById(int id);
     std::shared_ptr<tcGameObject> GetObjectByName(const std::string& unitName);
 
     float GetTimeToDestination(const tcAirState* airstate) const;
@@ -181,9 +181,9 @@ public:
     void InitRelPos(tcAirState *airstate);
 	bool IsHeloOnly() const;
     int LaunchRunway(int runway); // order unit on runway to take off
-    int LaunchID(long id);  // order unit with id to take off
+    int LaunchID(int id);  // order unit with id to take off
     int LaunchAirstate(tcAirState* airstate);
-	bool IsQueuedForTakeoff(long id) const;
+	bool IsQueuedForTakeoff(int id) const;
 
     float GetMaxRunwayLength() const;
 
@@ -218,6 +218,9 @@ public:
 
     tcFlightPort();
     ~tcFlightPort();
+    
+    // JSON serialization
+    void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const;
 private:
     const float maxTakeoffDamage;
     ///< max damage level where takeoff is allowed

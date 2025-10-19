@@ -611,7 +611,7 @@ public:
     // p is the starting location,
     // the UTF-8 value of the entity will be placed in value, and length filled in.
     static const char* GetCharacterRef( const char* p, char* value, int* length );
-    static void ConvertUTF32ToUTF8( unsigned long input, char* output, int* length );
+    static void ConvertUTF32ToUTF8( unsigned int input, char* output, int* length );
 
     // converts primitive types to strings
     static void ToStr( int v, char* buffer, int bufferSize );
@@ -841,7 +841,7 @@ public:
 		If the child node is already part of the document,
 		it is moved from its old location to the new location.
 		Returns the addThis argument or 0 if the node does not
-		belong to the same document.
+		beint to the same document.
     */
     XMLNode* InsertEndChild( XMLNode* addThis );
 
@@ -853,7 +853,7 @@ public:
 		If the child node is already part of the document,
 		it is moved from its old location to the new location.
 		Returns the addThis argument or 0 if the node does not
-		belong to the same document.
+		beint to the same document.
     */
     XMLNode* InsertFirstChild( XMLNode* addThis );
     /**
@@ -862,7 +862,7 @@ public:
 		it is moved from its old location to the new location.
 		Returns the addThis argument or 0 if the afterThis node
 		is not a child of this node, or if the node does not
-		belong to the same document.
+		beint to the same document.
     */
     XMLNode* InsertAfterChild( XMLNode* afterThis, XMLNode* addThis );
 
@@ -1892,7 +1892,7 @@ public:
 	const char* ErrorName() const;
     static const char* ErrorIDToName(XMLError errorID);
 
-    /** Returns a "long form" error description. A hopefully helpful
+    /** Returns a "int form" error description. A hopefully helpful
         diagnostic with location, line number, and/or additional info.
     */
 	const char* ErrorStr() const;

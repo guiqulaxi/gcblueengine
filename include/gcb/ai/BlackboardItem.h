@@ -43,7 +43,7 @@ namespace ai
     {
     public:
         /// -1 for invalid, 0 is anonymous outside author (i.e. not a task)
-        long author; 
+        int author; 
         /// priority to control write access to board
         double priority;
         /// blackboard message string 
@@ -55,7 +55,7 @@ namespace ai
 		tcGameStream& operator>>(tcGameStream& stream);
 
         BlackboardItem(const BlackboardItem& src);
-        BlackboardItem(long author_, double priority_, const std::string& message_);
+        BlackboardItem(int author_, double priority_, const std::string& message_);
         BlackboardItem();
         ~BlackboardItem();
         

@@ -81,12 +81,12 @@ void tcFile::Printf(const char* formatString, ...)
     WriteString(textBuffer);
 }
 
-long tcFile::GetLength() 
+int tcFile::GetLength() 
 {
     if (mpFile == NULL) {return 0;}
 
-    long current_pos = ftell(mpFile);
-    long file_length = 0;
+    int current_pos = ftell(mpFile);
+    int file_length = 0;
     if (fseek(mpFile, 0L, SEEK_END) == 0)
     {
         file_length = ftell(mpFile);
@@ -96,12 +96,12 @@ long tcFile::GetLength()
     return file_length;
 }
 
-long tcFile::GetLengthFromCurrent() 
+int tcFile::GetLengthFromCurrent() 
 {
     if (mpFile == NULL) {return 0;}
 
-    long current_pos = ftell(mpFile);
-    long file_length = 0;
+    int current_pos = ftell(mpFile);
+    int file_length = 0;
     if (fseek(mpFile, 0L, SEEK_END) == 0)
     {
         file_length = ftell(mpFile) - current_pos;

@@ -80,6 +80,9 @@ public:
     virtual void Serialize(tcFile& file, bool mbLoad);
 	virtual void SaveToPython(scriptinterface::tcScenarioLogger& logger);
 
+    // JSON serialization
+    virtual void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const override;
+
     virtual tcCommandStream& operator<<(tcCommandStream& stream);
     virtual tcCommandStream& operator>>(tcCommandStream& stream);
     virtual tcGameStream& operator<<(tcGameStream& stream);

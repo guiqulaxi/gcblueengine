@@ -68,8 +68,8 @@ namespace database
 			: database(db), sqlConn(con), tableName(s) {}
 
 		bool Load();
-        long LoadRecord(const char* databaseClass);
-        long LoadRecordForceKey(const char* databaseClass, long key);
+        int LoadRecord(const char* databaseClass);
+        int LoadRecordForceKey(const char* databaseClass, int key);
 		T* LoadRecordTemporary(const char* databaseClass);
 		bool Save();
 	private:
@@ -126,7 +126,7 @@ namespace database
 
 			while (sqlReader.Read())
 			{
-				long key;
+				int key;
                 std::shared_ptr<T> obj = std::make_shared<T>();
                 // T* obj = new T;
 				obj->ReadSql(sqlReader);
@@ -166,9 +166,9 @@ namespace database
 	}
 
     template <class T>
-        long tcDBObjSerializerSql<T>::LoadRecordForceKey(const char* databaseClass, long key)
+        int tcDBObjSerializerSql<T>::LoadRecordForceKey(const char* databaseClass, int key)
     {
-        long recordKey = -1;
+        int recordKey = -1;
 
 		try
 		{
@@ -228,9 +228,9 @@ namespace database
     * @return new key if found, -1 otherwise
     */
 	template <class T>
-		long tcDBObjSerializerSql<T>::LoadRecord(const char* databaseClass)
+		int tcDBObjSerializerSql<T>::LoadRecord(const char* databaseClass)
 	{ 
-        long recordKey = -1;
+        int recordKey = -1;
 
 		try
 		{
@@ -249,7 +249,7 @@ namespace database
             
 			if (sqlReader.Read())
 			{
-				long key;
+				int key;
                 std::shared_ptr<T> obj = std::make_shared<T>();
 				obj->ReadSql(sqlReader);
                 
@@ -293,7 +293,7 @@ namespace database
 	template <class T>
 		T* tcDBObjSerializerSql<T>::LoadRecordTemporary(const char* databaseClass)
 	{ 
-        long recordKey = -1;
+        int recordKey = -1;
 
 		try
 		{
@@ -375,12 +375,12 @@ namespace database
             //wxMessageBox(message.GetData(), "Error", wxICON_ERROR);
 		}
 
-		long key;
-		long nEntries = database->mcObjectData.GetCount();
-		long pos = database->mcObjectData.GetStartPosition();
+		int key;
+		int nEntries = database->mcObjectData.GetCount();
+		int pos = database->mcObjectData.GetStartPosition();
         std::shared_ptr<tcDatabaseObject> dbObj;
 
-		for (long n=0;n<nEntries;n++) 
+		for (int n=0;n<nEntries;n++) 
 		{
 			database->mcObjectData.GetNextAssoc(pos, key, dbObj);
             std::shared_ptr<T> obj = std::dynamic_pointer_cast<T>(dbObj);

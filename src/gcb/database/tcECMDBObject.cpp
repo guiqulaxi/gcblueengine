@@ -111,8 +111,8 @@ void tcECMDBObject::WriteSql(std::string& valueString) const
 	s << "'" << ecmType.c_str() << "',";
 	s << ERP_dBW << ",";
 	s << effectivenessRating << ",";
-	s << (long)isEffectiveVsSurveillance << ",";
-	s << (long)isEffectiveVsSeeker;
+    s << (int)isEffectiveVsSurveillance << ",";
+    s << (int)isEffectiveVsSeeker;
 
 	valueString += s.str();
 }
@@ -138,6 +138,16 @@ void tcECMDBObject::WritePython(std::string &valueString) const
     valueString+="    return dbObj\n";
 }
 
+void tcECMDBObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    tcSensorDBObject::SerializeToJson(obj, allocator);
+    
+    obj.AddMember(rapidjson::Value("ecmType", allocator).Move(), rapidjson::Value(ecmType.c_str(), allocator).Move(), allocator);
+    obj.AddMember(rapidjson::Value("ERP_dBW", allocator).Move(), ERP_dBW, allocator);
+    obj.AddMember(rapidjson::Value("effectivenessRating", allocator).Move(), effectivenessRating, allocator);
+    obj.AddMember(rapidjson::Value("isEffectiveVsSurveillance", allocator).Move(), isEffectiveVsSurveillance ? 1 : 0, allocator);
+    obj.AddMember(rapidjson::Value("isEffectiveVsSeeker", allocator).Move(), isEffectiveVsSeeker ? 1 : 0, allocator);
+}
 
 tcECMDBObject::tcECMDBObject() : tcSensorDBObject(),
     ecmType("Undefined"),

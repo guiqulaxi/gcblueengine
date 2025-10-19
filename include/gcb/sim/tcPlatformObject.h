@@ -112,7 +112,7 @@ public:
 
     std::vector<GeoPoint> missilePreplan; ///< waypoints for missile preplan of next launch
      virtual void SetKinematics(
-            double fLon_rad,              ///< longitude [rad]
+            double fLon_rad,              ///< intitude [rad]
             double fLat_rad,               ///< latitude [rad]
             float fAlt_m,                  ///< altitude, negative is subsurface depth [m]
             float fHeading_rad,           ///< relative to north [rad] 顺时针
@@ -127,8 +127,8 @@ public:
     virtual void Clear() override;
     virtual void DesignateDatum(tcPoint p) override;
     virtual void DesignateLauncherDatum(GeoPoint p, unsigned int anLauncher)override;
-    virtual bool DesignateLauncherTarget(long anID, unsigned anLauncher)override;
-    virtual void DesignateTarget(long anID)override;
+    virtual bool DesignateLauncherTarget(int anID, unsigned anLauncher)override;
+    virtual void DesignateTarget(int anID)override;
     std::shared_ptr<Brain> GetBrain();
     virtual void GetDatum(GeoPoint& p) override{p=msTargetDatum;}
     virtual std::shared_ptr<tcLauncher> GetLauncher(unsigned idx)override;
@@ -152,11 +152,11 @@ public:
     void ScheduleLoadoutCommand(const std::string& s);
     
 
-    virtual void SetFormationLeader(long id);
+    virtual void SetFormationLeader(int id);
 	virtual void SetFormationMode(int mode);
     virtual void SetFormationPosition(float range_km, float span_km, float bearing_rad, float span_rad);
     virtual void SetFormationAltitudeOffset(float dh_m);
-    virtual long GetFormationLeader() const;
+    virtual int GetFormationLeader() const;
     void MarkFormationUpdated(); ///< for multiplayer to trigger cmd msg for updated formation
     void DestroyFormation();
     virtual void AutoConfigurePlatform(const std::string& setupName);
@@ -166,7 +166,7 @@ public:
     void AutoConfigureMagazines(const std::vector<database::MagazineLoadout>& magazineLoadout);
     void AutoConfigureLaunchers(const std::vector<database::LauncherLoadout>& launcherLoadout);
 
-    virtual bool IsInterceptingTrack(long id);
+    virtual bool IsInterceptingTrack(int id);
     bool IsRefueling() const;
 	float GetFuelCapacity() const;
 	void AdjustExternalFuelCapacity(float change_kg);
@@ -184,11 +184,11 @@ public:
 	virtual void EquipForTargetType(int targetFlag);
 	virtual void EquipForTargetType(const std::string& targetType);
 
-    virtual void Launch(long& rnKey, unsigned& rnLauncher)override;
+    virtual void Launch(int& rnKey, unsigned& rnLauncher)override;
     virtual void RandInitNear(float afLon_deg, float afLat_deg)override;
     virtual void SetAltitude(float new_altitude_m);
     virtual void SetHeading(float afNewHeading)override;
-    virtual void SetLongitude(float aflon_deg ) ;
+    virtual void Setintitude(float aflon_deg ) ;
     virtual void SetLatitude(float aflat_deg) ;
     virtual void SetMaxTurnRate(float rate_degps);
     float GetMaxTurnRate() const;
@@ -213,7 +213,7 @@ public:
     /// returns true if platform is a submarine
     bool IsSub() const;
 
-    virtual void LoadOther(const std::string& item, unsigned long quantity);
+    virtual void LoadOther(const std::string& item, unsigned int quantity);
 
     std::vector<tcSensorMapTrack> GetTrackListValidROE(int anClassMask,
                                                           float afMaxRange_km);
@@ -248,7 +248,7 @@ public:
     tcPlatformObject(std::shared_ptr<tcPlatformDBObject>obj);
     virtual ~tcPlatformObject();
     virtual void Construct() override;
-
+    virtual void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const override;
 protected:
     float lastHeadingDelta; // a workaround to smooth heading rate changes
 	bool isRefueling; ///< true if refuel is in progress

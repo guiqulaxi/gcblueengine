@@ -75,24 +75,24 @@ public:
     // semi-active and command mode vars
 
     virtual bool CanDetectTarget(std::shared_ptr<const tcGameObject> target, float& range_km, bool useRandom=true);
-    virtual bool InitFromDatabase(long key); ///< initializes sensor using database data at key
+    virtual bool InitFromDatabase(int key); ///< initializes sensor using database data at key
 
     // fire control methods
 	virtual unsigned GetFireControlTrackCount() const;
 	virtual unsigned GetMaxFireControlTracks() const;
     virtual bool IsTrackAvailable();
-    virtual bool RequestTrack(long targetId);
-    virtual bool ReleaseTrack(long targetId);
-	virtual bool IsTrackingWithRadar(long targetId) const;
+    virtual bool RequestTrack(int targetId);
+    virtual bool ReleaseTrack(int targetId);
+	virtual bool IsTrackingWithRadar(int targetId) const;
 
     virtual bool IsSemiactive() const {return isSemiactive;}
-    virtual void SetFireControlSensor(long id, unsigned char idx);
+    virtual void SetFireControlSensor(int id, unsigned char idx);
 
     void Serialize(tcFile& file, bool mbLoad);
 
-    void AddOrUpdateJammer(long id, float JNR_dB, float az_rad, float el_rad);
+    void AddOrUpdateJammer(int id, float JNR_dB, float az_rad, float el_rad);
     bool IsJammed() const;
-    void RemoveJammer(long id);
+    void RemoveJammer(int id);
 
     virtual bool IsRadar() const;
     virtual void Update(double t);
@@ -104,6 +104,9 @@ public:
 
     virtual tcGameStream& operator<<(tcGameStream& stream);
     virtual tcGameStream& operator>>(tcGameStream& stream);
+
+    // JSON serialization
+    virtual void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const;
 
     std::shared_ptr<tcRadar> Clone();
     tcRadar();
@@ -122,11 +125,11 @@ protected:
 
 	float target_x_offset_m; ///< offset for seeker target point in model coords
     float target_y_offset_m; ///< may want to move params like this to a seeker derived class
-    std::map<long, JamInfo> jamMap;
+    std::map<int, JamInfo> jamMap;
     float jammingDegradation_dB;
     double jamTime_s; ///< time that jammingDegradation_dB was last updated
     bool isJammed;
-	std::vector<long> fireControlTracks;
+	std::vector<int> fireControlTracks;
 
     static float lastTargetRCS_dBsm; ///< target RCS from last call to CanDetectTarget
     static float last_snr_margin_dB; ///< [dB] from last call to CanDetectTarget

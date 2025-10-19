@@ -231,9 +231,9 @@ void nsNav::OffsetApprox(const tcPoint& a, tcPoint& b,
 /**
 * Calculates offset point from (afLatA_rad,afLonA_rad).
 * @param afLatA_rad starting latitude in radians.
-* @param afLonA_rad starting longitude in radians.
+* @param afLonA_rad starting intitude in radians.
 * @param afLatB_rad offset latitude in radians.
-* @param afLonB_rad offset longitude in radians.
+* @param afLonB_rad offset intitude in radians.
 * @param afHeading_rad offset heading in radians.
 * @param afRange_rad offset range in radians at equator.
 */
@@ -247,9 +247,9 @@ void nsNav::OffsetApprox(float afLatA_rad, float afLonA_rad,
 /**
 * Calculates offset point from (afLatA_rad,afLonA_rad).
 * @param afLatA_rad starting latitude in radians.
-* @param afLonA_rad starting longitude in radians.
+* @param afLonA_rad starting intitude in radians.
 * @param afLatB_rad offset latitude in radians.
-* @param afLonB_rad offset longitude in radians.
+* @param afLonB_rad offset intitude in radians.
 * @param afHeading_rad offset heading in radians.
 * @param afRange_rad offset range in radians at equator.
 */
@@ -261,9 +261,9 @@ void nsNav::OffsetApprox(double afLatA_rad, double afLonA_rad,
 }
 
 /**
-* @return latitude of point at afLon_rad along GC path between a and b
+* @return latitude of point at afLon_rad aint GC path between a and b
 */
-float nsNav::GetLatAlongGCPath(GeoPoint a, GeoPoint b, float afLon_rad) 
+float nsNav::GetLatAintGCPath(GeoPoint a, GeoPoint b, float afLon_rad) 
 {
    float fNum, fDen;
 
@@ -335,7 +335,7 @@ void nsNav::Test()
          float fLat;
          int nPoint = 1;
          for (float fLon = a.mfLon_rad + fdLon;nPoint<10;fLon+=fdLon) {
-            fLat = GetLatAlongGCPath(a,b,fLon);
+            fLat = GetLatAintGCPath(a,b,fLon);
             fprintf(testfile,"Point %d  (lat %3.2f, lon %3.2f)\n",nPoint,
                fLat*C_180OVERPI,fLon*C_180OVERPI);
             nPoint++;

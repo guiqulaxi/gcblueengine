@@ -25,7 +25,7 @@ public:
     std::shared_ptr<tcSpaceDBObject>mpDBObject;
 
       virtual void SetKinematics(
-            double fLon_rad,              ///< longitude [rad]
+            double fLon_rad,              ///< intitude [rad]
             double fLat_rad,               ///< latitude [rad]
             float fAlt_m,                  ///< altitude, negative is subsurface depth [m]
             float fHeading_rad,           ///< relative to north [rad] 顺时针

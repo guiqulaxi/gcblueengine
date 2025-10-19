@@ -191,7 +191,7 @@ void tcEventManager::SendAccelLimitEvent(int accelLimit)
 {
 //	wxCommandEvent command(wxEVT_COMMAND_BUTTON_CLICKED, ID_SETMAXTIMEACCEL);
 //	command.SetEventObject(eventObject);
-//	command.SetExtraLong(accelLimit);
+//	command.SetExtraint(accelLimit);
 //	eventObject->GetEventHandler()->AddPendingEvent(command);
 }
 

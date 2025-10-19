@@ -119,11 +119,17 @@ void tcESMDBObject::WriteSql(std::string& valueString) const
 
 	s << ",";
 
-	s << (long)isRWR;
+	s << (int)isRWR;
 
 	valueString += s.str();
 }
 
+void tcESMDBObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    tcSensorDBObject::SerializeToJson(obj, allocator);
+
+    obj.AddMember(rapidjson::Value("isRWR", allocator).Move(), isRWR ? 1 : 0, allocator);
+}
 
 tcESMDBObject::tcESMDBObject() : tcSensorDBObject() 
 {

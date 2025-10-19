@@ -35,6 +35,9 @@
 #include "common/tcGameStream.h"
 #include "tcDamageModel.h"
 #include "tcLauncher.h"
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
 #include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -246,6 +249,19 @@ void tcWaterCM::Move(float dt_s)
     mcKin.mfLon_rad += xy_rad*(double)(sinf(heading_rad)/cosf((float)mcKin.mfLat_rad));
     mcKin.mfLat_rad += xy_rad*(double)cosf(heading_rad); 
     mcKin.mfAlt_m += z_m;    // use constant downward (slow) velocity for now
+}
+
+void tcWaterCM::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    tcGameObject::SerializeToJson(obj, allocator);
+
+    obj.AddMember(rapidjson::Value("typeCode", allocator).Move(), typeCode, allocator);
+    obj.AddMember(rapidjson::Value("timeRemaining_s", allocator).Move(), timeRemaining_s, allocator);
+    obj.AddMember(rapidjson::Value("goalHeading_rad", allocator).Move(), goalHeading_rad, allocator);
+    obj.AddMember(rapidjson::Value("goalDepth_m", allocator).Move(), goalDepth_m, allocator);
+    obj.AddMember(rapidjson::Value("goalSpeed_kts", allocator).Move(), goalSpeed_kts, allocator);
+    obj.AddMember(rapidjson::Value("vxy_mps", allocator).Move(), vxy_mps, allocator);
+    obj.AddMember(rapidjson::Value("vz_mps", allocator).Move(), vz_mps, allocator);
 }
 
 void tcWaterCM::Update(double t)

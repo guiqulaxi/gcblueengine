@@ -48,8 +48,8 @@ public:
    int Open(const char *azFileName, unsigned int anFlags);
    int Open(tcString& s, unsigned int anFlags) {return Open(s.GetBuffer(), anFlags);}
    int Close(void);
-   long GetLength(); ///< size of file in bytes
-   long GetLengthFromCurrent(); ///< size from current pos to end of file in bytes
+   int GetLength(); ///< size of file in bytes
+   int GetLengthFromCurrent(); ///< size from current pos to end of file in bytes
    bool IsOpen() const;
    int Read(void *apData, unsigned int anCount); ///< TODO add operator>> for this 
    int ReadString(char *s);

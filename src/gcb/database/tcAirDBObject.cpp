@@ -220,6 +220,24 @@ void tcAirDBObject::WritePython(std::string &valueString) const
     valueString+="    return dbObj\n";
 }
 
+void tcAirDBObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    tcPlatformDBObject::SerializeToJson(obj, allocator);
+    
+    obj.AddMember(rapidjson::Value("maxTakeoffWeight_kg", allocator).Move(), maxTakeoffWeight_kg, allocator);
+    obj.AddMember(rapidjson::Value("maxAltitude_m", allocator).Move(), maxAltitude_m, allocator);
+    obj.AddMember(rapidjson::Value("climbRate_mps", allocator).Move(), climbRate_mps, allocator);
+    obj.AddMember(rapidjson::Value("gmax", allocator).Move(), gmax, allocator);
+    obj.AddMember(rapidjson::Value("minimumRunway_m", allocator).Move(), minimumRunway_m, allocator);
+    obj.AddMember(rapidjson::Value("isCarrierCompatible", allocator).Move(), isCarrierCompatible ? 1 : 0, allocator);
+    obj.AddMember(rapidjson::Value("outFuelPods", allocator).Move(), outFuelPods, allocator);
+    obj.AddMember(rapidjson::Value("fuelOut_kgps", allocator).Move(), fuelOut_kgps, allocator);
+    obj.AddMember(rapidjson::Value("fuelIn_kgps", allocator).Move(), fuelIn_kgps, allocator);
+    obj.AddMember(rapidjson::Value("maintenanceMin_s", allocator).Move(), maintenanceMin_s, allocator);
+    obj.AddMember(rapidjson::Value("maintenanceMax_s", allocator).Move(), maintenanceMax_s, allocator);
+    
+
+}
 
 tcAirDBObject::tcAirDBObject() : 
   tcPlatformDBObject(),

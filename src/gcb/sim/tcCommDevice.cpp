@@ -4,6 +4,9 @@
 #include "tcDatabase.h"
 #include "tcGameObject.h"
 #include "tcLOS.h"
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
 #include <algorithm>
 #include <cmath>
 #include "tcDamageModel.h"
@@ -51,7 +54,7 @@ tcCommDevice::~tcCommDevice() = default;
 /**
  * 从数据库初始化设备
  */
-bool tcCommDevice::InitFromDatabase(long key) {
+bool tcCommDevice::InitFromDatabase(int key) {
     assert(database);
 
     mpDBObj =  std::dynamic_pointer_cast<tcCommDeviceDBObject>(database->GetObject(key));
@@ -240,7 +243,7 @@ void tcCommDevice::UpdateLinkQuality() {
 /**
  * 网络节点连接扩展
  */
-bool tcCommDevice::RequestConnection(long deviceId) {
+bool tcCommDevice::RequestConnection(int deviceId) {
     if (!mpDBObj->isNetworkNode && (mnCurrentConnections >= mpDBObj->mnMaxConnections)) {
         return false;
     }
@@ -265,7 +268,7 @@ bool tcCommDevice::RequestConnection(long deviceId) {
 /**
  * 释放连接
  */
-bool tcCommDevice::ReleaseConnection(long deviceId) {
+bool tcCommDevice::ReleaseConnection(int deviceId) {
     auto it = std::find(connectedDevices.begin(), connectedDevices.end(), deviceId);
     if (it != connectedDevices.end()) {
         connectedDevices.erase(it);
@@ -304,7 +307,7 @@ bool tcCommDevice::HasLOS(std::shared_ptr<const tcGameObject> target)
     assert(parent != 0);
     assert(target != 0);
 
-    long key = 0;
+    int key = 0;
     GeoPoint p1;
     GeoPoint p2;
 
@@ -327,6 +330,46 @@ bool tcCommDevice::HasLOS(std::shared_ptr<const tcGameObject> target)
 void tcCommDevice::SetMountAz(float lookAz_rad)
 {
     mountAz_rad=lookAz_rad;
+}
+
+void tcCommDevice::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    obj.SetObject();
+
+    obj.AddMember(rapidjson::Value("active", allocator).Move(), mbActive, allocator);
+    obj.AddMember(rapidjson::Value("dbKey", allocator).Move(), mnDBKey, allocator);
+
+    // parent id if available
+    int parentId = -1;
+    if (parent) parentId = parent->mnID;
+    obj.AddMember(rapidjson::Value("parentId", allocator).Move(), parentId, allocator);
+
+    obj.AddMember(rapidjson::Value("currentConnections", allocator).Move(), mnCurrentConnections, allocator);
+    obj.AddMember(rapidjson::Value("effectiveRange_km", allocator).Move(), mfEffectiveRange_km, allocator);
+    obj.AddMember(rapidjson::Value("latency_ms", allocator).Move(), mfCurrentLatency_ms, allocator);
+    obj.AddMember(rapidjson::Value("packetLoss", allocator).Move(), mfCurrentPacketLoss, allocator);
+    obj.AddMember(rapidjson::Value("lastUpdateTime", allocator).Move(), mfLastUpdateTime, allocator);
+
+    obj.AddMember(rapidjson::Value("mountAz_rad", allocator).Move(), mountAz_rad, allocator);
+    obj.AddMember(rapidjson::Value("commHeight_m", allocator).Move(), mfCommHeight_m, allocator);
+
+    // connected devices array
+    rapidjson::Value arr(rapidjson::kArrayType);
+    for (size_t i=0;i<connectedDevices.size();++i)
+    {
+        arr.PushBack(rapidjson::Value(connectedDevices[i]).Move(), allocator);
+    }
+    obj.AddMember(rapidjson::Value("connectedDevices", allocator).Move(), arr, allocator);
+
+    // damaged/hidden flags
+    obj.AddMember(rapidjson::Value("isDamaged", allocator).Move(), isDamaged, allocator);
+    obj.AddMember(rapidjson::Value("isHidden", allocator).Move(), isHidden, allocator);
+
+    // db class name if available
+    if (mpDBObj)
+    {
+        obj.AddMember(rapidjson::Value("dbClass", allocator).Move(), rapidjson::Value(mpDBObj->mzClass.c_str(), allocator).Move(), allocator);
+    }
 }
 
 std::shared_ptr<tcCommDevice> tcCommDevice::Clone()

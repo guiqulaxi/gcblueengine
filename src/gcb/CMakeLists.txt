@@ -42,6 +42,8 @@ target_include_directories(gcb PRIVATE
     ${PROJECT_SOURCE_DIR}/3rd/geotiff/include
     ${PROJECT_SOURCE_DIR}/3rd/tiff/include
     ${PROJECT_SOURCE_DIR}/3rd/proj/include
+    ${PROJECT_SOURCE_DIR}/3rd/rapidjson/include
+
 )
 target_compile_options(gcb
     PRIVATE

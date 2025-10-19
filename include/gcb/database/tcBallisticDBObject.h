@@ -68,7 +68,7 @@ namespace database
         float smartError_m; ///< distance error relative to target
         bool lockOnAfterLaunch;
 
-        long sensorKey; ///< key for fast access of seeker
+        int sensorKey; ///< key for fast access of seeker
 
         // calculated parameters
         float one_over_launchSpeed; ///< 1.0f / tcWeaponDBObject::launchSpeed_mps
@@ -85,7 +85,7 @@ namespace database
         bool IsCMRound() const;
 		bool IsRocket() const;
 
-        long GetSensorKey();
+        int GetSensorKey();
 
 		virtual const char* GetClassName() const {return "Ballistic";} ///< returns class name of database object
         virtual void PrintToFile(tcFile& file) override;
@@ -104,6 +104,8 @@ namespace database
 		virtual ~tcBallisticDBObject();
 virtual std::shared_ptr<tcGameObject>CreateGameObject() override;
         void CalculateParams();
+void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const override;
+
     private:
 
 

@@ -67,7 +67,7 @@ public:
 	virtual tcGameStream& operator>>(tcGameStream& stream);
 
     PointDefense(std::shared_ptr<tcPlatformObject> platform_, Blackboard* bb, 
-        long id_, double priority_, int attributes_, const std::string& taskName_);
+        int id_, double priority_, int attributes_, const std::string& taskName_);
     ~PointDefense();
     
 private:

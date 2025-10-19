@@ -230,5 +230,23 @@ namespace database
         return obj;
     }
 
-} // namespace database
+    void tcTorpedoDBObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+    {
+        tcWeaponDBObject::SerializeToJson(obj, allocator);
 
+        obj.AddMember(rapidjson::Value("maxTurnRate_degps", allocator).Move(), maxTurnRate_degps, allocator);
+        obj.AddMember(rapidjson::Value("maxDepth_m", allocator).Move(), maxDepth_m, allocator);
+        obj.AddMember(rapidjson::Value("battery_kJ", allocator).Move(), battery_kJ, allocator);
+        obj.AddMember(rapidjson::Value("batteryRate_kW", allocator).Move(), batteryRate_kW, allocator);
+        obj.AddMember(rapidjson::Value("maxSpeed_kts", allocator).Move(), maxSpeed_kts, allocator);
+        obj.AddMember(rapidjson::Value("acceleration_ktsps", allocator).Move(), acceleration_ktsps, allocator);
+        if (!sonarClass.empty()) obj.AddMember(rapidjson::Value("sonarClass", allocator).Move(), rapidjson::Value(sonarClass.c_str(), allocator).Move(), allocator);
+        obj.AddMember(rapidjson::Value("wireGuidance", allocator).Move(), wireGuidance ? 1 : 0, allocator);
+        obj.AddMember(rapidjson::Value("preEnableSpeed_kts", allocator).Move(), preEnableSpeed_kts, allocator);
+        obj.AddMember(rapidjson::Value("weaponType", allocator).Move(), weaponType, allocator);
+        
+        // calculated parameters
+        obj.AddMember(rapidjson::Value("maxTurnRate_radps", allocator).Move(), maxTurnRate_radps, allocator);
+        obj.AddMember(rapidjson::Value("batteryRate_kWpkt", allocator).Move(), batteryRate_kWpkt, allocator);
+    }
+}

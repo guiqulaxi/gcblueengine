@@ -1,6 +1,7 @@
 #include "tcCommPlatform.h"
 #include "math_constants.h"
 #include "strutil.h"
+#include "rapidjson/document.h"
 
 #include "tcCommDeviceDBObject.h"
 #include "tcCommPlatformDBObject.h"
@@ -88,7 +89,7 @@ std::shared_ptr<tcCommDevice> tcCommPlatform::GetCommMutable(const std::string &
     return 0;
 }
 
-std::shared_ptr<const tcCommDevice> tcCommPlatform::GetCommByDatabaseID(long id) const
+std::shared_ptr<const tcCommDevice> tcCommPlatform::GetCommByDatabaseID(int id) const
 {
     unsigned nComms = GetCommCount();
     for (unsigned n=0; n < nComms; n++)
@@ -459,4 +460,49 @@ tcCommPlatform::~tcCommPlatform()
 void tcCommPlatform::ClearActivityFlags()
 {
     commActivityFlags=0; ///< flags for faster check of activity state of diff sensor types
+}
+
+void tcCommPlatform::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    obj.SetObject();
+    
+    // Serialize commActivityFlags
+    obj.AddMember(rapidjson::Value("commActivityFlags", allocator).Move(), commActivityFlags, allocator);
+    rapidjson::Value typeName;
+    typeName.SetString(GetType().c_str(), static_cast<rapidjson::SizeType>(GetType().length()), allocator);
+    obj.AddMember(rapidjson::Value("typeName", allocator).Move(), typeName, allocator);
+
+    // Serialize commClass strings
+    if (!commClass.empty())
+    {
+        rapidjson::Value commClassArray(rapidjson::kArrayType);
+        for (const auto& className : commClass)
+        {
+            rapidjson::Value classNameValue(rapidjson::kStringType);
+            classNameValue.SetString(className.c_str(), allocator);
+            commClassArray.PushBack(classNameValue, allocator);
+        }
+        obj.AddMember(rapidjson::Value("commClass", allocator).Move(), commClassArray, allocator);
+    }
+    
+    // Serialize commDevice objects
+    if (!commDevice.empty())
+    {
+        rapidjson::Value commDeviceArray(rapidjson::kArrayType);
+        for (const auto& device : commDevice)
+        {
+            if (device)
+            {
+                rapidjson::Value deviceObj(rapidjson::kObjectType);
+                device->SerializeToJson(deviceObj, allocator);
+                commDeviceArray.PushBack(deviceObj, allocator);
+            }
+            else
+            {
+                rapidjson::Value nullValue(rapidjson::kNullType);
+                commDeviceArray.PushBack(nullValue, allocator);
+            }
+        }
+        obj.AddMember(rapidjson::Value("commDevice", allocator).Move(), commDeviceArray, allocator);
+    }
 }

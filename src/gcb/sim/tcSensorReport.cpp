@@ -50,7 +50,7 @@ tcGameStream& tcSensorReport::operator<<(tcGameStream& stream)
     stream >> nEmitters;
     for (unsigned int k=0; k<nEmitters; k++)
     {
-        long id;
+        int id;
         stream >> id;
         emitterList.push_back(id);
     }

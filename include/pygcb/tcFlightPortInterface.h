@@ -102,7 +102,7 @@ namespace scriptinterface
         /// @returns number of air units in this flightport
         int GetUnitCount();
         /// @returns id of unit n (index starts at 0)
-        long GetUnitID(int n); // long used for compatibility with Python
+        int GetUnitID(int n); // int used for compatibility with Python
         /// @returns status object for unit n, @see scriptinterface::tcFlightUnitStatus
         tcFlightUnitStatus GetUnitStatus(int n);
         std::string GetUnitName(int n);
@@ -115,12 +115,12 @@ namespace scriptinterface
         /// launch unit on indicated runway
         void Launch(int runway);
         /// launch unit matching id (if unit is on runway)
-        void LaunchID(long id);
+        void LaunchID(int id);
         /// sets destination of unit n; dest_code: 0 - hangar, 1 - ready, 2 - runway/launch
         void SetDestination(int n, int dest_code);
 
         // mission commands
-		void AddAttackMission(long targetId);
+		void AddAttackMission(int targetId);
 		void AddCAPMission(float lon_rad, float lat_rad); ///< auto-mission for CAP only
         void AddAEWMission(float lon_rad, float lat_rad); ///< auto-mission for AEW only
         void AddASWMission(float lon_rad, float lat_rad); ///< auto-mission for ASW only
@@ -142,7 +142,7 @@ namespace scriptinterface
         void EditMissionWaypointAdvanced(unsigned int missionId, unsigned int idx, 
                                          float lon_rad, float lat_rad, float alt_m, float speed_kts);
         void EditMissionWaypointReference(unsigned int missionId, unsigned int idx, 
-                                         unsigned char referenceMode, long referencePlatform);
+                                         unsigned char referenceMode, int referencePlatform);
         void InsertMissionWaypoint(unsigned int missionId, unsigned int idx, float lon_rad, float lat_rad);
         void DeleteMissionWaypoint(unsigned int missionId, unsigned int idx);
         void ClearMissionWaypoints(unsigned int missionId);

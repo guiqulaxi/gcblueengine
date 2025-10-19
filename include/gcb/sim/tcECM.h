@@ -48,7 +48,7 @@ using namespace database;
 class RadarInterface
 {
 public:
-    long id; ///< platform id
+    int id; ///< platform id
     unsigned idx; ///< sensor index
 
     std::shared_ptr<tcRadar> GetRadar(); ///< returns 0 if platform or sensor doesn't exist anymore
@@ -56,7 +56,7 @@ public:
     tcGameStream& operator<<(tcGameStream& stream);
     tcGameStream& operator>>(tcGameStream& stream);
 
-    RadarInterface(long id_, unsigned idx_);
+    RadarInterface(int id_, unsigned idx_);
     RadarInterface(const RadarInterface& src);
     RadarInterface();
     
@@ -72,7 +72,7 @@ class tcECM : public tcSensorState
 public:
     std::shared_ptr<tcECMDBObject> mpDBObj;
 
-    virtual bool InitFromDatabase(long key); ///< initializes sensor using database data at key
+    virtual bool InitFromDatabase(int key); ///< initializes sensor using database data at key
 
 	virtual bool IsECM() const;
 
@@ -91,6 +91,9 @@ public:
     tcECM();
     tcECM(std::shared_ptr<tcECMDBObject> dbObj);
     virtual ~tcECM();
+
+    // JSON serialization
+    virtual void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const;
 
 private:
     std::vector<RadarInterface> jamList; ///< radars jammed on previous update

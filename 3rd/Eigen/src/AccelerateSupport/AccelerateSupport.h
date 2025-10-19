@@ -230,7 +230,7 @@ class AccelerateImpl : public SparseSolverBase<AccelerateImpl<MatrixType_, UpLo_
 
  private:
   template <typename T>
-  void buildAccelSparseMatrix(const SparseMatrix<T>& a, AccelSparseMatrix& A, std::vector<long>& columnStarts) {
+  void buildAccelSparseMatrix(const SparseMatrix<T>& a, AccelSparseMatrix& A, std::vector<int>& columnStarts) {
     const Index nColumnsStarts = a.cols() + 1;
 
     columnStarts.resize(nColumnsStarts);
@@ -326,7 +326,7 @@ void AccelerateImpl<MatrixType_, UpLo_, Solver_, EnforceSquare_>::compute(const 
   m_nCols = a.cols();
 
   AccelSparseMatrix A{};
-  std::vector<long> columnStarts;
+  std::vector<int> columnStarts;
 
   buildAccelSparseMatrix(a, A, columnStarts);
 
@@ -351,7 +351,7 @@ void AccelerateImpl<MatrixType_, UpLo_, Solver_, EnforceSquare_>::analyzePattern
   m_nCols = a.cols();
 
   AccelSparseMatrix A{};
-  std::vector<long> columnStarts;
+  std::vector<int> columnStarts;
 
   buildAccelSparseMatrix(a, A, columnStarts);
 
@@ -375,7 +375,7 @@ void AccelerateImpl<MatrixType_, UpLo_, Solver_, EnforceSquare_>::factorize(cons
   if (EnforceSquare_) eigen_assert(a.rows() == a.cols());
 
   AccelSparseMatrix A{};
-  std::vector<long> columnStarts;
+  std::vector<int> columnStarts;
 
   buildAccelSparseMatrix(a, A, columnStarts);
 

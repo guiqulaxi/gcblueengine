@@ -307,7 +307,7 @@ float tcWeaponObject::GetDetonationDelay() const
 	return fuseDelay;
 }
 
-long tcWeaponObject::GetDirectHitTargetId() const
+int tcWeaponObject::GetDirectHitTargetId() const
 {
     return directHitTargetId;
 }
@@ -317,7 +317,7 @@ const Vector3d& tcWeaponObject::GetImpactPoint() const
     return impactPoint;
 }
 
-long tcWeaponObject::GetIntendedTarget() const
+int tcWeaponObject::GetIntendedTarget() const
 {
 	return intendedTarget;
 }
@@ -401,6 +401,31 @@ bool tcWeaponObject::IsDatalinkActive() const
 }
 
 /**
+ * Serialize weapon-specific fields to JSON. Calls base class serialization
+ * to include common fields.
+ */
+void tcWeaponObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    tcGameObject::SerializeToJson(obj, allocator);
+
+    obj.AddMember(rapidjson::Value("intendedTarget", allocator).Move(), (int)intendedTarget, allocator);
+    obj.AddMember(rapidjson::Value("directHitTargetId", allocator).Move(), (int)directHitTargetId, allocator);
+    obj.AddMember(rapidjson::Value("fuseDelay", allocator).Move(), fuseDelay, allocator);
+    obj.AddMember(rapidjson::Value("fuseMode", allocator).Move(), (int)fuseMode, allocator);
+    obj.AddMember(rapidjson::Value("datalinkActive", allocator).Move(), datalinkActive, allocator);
+    obj.AddMember(rapidjson::Value("launchingPlatform", allocator).Move(), (int)launchingPlatform, allocator);
+    obj.AddMember(rapidjson::Value("payloadDeployed", allocator).Move(), payloadDeployed, allocator);
+    obj.AddMember(rapidjson::Value("massKg", allocator).Move(), GetMassKg(), allocator);
+
+    // impact point
+    rapidjson::Value impactObj(rapidjson::kObjectType);
+    impactObj.AddMember("x", impactPoint.x(), allocator);
+    impactObj.AddMember("y", impactPoint.y(), allocator);
+    impactObj.AddMember("z", impactPoint.z(), allocator);
+    obj.AddMember(rapidjson::Value("impactPoint", allocator).Move(), impactObj, allocator);
+}
+
+/**
 * @return true if weapon has detonated
 */
 bool tcWeaponObject::IsDetonated()
@@ -423,7 +448,7 @@ bool tcWeaponObject::IsGroundFused() const
     return (fuseMode == GROUND_FUSE);
 }
 
-bool tcWeaponObject::IsIntendedTarget(long id)
+bool tcWeaponObject::IsIntendedTarget(int id)
 {
     if (id == -1) return false;
     return intendedTarget == id;
@@ -507,7 +532,7 @@ void tcWeaponObject::SetDetonationDelay(float delay_s)
 }
 
 
-void tcWeaponObject::SetDirectHitTargetId(long id)
+void tcWeaponObject::SetDirectHitTargetId(int id)
 {
     directHitTargetId = id;
 }
@@ -525,7 +550,7 @@ void tcWeaponObject::SetFuseMode(FuseMode mode)
     fuseMode = mode;
 }
 
-void tcWeaponObject::SetIntendedTarget(long targetId)
+void tcWeaponObject::SetIntendedTarget(int targetId)
 {
     if (intendedTarget == targetId) return;
 
@@ -605,7 +630,7 @@ void tcWeaponObject::UpdateDatalinkStatus()
 }
 
 
-bool tcWeaponObject::WasLaunchedBy(long id) const
+bool tcWeaponObject::WasLaunchedBy(int id) const
 {
 	return (launchingPlatform == id);
 }

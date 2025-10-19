@@ -60,6 +60,9 @@ public:
     virtual tcGameStream& operator<<(tcGameStream& stream);
     virtual tcGameStream& operator>>(tcGameStream& stream);
 
+    // JSON serialization
+    virtual void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const;
+
 	virtual float GetSonarSourceLevel(float az_deg) const;
 
     tcWaterCM();

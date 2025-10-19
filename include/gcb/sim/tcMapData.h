@@ -51,7 +51,7 @@ class tcGeoTiffReader;
 #define RESLOW_DEG (float)K_DEC_LOWRES/120.0f
 #define RESHIGH_DEG (float)1.0f/120.0f
 #define M_LOWRES (int)180*120/K_DEC_LOWRES // latitude cells for low res global map
-#define N_LOWRES (int)360*120/K_DEC_LOWRES // longitude
+#define N_LOWRES (int)360*120/K_DEC_LOWRES // intitude
 //#define M_HIGHRES 1024
 //#define N_HIGHRES 2048
 

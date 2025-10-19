@@ -38,8 +38,7 @@
 
 using namespace std;
 
-namespace database
-{
+using namespace database;
 
 
 /**
@@ -48,12 +47,12 @@ namespace database
 */
 void tcAirDetectionDBObject::AddSqlColumns(std::string& columnString)
 {
-	columnString += ",";
+    columnString += ",";
 
     columnString += "RCS_dBsm number(8),";
     columnString += "RCS_Model varchar(20),";
-	columnString += "OpticalCrossSection_dBsm number(8),";
-	columnString += "IRSignature_dB number(8),";
+    columnString += "OpticalCrossSection_dBsm number(8),";
+    columnString += "IRSignature_dB number(8),";
     columnString += "IR_ModelA varchar(20),";
     columnString += "IR_ModelB varchar(20),";
     columnString += "IR_ModelC varchar(20),";
@@ -73,7 +72,7 @@ void tcAirDetectionDBObject::BindSignatureModels()
     {
         radarSignature = *(database->GetSignatureModel("Default"));
         fprintf(stderr, "tcAirDetectionDBObject::BindSignatureModels - %s missing or bad RCS model\n",
-            RCS_Model.c_str());
+                RCS_Model.c_str());
     }
     else
         radarSignature=*_radarSignature;
@@ -81,23 +80,23 @@ void tcAirDetectionDBObject::BindSignatureModels()
     {
         irSignatureA = *(database->GetSignatureModel("Default"));
         fprintf(stderr, "tcAirDetectionDBObject::BindSignatureModels - %s missing or bad IR model\n",
-            IR_ModelA.c_str());
+                IR_ModelA.c_str());
     }else
         irSignatureA=*_irSignatureA;
     if (!_irSignatureB )
     {
         irSignatureB = *(database->GetSignatureModel("Default"));
         fprintf(stderr, "tcAirDetectionDBObject::BindSignatureModels - %s missing or bad IR model\n",
-            IR_ModelB.c_str());
+                IR_ModelB.c_str());
     }else
         irSignatureB=*_irSignatureB;
     if (!_irSignatureC )
     {
         irSignatureC = *(database->GetSignatureModel("Default"));
         fprintf(stderr, "tcAirDetectionDBObject::BindSignatureModels - %s missing or bad IR model\n",
-            IR_ModelC.c_str());
+                IR_ModelC.c_str());
     }else
-    irSignatureC=*_irSignatureC;
+        irSignatureC=*_irSignatureC;
 
     // test code
     //for (float az_deg=-180.0f; az_deg<=180.0f; az_deg+=1.0f)
@@ -137,10 +136,10 @@ float tcAirDetectionDBObject::GetRCS_dBsm(float az_deg) const
 
 void tcAirDetectionDBObject::ReadSql(tcSqlReader& entry)
 {
-	RCS_dBsm = entry.GetDouble("RCS_dBsm");   
+    RCS_dBsm = entry.GetDouble("RCS_dBsm");
     RCS_Model = entry.GetString("RCS_Model");
-	opticalCrossSection_dBsm = entry.GetDouble("OpticalCrossSection_dBsm");               
-	irSignature_dB = entry.GetDouble("IRSignature_dB");
+    opticalCrossSection_dBsm = entry.GetDouble("OpticalCrossSection_dBsm");
+    irSignature_dB = entry.GetDouble("IRSignature_dB");
     IR_ModelA = entry.GetString("IR_ModelA");
     IR_ModelB = entry.GetString("IR_ModelA");
     IR_ModelC = entry.GetString("IR_ModelA");
@@ -151,20 +150,20 @@ void tcAirDetectionDBObject::ReadSql(tcSqlReader& entry)
 
 void tcAirDetectionDBObject::WriteSql(std::string& valueString) const
 {
-	std::stringstream s;
+    std::stringstream s;
 
-	s << ",";
+    s << ",";
 
-	s << RCS_dBsm << ",";
+    s << RCS_dBsm << ",";
     s << "'" << RCS_Model.c_str() << "',";
-	s << opticalCrossSection_dBsm << ",";               
-	s << irSignature_dB << ",";
+    s << opticalCrossSection_dBsm << ",";
+    s << irSignature_dB << ",";
     s << "'" << IR_ModelA.c_str() << "',";
     s << "'" << IR_ModelB.c_str() << "',";
     s << "'" << IR_ModelC.c_str() << "',";
     s << effectiveHeight_m;
-	
-	valueString += s.str();
+
+    valueString += s.str();
 }
 
 void tcAirDetectionDBObject::WritePythonValue(const std::string &mzClass, std::string &valueString) const
@@ -194,35 +193,35 @@ void tcAirDetectionDBObject::WritePython(const std::string &mzClass, std::string
 
 
 tcAirDetectionDBObject::tcAirDetectionDBObject()
-:   RCS_dBsm(0),
+    :   RCS_dBsm(0),
     RCS_Model(""),
-	opticalCrossSection_dBsm(0),           
-	irSignature_dB(0),
+    opticalCrossSection_dBsm(0),
+    irSignature_dB(0),
     IR_ModelA(""),
     IR_ModelB(""),
     IR_ModelC(""),
     effectiveHeight_m(0)
-    // radarSignature(0),
-    // irSignatureA(0),
-    // irSignatureB(0),
-    // irSignatureC(0)
+// radarSignature(0),
+// irSignatureA(0),
+// irSignatureB(0),
+// irSignatureC(0)
 {
 
 }
 
 tcAirDetectionDBObject::tcAirDetectionDBObject(const tcAirDetectionDBObject& obj)
-:   RCS_dBsm(obj.RCS_dBsm),
+    :   RCS_dBsm(obj.RCS_dBsm),
     RCS_Model(obj.RCS_Model),
-	opticalCrossSection_dBsm(obj.opticalCrossSection_dBsm),           
-	irSignature_dB(obj.irSignature_dB),
+    opticalCrossSection_dBsm(obj.opticalCrossSection_dBsm),
+    irSignature_dB(obj.irSignature_dB),
     IR_ModelA(obj.IR_ModelA),
     IR_ModelB(obj.IR_ModelB),
     IR_ModelC(obj.IR_ModelC),
     effectiveHeight_m(obj.effectiveHeight_m)
-    // radarSignature(0),
-    // irSignatureA(0),
-    // irSignatureB(0),
-    // irSignatureC(0)
+// radarSignature(0),
+// irSignatureA(0),
+// irSignatureB(0),
+// irSignatureC(0)
 {
     BindSignatureModels();   
 }
@@ -231,4 +230,17 @@ tcAirDetectionDBObject::~tcAirDetectionDBObject()
 {
 }
 
+void tcAirDetectionDBObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    tcComponentDBObject::SerializeToJson(obj, allocator);
+
+    obj.AddMember(rapidjson::Value("RCS_dBsm", allocator).Move(), RCS_dBsm, allocator);
+    if (!RCS_Model.empty()) obj.AddMember(rapidjson::Value("RCS_Model", allocator).Move(), rapidjson::Value(RCS_Model.c_str(), allocator).Move(), allocator);
+    obj.AddMember(rapidjson::Value("opticalCrossSection_dBsm", allocator).Move(), opticalCrossSection_dBsm, allocator);
+    obj.AddMember(rapidjson::Value("irSignature_dB", allocator).Move(), irSignature_dB, allocator);
+    if (!IR_ModelA.empty()) obj.AddMember(rapidjson::Value("IR_ModelA", allocator).Move(), rapidjson::Value(IR_ModelA.c_str(), allocator).Move(), allocator);
+    if (!IR_ModelB.empty()) obj.AddMember(rapidjson::Value("IR_ModelB", allocator).Move(), rapidjson::Value(IR_ModelB.c_str(), allocator).Move(), allocator);
+    if (!IR_ModelC.empty()) obj.AddMember(rapidjson::Value("IR_ModelC", allocator).Move(), rapidjson::Value(IR_ModelC.c_str(), allocator).Move(), allocator);
+    obj.AddMember(rapidjson::Value("effectiveHeight_m", allocator).Move(), effectiveHeight_m, allocator);
 }
+

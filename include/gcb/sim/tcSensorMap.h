@@ -59,8 +59,8 @@ class tcSensorMap
 	enum {MAX_MAPS = 16, MAX_ALLIANCES = 16}; // MAX_ALLIANCES should be merged with tcAllianceInfo::MAX_ALLIANCES
 public:
 	int GetTrackCount(UINT8 anAlliance);
-	long GetStartTrackPosition(UINT8 anAlliance);
-	void GetNextTrack(long& pos, std::shared_ptr<tcSensorMapTrack>& pTrack, UINT8 anAlliance);
+	int GetStartTrackPosition(UINT8 anAlliance);
+	void GetNextTrack(int& pos, std::shared_ptr<tcSensorMapTrack>& pTrack, UINT8 anAlliance);
 
 	tcAllianceSensorMap* GetMap(UINT8 anAlliance);
 	tcAllianceSensorMap* GetOrCreateMap(UINT8 alliance);
@@ -78,7 +78,7 @@ public:
      * @param alliance
      * @return
      */
-    tcSensorReport* GetOrCreateReport(long platformID, long sensorID, long trackID, std::shared_ptr<tcSensorMapTrack>& pSMTrack, unsigned int alliance);
+    tcSensorReport* GetOrCreateReport(int platformID, int sensorID, int trackID, std::shared_ptr<tcSensorMapTrack>& pSMTrack, unsigned int alliance);
 
     void AddAlwaysVisibleTrack(const std::string& unitName);
     void DropAlwaysVisibleTrack(const std::string& unitName);
@@ -94,8 +94,8 @@ public:
      * @param anAlliance
      * @return
      */
-    std::shared_ptr<tcSensorMapTrack> GetSensorMapTrack(long anTrackID, UINT8 anAlliance);
-	bool GetTrack(unsigned long anTrackID, tcTrack& track, UINT8 anAlliance);
+    std::shared_ptr<tcSensorMapTrack> GetSensorMapTrack(int anTrackID, UINT8 anAlliance);
+	bool GetTrack(unsigned int anTrackID, tcTrack& track, UINT8 anAlliance);
 	int Serialize(tcFile& file, bool mbLoad);
 	bool Test();
 

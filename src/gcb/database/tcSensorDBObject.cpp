@@ -215,6 +215,33 @@ void tcSensorDBObject::WritePython(std::string &valueString) const
     valueString+="    return dbObj\n";;
 }
 
+void tcSensorDBObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    tcDatabaseObject::SerializeToJson(obj, allocator);
+
+    obj.AddMember(rapidjson::Value("mfMaxRange_km", allocator).Move(), mfMaxRange_km, allocator);
+    obj.AddMember(rapidjson::Value("mfRefRange_km", allocator).Move(), mfRefRange_km, allocator);
+    obj.AddMember(rapidjson::Value("mfFieldOfView_deg", allocator).Move(), mfFieldOfView_deg, allocator);
+    obj.AddMember(rapidjson::Value("minElevation_deg", allocator).Move(), minElevation_deg, allocator);
+    obj.AddMember(rapidjson::Value("maxElevation_deg", allocator).Move(), maxElevation_deg, allocator);
+    obj.AddMember(rapidjson::Value("mfScanPeriod_s", allocator).Move(), mfScanPeriod_s, allocator);
+    if (!damageEffect.empty()) obj.AddMember(rapidjson::Value("damageEffect", allocator).Move(), rapidjson::Value(damageEffect.c_str(), allocator).Move(), allocator);
+    obj.AddMember(rapidjson::Value("rangeError", allocator).Move(), rangeError, allocator);
+    obj.AddMember(rapidjson::Value("angleError_deg", allocator).Move(), angleError_deg, allocator);
+    obj.AddMember(rapidjson::Value("elevationError_deg", allocator).Move(), elevationError_deg, allocator);
+    obj.AddMember(rapidjson::Value("minFrequency_Hz", allocator).Move(), minFrequency_Hz, allocator);
+    obj.AddMember(rapidjson::Value("maxFrequency_Hz", allocator).Move(), maxFrequency_Hz, allocator);
+    obj.AddMember(rapidjson::Value("idThreshold_dB", allocator).Move(), idThreshold_dB, allocator);
+    obj.AddMember(rapidjson::Value("counterMeasureFactor", allocator).Move(), counterMeasureFactor, allocator);
+    obj.AddMember(rapidjson::Value("isSurveillance", allocator).Move(), isSurveillance ? 1 : 0, allocator);
+    
+    // calculated parameters
+    obj.AddMember(rapidjson::Value("angleError_rad", allocator).Move(), angleError_rad, allocator);
+    obj.AddMember(rapidjson::Value("elevationError_rad", allocator).Move(), elevationError_rad, allocator);
+    obj.AddMember(rapidjson::Value("minElevation_rad", allocator).Move(), minElevation_rad, allocator);
+    obj.AddMember(rapidjson::Value("maxElevation_rad", allocator).Move(), maxElevation_rad, allocator);
+    obj.AddMember(rapidjson::Value("averageFrequency_Hz", allocator).Move(), averageFrequency_Hz, allocator);
+}
 
 tcSensorDBObject::tcSensorDBObject() : tcDatabaseObject(),
     mfMaxRange_km(100.0f),

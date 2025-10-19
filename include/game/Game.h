@@ -153,7 +153,7 @@ public:
 
     int multiplayerMode; ///< 0 - single-player, 1 - client, 2 - server
 	bool togglePopup; ///< true to toggle popup menu state
-	std::vector<long> hookedUnits; ///< vector of hooked unit ids
+    std::vector<int> hookedUnits; ///< vector of hooked unit ids
     bool enableClientSync; ///< for multiplayer client
 //    std::string versionString;
 
@@ -182,7 +182,7 @@ public:
 	void SetTheater(float lat_deg, float lon_deg); ///< sets theater view center
 
 
-    void SetTimeAccel(long accel);
+    void SetTimeAccel(int accel);
 
     int NextTimeAccelVal(int current, bool goFaster) const;
     void ShiftTime(float delta_s); ///< shifts time for sky/environment updates
@@ -224,12 +224,12 @@ public:
 private:
 
     // struct UnitInfo{
-    //     long mnID;
+    //     int mnID;
     //     int alliance;
     //     unsigned int  mnModelType;              ///< class MTYPE_ identifier
     //     char mzUnit[128];
     //     char mzClass[128];
-    //     double mfLon_rad;              ///< longitude [rad]
+    //     double mfLon_rad;              ///< intitude [rad]
     //     double mfLat_rad;              ///< latitude [rad]
     //     float mfAlt_m;                 ///< altitude, negative is subsurface depth [m]
     //     float mfHeading_rad;           ///< relative to north [rad]
@@ -247,7 +247,7 @@ private:
     // struct SharedSimData
     // {
     //     SimTime simTime;
-    //     unsigned long count;
+    //     unsigned int count;
     //     UnitInfo unitInfos[N_GAME_OBJECTS];
     // };
     // struct CommandString

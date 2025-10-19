@@ -119,9 +119,9 @@ namespace scriptinterface
     }
 
     /**
-    * @return longitude in rad
+    * @return intitude in rad
     */
-    float tcWeaponInterface::GetLongitude() const
+    float tcWeaponInterface::Getintitude() const
     {
         if (weapon != 0)
         {

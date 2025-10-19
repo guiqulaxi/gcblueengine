@@ -545,5 +545,38 @@ std::shared_ptr<tcGameObject> tcJetDBObject::CreateGameObject()
     return obj;
 }
 
-
+void tcJetDBObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    tcAirDBObject::SerializeToJson(obj, allocator);
+    
+    // Serialize basic float members
+    obj.AddMember(rapidjson::Value("militaryThrust_N", allocator).Move(), militaryThrust_N, allocator);
+    obj.AddMember(rapidjson::Value("militaryThrustSpeedSlope", allocator).Move(), militaryThrustSpeedSlope, allocator);
+    obj.AddMember(rapidjson::Value("mfAfterburnThrust_N", allocator).Move(), mfAfterburnThrust_N, allocator);
+    obj.AddMember(rapidjson::Value("abThrustSpeedSlope", allocator).Move(), abThrustSpeedSlope, allocator);
+    obj.AddMember(rapidjson::Value("mfAfterburnFuelRate_kgps", allocator).Move(), mfAfterburnFuelRate_kgps, allocator);
+    obj.AddMember(rapidjson::Value("mfCdpsub", allocator).Move(), mfCdpsub, allocator);
+    obj.AddMember(rapidjson::Value("mfCdptran", allocator).Move(), mfCdptran, allocator);
+    obj.AddMember(rapidjson::Value("mfCdpsup", allocator).Move(), mfCdpsup, allocator);
+    obj.AddMember(rapidjson::Value("mfMcm", allocator).Move(), mfMcm, allocator);
+    obj.AddMember(rapidjson::Value("mfMsupm", allocator).Move(), mfMsupm, allocator);
+    obj.AddMember(rapidjson::Value("cruiseSpeed_mps", allocator).Move(), cruiseSpeed_mps, allocator);
+    obj.AddMember(rapidjson::Value("stallSpeed_mps", allocator).Move(), stallSpeed_mps, allocator);
+    obj.AddMember(rapidjson::Value("invMachRange", allocator).Move(), invMachRange, allocator);
+    obj.AddMember(rapidjson::Value("Cdi", allocator).Move(), Cdi, allocator);
+    
+    // Serialize vector members
+    rapidjson::Value thrustTableArray(rapidjson::kArrayType);
+    for (size_t i = 0; i < thrustTable.size(); ++i) {
+        thrustTableArray.PushBack(thrustTable[i], allocator);
+    }
+    obj.AddMember(rapidjson::Value("thrustTable", allocator).Move(), thrustTableArray, allocator);
+    
+    rapidjson::Value fuelEfficiencyTableArray(rapidjson::kArrayType);
+    for (size_t i = 0; i < fuelEfficiencyTable.size(); ++i) {
+        fuelEfficiencyTableArray.PushBack(fuelEfficiencyTable[i], allocator);
+    }
+    obj.AddMember(rapidjson::Value("fuelEfficiencyTable", allocator).Move(), fuelEfficiencyTableArray, allocator);
 }
+
+} // namespace database

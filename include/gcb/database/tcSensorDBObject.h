@@ -71,6 +71,8 @@ namespace database
 		virtual void PrintToFile(tcFile& file);
         virtual const char* GetTypeDescription() const;
 
+        virtual void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const override;
+
 		static void AddSqlColumns(std::string& columnString);
 		void ReadSql(tcSqlReader& entry);
         void WriteSql(std::string& valueString) const;

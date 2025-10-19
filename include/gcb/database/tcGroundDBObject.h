@@ -61,16 +61,8 @@ namespace database
         tcGroundDBObject(const tcGroundDBObject& obj); ///< copy constructor
         virtual ~tcGroundDBObject();
         virtual std::shared_ptr<tcGameObject> CreateGameObject() override;
-    //     virtual void SetAirDetectionDBObject(std::shared_ptr<tcAirDetectionDBObject> obj)
-    //     {
-    //         airDetectionDBObject=obj;
-    //     }
-    //     virtual std::shared_ptr<tcAirDetectionDBObject> GetAirDetectionDBObject()
-    //     {
-    //         return airDetectionDBObject;
-    //     }
-    // protected:
-    //     std::shared_ptr<tcAirDetectionDBObject> airDetectionDBObject;
+        void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const override;
+
 
     };
 

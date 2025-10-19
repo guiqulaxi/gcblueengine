@@ -55,7 +55,7 @@ tcSimState* tcLauncherState::simState = 0;
  * @param azimuth_rad mount angle of (fixed) launcher in radians relative to bow/nose
  * @param displayName name to display in GUI controls, e.g. "Tube 1"
  */
-void tcLauncherState::AddFullLauncher(long anKey, float azimuth_rad, float elevation_rad, float fov_deg, 
+void tcLauncherState::AddFullLauncher(int anKey, float azimuth_rad, float elevation_rad, float fov_deg, 
                                       const std::string& displayName, bool isReloadable)
 {
     assert(mpDatabase);
@@ -232,7 +232,7 @@ bool tcLauncherState::IsSeekerLaunch(unsigned anLauncher)
 * nLauncher is set to launcher idx of launching launcher
 * This only handles one launch per call (not efficient for simultaneous launches)
 */
-void tcLauncherState::Launch(long& key, unsigned& nLauncher) 
+void tcLauncherState::Launch(int& key, unsigned& nLauncher) 
 {
     for (int n=0; n<mnCount; n++) 
     {
@@ -407,7 +407,7 @@ bool tcLauncherState::SetLauncherDatum(unsigned nLauncher,
 /**
 * @return true if success
 */
-bool tcLauncherState::SetLauncherTarget(unsigned nLauncher, long targetID)
+bool tcLauncherState::SetLauncherTarget(unsigned nLauncher, int targetID)
 {
     size_t nLaunchers = launchers.size();
     if (nLauncher > nLaunchers)

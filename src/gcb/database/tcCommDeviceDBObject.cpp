@@ -1,5 +1,6 @@
 #include "tcCommDeviceDBObject.h"
 #include "strutil.h"
+#include "rapidjson/document.h"
 using namespace database ;
 void tcCommDeviceDBObject::WritePythonValue(std::string &valueString) const
 {
@@ -97,4 +98,30 @@ tcCommDeviceDBObject::~tcCommDeviceDBObject()
 void tcCommDeviceDBObject::CalculateEffectiveParams()
 {
 
+}
+
+void tcCommDeviceDBObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    tcDatabaseObject::SerializeToJson(obj, allocator);
+
+    obj.AddMember(rapidjson::Value("maxRange_km", allocator).Move(), mfMaxRange_km, allocator);
+    obj.AddMember(rapidjson::Value("refRange_km", allocator).Move(), mfRefRange_km, allocator);
+    obj.AddMember(rapidjson::Value("coverageAngle_deg", allocator).Move(), mfCoverageAngle_deg, allocator);
+    obj.AddMember(rapidjson::Value("bandwidth_Mbps", allocator).Move(), mfBandwidth_Mbps, allocator);
+    obj.AddMember(rapidjson::Value("latency_ms", allocator).Move(), mfLatency_ms, allocator);
+
+    obj.AddMember(rapidjson::Value("minFreq_MHz", allocator).Move(), mfMinFrequency_MHz, allocator);
+    obj.AddMember(rapidjson::Value("maxFreq_MHz", allocator).Move(), mfMaxFrequency_MHz, allocator);
+    obj.AddMember(rapidjson::Value("signalStrength_dBm", allocator).Move(), mfSignalStrength_dBm, allocator);
+
+    obj.AddMember(rapidjson::Value("antiJammingFactor", allocator).Move(), mfAntiJammingFactor, allocator);
+    obj.AddMember(rapidjson::Value("encryptionLevel", allocator).Move(), mfEncryptionLevel, allocator);
+
+    obj.AddMember(rapidjson::Value("terrainAttenuation", allocator).Move(), mfTerrainAttenuation, allocator);
+    obj.AddMember(rapidjson::Value("weatherImpact", allocator).Move(), mfWeatherImpact, allocator);
+    obj.AddMember(rapidjson::Value("packetLossRate", allocator).Move(), mfPacketLossRate, allocator);
+
+    obj.AddMember(rapidjson::Value("maxConnections", allocator).Move(), mnMaxConnections, allocator);
+    if (!commProtocol.empty()) obj.AddMember(rapidjson::Value("commProtocol", allocator).Move(), rapidjson::Value(commProtocol.c_str(), allocator).Move(), allocator);
+    obj.AddMember(rapidjson::Value("isNetworkNode", allocator).Move(), isNetworkNode ? 1 : 0, allocator);
 }

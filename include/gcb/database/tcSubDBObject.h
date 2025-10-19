@@ -82,6 +82,8 @@ namespace database
         virtual ~tcSubDBObject();
         virtual std::shared_ptr<tcGameObject> CreateGameObject() override;
         void CalculateParams();
+        void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const override;
+
         // virtual void SetAirDetectionDBObject(std::shared_ptr<tcAirDetectionDBObject> obj)
         // {
         //     airDetectionDBObject=obj;

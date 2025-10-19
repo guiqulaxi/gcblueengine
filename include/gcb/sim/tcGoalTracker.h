@@ -134,11 +134,11 @@ public:
 	tcGoal* GetAllianceGoal(int alliance);
     void SetAllianceGoal(int alliance, tcGoal* goal);
 
-    void AddChildGoalToId(unsigned long id, tcGoal* goal);
-    void DeleteGoalById(unsigned long id);
-    tcGoal* LookupGoalById(unsigned long id);
-    tcGoal* SearchGoalForId(unsigned long id, tcGoal* goal);
-    tcCompoundGoal* FindParentGoalForId(unsigned long id, tcCompoundGoal* compound);
+    void AddChildGoalToId(unsigned int id, tcGoal* goal);
+    void DeleteGoalById(unsigned int id);
+    tcGoal* LookupGoalById(unsigned int id);
+    tcGoal* SearchGoalForId(unsigned int id, tcGoal* goal);
+    tcCompoundGoal* FindParentGoalForId(unsigned int id, tcCompoundGoal* compound);
 
     float GetAllianceOffset(int alliance);
     float GetAllianceScore(int alliance);
@@ -149,7 +149,7 @@ public:
     void SetAllianceROE(int alliance, ROEMode air, ROEMode surf, ROEMode sub, ROEMode land);
 	void SetAllianceROE(int alliance, ROEStatus roeStatus);
     bool IsTargetLegal(std::shared_ptr<tcGameObject> attacker, tcSensorMapTrack& targetTrack) const;
-    bool IsTargetLegal(std::shared_ptr<tcGameObject> attacker, long targetTrackId) const;
+    bool IsTargetLegal(std::shared_ptr<tcGameObject> attacker, int targetTrackId) const;
     bool IsTargetLegal(std::shared_ptr<tcGameObject> attacker, float lon_rad, float lat_rad) const;
 
     void Update(double currentTime);

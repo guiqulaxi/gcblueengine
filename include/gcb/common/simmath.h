@@ -75,7 +75,7 @@ public:
 
 
 
-/** tcRect with [-pi,pi) and [-pi/2,pi/2) range for longitude and latitude */
+/** tcRect with [-pi,pi) and [-pi/2,pi/2) range for intitude and latitude */
 class tcGeoRect : public tcRect 
 {
 public:
@@ -138,7 +138,7 @@ public:
 class tcKinematics 
 {
 public:
-    double mfLon_rad;              ///< longitude [rad]
+    double mfLon_rad;              ///< intitude [rad]
     double mfLat_rad;              ///< latitude [rad]
     float mfAlt_m;                 ///< altitude, negative is subsurface depth [m]
     float mfHeading_rad;           ///< relative to north [rad] 顺时针

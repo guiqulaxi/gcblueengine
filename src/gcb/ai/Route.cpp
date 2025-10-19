@@ -288,7 +288,7 @@ void Route::EditWaypoint(size_t idx, double lon_rad, double lat_rad, float alt_m
     }
 }
 
-void Route::EditWaypointReference(size_t idx, unsigned char referenceMode, long referencePlatform)
+void Route::EditWaypointReference(size_t idx, unsigned char referenceMode, int referencePlatform)
 {
     if (idx < waypoints.size())
     {
@@ -534,7 +534,7 @@ bool Route::IsPathfindingActive() const
     return false; //(maxPathAltitude_m < 10000.0f);
 }
 
-void Route::SetPlatformId(long id)
+void Route::SetPlatformId(int id)
 {
     platformId = id;
 }

@@ -62,8 +62,8 @@ namespace database
 		int GetInt(const std::string& field);
 		int GetInt(const char* fmt, ...);
 
-		long GetLong(const std::string& field);
-		long GetLong(const char* fmt, ...);
+		int Getint(const std::string& field);
+		int Getint(const char* fmt, ...);
 
 		std::string GetString(const std::string& field);
 		std::string GetString(const char* fmt, ...);

@@ -143,11 +143,11 @@ tcGameStream& tcGoalTracker::operator<<(tcGameStream& stream)
             { // WORKAROUND, should be able to eliminate this eventually
                 //stream >> goalState; // int, skip this since goalType read was this value, coincidentally always 0 for tcGoal type
                 float tempFloat;
-                unsigned long tempULong;
+                unsigned int tempUint;
                 unsigned int tempUInt;
                 stream >> tempFloat; // failScore
                 stream >> tempFloat; // passScore
-                stream >> tempULong; // id
+                stream >> tempUint; // id
                 stream >> tempUInt; // alliance
             }
             else
@@ -715,7 +715,7 @@ bool tcGoalTracker::IsTargetLegal(std::shared_ptr<tcGameObject> attacker, tcSens
 
 }
 
-bool tcGoalTracker::IsTargetLegal(std::shared_ptr<tcGameObject> attacker, long targetTrackId) const
+bool tcGoalTracker::IsTargetLegal(std::shared_ptr<tcGameObject> attacker, int targetTrackId) const
 {
     assert(attacker != 0);
 
@@ -926,7 +926,7 @@ void tcGoalTracker::SetAllianceGoal(int alliance, tcGoal* goal)
     }
 }
 
-void tcGoalTracker::AddChildGoalToId(unsigned long id, tcGoal* goal)
+void tcGoalTracker::AddChildGoalToId(unsigned int id, tcGoal* goal)
 {
     tcGoal* parentGoal = LookupGoalById(id);
     tcCompoundGoal* compound = dynamic_cast<tcCompoundGoal*>(parentGoal);
@@ -936,7 +936,7 @@ void tcGoalTracker::AddChildGoalToId(unsigned long id, tcGoal* goal)
     }
 }
 
-void tcGoalTracker::DeleteGoalById(unsigned long id)
+void tcGoalTracker::DeleteGoalById(unsigned int id)
 {
     std::map<int, tcGoal*>::iterator iter = allianceGoals.begin();
     for (;iter != allianceGoals.end(); ++iter)
@@ -975,7 +975,7 @@ void tcGoalTracker::DeleteGoalById(unsigned long id)
     }
 }
 
-tcGoal* tcGoalTracker::LookupGoalById(unsigned long id)
+tcGoal* tcGoalTracker::LookupGoalById(unsigned int id)
 {
     std::map<int, tcGoal*>::iterator iter = allianceGoals.begin();
     for (;iter != allianceGoals.end(); ++iter)
@@ -987,7 +987,7 @@ tcGoal* tcGoalTracker::LookupGoalById(unsigned long id)
     return 0;
 }
 
-tcGoal* tcGoalTracker::SearchGoalForId(unsigned long id, tcGoal* goal)
+tcGoal* tcGoalTracker::SearchGoalForId(unsigned int id, tcGoal* goal)
 {
     if (goal == 0) return 0;
 
@@ -1005,7 +1005,7 @@ tcGoal* tcGoalTracker::SearchGoalForId(unsigned long id, tcGoal* goal)
     return 0;
 }
 
-tcCompoundGoal* tcGoalTracker::FindParentGoalForId(unsigned long id, tcCompoundGoal* compound)
+tcCompoundGoal* tcGoalTracker::FindParentGoalForId(unsigned int id, tcCompoundGoal* compound)
 {
     if (compound == 0) 
     {
@@ -1084,7 +1084,7 @@ tinyxml2::XMLElement* child=root->FirstChildElement();
         {
             summary.scenarioName = child->Attribute("name");
 
-             unsigned long val =std::stoul(child->Attribute("player_alliance","0"));
+             unsigned int val =std::stoul(child->Attribute("player_alliance","0"));
             summary.playerAlliance = (unsigned int)val;
 
             summary.completedTime = child->Attribute("stopped_on", "UNK");
@@ -1092,9 +1092,9 @@ tinyxml2::XMLElement* child=root->FirstChildElement();
         else if (child->Value() ==  std::string("alliance"))
         {
 
-            unsigned long allianceId =std::stoul(child->Attribute("id","999"));
+            unsigned int allianceId =std::stoul(child->Attribute("id","999"));
 
-//            child->GetAttribute("id", "999").ToULong(&allianceId);
+//            child->GetAttribute("id", "999").ToUint(&allianceId);
             summary.alliances.push_back((unsigned int)(allianceId));
 
             summary.allianceNames.push_back(child->Attribute("name","0"));
@@ -1139,13 +1139,13 @@ bool tcGoalTracker::ReadAARAllianceNode(unsigned int alliance, XMLElement* node,
                     dr.databaseClass = child2->Attribute("db");
                     dr.damagerString = child2->Attribute("damager");
 
-//                    unsigned long classId = 0;
-                    unsigned long classId =std::stoul(child2->Attribute("class"));
+//                    unsigned int classId = 0;
+                    unsigned int classId =std::stoul(child2->Attribute("class"));
 
-//                    child2->Attribute("class", "0").ToULong(&classId);
+//                    child2->Attribute("class", "0").ToUint(&classId);
                     dr.classification =( unsigned int)(classId);
 
-                    unsigned long damageFraction =std::stof(child2->Attribute("damage"));
+                    unsigned int damageFraction =std::stof(child2->Attribute("damage"));
 
 //                    double damageFraction = 0;
 //                    child2->GetAttribute("damage", "0").ToDouble(&damageFraction);
@@ -1154,9 +1154,9 @@ bool tcGoalTracker::ReadAARAllianceNode(unsigned int alliance, XMLElement* node,
                     dr.time =std::stof(child2->Attribute("time"));
 
 //                    child2->GetAttribute("time", "0").ToDouble(&dr.time);
-unsigned long landed=std::stoul(child2->Attribute("landed","0"));
-//                    unsigned long landed = 0;
-//                    child2->GetAttribute("landed", "0").ToULong(&landed);
+unsigned int landed=std::stoul(child2->Attribute("landed","0"));
+//                    unsigned int landed = 0;
+//                    child2->GetAttribute("landed", "0").ToUint(&landed);
                     dr.landed = (landed != 0);
 
                     damage.push_back(dr);
@@ -1175,11 +1175,11 @@ unsigned long landed=std::stoul(child2->Attribute("landed","0"));
                     EquipmentReport2 er;
 
                     er.databaseClass = child2->Attribute("db");
-                    unsigned long qty=std::stoul(child2->Attribute("quantity"));
+                    unsigned int qty=std::stoul(child2->Attribute("quantity"));
 
-//                    unsigned long qty = 0;
+//                    unsigned int qty = 0;
 
-//                    child2->GetAttribute("quantity", "0").ToULong(&qty);
+//                    child2->GetAttribute("quantity", "0").ToUint(&qty);
                     er.quantity = (unsigned int)(qty);
 
                     equipment.push_back(er);
@@ -1232,8 +1232,8 @@ tinyxml2::XMLElement * child=root->FirstChildElement();
         {
             info.scenarioName = child->Attribute("name", "");
             
-//            unsigned long val = 0;
-            unsigned long val=std::stoul(child->Attribute("player_alliance", "0"));
+//            unsigned int val = 0;
+            unsigned int val=std::stoul(child->Attribute("player_alliance", "0"));
             info.playerAlliance = (unsigned int)val;
 
             info.completedTime = child->Attribute("stopped_on", "UNK");

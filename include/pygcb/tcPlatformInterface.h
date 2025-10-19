@@ -111,7 +111,7 @@ namespace scriptinterface {
 	class tcTrackIterator : public tcSensorMapTrack 
 	{
 	public:
-		long mnKey;
+		int mnKey;
 	};
 
 	class tcTrackList
@@ -167,7 +167,7 @@ namespace scriptinterface {
 
 		// basic nav commands: heading, speed, altitude
 		/// [Python: GetAlt] gets platform altitude in meters
-        float GetLongitude() const;
+        float Getintitude() const;
         float GetLatitude() const;
 		float GetAltitude() const; 
 		/// gets fraction of fuel remaining from 0 - 1
@@ -215,7 +215,7 @@ namespace scriptinterface {
 		* @param alt_m goal altitude of platform in meters
 		*/
         void SetAltitude(float alt_m);
-        void SetLongitude(float lon_deg ) ;
+        void Setintitude(float lon_deg ) ;
         void SetLatitude(float lat_deg) ;
 		/// sets maximum +/- pitch for air objects in degrees, workaround to slow descent for cv landing
 		void SetPitchLimitDeg(float lim_deg);
@@ -247,12 +247,12 @@ namespace scriptinterface {
 		/// get range to (lon,lat) datum in km
 		float GetRangeToDatum(float afLon_rad, float afLat_rad);
 
-        long GetFormationLeader() const;
-        void SetFormationLeader(long id);
+        int GetFormationLeader() const;
+        void SetFormationLeader(int id);
         bool IsInFormation() const;
         bool IsFormationLeader() const;
         void SetFormationEdit(bool state);
-//        long GetFormationEditId() const;
+//        int GetFormationEditId() const;
         void SetFormationPosition(float range_km, float span_km, float bearing_rad, float span_rad);
 		tcFormationPosition GetFormationPosition();
         void SetFormationAltitudeOffset(float dh_m);
@@ -268,7 +268,7 @@ namespace scriptinterface {
 		/// get database class name of platform
 		std::string GetPlatformClass();
         /// get sim id of platform
-        long GetPlatformId() const;
+        int GetPlatformId() const;
         /// get platform alliance
         unsigned int GetPlatformAlliance() const;
 
@@ -290,15 +290,15 @@ namespace scriptinterface {
 
         /// in-flight refueling
         bool CanRefuelInFlight() const;
-        bool StartRefuelWith(long id);
-        bool IsTankerAircraft(long id);
-        unsigned int GetTankerSpotsFree(long id);
+        bool StartRefuelWith(int id);
+        bool IsTankerAircraft(int id);
+        unsigned int GetTankerSpotsFree(int id);
 
 		// target commands
 		/// set target for platform
-		void SetTarget(long anID);
+		void SetTarget(int anID);
 		/// get platform target, -1 for no target
-        long GetTarget();
+        int GetTarget();
 		/// get range to target in km
 		float GetRangeToTarget();
 		/// get track info object for target
@@ -326,7 +326,7 @@ namespace scriptinterface {
 		/// hands off platform target to launcher
 		bool HandoffTargetToLauncher(int anLauncher);
         /// better method to use than handoff above
-        bool SendTargetToLauncher(long targetId, int anLauncher);
+        bool SendTargetToLauncher(int targetId, int anLauncher);
 		/// orders launch
 		void Launch(int anLauncher, int quantity);
 		/// get class name of launcher weapon
@@ -368,7 +368,7 @@ namespace scriptinterface {
         /// unloads launcher
         void UnloadLauncher(int anLauncher);
 		/// used to refuel launcher
-		void LoadOther(const std::string& item, unsigned long quantity=999999);
+		void LoadOther(const std::string& item, unsigned int quantity=999999);
         /// true if aircraft is on maintenance hold in flightport
         bool MaintenanceHold() const;
         /// general database query of equipment
@@ -406,7 +406,7 @@ namespace scriptinterface {
 		/// edits existing navigation waypoint with alt and speed params
 		void EditNavWaypointAdvanced(size_t idx, float afLon_rad, float afLat_rad, float alt_m, float speed_kts);
         /// edits reference/anchor mode of waypoint
-        void EditNavWaypointReference(size_t idx, unsigned char referenceMode, long referencePlatform);
+        void EditNavWaypointReference(size_t idx, unsigned char referenceMode, int referencePlatform);
         /// inserts navigation waypoint before point at idx
 		void InsertNavWaypoint(size_t idx, float lon_rad, float lat_rad);
         ///
@@ -443,7 +443,7 @@ namespace scriptinterface {
 		/// gets total number of tracks in alliance sensor map
 		int GetTrackCount();
 		/// gets next track in sensor map, nPos is obtained from track iterator from last call
-		tcTrackIterator GetNextTrack(long nPos);
+		tcTrackIterator GetNextTrack(int nPos);
 		/// gets number of sensors on platform
 		int GetSensorCount();
 		/// gets sensor info object for sensor n
@@ -477,7 +477,7 @@ namespace scriptinterface {
 		/// set heading to intercept track
 		float SetHeadingToInterceptTrack(tcSensorMapTrack track);
 		/// get track info object corresponding to track id
-		tcSensorMapTrack GetTrackById(long id);
+		tcSensorMapTrack GetTrackById(int id);
 
 		// flightport (airstrip, cv flight deck, helo pad)
 		/// true if platform has a flight port (e.g. carrier)
@@ -485,7 +485,7 @@ namespace scriptinterface {
 		/// return flightport interface object
 		tcFlightPortInterface GetFlightPortInfo();
 		/// returns track with landing data for landing on platform matching id
-		tcTrack GetLandingData(long id);
+		tcTrack GetLandingData(int id);
 		/// Get landing state (gear up = 0, down = 1)
 		int GetLandingState();
 		/// Set gear up (state = 0) or gear down (state = 1)
@@ -508,9 +508,9 @@ namespace scriptinterface {
 		// miscellaneous
 		
 		/// Gets id from unit name, -1 if not found or not own-alliance
-		long LookupFriendlyId(const std::string& unitName);
+		int LookupFriendlyId(const std::string& unitName);
 		/// Gets name from unit id, "" if not found or not own-alliance
-		std::string LookupFriendlyName(long id);
+		std::string LookupFriendlyName(int id);
         /// Get sim time for last platform update (current time)
 		double GetTime() const;
 //		void GetUserInput(std::string callback, std::string uitype);

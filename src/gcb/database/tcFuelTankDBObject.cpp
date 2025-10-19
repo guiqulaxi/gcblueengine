@@ -43,81 +43,86 @@
 
 using namespace std;
 
-namespace database
+using namespace database;
+
+
+
+void tcFuelTankDBObject::PrintToFile(tcFile& file)
 {
+    tcDatabaseObject::PrintToFile(file);
+}
 
-
-	void tcFuelTankDBObject::PrintToFile(tcFile& file) 
-	{
-		tcDatabaseObject::PrintToFile(file);
-	}
-
-	/**
+/**
 	* Adds sql column definitions to columnString. This is used for
 	* SQL create table command
 	*/
-	void tcFuelTankDBObject::AddSqlColumns(std::string& columnString)
-	{
-		tcDatabaseObject::AddSqlColumns(columnString);
+void tcFuelTankDBObject::AddSqlColumns(std::string& columnString)
+{
+    tcDatabaseObject::AddSqlColumns(columnString);
 
-		columnString += ",";
+    columnString += ",";
 
-		columnString += "FuelCapacity_kg number(8),";
-	}
+    columnString += "FuelCapacity_kg number(8),";
+}
 
-	void tcFuelTankDBObject::ReadSql(tcSqlReader& entry)
-	{
-		tcDatabaseObject::ReadSql(entry);
+void tcFuelTankDBObject::ReadSql(tcSqlReader& entry)
+{
+    tcDatabaseObject::ReadSql(entry);
 
-		fuelCapacity_kg = entry.GetDouble("FuelCapacity_kg");
-	}
+    fuelCapacity_kg = entry.GetDouble("FuelCapacity_kg");
+}
 
-    void tcFuelTankDBObject::WriteSql(std::string& valueString) const
-	{
-		tcDatabaseObject::WriteSql(valueString);
+void tcFuelTankDBObject::WriteSql(std::string& valueString) const
+{
+    tcDatabaseObject::WriteSql(valueString);
 
-		std::stringstream s;
+    std::stringstream s;
 
-		s << ",";
+    s << ",";
 
-		s << fuelCapacity_kg;
-	}
+    s << fuelCapacity_kg;
+}
 
-    void tcFuelTankDBObject::WritePythonValue(std::string &valueString) const
-    {
-        tcDatabaseObject::WritePythonValue(valueString);
-        valueString+="    dbObj.fuelCapacity_kg="+strutil::to_python_value(fuelCapacity_kg)+"\n";
-
-
-    }
-
-    void tcFuelTankDBObject::WritePython(std::string &valueString) const
-    {
-        valueString+="import pygcb\n";
-        valueString+="def CreateDBObject():\n";
-        valueString+="    dbObj=pygcb.tcFuelTankDBObject()\n";
-        WritePythonValue(valueString);
-        valueString+="    dbObj.CalculateParams()\n";
-
-        valueString+="    return dbObj\n";
-    }
+void tcFuelTankDBObject::WritePythonValue(std::string &valueString) const
+{
+    tcDatabaseObject::WritePythonValue(valueString);
+    valueString+="    dbObj.fuelCapacity_kg="+strutil::to_python_value(fuelCapacity_kg)+"\n";
 
 
-	tcFuelTankDBObject::tcFuelTankDBObject()
-	{
-		mzClass = "Undefined";
-	}
+}
 
-	tcFuelTankDBObject::tcFuelTankDBObject(const tcFuelTankDBObject& obj) 
-		: tcDatabaseObject(obj),
-		  fuelCapacity_kg(obj.fuelCapacity_kg)
-	{
-	}
+void tcFuelTankDBObject::WritePython(std::string &valueString) const
+{
+    valueString+="import pygcb\n";
+    valueString+="def CreateDBObject():\n";
+    valueString+="    dbObj=pygcb.tcFuelTankDBObject()\n";
+    WritePythonValue(valueString);
+    valueString+="    dbObj.CalculateParams()\n";
 
-
-	tcFuelTankDBObject::~tcFuelTankDBObject() 
-	{
-	}
+    valueString+="    return dbObj\n";
+}
 
 
+tcFuelTankDBObject::tcFuelTankDBObject()
+{
+    mzClass = "Undefined";
+}
+
+tcFuelTankDBObject::tcFuelTankDBObject(const tcFuelTankDBObject& obj)
+    : tcDatabaseObject(obj),
+    fuelCapacity_kg(obj.fuelCapacity_kg)
+{
+}
+
+
+tcFuelTankDBObject::~tcFuelTankDBObject()
+{
+}
+
+
+void tcFuelTankDBObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    tcDatabaseObject::SerializeToJson(obj, allocator);
+
+    obj.AddMember(rapidjson::Value("fuelCapacity_kg", allocator).Move(), fuelCapacity_kg, allocator);
 }

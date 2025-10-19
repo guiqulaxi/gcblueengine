@@ -51,14 +51,14 @@ public:
     std::shared_ptr<tcOpticalDBObject> mpDBObj;
 
     virtual bool CanDetectTarget(std::shared_ptr<const tcGameObject> target, float& range_km, bool useRandom=true); 
-    virtual bool InitFromDatabase(long key); ///< initializes sensor using database data at key
+    virtual bool InitFromDatabase(int key); ///< initializes sensor using database data at key
     
     // fire control methods (for laser designator)
 	virtual unsigned GetFireControlTrackCount() const;
 	virtual unsigned GetMaxFireControlTracks() const;
     virtual bool IsTrackAvailable();
-    virtual bool RequestTrack(long targetId);
-    virtual bool ReleaseTrack(long targetId);
+    virtual bool RequestTrack(int targetId);
+    virtual bool ReleaseTrack(int targetId);
     bool IsDesignator() const;
     bool IsSemiactive() const;
 
@@ -77,6 +77,9 @@ public:
     tcOpticalSensor();
     tcOpticalSensor(std::shared_ptr<tcOpticalDBObject> dbObj);
     virtual ~tcOpticalSensor();
+
+    // JSON serialization
+    virtual void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const;
 
 protected:
     float CalculateNightPenalty(std::shared_ptr<const tcGameObject> target) const;
@@ -97,7 +100,7 @@ protected:
 
 	/* parameters saved by CanDetectTarget so that this info is available in UpdateSensorMap
 	** (didn't want to modify virtual method CanDetectTarget to pass this info directly) */
-	long detectionCandidate;
+	int detectionCandidate;
 	float last_margin_dB; // detection margin from last CanDetectTarget call
     static float lastTargetSignature_dB; ///< target signature from last call to CanDetectTarget
     static float last_az_rad; ///< target azimuth form last call to CanDetectTarget

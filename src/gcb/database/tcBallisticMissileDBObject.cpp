@@ -93,7 +93,7 @@ namespace database
 
         columnString += ",";
 
-        columnString += "Gmax numeric,";
+        columnString += "Gmax,";
 
         columnString += "TimeStage1_s,";
         columnString += "AccelStage1_mps2,";
@@ -141,7 +141,7 @@ namespace database
         accelStage4_mps2 = entry.GetDouble("AccelStage4_mps2");
         bcStage4 = entry.GetDouble("BCStage4");
 
-        //CalculateParams();
+        CalculateParams();
     }
 
     void tcBallisticMissileDBObject::WriteSql(std::string& valueString)
@@ -258,5 +258,28 @@ namespace database
         return obj;
     }
 
-} // namespace database
+    void tcBallisticMissileDBObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+    {
+        tcWeaponDBObject::SerializeToJson(obj, allocator);
 
+        // 将未定义的变量替换为类中已有的成员变量
+        obj.AddMember(rapidjson::Value("gmax", allocator).Move(), gmax, allocator);
+        obj.AddMember(rapidjson::Value("timeStage1_s", allocator).Move(), timeStage1_s, allocator);
+        obj.AddMember(rapidjson::Value("accelStage1_mps2", allocator).Move(), accelStage1_mps2, allocator);
+        obj.AddMember(rapidjson::Value("bcStage1", allocator).Move(), bcStage1, allocator);
+        obj.AddMember(rapidjson::Value("timeStage2_s", allocator).Move(), timeStage2_s, allocator);
+        obj.AddMember(rapidjson::Value("accelStage2_mps2", allocator).Move(), accelStage2_mps2, allocator);
+        obj.AddMember(rapidjson::Value("bcStage2", allocator).Move(), bcStage2, allocator);
+        obj.AddMember(rapidjson::Value("timeStage3_s", allocator).Move(), timeStage3_s, allocator);
+        obj.AddMember(rapidjson::Value("accelStage3_mps2", allocator).Move(), accelStage3_mps2, allocator);
+        obj.AddMember(rapidjson::Value("bcStage3", allocator).Move(), bcStage3, allocator);
+        obj.AddMember(rapidjson::Value("timeStage4_s", allocator).Move(), timeStage4_s, allocator);
+        obj.AddMember(rapidjson::Value("accelStage4_mps2", allocator).Move(), accelStage4_mps2, allocator);
+        obj.AddMember(rapidjson::Value("bcStage4", allocator).Move(), bcStage4, allocator);
+        obj.AddMember(rapidjson::Value("inv_bcStage1", allocator).Move(), inv_bcStage1, allocator);
+        obj.AddMember(rapidjson::Value("inv_bcStage2", allocator).Move(), inv_bcStage2, allocator);
+        obj.AddMember(rapidjson::Value("inv_bcStage3", allocator).Move(), inv_bcStage3, allocator);
+        obj.AddMember(rapidjson::Value("inv_bcStage4", allocator).Move(), inv_bcStage4, allocator);
+        obj.AddMember(rapidjson::Value("thrustShutoffTime_s", allocator).Move(), thrustShutoffTime_s, allocator);
+    }
+}

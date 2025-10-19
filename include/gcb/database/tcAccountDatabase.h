@@ -69,8 +69,8 @@ public:
 		std::string email;
 		std::string last_ip;
 		unsigned int login_count;
-		unsigned long last_login; ///< seconds since Jan 1, 1970
-		unsigned long last_logout; ///< seconds since Jan 1, 1970
+		unsigned int last_login; ///< seconds since Jan 1, 1970
+		unsigned int last_logout; ///< seconds since Jan 1, 1970
 		unsigned int alliance; ///< 0 for no alliance selected
 		float score;
 		int flags; ///< permission flags

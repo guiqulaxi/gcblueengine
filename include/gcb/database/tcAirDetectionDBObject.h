@@ -74,7 +74,8 @@ namespace database
         virtual ~tcAirDetectionDBObject();
 
 
-    
+        void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const override;
+
         void BindSignatureModels();
     };
 

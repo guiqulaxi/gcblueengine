@@ -45,6 +45,9 @@
 //#include "tc3DWindow2.h" // for CreateTexturedSymbol method
 #include <sstream>
 #include "strutil.h"
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -539,7 +542,38 @@ void tcDatabaseObject::CalculateParams()
 
 }
 
+void tcDatabaseObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    obj.SetObject();
 
+    obj.AddMember(rapidjson::Value("class", allocator).Move(), rapidjson::Value(mzClass.c_str(), allocator).Move(), allocator);
+    obj.AddMember(rapidjson::Value("key", allocator).Move(), mnKey, allocator);
+    obj.AddMember(rapidjson::Value("type", allocator).Move(), (unsigned)mnType, allocator);
 
+    if (!designation.empty())
+    {
+        obj.AddMember(rapidjson::Value("designation", allocator).Move(), rapidjson::Value(designation.c_str(), allocator).Move(), allocator);
+    }
+    if (!natoClass.empty())
+    {
+        obj.AddMember(rapidjson::Value("natoClass", allocator).Move(), rapidjson::Value(natoClass.c_str(), allocator).Move(), allocator);
+    }
+    
+    // Serialize components
+    if (!components.empty())
+    {
+        rapidjson::Value componentsArray(rapidjson::kArrayType);
+        for (const auto& comp : components)
+        {
+            if (comp)
+            {
+                rapidjson::Value componentObj(rapidjson::kObjectType);
+                comp->SerializeToJson(componentObj, allocator);
+                componentsArray.PushBack(componentObj, allocator);
+            }
+        }
+        obj.AddMember(rapidjson::Value("components", allocator).Move(), componentsArray, allocator);
+    }
+}
 
 }

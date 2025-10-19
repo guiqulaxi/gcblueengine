@@ -131,10 +131,10 @@ tcCommandStream& tcSimPythonInterface::operator<<(tcCommandStream& stream)
         unsigned char nId;
         stream >> nId;
 
-        std::vector<long> idList;
+        std::vector<int> idList;
         for (unsigned char n=0; n<nId; n++)
         {
-            long id;
+            int id;
             stream >> id;
             idList.push_back(id);
         }
@@ -163,7 +163,7 @@ tcCommandStream& tcSimPythonInterface::operator<<(tcCommandStream& stream)
                 if (playerHasControl)
                 {
 #ifdef _DEBUG
-                    long id0 = (idList.size() > 0) ? idList[0] : -1;
+                    int id0 = (idList.size() > 0) ? idList[0] : -1;
                     fprintf(stdout, "Script cmd (%d/%d): %s\n", id0, idList.size(), command.c_str());
 #endif
                     ProcessCallbackString(command, idList);
@@ -179,7 +179,7 @@ tcCommandStream& tcSimPythonInterface::operator<<(tcCommandStream& stream)
                 if (!playerHasControl)
                 {
 #ifdef _DEBUG
-                    long id0 = (idList.size() > 0) ? idList[0] : -1;
+                    int id0 = (idList.size() > 0) ? idList[0] : -1;
                     fprintf(stdout, "Script track cmd (%d/%d): %s\n", id0, idList.size(), command.c_str());
 #endif
                     ProcessCallbackString(command, idList);
@@ -229,7 +229,7 @@ tcCommandStream& tcSimPythonInterface::operator>>(tcCommandStream& stream)
 
         for (unsigned char n=0; n<nId; n++)
         {
-            long id = cmd.idList[n];
+            int id = cmd.idList[n];
             stream << id;
         }
 
@@ -795,7 +795,7 @@ void tcSimPythonInterface::LoadScenario(const std::string &filePath)
 /**
 *
 */
-void tcSimPythonInterface::ProcessCommand(const std::string& command, const std::vector<long>& id,
+void tcSimPythonInterface::ProcessCommand(const std::string& command, const std::vector<int>& id,
                                           int param, std::string textParam)
 {
     //    PushMode();
@@ -853,13 +853,13 @@ void tcSimPythonInterface::ProcessCommand(const std::string& command, const std:
 * Calls python command of the form Menu.<command>(<command object><argString>)
 * argString should start with a comma if it is non-empty
 */
-void tcSimPythonInterface::ProcessCommandWithArguments(const std::string& command, const std::vector<long>& id,
+void tcSimPythonInterface::ProcessCommandWithArguments(const std::string& command, const std::vector<int>& id,
                                                        const std::string& argString)
 {
 
 }
 
-void tcSimPythonInterface::ProcessCallbackString(const std::string &command, const std::vector<long> &id)
+void tcSimPythonInterface::ProcessCallbackString(const std::string &command, const std::vector<int> &id)
 {
 
 }
@@ -876,9 +876,9 @@ void tcSimPythonInterface::ReportError(const char* text)
 }
 
 
-bool tcSimPythonInterface::IsHooked(long id) const
+bool tcSimPythonInterface::IsHooked(int id) const
 {
-    std::vector<long>& hookedId = groupInterface->GetUnits();
+    std::vector<int>& hookedId = groupInterface->GetUnits();
 
     for (size_t n=0; n<hookedId.size(); n++)
     {
@@ -903,7 +903,7 @@ void tcSimPythonInterface::Update()
 /**
 * Called immediately before a platform is destroyed. Clear menu platform if necessary
 */
-void tcSimPythonInterface::UpdateForDestroyedPlatform(long id)
+void tcSimPythonInterface::UpdateForDestroyedPlatform(int id)
 {
     groupInterface->RemoveUnit(id);
 

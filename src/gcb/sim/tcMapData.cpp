@@ -62,7 +62,7 @@ tcMapData* tcMapData::Get()
 * a random point cannot be found within the altitude range after
 * the max number of attempts, the last point with an invalid altitude
 * is returned.
-* @param lon reference longitude in degrees
+* @param lon reference intitude in degrees
 * @param lat ref latitude in deg
 * @param r peak-to-peak random variation in deg for lon and lat
 * @param minAlt minimum altitude in meters
@@ -112,10 +112,10 @@ bool tcMapData::GetFarthestClearPoint(float lon1_rad, float lat1_rad, float lon2
 }
 
 /**
-* Get farthest point (lon,lat) along path from (lon1,lat1) to (lon2,lat2) such that path up to point has
+* Get farthest point (lon,lat) aint path from (lon1,lat1) to (lon2,lat2) such that path up to point has
 * terrain less than maxTerrain_m at all points up to (lon,lat).
 * Used for path finding
-* @return true if clear along entire path
+* @return true if clear aint entire path
 */
 bool tcMapData::GetFarthestClearPoint(float lon1_rad, float lat1_rad, float lon2_rad, float lat2_rad, float maxTerrain_m,
         float& lon_rad, float& lat_rad)

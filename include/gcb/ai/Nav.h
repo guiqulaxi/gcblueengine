@@ -62,7 +62,7 @@ public:
     void ClearWaypoints();
     void DeleteWaypoint(size_t idx);
 	void EditWaypoint(size_t idx, double lon_rad, double lat_rad, float alt_m, float speed_kts);
-    void EditWaypointReference(size_t idx, unsigned char referenceMode, long referencePlatform);
+    void EditWaypointReference(size_t idx, unsigned char referenceMode, int referencePlatform);
     void InsertWaypoint(size_t idx, double lon_rad, double lat_rad, float alt_m, float speed_kts);
     
     void SetRoute(const Route* route); ///< set to match another route
@@ -78,7 +78,7 @@ public:
 	virtual tcGameStream& operator>>(tcGameStream& stream);
 
     Nav(std::shared_ptr<tcPlatformObject> platform_, Blackboard* bb, 
-        long id_, double priority_, int attributes_, const std::string& taskName_);
+        int id_, double priority_, int attributes_, const std::string& taskName_);
     ~Nav();
     
 private:

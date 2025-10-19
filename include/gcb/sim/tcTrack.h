@@ -33,6 +33,7 @@
 
 #include <vector>
 #include "tcDatabaseObject.h"
+#include "rapidjson/document.h"
 
 class tcStream;
 class tcCommandStream;
@@ -64,8 +65,8 @@ public:
     float bearing_rad; ///< 仅方位跟踪的方位角，以弧度为单位
     float bearingRate_radps; ///< 仅方位跟踪的方位角变化率，以弧度/秒为单位
     double mfTimestamp;
-    long mnID;
-    //long mnPassivePlatformID; ///< long vs. unsigned int vs. long issue here to resolve eventually
+    int mnID;
+    //int mnPassivePlatformID; ///< int vs. unsigned int vs. int issue here to resolve eventually
     UINT16 mnClassification;
     UINT8 mnAffiliation; ///< 0 - unknown, 1 - friendly, 2 - neutral, 3 - hostile, 
     UINT8 mnAlliance; ///< 0 if unknown
@@ -103,6 +104,7 @@ public:
     tcGameStream& operator<<(tcGameStream& stream);
     tcGameStream& operator>>(tcGameStream& stream);
 
+    void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const;
 
 	tcTrack& operator==(const tcTrack& src);
     tcTrack();
@@ -112,4 +114,3 @@ public:
 
 
 #endif
-

@@ -55,7 +55,7 @@ namespace database
 * comparisons for positive result, fewer for negative result.
 * @return true if this database object has all of the emitters
 */
-bool tcSensorPlatformDBObject::HasAllEmitters(std::vector<long>& emitters)
+bool tcSensorPlatformDBObject::HasAllEmitters(std::vector<int>& emitters)
 {
 	size_t nEmitters = emitters.size();
     size_t nSensors = sensorClass.size();
@@ -68,7 +68,7 @@ bool tcSensorPlatformDBObject::HasAllEmitters(std::vector<long>& emitters)
 	for (size_t k=0; k<nEmitters; k++)
 	{
 		bool bFound = false;
-		long emitterId = emitters[k];
+        int emitterId = emitters[k];
 		for (size_t n=0; (n<nSensors) && !bFound; n++)
 		{
 			if (sensorId[n] == emitterId) bFound = true;
@@ -116,7 +116,7 @@ void tcSensorPlatformDBObject::UpdateSensorList()
 */
 void tcSensorPlatformDBObject::AddSqlColumns(std::string& columnString)
 {
-    // no longer needed since all covered by platform_sensors table
+    // no inter needed since all covered by platform_sensors table
     /*
 	columnString += ",";
 
@@ -142,7 +142,7 @@ void tcSensorPlatformDBObject::ReadSql(tcSqlReader& entry)
     sensorAz.clear();
     sensorId.clear();
     
-    // no longer needed since all covered by platform_sensors table
+    // no inter needed since all covered by platform_sensors table
     //
 	//for(int i=0;i<MAXSENSORS;i++) 
 	//{
@@ -166,7 +166,7 @@ void tcSensorPlatformDBObject::ReadSql(tcSqlReader& entry)
 
 void tcSensorPlatformDBObject::WriteSql(std::string& valueString) const
 {
-    // no longer needed since all covered by platform_sensors table
+    // no inter needed since all covered by platform_sensors table
     /*
 	std::stringstream s;
 
@@ -211,6 +211,23 @@ void tcSensorPlatformDBObject::WritePython(const std::string&mzClass, std::strin
     valueString+="    dbObj=pygcb.tcSensorPlatformDBObject()\n";
     WritePythonValue(mzClass,valueString);
     valueString+="    return dbObj\n";
+}
+
+void tcSensorPlatformDBObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    tcComponentDBObject::SerializeToJson(obj, allocator);
+
+    rapidjson::Value classArr(rapidjson::kArrayType);
+    for (const auto& s : sensorClass) classArr.PushBack(rapidjson::Value(s.c_str(), allocator).Move(), allocator);
+    obj.AddMember(rapidjson::Value("sensorClass", allocator).Move(), classArr, allocator);
+
+    rapidjson::Value idArr(rapidjson::kArrayType);
+    for (const auto& id : sensorId) idArr.PushBack(id, allocator);
+    obj.AddMember(rapidjson::Value("sensorId", allocator).Move(), idArr, allocator);
+
+    rapidjson::Value azArr(rapidjson::kArrayType);
+    for (const auto& f : sensorAz) azArr.PushBack(f, allocator);
+    obj.AddMember(rapidjson::Value("sensorAz", allocator).Move(), azArr, allocator);
 }
 
 tcSensorPlatformDBObject::tcSensorPlatformDBObject()

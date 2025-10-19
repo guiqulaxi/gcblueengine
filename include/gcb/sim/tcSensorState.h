@@ -32,6 +32,7 @@
 
 #include "tcPool.h"
 #include "simmath.h"
+#include "rapidjson/document.h"
 
 namespace database
 {
@@ -71,7 +72,7 @@ public:
     short int mbActive;
     std::shared_ptr<tcGameObject> parent;
     // std::shared_ptr<tcSensorPlatform> sensorPlatform; ///< parent should always be a sensor plat, this is a down-cast for convenience
-    long mnDBKey;
+    int mnDBKey;
     std::shared_ptr<tcSensorDBObject> mpDBObj;
     double mfLastScan; ///记录上一次扫描的时间。
     float mfCurrentScanPeriod_s;
@@ -92,17 +93,17 @@ public:
     std::shared_ptr<tcSensorState> GetFireControlSensor(); //获取火控传感器
     void GetTestArea(tcRect& region);
 	bool GetTrack(tcTrack& track_);
-    long GetFireControlPlatform() const;
+    int GetFireControlPlatform() const;
     bool HasFireControlSensor() const;
 
     virtual unsigned GetFireControlTrackCount() const;
     virtual unsigned GetMaxFireControlTracks() const;
     virtual bool IsTrackAvailable();
-    virtual bool RequestTrack(long targetId);
-    virtual bool ReleaseTrack(long targetId);
-	virtual bool IsTrackingWithRadar(long targetId) const;
+    virtual bool RequestTrack(int targetId);
+    virtual bool ReleaseTrack(int targetId);
+	virtual bool IsTrackingWithRadar(int targetId) const;
 
-    virtual bool InitFromDatabase(long key); ///< initializes sensor using database data at key
+    virtual bool InitFromDatabase(int key); ///< initializes sensor using database data at key
 	bool IsActive() const;
 	bool IsDamaged() const;
     bool IsHidden() const;
@@ -123,12 +124,15 @@ public:
     void SetCommandReceiver(bool state);
     bool IsCommandReceiver() const;
     void SetDamaged(bool state);
-	virtual void SetFireControlSensor(long id, unsigned char idx);
+	virtual void SetFireControlSensor(int id, unsigned char idx);
     void SetMountAz(float az);
     void SetParent(std::shared_ptr<tcGameObject> obj);
     virtual void Update(double t);
     int UpdateScan(double afTime);
     tcSensorState& operator=(const tcSensorState& ss);
+
+    // JSON serialization
+    virtual void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const;
 
     static void InitErrorFactor();
 
@@ -144,14 +148,14 @@ protected:
     static tcSimState* simState;
 	static tcDatabase* database;
     static tcLOS* los;
-    static long nextSensorId; ///< for assigning sensorId
+    static int nextSensorId; ///< for assigning sensorId
     static float errorFactor[N_ERROR_FACTOR];
 
 	bool isHidden; ///< hidden sensors are not displayed in object control view
     bool isDamaged;
-    long fireControlId; ///< id of platform with fire control sensor (semi-active illuminator, or command guidance sensor)
+    int fireControlId; ///< id of platform with fire control sensor (semi-active illuminator, or command guidance sensor)
     unsigned char fireControlIdx; ///< sensor index of fire control sensor platform
-    const long sensorId; ///< unique id for this sensor (used for sonar TL cache)
+    const int sensorId; ///< unique id for this sensor (used for sonar TL cache)
     double lastCounterMeasureTime; ///< last time that sensor checked vs. countermeasures
     bool isCommandReceiver;
 
@@ -166,6 +170,6 @@ protected:
         float& C11, float& C22, float& C12);
     bool GetAltitudeEstimate(float& altitudeEstimate_m, float& altitudeVariance, float range_km, float az_rad, float alt_m);
 
-    static float GetErrorFactor(long platformId, long sensorId, float targetAz_rad);
+    static float GetErrorFactor(int platformId, int sensorId, float targetAz_rad);
 };
 #endif

@@ -33,35 +33,35 @@
 
 template <class T, int POOLSIZE> class tcPool {
 public:
-   bool Lookup(long n,std::shared_ptr<T>& pt);
-   std::shared_ptr<const T> LookupConst(long n) const;
-   long GetStartPosition(void) const;
-   long GetCount(void) const;
-   void GetNextAssoc(long& pos, long& index, std::shared_ptr<T>& pt);
-   long GetNextKey(long pos);
-   long GetPrevKey(long pos);
-   T operator[] (long index) const;  // r-value version
+   bool Lookup(int n,std::shared_ptr<T>& pt);
+   std::shared_ptr<const T> LookupConst(int n) const;
+   int GetStartPosition(void) const;
+   int GetCount(void) const;
+   void GetNextAssoc(int& pos, int& index, std::shared_ptr<T>& pt);
+   int GetNextKey(int pos);
+   int GetPrevKey(int pos);
+   T operator[] (int index) const;  // r-value version
    bool CheckForCorruption();
-   //T*& operator[] (long index); // l-value version, T has to support assignment
-   bool CreateAndAddElement(std::shared_ptr<T>& pt, long& newkey);  // T object created with new
-   bool AddElement(std::shared_ptr<T> pt, long& newkey);  // T object already created
-   bool AddElementForceKey(std::shared_ptr<T> pt, long newkey);  // T object already created
-   bool RemoveKey(long n);
-   bool RemoveKeyWithoutDelete(long n);
+   //T*& operator[] (int index); // l-value version, T has to support assignment
+   bool CreateAndAddElement(std::shared_ptr<T>& pt, int& newkey);  // T object created with new
+   bool AddElement(std::shared_ptr<T> pt, int& newkey);  // T object already created
+   bool AddElementForceKey(std::shared_ptr<T> pt, int newkey);  // T object already created
+   bool RemoveKey(int n);
+   bool RemoveKeyWithoutDelete(int n);
    void RemoveAll(void);
-   long GetPoolSize(void);
+   int GetPoolSize(void);
 	tcPool();
 	virtual ~tcPool();
 private:
-   long mnSize; // current number of elements in pool
-   long mnBase; // index of base element (first element)
-   long mnTail; // index of last element
+   int mnSize; // current number of elements in pool
+   int mnBase; // index of base element (first element)
+   int mnTail; // index of last element
    std::shared_ptr<T> mpool[POOLSIZE]; // array of pointers to T
-   long maPrev[POOLSIZE]; // index of previous element
-   long maNext[POOLSIZE]; // index of next element
-   long maAvailable[POOLSIZE]; // array of free indices (FIFO)
-   long mnCheckoutIndex; // maAvailable index for allocation
-   long mnReturnIndex; // maAvailable index for deallocation
+   int maPrev[POOLSIZE]; // index of previous element
+   int maNext[POOLSIZE]; // index of next element
+   int maAvailable[POOLSIZE]; // array of free indices (FIFO)
+   int mnCheckoutIndex; // maAvailable index for allocation
+   int mnReturnIndex; // maAvailable index for deallocation
 };
 
 /***** inline function definitions *****/
@@ -86,7 +86,7 @@ bool tcPool<T,POOLSIZE>::CheckForCorruption()
 
 
 template <class T, int POOLSIZE>
-bool tcPool<T,POOLSIZE>::Lookup(long n,std::shared_ptr<T>& pt) {
+bool tcPool<T,POOLSIZE>::Lookup(int n,std::shared_ptr<T>& pt) {
    if ((n >=0)&&(n < POOLSIZE))
    {
       pt = mpool[n];
@@ -104,7 +104,7 @@ bool tcPool<T,POOLSIZE>::Lookup(long n,std::shared_ptr<T>& pt) {
 }
 
 template <class T, int POOLSIZE>
-std::shared_ptr<const T> tcPool<T, POOLSIZE>::LookupConst(long n) const
+std::shared_ptr<const T> tcPool<T, POOLSIZE>::LookupConst(int n) const
 {
     std::shared_ptr<const T> pt;
     if ((n >=0)&&(n < POOLSIZE))
@@ -121,7 +121,7 @@ std::shared_ptr<const T> tcPool<T, POOLSIZE>::LookupConst(long n) const
 
 /**********************************************************/
 template <class T, int POOLSIZE>
-bool tcPool<T,POOLSIZE>::CreateAndAddElement(std::shared_ptr<T> &pt, long& newkey) {
+bool tcPool<T,POOLSIZE>::CreateAndAddElement(std::shared_ptr<T> &pt, int& newkey) {
    if (mnSize >= POOLSIZE) {
       newkey = NULL_INDEX;
       pt = NULL;
@@ -146,7 +146,7 @@ bool tcPool<T,POOLSIZE>::CreateAndAddElement(std::shared_ptr<T> &pt, long& newke
 }
 /**********************************************************/
 template <class T, int POOLSIZE>
-bool tcPool<T,POOLSIZE>::AddElement(std::shared_ptr<T> pt, long& newkey) {
+bool tcPool<T,POOLSIZE>::AddElement(std::shared_ptr<T> pt, int& newkey) {
    if (mnSize >= POOLSIZE) {
       newkey = NULL_INDEX;
       std::cerr << "error - pool out of memory" << std::endl;
@@ -181,8 +181,8 @@ bool tcPool<T,POOLSIZE>::AddElement(std::shared_ptr<T> pt, long& newkey) {
 // This can be significantly slower than AddElement and should only be used
 // when trying to reconstruct a tcPool from a file.
 template <class T, int POOLSIZE>
-bool tcPool<T,POOLSIZE>::AddElementForceKey(std::shared_ptr<T> pt, long newkey) {
-   long nDefaultKey;
+bool tcPool<T,POOLSIZE>::AddElementForceKey(std::shared_ptr<T> pt, int newkey) {
+   int nDefaultKey;
 
    if (mnSize >= POOLSIZE)
    {
@@ -195,14 +195,14 @@ bool tcPool<T,POOLSIZE>::AddElementForceKey(std::shared_ptr<T> pt, long newkey) 
    bool bFound = false;
    if (mnCheckoutIndex >= mnReturnIndex) // >= because default init has these both equal to 0, doesn't matter that ret = checkout since none checked out yet
    {
-	   for (long k=mnCheckoutIndex;(k<POOLSIZE)&&(!bFound);k++) 
+	   for (int k=mnCheckoutIndex;(k<POOLSIZE)&&(!bFound);k++) 
 	   {
 		   if (maAvailable[k] == newkey) {
 			   maAvailable[k] = nDefaultKey;
 			   bFound = true;
 		   }
 	   }
-	   for (long k=0;(k<mnReturnIndex)&&(!bFound);k++) 
+	   for (int k=0;(k<mnReturnIndex)&&(!bFound);k++) 
 	   {
 		   if (maAvailable[k] == newkey) {
 			   maAvailable[k] = nDefaultKey;
@@ -212,7 +212,7 @@ bool tcPool<T,POOLSIZE>::AddElementForceKey(std::shared_ptr<T> pt, long newkey) 
    }
    else
    {
-	   for (long k=mnCheckoutIndex;(k<mnReturnIndex)&&(!bFound);k++) 
+	   for (int k=mnCheckoutIndex;(k<mnReturnIndex)&&(!bFound);k++) 
 	   {
 		   if (maAvailable[k] == newkey) {
 			   maAvailable[k] = nDefaultKey;
@@ -248,17 +248,17 @@ bool tcPool<T,POOLSIZE>::AddElementForceKey(std::shared_ptr<T> pt, long newkey) 
 }
 /**********************************************************/
 template <class T, int POOLSIZE>
-long tcPool<T,POOLSIZE>::GetStartPosition(void) const {
+int tcPool<T,POOLSIZE>::GetStartPosition(void) const {
    return mnBase;
 }
 /**********************************************************/
 template <class T, int POOLSIZE>
-long tcPool<T,POOLSIZE>::GetCount(void) const {
+int tcPool<T,POOLSIZE>::GetCount(void) const {
    return mnSize;
 }
 /**********************************************************/
 template <class T, int POOLSIZE>
-void tcPool<T,POOLSIZE>::GetNextAssoc(long& pos, long& index, std::shared_ptr<T> &pt){
+void tcPool<T,POOLSIZE>::GetNextAssoc(int& pos, int& index, std::shared_ptr<T> &pt){
    if ((pos < 0)||(pos >= POOLSIZE)) {
       pt = NULL;
       index = NULL_INDEX;
@@ -274,7 +274,7 @@ void tcPool<T,POOLSIZE>::GetNextAssoc(long& pos, long& index, std::shared_ptr<T>
 }
 /**********************************************************/
 template <class T, int POOLSIZE>
-long tcPool<T,POOLSIZE>::GetNextKey(long pos){
+int tcPool<T,POOLSIZE>::GetNextKey(int pos){
     if ((pos < 0)||(pos >= POOLSIZE)) 
     {
         if (pos >=0)
@@ -293,7 +293,7 @@ long tcPool<T,POOLSIZE>::GetNextKey(long pos){
 }
 /**********************************************************/
 template <class T, int POOLSIZE>
-long tcPool<T,POOLSIZE>::GetPrevKey(long pos)
+int tcPool<T,POOLSIZE>::GetPrevKey(int pos)
 {
     if ((pos < 0)||(pos >= POOLSIZE)) 
     {
@@ -314,7 +314,7 @@ long tcPool<T,POOLSIZE>::GetPrevKey(long pos)
 }
 /**********************************************************/
 template <class T, int POOLSIZE>
-T tcPool<T,POOLSIZE>::operator[] (long index) const 
+T tcPool<T,POOLSIZE>::operator[] (int index) const 
 {
     if ((index < 0)||(index >= POOLSIZE)) 
     {
@@ -329,7 +329,7 @@ T tcPool<T,POOLSIZE>::operator[] (long index) const
 
 /**********************************************************/
 template <class T, int POOLSIZE>
-bool tcPool<T,POOLSIZE>::RemoveKey(long n) 
+bool tcPool<T,POOLSIZE>::RemoveKey(int n) 
 {
     if ((mnSize == 0)||(mnReturnIndex==mnCheckoutIndex)) 
     {
@@ -372,7 +372,7 @@ bool tcPool<T,POOLSIZE>::RemoveKey(long n)
 * by deleted member.
 */
 template <class T, int POOLSIZE>
-bool tcPool<T,POOLSIZE>::RemoveKeyWithoutDelete(long n) 
+bool tcPool<T,POOLSIZE>::RemoveKeyWithoutDelete(int n) 
 {
     if ((mnSize == 0)||(mnReturnIndex==mnCheckoutIndex)) 
     {
@@ -414,7 +414,7 @@ bool tcPool<T,POOLSIZE>::RemoveKeyWithoutDelete(long n)
 template <class T, int POOLSIZE>
 void tcPool<T,POOLSIZE>::RemoveAll() 
 {
-   for(long k=0;k<POOLSIZE;k++) 
+   for(int k=0;k<POOLSIZE;k++) 
    {
       if (mpool[k] != NULL) 
       {
@@ -440,7 +440,7 @@ tcPool<T,POOLSIZE>::tcPool()
    mnTail = NULL_INDEX;
    mnCheckoutIndex = 0;
    mnReturnIndex = 0;
-   for(long k=0;k<POOLSIZE;k++) 
+   for(int k=0;k<POOLSIZE;k++) 
    {
       mpool[k] = NULL;
       maPrev[k] = NULL_INDEX;
@@ -452,7 +452,7 @@ tcPool<T,POOLSIZE>::tcPool()
 template <class T, int POOLSIZE>
 tcPool<T,POOLSIZE>::~tcPool() 
 {
-   for(long k=0;k<POOLSIZE;k++) 
+   for(int k=0;k<POOLSIZE;k++) 
    {
       // TODO: without the extra check this occasionally causes an exception/
       // due to deleting an invalid memory location
@@ -465,7 +465,7 @@ tcPool<T,POOLSIZE>::~tcPool()
 }
 /**********************************************************/
 template <class T, int POOLSIZE>
-long tcPool<T,POOLSIZE>::GetPoolSize() 
+int tcPool<T,POOLSIZE>::GetPoolSize() 
 {
    return POOLSIZE;
 }

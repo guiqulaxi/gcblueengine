@@ -86,15 +86,15 @@ public:
 	unsigned int entityUpdateTime; ///< time of last entity update (30 Hz tics)
 	unsigned int sensorUpdateTime; ///< time of last sensor update (30 Hz tics)
     float ping_s; ///< value of last ping
-    std::map<long, UpdateInfo> lastUpdate; ///< map of (obj id, update time (30Hz tics))
+    std::map<int, UpdateInfo> lastUpdate; ///< map of (obj id, update time (30Hz tics))
 	tcAccountDatabase::UserData data; ///< local copy of account database entry (messy, merge or otherwise fix this)
     int connectionId;
 
-    void EraseEntry(long id);
+    void EraseEntry(int id);
 	unsigned char GetAlliance() const;
 	int GetConnectionId() const;
     unsigned char GetGameSpeed() const;
-    bool GetLastUpdate(long id, unsigned int& updateTime, unsigned int& detailedUpdateTime);
+    bool GetLastUpdate(int id, unsigned int& updateTime, unsigned int& detailedUpdateTime);
 	const std::string& GetName() const;
 	const std::string& GetNameWithRank() const;
 	unsigned char GetRank() const;
@@ -116,8 +116,8 @@ public:
 	void SetRank(unsigned char val);
     void SetXmlObserver(bool state);
 	void SetReady(bool state);
-    void SetUpdate(long id, unsigned int updateTime);
-    void SetDetailedUpdate(long id, unsigned int detailedUpdateTime);
+    void SetUpdate(int id, unsigned int updateTime);
+    void SetDetailedUpdate(int id, unsigned int detailedUpdateTime);
 };
 
 /**
@@ -201,16 +201,16 @@ public:
     void SendControlMessage(int destination, int messageCode, int param = 0);
     void SendControlMessageUDP(int destination, int messageCode, int param = 0);
     void SendControlMessageUDPAck(int destination, int messageCode, int param = 0);
-	void SendControlRelease(long id);
-    void SendControlRelease(const std::vector<long>& id);
-	void SendControlRequest(long id);
-    void SendControlRequest(const std::vector<long>& id);
+	void SendControlRelease(int id);
+    void SendControlRelease(const std::vector<int>& id);
+	void SendControlRequest(int id);
+    void SendControlRequest(const std::vector<int>& id);
     void SendDatabaseInfo(const std::vector<int>& destinations);
     void SendDatabaseInfo(int destination);
 	void SendScenarioInfo(const std::vector<int>& destinations);
 	void SendScenarioInfo(int destination);
-	void SendSoundEffect(const std::string& player, const std::string& effect, long id = -1);
-	void SendSoundEffect(int destination, const std::string& effect, long id = -1);
+	void SendSoundEffect(const std::string& player, const std::string& effect, int id = -1);
+	void SendSoundEffect(int destination, const std::string& effect, int id = -1);
     void SendTestUDP(int destination, const std::string& message);
     void SendUpdateMessage(int destination, tcStream& stream);
 	void SendUpdateMessageAck(int destination, tcStream& stream);

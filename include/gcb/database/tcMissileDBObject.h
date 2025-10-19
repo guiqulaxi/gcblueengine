@@ -111,7 +111,7 @@ public:
 
     // 传感器信息
     std::string maSensorClass;           /// 传感器数据库类名
-    long sensorKey;                     /// 主传感器的快速访问键
+    int sensorKey;                     /// 主传感器的快速访问键
     bool needsFireControl;              /// 如果传感器依赖火控传感器进行制导，则为 true
     bool acceptsWaypoints;              /// 如果导弹可以接受预规划（或数据链）航点，则为 true
 
@@ -119,6 +119,9 @@ public:
     int isARM;                          /// -1 未初始化，0 非反辐射导弹，1 反辐射导弹
 
     float seekerFOV_rad;                /// 传感器视场角（弧度）
+    
+    virtual void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const override;
+
     float aczConstant_kts;              /// 空气动力学常数（节）
     float invMass_kg;                   /// 1/质量（千克），避免除法运算
 
@@ -128,9 +131,9 @@ public:
 
     virtual const char* GetClassName() const {return "Missile";} /// 返回数据库对象的类名
     teWeaponLaunchMode GetLaunchMode() const; /// 获取发射模式
-    long GetSensorKey(); /// 获取传感器键值
+    int GetSensorKey(); /// 获取传感器键值
     float GetSeekerFOV(); /// 返回传感器视场角（弧度）
-    bool HasAllEmitters(std::vector<long>& emitters); /// 检查是否包含所有发射器
+    bool HasAllEmitters(std::vector<int>& emitters); /// 检查是否包含所有发射器
     bool IsFireAndForget(); /// 是否为发射后不管导弹
     bool IsCommandLaunched() const; /// 是否为指令发射导弹
     bool IsARM(); /// 是否为反辐射导弹
@@ -241,7 +244,7 @@ private:
     
 //       // sensor info
 //       std::string maSensorClass;           ///< seeker database class name
-//       long sensorKey;                     ///< key for fast access of primary seeker
+//       int sensorKey;                     ///< key for fast access of primary seeker
 // 	  bool needsFireControl;              ///< true if seeker depends on a fire control sensor for guidance
 //       bool acceptsWaypoints;              ///< true if missile can accept preplan (or datalink) waypoints
 
@@ -259,9 +262,9 @@ private:
 
 //       virtual const char* GetClassName() const {return "Missile";} ///< returns class name of database object
 //       teWeaponLaunchMode GetLaunchMode() const;
-//       long GetSensorKey();
+//       int GetSensorKey();
 //       float GetSeekerFOV(); ///< @returns FOV in radians
-// 	  bool HasAllEmitters(std::vector<long>& emitters);
+// 	  bool HasAllEmitters(std::vector<int>& emitters);
 // 	  bool IsFireAndForget();
 //       bool IsCommandLaunched() const;
 //       bool IsARM();

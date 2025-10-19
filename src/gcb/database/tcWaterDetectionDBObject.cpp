@@ -211,4 +211,13 @@ tcWaterDetectionDBObject::~tcWaterDetectionDBObject()
 {
 }
 
+void tcWaterDetectionDBObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    tcComponentDBObject::SerializeToJson(obj, allocator);
+
+    obj.AddMember(rapidjson::Value("TS", allocator).Move(), TS, allocator);
+    if (!TS_Model.empty()) obj.AddMember(rapidjson::Value("TS_Model", allocator).Move(), rapidjson::Value(TS_Model.c_str(), allocator).Move(), allocator);
+    if (!acousticModel.empty()) obj.AddMember(rapidjson::Value("acousticModel", allocator).Move(), rapidjson::Value(acousticModel.c_str(), allocator).Move(), allocator);
+    if (!SL_Model.empty()) obj.AddMember(rapidjson::Value("SL_Model", allocator).Move(), rapidjson::Value(SL_Model.c_str(), allocator).Move(), allocator);
+}
 }

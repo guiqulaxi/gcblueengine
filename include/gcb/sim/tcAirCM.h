@@ -66,6 +66,9 @@ public:
     tcAirCM(std::shared_ptr<tcCounterMeasureDBObject> obj);
     virtual ~tcAirCM();
     
+    // JSON serialization
+    virtual void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const override;
+    
 private:
     enum {CM_CHAFF = 1, CM_FLARE = 2, CM_WATERFLARE};
     int typeCode;

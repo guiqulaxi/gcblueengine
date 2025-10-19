@@ -48,7 +48,7 @@ public:
 	{
 		float mfFlightTime;
         float mfSpeed_mps; ///< speed through air 总速度
-        float mfGroundSpeed_mps; ///< speed along ground 水平速度分量
+        float mfGroundSpeed_mps; ///< speed aint ground 水平速度分量
         float mfPitch_rad;//俯仰角
         float mfHeading_rad;//航向
         float mfAltitude_m;//高度

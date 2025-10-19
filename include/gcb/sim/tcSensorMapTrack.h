@@ -37,6 +37,7 @@
 #include <deque>
 #include "tcAllianceInfo.h"
 #include "tcSensorReport.h"
+#include "rapidjson/document.h"
 
 class tcSimState;
 class tcUpdateStream;
@@ -52,7 +53,7 @@ using database::tcDatabase;
 
 struct EmitterInfo 
 {
-	long mnEmitterID; ///< database ID of emitter
+	int mnEmitterID; ///< database ID of emitter
 	double mfTimestamp;
 	int mnMode;
 
@@ -81,11 +82,11 @@ public:
     // 评估的损伤值
     float assessedDamage;
     // 拦截此跟踪的平台ID列表
-    std::vector<long> intercepts;
+    std::vector<int> intercepts;
     // 跟踪/参与此跟踪的武器ID列表
-    std::vector<long> engaged;
+    std::vector<int> engaged;
     // 与检测到的发射器一致的平台ID列表
-    std::vector<long> ambiguityList;
+    std::vector<int> ambiguityList;
 
     // 误差多边形
     std::vector<tcPoint> errorPoly;
@@ -102,9 +103,9 @@ public:
     static bool sendDetailedTrackInfo;
 
     // 添加武器参与
-    bool AddEngagement(long id);
+    bool AddEngagement(int id);
     // 添加拦截平台
-    bool AddIntercept(long id);
+    bool AddIntercept(int id);
     // 添加传感器报告
     bool AddReport(const tcSensorReport& report);
     // 移除指定索引的报告
@@ -136,7 +137,7 @@ public:
     // 获取指定索引的贡献者名称
     const char* GetContributorName(unsigned idx) const;
     // 获取数据库ID
-    long GetDatabaseId() const;
+    int GetDatabaseId() const;
     // 获取最后报告时间
     double GetLastReportTime() const;
 
@@ -147,7 +148,7 @@ public:
     // 获取自身指针（多态用途）
     const tcTrack* GetTrack() const {return this;}
     // 标识跟踪
-    void IdentifyTrack(long id);
+    void IdentifyTrack(int id);
     // 设置隶属关系
     void SetAffiliation(tcAllianceInfo::Affiliation affil);
 
@@ -183,14 +184,14 @@ public:
     float BearingToRad(float lon_rad, float lat_rad);
 
     // 获取或创建指定平台和传感器的报告
-    tcSensorReport* GetOrCreateReport(long platformID, long sensorID);
+    tcSensorReport* GetOrCreateReport(int platformID, int sensorID);
 
     // 更新模糊列表
     void UpdateAmbiguityList();
     // 更新分类
     void UpdateClassification(UINT16 mnClassification);
     // 更新发射器信息
-    bool UpdateEmitter(EmitterInfo*& rpEmitterInfo, long anEmitterID);
+    bool UpdateEmitter(EmitterInfo*& rpEmitterInfo, int anEmitterID);
 
     // 更新参与此跟踪的武器列表
     void UpdateEngagements();
@@ -222,6 +223,7 @@ public:
     tcSensorMapTrack(const tcTrack& src);
     tcSensorMapTrack();
     ~tcSensorMapTrack();
+    void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const;
 
     // 静态方法，设置自动销毁评估状态
     static void SetAutoKillAssess(bool state);
@@ -236,7 +238,7 @@ private:
     enum {TRACK_STALE = 1, TRACK_DESTROYED = 2};
     unsigned char sensorFlags;
     // 数据库ID
-    long mnDatabaseID;
+    int mnDatabaseID;
     // tc3DModel 相关成员（已注释）
     //tc3DModel* model;
 
@@ -291,6 +293,8 @@ private:
 
     // 修剪（删除）旧的或不再相关的报告信息，以保持数据的时效性和准确性
     void PruneReports();
+    
+
 };
 
 #endif 

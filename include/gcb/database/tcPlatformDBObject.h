@@ -115,6 +115,7 @@ namespace database
         tcPlatformDBObject(const tcPlatformDBObject& obj); ///< copy constructor
         virtual ~tcPlatformDBObject();
         void CalculateParams();
+        void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const override;
 
 	protected:
 		float fuelConsumptionConstant; ///< = (fuel rate / max speed)

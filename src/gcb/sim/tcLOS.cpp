@@ -88,10 +88,10 @@ const std::string& tcLOS::GetRayTestData(const GeoPoint& p1, const GeoPoint& p2)
 }
 
 /**
-* @return true if unobstructed path exists along line-of-sight between p1 and p2
+* @return true if unobstructed path exists aint line-of-sight between p1 and p2
 * 检查点p1和p2之间是否存在无障碍的视线路径
 */
-bool tcLOS::HasLOS(long key, double t, const GeoPoint& p1, const GeoPoint& p2)
+bool tcLOS::HasLOS(int key, double t, const GeoPoint& p1, const GeoPoint& p2)
 {
     // 如果配置中关闭了视线计算，则使用简单方法检查视线
     if (tcOptions::Get()->calcLineOfSight == 0)
@@ -100,7 +100,7 @@ bool tcLOS::HasLOS(long key, double t, const GeoPoint& p1, const GeoPoint& p2)
     }
 
     // 在射线缓存中查找是否存在该key的射线数据
-    std::map<long, RayData>::iterator iter = rayCache.find(key);
+    std::map<int, RayData>::iterator iter = rayCache.find(key);
     // 如果缓存中不存在，则创建新的射线数据并插入缓存
     if (iter == rayCache.end())
     {
@@ -147,7 +147,7 @@ bool tcLOS::HasLOS(long key, double t, const GeoPoint& p1, const GeoPoint& p2)
     }
 
 }
-bool tcLOS::HasLOSSimple(long key, double t, const GeoPoint& p1, const GeoPoint& p2)
+bool tcLOS::HasLOSSimple(int key, double t, const GeoPoint& p1, const GeoPoint& p2)
 {
     return true;
 }
@@ -161,9 +161,9 @@ void tcLOS::Update(double t)
     if (t - lastUpdateTime < 31.0) return;
     lastUpdateTime = t;
 
-    std::map<long, RayData> temp;
+    std::map<int, RayData> temp;
 
-    std::map<long, RayData>::iterator iter = rayCache.begin();
+    std::map<int, RayData>::iterator iter = rayCache.begin();
     for (;iter != rayCache.end(); ++iter)
     {
         if ((t - iter->second.t_update) < 60.0)

@@ -53,14 +53,14 @@ namespace scriptinterface {
       /// Updates the ambiguity list for this track based on ESM intercepts
 	  void UpdateAmbiguityList();
 
-      static void SetTrack(long anID) {mnTrackID = anID;}
+      static void SetTrack(int anID) {mnTrackID = anID;}
       static void SetSensorMap(tcAllianceSensorMap *apSM);
       static tcAllianceSensorMap* GetSensorMap();
 
       tcTrackInterface();
       virtual ~tcTrackInterface();   
    private:
-      static long mnTrackID;
+      static int mnTrackID;
       static tcAllianceSensorMap *mpSensorMap;
 
 	  std::shared_ptr<tcSensorMapTrack> GetTrack();

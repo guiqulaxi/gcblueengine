@@ -58,12 +58,12 @@ class tcAllianceSensorMap
 public:
 	unsigned int GetAlliance() const;
 	int GetTrackCount();
-	long GetStartTrackPosition();
-	void GetNextTrack(long& pos, std::shared_ptr<tcSensorMapTrack>& pTrack);
+	int GetStartTrackPosition();
+	void GetNextTrack(int& pos, std::shared_ptr<tcSensorMapTrack>& pTrack);
 	void Clear();
-	void DropTrack(long anID);
+	void DropTrack(int anID);
 
-    tcSensorReport* GetOrCreateReport(long platformID, long sensorID, long trackID, std::shared_ptr<tcSensorMapTrack> &pSMTrack);
+    tcSensorReport* GetOrCreateReport(int platformID, int sensorID, int trackID, std::shared_ptr<tcSensorMapTrack> &pSMTrack);
 
     void AddAlwaysVisibleTrack(std::shared_ptr<tcGameObject> obj);
 	void MarkObjectDestroyed(std::shared_ptr<const tcGameObject> obj);
@@ -75,15 +75,15 @@ public:
      * @param anTrackID 就是目标ID
      * @return
      */
-    std::shared_ptr<tcSensorMapTrack> GetSensorMapTrack(long anTrackID);
+    std::shared_ptr<tcSensorMapTrack> GetSensorMapTrack(int anTrackID);
     /**
  * 获取指定平台的所有探测信息
  * @param platformId 平台ID
  * @return 包含该平台所有探测信息的信息，包含通信
  */
-    std::vector<tcSensorReport> GetSensorReport(long platformId);
+    std::vector<tcSensorReport> GetSensorReport(int platformId);
 
-    bool GetTrack(long anTrackID, tcTrack& track);
+    bool GetTrack(int anTrackID, tcTrack& track);
     int Serialize(tcFile& file, bool mbLoad);
 
 	tcUpdateStream& operator<<(tcUpdateStream& stream);
@@ -98,12 +98,12 @@ public:
 	virtual ~tcAllianceSensorMap();
 private:
 	tcPool<tcSensorMapTrack,MAX_SMTRACKS> maTrack;
-    long maTrackToSensorTrack[MAX_TRACKS];//每个对象对应一个 tcSensorMapTrack
+    int maTrackToSensorTrack[MAX_TRACKS];//每个对象对应一个 tcSensorMapTrack
 	double mfPreviousStatusTime;
 	double lastEngagementsUpdate;
 	const unsigned int alliance;
-    long nextUpdateKey; ///< track key for partial mp update
-    long updatesRemaining; ///< remaining updates for partial mp update
+    int nextUpdateKey; ///< track key for partial mp update
+    int updatesRemaining; ///< remaining updates for partial mp update
 };
 
 #endif // _ALLIANCESENSORMAP_H_

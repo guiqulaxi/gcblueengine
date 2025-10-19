@@ -118,10 +118,10 @@ tcGameStream& tcDatabase::operator>>(tcGameStream& stream)
 {
     tcDatabaseIterator iter(0);
 
-    unsigned long nRecords = (unsigned long)(mcObjectData.GetCount());
+    unsigned int nRecords = (unsigned int)(mcObjectData.GetCount());
     stream << nRecords;
 
-    unsigned long nIterated = 0;
+    unsigned int nIterated = 0;
     for (iter.First(); !iter.IsDone(); iter.Next())
     {
         std::shared_ptr<tcDatabaseObject> obj = iter.Get();
@@ -148,17 +148,17 @@ tcGameStream& tcDatabase::operator<<(tcGameStream& stream)
 {
     ClearForNewScenario();
 
-    unsigned long nRecords;
+    unsigned int nRecords;
     stream >> nRecords;
 
 
-    std::vector<long> loadedKeys;
+    std::vector<int> loadedKeys;
 
     std::string databaseClass;
-    long key;
+    int key;
     bool allOK = true;
     std::string missingRecords;
-    for (unsigned long n=0; n<nRecords; n++)
+    for (unsigned int n=0; n<nRecords; n++)
     {
         stream >> databaseClass;
         stream >> key;
@@ -200,7 +200,7 @@ void tcDatabase::BuildDictionaries()
 {
     nameToKey.clear();
 
-    std::map<std::string, long>::iterator mapIter;
+    std::map<std::string, int>::iterator mapIter;
 
     tcDatabaseIterator iter(0);
     for (iter.First(); !iter.IsDone(); iter.Next())
@@ -243,7 +243,7 @@ void tcDatabase::BuildTableLookup()
 
 
     // for each table, get list of all database classes in table, and update cross-reference dictionaries
-    long table_idx = 0;
+    int table_idx = 0;
     for (size_t n=0; n<mvTables.size(); n++)
     {
         tableToIndex[mvTables[n]] = table_idx++;
@@ -622,7 +622,7 @@ void tcDatabase::LoadCrossReferenceTable()
 * Adds launcher data to database for launcher with name <databaseClass>
 * @return database key if found or -1 if not found
 */
-long tcDatabase::LoadLauncherData(const char* databaseClass, long forcedKey)
+int tcDatabase::LoadLauncherData(const char* databaseClass, int forcedKey)
 {
     std::string launcherName(databaseClass);
 
@@ -652,7 +652,7 @@ long tcDatabase::LoadLauncherData(const char* databaseClass, long forcedKey)
     while (tableData.read())
     {
         std::string childClass = tableData.getstring(1);
-        unsigned short childCapacity = (unsigned short)tableData.getlong(2);
+        unsigned short childCapacity = (unsigned short)tableData.getint(2);
         float loadTime_s = (float)tableData.getdouble(3);
         float cycleTime_s = (float)tableData.getdouble(4);
 
@@ -665,7 +665,7 @@ long tcDatabase::LoadLauncherData(const char* databaseClass, long forcedKey)
         if (forcedKey == -1)
         {
             // add launcher to database
-            long key = -1;
+            int key = -1;
             mcObjectData.AddElement(launcherData, key); // add to database, key gets new key val
             launcherData->mnKey = key;
 
@@ -708,9 +708,9 @@ void tcDatabase::LoadPlatformTables()
 {
     // iterate through database
     int nCount = mcObjectData.GetCount();
-    long currentPos = mcObjectData.GetStartPosition();
+    int currentPos = mcObjectData.GetStartPosition();
     std::shared_ptr<tcDatabaseObject> obj = nullptr;
-    long id = -1;
+    int id = -1;
 
     for (int n=0; n<nCount; n++)
     {
@@ -849,7 +849,7 @@ void tcDatabase::LoadPlatformTables()
 *
 * @return true if found, false otherwise. Loads record into cached database
 */
-bool tcDatabase::LoadRecordSqlForceKey(const char* databaseClass, long forcedKey)
+bool tcDatabase::LoadRecordSqlForceKey(const char* databaseClass, int forcedKey)
 {
     std::string databaseClassString(databaseClass);
 
@@ -871,7 +871,7 @@ bool tcDatabase::LoadRecordSqlForceKey(const char* databaseClass, long forcedKey
 
 void tcDatabase::ReloadRecord(const char* databaseClass)
 {
-    long forcedKey = -1;
+    int forcedKey = -1;
     std::string databaseClassString(databaseClass);
     if (ObjectExists(databaseClassString))
     {
@@ -890,7 +890,7 @@ void tcDatabase::ReloadRecord(const char* databaseClass)
 /**
 * Loads without checking for duplicates, did this way to avoid copying and duplicating code
 */
-bool tcDatabase::LoadRecordSqlForceKeyExecute(const char* databaseClass, long forcedKey)
+bool tcDatabase::LoadRecordSqlForceKeyExecute(const char* databaseClass, int forcedKey)
 {
     std::string databaseClassString(databaseClass);
 
@@ -906,7 +906,7 @@ bool tcDatabase::LoadRecordSqlForceKeyExecute(const char* databaseClass, long fo
 
     std::string tableName(iter->second);
 
-    std::map<std::string, long>::const_iterator iter_idx =
+    std::map<std::string, int>::const_iterator iter_idx =
         tableToIndex.find(tableName);
 
     if (iter_idx == tableToIndex.end())
@@ -914,8 +914,8 @@ bool tcDatabase::LoadRecordSqlForceKeyExecute(const char* databaseClass, long fo
         assert(false);
         return false;
     }
-    long table_idx = iter_idx->second;
-    long key = -1;
+    int table_idx = iter_idx->second;
+    int key = -1;
 
     switch (table_idx)
     {
@@ -1094,7 +1094,7 @@ bool tcDatabase::LoadRecordSql(const char* databaseClass)
 
     std::string tableName(iter->second);
 
-    std::map<std::string, long>::const_iterator iter_idx =
+    std::map<std::string, int>::const_iterator iter_idx =
         tableToIndex.find(tableName);
 
     if (iter_idx == tableToIndex.end())
@@ -1102,8 +1102,8 @@ bool tcDatabase::LoadRecordSql(const char* databaseClass)
         assert(false);
         return false;
     }
-    long table_idx = iter_idx->second;
-    long key = -1;
+    int table_idx = iter_idx->second;
+    int key = -1;
 
     switch (table_idx)
     {
@@ -1265,7 +1265,7 @@ bool tcDatabase::LoadRecordSql(const char* databaseClass)
 /**
 * Specialized version of LoadPlatformTables for this record
 */
-void tcDatabase::LoadRecordOtherTables(long key)
+void tcDatabase::LoadRecordOtherTables(int key)
 {
     std::shared_ptr<tcDatabaseObject> obj = GetObject(key);
     assert(obj != 0);
@@ -2044,7 +2044,7 @@ void tcDatabase::ClearForNewScenario()
 * Creates a copy of object with key anKey and adds to the database.
 * Instance name is tagged with "[COPY]"
 */
-int tcDatabase::CreateObjectCopy(long anKey) 
+int tcDatabase::CreateObjectCopy(int anKey) 
 {
     assert(false); // obsolete
     return 0;
@@ -2052,7 +2052,7 @@ int tcDatabase::CreateObjectCopy(long anKey)
     return 0;
     std::shared_ptr<tcDatabaseObject>pobj = NULL;
     std::shared_ptr<tcDatabaseObject>pobjcopy = NULL;
-    long nKey;
+    int nKey;
 
     if (GetObject(anKey,pobj)==false)
     {
@@ -2096,7 +2096,7 @@ int tcDatabase::CreateObjectCopy(long anKey)
 #endif
 }
 
-int tcDatabase::DeleteObject(long anKey) 
+int tcDatabase::DeleteObject(int anKey) 
 {
     // first remove the object from the nameToKey lookup
     std::shared_ptr<tcDatabaseObject> obj = GetObject(anKey);
@@ -2110,7 +2110,7 @@ int tcDatabase::DeleteObject(long anKey)
 
     std::string className(obj->GetName());
 
-    std::map<std::string, long>::iterator mapIter = nameToKey.find(className);
+    std::map<std::string, int>::iterator mapIter = nameToKey.find(className);
     if (mapIter != nameToKey.end())
     {
         nameToKey.erase(mapIter);
@@ -2134,9 +2134,9 @@ void tcDatabase::ExportLauncherConfigurations()
     fprintf(fid_launcher_config, "DatabaseClass,ChildClass,ChildCapacity,LoadTime_s\n");
 
     int nCount = mcObjectData.GetCount();
-    long currentPos = mcObjectData.GetStartPosition();
+    int currentPos = mcObjectData.GetStartPosition();
     std::shared_ptr<tcDatabaseObject> obj = 0;
-    long id = -1;
+    int id = -1;
 
     for (int n=0; n<nCount; n++)
     {
@@ -2181,9 +2181,9 @@ void tcDatabase::ExportPlatformTables()
 
 
     int nCount = mcObjectData.GetCount();
-    long currentPos = mcObjectData.GetStartPosition();
+    int currentPos = mcObjectData.GetStartPosition();
     std::shared_ptr<tcDatabaseObject> obj = 0;
-    long id = -1;
+    int id = -1;
 
     for (int n=0; n<nCount; n++)
     {
@@ -2441,7 +2441,7 @@ void tcDatabase::GetVersion(int& v1, int& v2, int& v3) {
 void tcDatabase::PrintToFile(tcString sFileName) 
 {
     tcFile file;
-    long nMapSize, nKey, nPoolPos;
+    int nMapSize, nKey, nPoolPos;
     std::shared_ptr<tcDatabaseObject>pdbobj;
 
     if (file.Open(sFileName.GetBuffer(),tcFile::modeCreate|tcFile::modeWrite)==false)
@@ -2721,7 +2721,7 @@ std::shared_ptr<tcDatabaseObject> tcDatabase::GetRandomOfType(UINT model_type)
 
     while ((bSearching)&&(nTries++ < 256))
     {
-        long nKey = GetRandomKey();
+        int nKey = GetRandomKey();
         bFound = mcObjectData.Lookup(nKey,pdata);
         if (pdata->mnModelType == model_type) {bSearching = false;}
     }
@@ -2743,8 +2743,8 @@ std::shared_ptr<tcDatabaseObject> tcDatabase::GetRandomOfType(UINT model_type)
 * @return random tcPlatformDBObject, tcMissileDBObject,
 * or tcJetDBObject key.
 */
-long tcDatabase::GetRandomKey() {
-    long nMapSize, nKey = -1, nPoolPos;
+int tcDatabase::GetRandomKey() {
+    int nMapSize, nKey = -1, nPoolPos;
     std::shared_ptr<tcDatabaseObject>pdbobj = 0;
     bool bSearching;
 
@@ -2788,11 +2788,11 @@ const tcSignatureModel* tcDatabase::GetSignatureModel(const std::string& modelNa
 * lookup object by key reference
 * @return 0 if not found, non-zero otherwise
 */
-bool tcDatabase::GetObject(long anKey, std::shared_ptr<tcDatabaseObject> &rpobj) {
+bool tcDatabase::GetObject(int anKey, std::shared_ptr<tcDatabaseObject> &rpobj) {
     return mcObjectData.Lookup(anKey,rpobj);
 }
 
-long tcDatabase::AddOrUpdateObject(std::shared_ptr<tcDatabaseObject>rpobj)
+int tcDatabase::AddOrUpdateObject(std::shared_ptr<tcDatabaseObject>rpobj)
 {
 
     if (ObjectExists(rpobj->GetName()))
@@ -2802,7 +2802,7 @@ long tcDatabase::AddOrUpdateObject(std::shared_ptr<tcDatabaseObject>rpobj)
         assert(oldObj != 0);
         DeleteObject(oldObj->mnKey);
     }
-    long  key;
+    int  key;
     // std::string className = rpobj->mzClass.c_str();
     // if(className=="57mm/70 Mks 2-3 Store")
     // {
@@ -2813,7 +2813,7 @@ long tcDatabase::AddOrUpdateObject(std::shared_ptr<tcDatabaseObject>rpobj)
     nameToKey[rpobj->GetName() ] = key;
     return key;
 }
-long tcDatabase::AddOrUpdateObjectForceKey(std::shared_ptr<tcDatabaseObject> rpobj,long forceKey)
+int tcDatabase::AddOrUpdateObjectForceKey(std::shared_ptr<tcDatabaseObject> rpobj,int forceKey)
 {
     if (ObjectExists(rpobj->GetName()))
     {
@@ -2851,7 +2851,7 @@ void tcDatabase::AddOrUpdateDamageEffectData(const tcDamageEffect&data)
 /**
 * @return NULL if not found
 */
-std::shared_ptr<tcDatabaseObject> tcDatabase::GetObject(long anKey)
+std::shared_ptr<tcDatabaseObject> tcDatabase::GetObject(int anKey)
 {
     std::shared_ptr<tcDatabaseObject> databaseObject;
     if (mcObjectData.Lookup(anKey, databaseObject))
@@ -2868,7 +2868,7 @@ std::shared_ptr<tcDatabaseObject> tcDatabase::GetObject(long anKey)
 * Lookup and return object database class name by key
 * @return empty string reference if not found
 */
-const std::string& tcDatabase::GetObjectClassName(long key)
+const std::string& tcDatabase::GetObjectClassName(int key)
 {
     static std::string result;
     result.clear();
@@ -2881,7 +2881,7 @@ const std::string& tcDatabase::GetObjectClassName(long key)
     return result;
 }
 
-long tcDatabase::GetKey(const char* s)
+int tcDatabase::GetKey(const char* s)
 {
     std::shared_ptr<tcDatabaseObject> obj = GetObject(std::string(s));
     if (obj != 0)
@@ -2903,7 +2903,7 @@ std::shared_ptr<tcDatabaseObject> tcDatabase::GetObject(const std::string& class
     std::string updatedClassName(className); // local variable that can be updated with cross-ref
 
     // check nameToKey for already loaded object
-    std::map<std::string, long>::iterator mapIter = nameToKey.find(className);
+    std::map<std::string, int>::iterator mapIter = nameToKey.find(className);
     if (mapIter != nameToKey.end())
     {
         return GetObject(mapIter->second);
@@ -2935,7 +2935,7 @@ std::shared_ptr<tcDatabaseObject> tcDatabase::GetObject(const std::string& class
     // request load from database and try again if useDynamicLoad
         if (useDynamicLoad && LoadRecordSql(updatedClassName.c_str()))
         {
-            std::map<std::string, long>::iterator mapIter2 = nameToKey.find(updatedClassName);
+            std::map<std::string, int>::iterator mapIter2 = nameToKey.find(updatedClassName);
             if (mapIter2 != nameToKey.end())
             {
                 return GetObject(mapIter2->second);
@@ -2964,17 +2964,17 @@ std::shared_ptr<tcDatabaseObject> tcDatabase::GetObject(const std::string& class
 
 bool tcDatabase::ObjectExists(const std::string& className) const
 {
-    std::map<std::string, long>::const_iterator mapIter = nameToKey.find(className);
+    std::map<std::string, int>::const_iterator mapIter = nameToKey.find(className);
     return (mapIter != nameToKey.end());
 }
 
 /**
 * find key of next object of same mnClassID as anKey
 */
-long tcDatabase::GetNextObjectOfSameClass(long anKey) 
+int tcDatabase::GetNextObjectOfSameClass(int anKey) 
 {
-    long nPoolSize = mcObjectData.GetCount();
-    long nCurrentKey;
+    int nPoolSize = mcObjectData.GetCount();
+    int nCurrentKey;
     std::shared_ptr<tcDatabaseObject >pobj;
 
     nCurrentKey = anKey;
@@ -3055,10 +3055,10 @@ std::vector<std::string> tcDatabase::GetPlatformHulls(const std::string& classNa
 /**
 * Find key of previous object of same mnClassID as anKey
 */
-long tcDatabase::GetPrevObjectOfSameClass(long anKey) 
+int tcDatabase::GetPrevObjectOfSameClass(int anKey) 
 {
-    long nPoolSize = mcObjectData.GetCount();
-    long nCurrentKey;
+    int nPoolSize = mcObjectData.GetCount();
+    int nCurrentKey;
     std::shared_ptr<tcDatabaseObject>pobj;
 
     nCurrentKey = anKey;
@@ -3085,7 +3085,7 @@ long tcDatabase::GetPrevObjectOfSameClass(long anKey)
 * these methods check mnClassID before downcasting and return NULL
 * if not consistent with the requested class or not found
 
-std::shared_ptr<tcDatabaseObject> tcDatabase::GetSafeDBObject(long anKey) {
+std::shared_ptr<tcDatabaseObject> tcDatabase::GetSafeDBObject(int anKey) {
    std::shared_ptr<tcDatabaseObject> pdbobj;
 
    if (GetObject(anKey,pdbobj)==0) {return NULL;}
@@ -3093,7 +3093,7 @@ std::shared_ptr<tcDatabaseObject> tcDatabase::GetSafeDBObject(long anKey) {
    else {return pdbobj;}
 }
 
-tcPlatformDBObject* tcDatabase::GetSafeGenericDBObject(long anKey) {
+tcPlatformDBObject* tcDatabase::GetSafeGenericDBObject(int anKey) {
    std::shared_ptr<tcDatabaseObject> pdbobj;
 
    if (GetObject(anKey,pdbobj)==0) {return NULL;}
@@ -3101,7 +3101,7 @@ tcPlatformDBObject* tcDatabase::GetSafeGenericDBObject(long anKey) {
    else {return (tcPlatformDBObject*)pdbobj;}
 }
 
-std::shared_ptr<tcLauncherDBObject> tcDatabase::GetSafeLauncherDBObject(long anKey) {
+std::shared_ptr<tcLauncherDBObject> tcDatabase::GetSafeLauncherDBObject(int anKey) {
    std::shared_ptr<tcDatabaseObject> pdbobj;
 
    if (GetObject(anKey,pdbobj)==0) {return NULL;}
@@ -3109,7 +3109,7 @@ std::shared_ptr<tcLauncherDBObject> tcDatabase::GetSafeLauncherDBObject(long anK
    else {return (std::shared_ptr<tcLauncherDBObject>)pdbobj;}
 }
 
-std::shared_ptr<tcMissileDBObject> tcDatabase::GetSafeMissileDBObject(long anKey) {
+std::shared_ptr<tcMissileDBObject> tcDatabase::GetSafeMissileDBObject(int anKey) {
    std::shared_ptr<tcDatabaseObject> pdbobj;
 
    if (GetObject(anKey,pdbobj)==0) {return NULL;}
@@ -3119,7 +3119,7 @@ std::shared_ptr<tcMissileDBObject> tcDatabase::GetSafeMissileDBObject(long anKey
 */
 
 // lookup class string associated with key
-int tcDatabase::GetObjectClass(long anKey, std::string& rzClass) {
+int tcDatabase::GetObjectClass(int anKey, std::string& rzClass) {
    std::shared_ptr< tcDatabaseObject >pdbobj;
     int bFound = mcObjectData.Lookup(anKey,pdbobj);
     if (bFound) {
@@ -3198,7 +3198,7 @@ std::vector<std::string> tcDatabase::WildcardSearch(const std::string& expressio
 
     std::string prefix = expression.substr(0,nPrefix);
 
-    std::map<std::string, long>::const_iterator mapIter = nameToKey.lower_bound(prefix);
+    std::map<std::string, int>::const_iterator mapIter = nameToKey.lower_bound(prefix);
     bool searching = (mapIter != nameToKey.end());
     while (searching)
     {
@@ -3278,7 +3278,7 @@ std::vector<std::string> tcDatabase::WildcardSearchLoaded(const std::string& exp
 
     std::string prefix = expression.substr(0,nPrefix);
 
-    std::map<std::string, long>::const_iterator mapIter = nameToKey.lower_bound(prefix);
+    std::map<std::string, int>::const_iterator mapIter = nameToKey.lower_bound(prefix);
     bool searching = (mapIter != nameToKey.end());
     while (searching)
     {

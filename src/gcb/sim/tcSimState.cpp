@@ -119,7 +119,7 @@ void tcSimState::AttachWeaponTester()
 }
 
 
-void tcSimState::ChangeHeadingToLocation(long anKey, float afLon, float afLat) 
+void tcSimState::ChangeHeadingToLocation(int anKey, float afLon, float afLat) 
 {
     int bFound;
     std::shared_ptr<tcGameObject>po;
@@ -134,7 +134,7 @@ void tcSimState::ChangeHeadingToLocation(long anKey, float afLon, float afLat)
 /**
 *
 */
-void tcSimState::ChangeHeading(long anKey, float afNewHeading)
+void tcSimState::ChangeHeading(int anKey, float afNewHeading)
 {
     int bFound;
     std::shared_ptr<tcGameObject>po;
@@ -148,7 +148,7 @@ void tcSimState::ChangeHeading(long anKey, float afNewHeading)
 /**
 * for scen edit mode
 */
-void tcSimState::ChangeHeadingForced(long anKey, float afNewHeading) 
+void tcSimState::ChangeHeadingForced(int anKey, float afNewHeading) 
 {
     int bFound;
     std::shared_ptr<tcGameObject>po;
@@ -162,7 +162,7 @@ void tcSimState::ChangeHeadingForced(long anKey, float afNewHeading)
 /**
 * meant for scenario edit mode only
 */
-void tcSimState::ChangeLocation(long anKey, float afLon_rad, float afLat_rad) 
+void tcSimState::ChangeLocation(int anKey, float afLon_rad, float afLat_rad) 
 {
     int bFound;
     std::shared_ptr<tcGameObject>po;
@@ -176,7 +176,7 @@ void tcSimState::ChangeLocation(long anKey, float afLon_rad, float afLat_rad)
 /**
 *
 */
-void tcSimState::ChangeNormSpeed(long anKey, float afNewNormSpeed) 
+void tcSimState::ChangeNormSpeed(int anKey, float afNewNormSpeed) 
 {
     int bFound;
     std::shared_ptr<tcGameObject>po;
@@ -197,7 +197,7 @@ void tcSimState::ChangeNormSpeed(long anKey, float afNewNormSpeed)
 /**
 *
 */
-void tcSimState::RequestLaunch(long anKey,int anLauncher) 
+void tcSimState::RequestLaunch(int anKey,int anLauncher) 
 {
     int bFound;
     std::shared_ptr<tcGameObject>po;
@@ -215,9 +215,9 @@ void tcSimState::RequestLaunch(long anKey,int anLauncher)
 void tcSimState::ResyncObjAlliance()
 {
     std::shared_ptr<tcGameObject>obj;
-    long cmappos = maPlatformState.GetStartPosition();
+    int cmappos = maPlatformState.GetStartPosition();
     int nSize = maPlatformState.GetCount();
-    long nKey;
+    int nKey;
 
     // needs to be re-written to use the toLaunch queue
     for (int i=0;i<nSize;i++)
@@ -242,9 +242,9 @@ void tcSimState::ResyncObjAlliance()
 * @param fcID id of platform that has fire control sensor (for semi-active)
 * @param fcIdx index of fire control sensor on fc platform (for semi-active)
 */
-bool tcSimState::RadarCanDetect(long anSensorKey, std::shared_ptr<const tcGameObject> target,
+bool tcSimState::RadarCanDetect(int anSensorKey, std::shared_ptr<const tcGameObject> target,
                                 std::shared_ptr<tcGameObject> reference, float afSensorAz,
-                                long fcID, unsigned fcIdx)
+                                int fcID, unsigned fcIdx)
 {
     float fRange_km;
 
@@ -264,8 +264,8 @@ bool tcSimState::RadarCanDetect(long anSensorKey, std::shared_ptr<const tcGameOb
     return mcDefaultRadar.CanDetectTarget(target,fRange_km);
 }
 
-bool tcSimState::SensorCanDetect(long sensorKey, std::shared_ptr<const tcGameObject> target,
-                                 std::shared_ptr<tcGameObject> reference, float sensorAz, long fcID, unsigned fcIdx)
+bool tcSimState::SensorCanDetect(int sensorKey, std::shared_ptr<const tcGameObject> target,
+                                 std::shared_ptr<tcGameObject> reference, float sensorAz, int fcID, unsigned fcIdx)
 {
     if (target == 0) return false;
 
@@ -333,7 +333,7 @@ bool tcSimState::SensorCanDetect(long sensorKey, std::shared_ptr<const tcGameObj
 /**
 *
 */
-void tcSimState::DesignateTarget(long anKey, long anTargetKey) 
+void tcSimState::DesignateTarget(int anKey, int anTargetKey) 
 {
     int bFound;
     std::shared_ptr<tcGameObject>po;
@@ -346,7 +346,7 @@ void tcSimState::DesignateTarget(long anKey, long anTargetKey)
 /**
 *
 */
-void tcSimState::DesignateDatum(long anKey, tcPoint p) 
+void tcSimState::DesignateDatum(int anKey, tcPoint p) 
 {
     int bFound;
     std::shared_ptr<tcGameObject>po;
@@ -360,7 +360,7 @@ void tcSimState::DesignateDatum(long anKey, tcPoint p)
 /**
 *
 */
-void tcSimState::DesignateLauncherDatum(long anKey, GeoPoint p, unsigned anLauncher) 
+void tcSimState::DesignateLauncherDatum(int anKey, GeoPoint p, unsigned anLauncher) 
 {
     int bFound;
     std::shared_ptr<tcGameObject>po;
@@ -375,7 +375,7 @@ void tcSimState::DesignateLauncherDatum(long anKey, GeoPoint p, unsigned anLaunc
 /**
 * [DEC08] Why go through simstate for this?
 */
-bool tcSimState::DesignateLauncherTarget(long anKey, long anTargetKey, unsigned anLauncher) 
+bool tcSimState::DesignateLauncherTarget(int anKey, int anTargetKey, unsigned anLauncher) 
 {
     int bFound;
     std::shared_ptr<tcGameObject>po;
@@ -415,7 +415,7 @@ void tcSimState::EvaluateDirectHitDamage(std::shared_ptr<tcWeaponObject> weapon,
     ///msg:毁伤计算
     if (!weapon->IsDirectHit()) return;
 
-    long targetId = weapon->GetDirectHitTargetId();
+    int targetId = weapon->GetDirectHitTargetId();
     std::shared_ptr<tcGameObject> target = GetObject(targetId);
 
     Damage damage;
@@ -525,7 +525,7 @@ void tcSimState::EvaluateWeaponDamage(std::shared_ptr<tcWeaponObject> weapon, fl
     float rLat = maxRange_m * C_MTORAD;
     float rLon = rLat / cosf(weapon->mcKin.mfLat_rad);
 
-    std::vector<long> blastPlats;
+    std::vector<int> blastPlats;
 
     tcRect blastRegion;
     float west = weapon->mcKin.mfLon_rad - rLon;
@@ -639,8 +639,8 @@ void tcSimState::EvaluateBallisticDamage(std::shared_ptr<tcBallisticWeapon> ball
     ballistic->GetRelativeStateLocal(target, pos, vel);
 
     // check that forward/backward error is within tolerance
-    const float maxAlongTrackError_m = 50.0f;
-    if (fabsf(pos.z()) > maxAlongTrackError_m) return;
+    const float maxAintTrackError_m = 50.0f;
+    if (fabsf(pos.z()) > maxAintTrackError_m) return;
     
     // check that target is within spread
 
@@ -767,9 +767,9 @@ void tcSimState::EvaluateBallisticDamage(std::shared_ptr<tcBallisticWeapon> ball
 void tcSimState::Update() 
 {
     std::shared_ptr<tcGameObject>obj;
-    long cmappos = maPlatformState.GetStartPosition();
+    int cmappos = maPlatformState.GetStartPosition();
     int nSize = maPlatformState.GetCount();
-    long nKey,nNewKey;
+    int nKey,nNewKey;
     unsigned nLauncher;
     static unsigned int updateCounter = 0;
 
@@ -1046,7 +1046,7 @@ void tcSimState::EvaluateImpactWeaponHit(std::shared_ptr<tcWeaponObject> weapon)
     float rLat = effectRadius_m * C_MTORAD;
     float rLon = rLat / cosf(weapon->mcKin.mfLat_rad);
 
-    std::vector<long> blastPlats;
+    std::vector<int> blastPlats;
 
     tcRect blastRegion;
     float west = weapon->mcKin.mfLon_rad - rLon;
@@ -1238,7 +1238,7 @@ void tcSimState::UpdateWeaponHits()
     assert(false); // obsolete
     return;
 #if 0
-    long aKeyList[512];
+    int aKeyList[512];
     int nCount;
     tsGuidanceParameters gp;
 
@@ -1301,7 +1301,7 @@ void tcSimState::UpdateWeaponHits()
 */
 void tcSimState::UpdateWeaponHits2() 
 {
-    long aKeyList[512];
+    int aKeyList[512];
     int nCount;
     const float maxDetonationDelay_s = 0.05f;
 
@@ -1387,16 +1387,16 @@ double tcSimState::GetMultiplayerTimeLag() const
 void tcSimState::UpdateObjTerrainInfo() 
 {
     std::shared_ptr<tcGameObject>pobj;
-    long cmappos = maPlatformState.GetStartPosition();
-    long nSize = maPlatformState.GetCount();
-    long nKey;
+    int cmappos = maPlatformState.GetStartPosition();
+    int nSize = maPlatformState.GetCount();
+    int nKey;
     tcKinematics *pKin;
     tcTerrainInfo *terrainInfo;
 
     const float updateDistance_rad = 50.0 * C_MTORAD;
     const float lookAheadUpdateSpeed_kts = 200.0f; // speed threshold for updating lookAheadHeight_m
 
-    for (long i=0;i<nSize;i++)
+    for (int i=0;i<nSize;i++)
     {
         maPlatformState.GetNextAssoc(cmappos,nKey,pobj);
         pKin = &pobj->mcKin;
@@ -1430,7 +1430,7 @@ void tcSimState::UpdateObjTerrainInfo()
 
 
 
-bool tcSimState::IsLauncherReady(long anKey, unsigned anLauncher) 
+bool tcSimState::IsLauncherReady(int anKey, unsigned anLauncher) 
 {
     int bFound;
     std::shared_ptr<tcGameObject>po;
@@ -1537,14 +1537,14 @@ bool tcSimState::IsMultiplayerServer() const
 */
 void tcSimState::PreloadScenarioDatabase()
 {
-    long cmappos = maPlatformState.GetStartPosition();
+    int cmappos = maPlatformState.GetStartPosition();
     int nSize = maPlatformState.GetCount();
     
 
     for (int i=0;i<nSize;i++)
     {
         std::shared_ptr<tcGameObject> obj = 0;
-        long nKey = -1;
+        int nKey = -1;
 
         maPlatformState.GetNextAssoc(cmappos, nKey, obj);
 
@@ -1601,15 +1601,15 @@ void tcSimState::PreloadAssociatedRecords(std::shared_ptr<tcDatabaseObject> obj)
 /**
 *
 */
-int tcSimState::GetAllWeaponObjects(long *apKeyList,int anMaxLength) 
+int tcSimState::GetAllWeaponObjects(int *apKeyList,int anMaxLength) 
 {
     std::shared_ptr<tcGameObject>pobj;
-    long cmappos = maPlatformState.GetStartPosition();
-    long nSize = maPlatformState.GetCount();
-    long nKey;
+    int cmappos = maPlatformState.GetStartPosition();
+    int nSize = maPlatformState.GetCount();
+    int nKey;
     int nListIndex=0;
 
-    for (long i=0;(i<nSize)&&(nListIndex<anMaxLength);i++)
+    for (int i=0;(i<nSize)&&(nListIndex<anMaxLength);i++)
     {
         maPlatformState.GetNextAssoc(cmappos,nKey,pobj);
         if ( std::dynamic_pointer_cast<tcWeaponObject>(pobj))
@@ -1637,11 +1637,11 @@ const tcDateTime& tcSimState::GetDateTime() const
 void tcSimState::RemoveDestroyedObjects() 
 {
     std::shared_ptr<tcGameObject>obj;
-    long cmappos = maPlatformState.GetStartPosition();
-    long nSize = maPlatformState.GetCount();
-    long nKey;
+    int cmappos = maPlatformState.GetStartPosition();
+    int nSize = maPlatformState.GetCount();
+    int nKey;
 
-    for (long i=0; i<nSize; i++)
+    for (int i=0; i<nSize; i++)
     {
         maPlatformState.GetNextAssoc(cmappos, nKey, obj);
         if (obj->IsDestroyed())
@@ -1794,8 +1794,8 @@ void tcSimState::ProcessRadarDetection(std::shared_ptr<tcGameObject>apRadarPlat,
 void tcSimState::UpdateSurveillance(std::shared_ptr<tcGameObject>applat, std::shared_ptr<tcSensorState>apSensorState)
 {
 #if 0
-    long aTargetKeys[100];
-    long nTargetID;
+    int aTargetKeys[100];
+    int nTargetID;
     int nCount;
     tcRect region;
     std::shared_ptr<tcGameObject>pTarget;
@@ -1833,10 +1833,10 @@ void tcSimState::UpdateFireControl(std::shared_ptr<tcGameObject>apGameObj, tcRad
 {
     assert(false); // deprecated?
 #if 0
-    long aTargetKeys[N_TARGET_KEYS];
-    long aFCKeys[N_FC_KEYS];
+    int aTargetKeys[N_TARGET_KEYS];
+    int aFCKeys[N_FC_KEYS];
     float afRanges[N_FC_KEYS];
-    long nTargetID;
+    int nTargetID;
     int nCount,nFCCount;
     tcRect region;
     GeoPoint currentpos;
@@ -1921,13 +1921,13 @@ void tcSimState::UpdateLandingState(double afSimTime)
     flightportPlatforms.clear();
     landingPlatforms.clear();
 
-    long pos = maPlatformState.GetStartPosition();
+    int pos = maPlatformState.GetStartPosition();
     int nSize = maPlatformState.GetCount();
 
     for (int i=0;i<nSize;i++)
     {
         std::shared_ptr<tcGameObject>gameObj;
-        long nKey;
+        int nKey;
         maPlatformState.GetNextAssoc(pos,nKey,gameObj);
         if ( gameObj->GetComponent<tcFlightOpsObject>())
         {
@@ -1951,13 +1951,13 @@ void tcSimState::UpdateLandingState(double afSimTime)
 */ 
 void tcSimState::UpdateLaunch()
 {
-    long pos = maPlatformState.GetStartPosition();
+    int pos = maPlatformState.GetStartPosition();
     int nSize = maPlatformState.GetCount();
 
     for (int i=0;i<nSize;i++)
     {
         std::shared_ptr<tcGameObject>gameObj;
-        long nKey;
+        int nKey;
         maPlatformState.GetNextAssoc(pos,nKey,gameObj);
         int launch_count = (int)gameObj->toLaunch.size();
         for(int n=0;n<(int)launch_count;n++)
@@ -1993,14 +1993,14 @@ void tcSimState::UpdateSeeker(std::shared_ptr<tcGameObject>applat, tcRadar *apRa
     assert(false);
     
 #if 0
-    long nTargetID;
+    int nTargetID;
     GeoPoint currentpos;
     tcTrack *pTrack;
     std::shared_ptr<tcGameObject>ptarget;
-    long aTargetKeys[100];
+    int aTargetKeys[100];
     int nCount;
     tcRect region;
-    long nMinID;
+    int nMinID;
     float fRange,fMinRange;
     int bFound;
     int bDetectable;
@@ -2105,7 +2105,7 @@ void tcSimState::UpdateSeeker(std::shared_ptr<tcGameObject>applat, tcRadar *apRa
 */
 void tcSimState::AddPlatform(std::shared_ptr<tcGameObject>pplat)
 {
-    long newkey;
+    int newkey;
     maPlatformState.AddElement(pplat, newkey);
     pplat->mnID = newkey;
     
@@ -2115,7 +2115,7 @@ void tcSimState::AddPlatform(std::shared_ptr<tcGameObject>pplat)
 /**
 * Used to force key for particular platform when restoring scenario from file
 */
-void tcSimState::AddPlatformWithKey(std::shared_ptr<tcGameObject>pplat, long key)
+void tcSimState::AddPlatformWithKey(std::shared_ptr<tcGameObject>pplat, int key)
 {
     maPlatformState.AddElementForceKey(pplat,key);
     pplat->mnID = key;
@@ -2130,7 +2130,7 @@ void tcSimState::RegisterPlatform(std::shared_ptr<tcGameObject> obj)
 {
     assert(obj);
     std::string unitName(obj->mzUnit.c_str());
-    std::map<std::string, long>::iterator iter = objectNameMap.find(unitName);
+    std::map<std::string, int>::iterator iter = objectNameMap.find(unitName);
     
     if (iter == objectNameMap.end())
     {
@@ -2151,7 +2151,7 @@ void tcSimState::UnregisterPlatform(std::shared_ptr<tcGameObject> obj)
     if (obj == 0) return;
 
     std::string unitName(obj->mzUnit.c_str());
-    std::map<std::string, long>::iterator iter = objectNameMap.find(unitName);
+    std::map<std::string, int>::iterator iter = objectNameMap.find(unitName);
     
     if (iter != objectNameMap.end())
     {
@@ -2170,7 +2170,7 @@ void tcSimState::UnregisterPlatform(std::shared_ptr<tcGameObject> obj)
 /**
 *
 */
-void tcSimState::AddLaunchedPlatform(long newKey, std::shared_ptr<tcGameObject> launchingPlatform,
+void tcSimState::AddLaunchedPlatform(int newKey, std::shared_ptr<tcGameObject> launchingPlatform,
                                      unsigned nLauncher)
 {
     std::shared_ptr<tcDatabaseObject>pDBObject;
@@ -2415,7 +2415,7 @@ std::shared_ptr<tcGameObject> tcSimState::CreateGameObject(std::shared_ptr<tcDat
 /**
 * Removes game object from simulation
 */
-void tcSimState::DeleteObject(long key) 
+void tcSimState::DeleteObject(int key) 
 {
     std::shared_ptr<tcGameObject> obj = GetObject(key);
 
@@ -2471,7 +2471,7 @@ void tcSimState::RegisterChildObject(const std::string& name, std::shared_ptr<tc
 {
     assert(parent != 0);
 
-    std::map<std::string, long>::iterator iter =
+    std::map<std::string, int>::iterator iter =
             captiveObjectMap.find(name);
     if (iter != captiveObjectMap.end())
     {
@@ -2543,7 +2543,7 @@ void tcSimState::ToggleUserAlliance()
 */
 void tcSimState::UnregisterChildObject(const std::string& name)
 {
-    std::map<std::string, long>::iterator iter =
+    std::map<std::string, int>::iterator iter =
             captiveObjectMap.find(name);
     if (iter == captiveObjectMap.end())
     {
@@ -2568,7 +2568,7 @@ std::shared_ptr<tcGameObject> tcSimState::CreateRandomPlatform(UINT platform_typ
 
     while ((bSearching)&&(nTries++ < 128))
     {
-        long nKey = mpDatabase->GetRandomKey();
+        int nKey = mpDatabase->GetRandomKey();
         bFound = mpDatabase->mcObjectData.Lookup(nKey,pdata);
         if (pdata->mnType == platform_type) {bSearching = false;}
     }
@@ -2656,7 +2656,7 @@ void tcSimState::ProcessLanding(std::shared_ptr<tcGameObject>receiver, std::shar
         if (std::shared_ptr<tcFlightOpsObject> flightOps =  receiver->GetComponent<tcFlightOpsObject>())
         {
             // save key since AddChild can be called from CheckLanding, replaces mnID
-            long key = landing_unit->mnID;
+            int key = landing_unit->mnID;
             if (flightOps->CheckLanding(air) == 1) // if landing is successful
             {
                 // remove from platformstate container
@@ -2676,7 +2676,7 @@ void tcSimState::ProcessLanding(std::shared_ptr<tcGameObject>receiver, std::shar
 /**
 *
 */
-int tcSimState::GetPlatformAlliance(long anKey, UINT& rnAlliance) 
+int tcSimState::GetPlatformAlliance(int anKey, UINT& rnAlliance) 
 {
     std::shared_ptr<tcGameObject>pplat;
     int bFound;
@@ -2695,7 +2695,7 @@ int tcSimState::GetPlatformAlliance(long anKey, UINT& rnAlliance)
 /**
 *
 */
-int tcSimState::GetPlatformState(long anKey, std::shared_ptr<tcGameObject> &pplat)
+int tcSimState::GetPlatformState(int anKey, std::shared_ptr<tcGameObject> &pplat)
 {
     int bFound;
     bFound = maPlatformState.Lookup(anKey,pplat);
@@ -2705,7 +2705,7 @@ int tcSimState::GetPlatformState(long anKey, std::shared_ptr<tcGameObject> &ppla
 /**
 *
 */
-std::shared_ptr<tcGameObject> tcSimState::GetObject(long anKey)
+std::shared_ptr<tcGameObject> tcSimState::GetObject(int anKey)
 {
 #ifdef _DEBUG
     if (anKey == -99) // hack to get non-maPlatformState obj for WeaponTester returned
@@ -2718,7 +2718,7 @@ std::shared_ptr<tcGameObject> tcSimState::GetObject(long anKey)
     return pGameObj; // tcPool sets pGameObj NULL if not found
 }
 
-std::shared_ptr<const tcGameObject> tcSimState::GetObjectConst(long id) const
+std::shared_ptr<const tcGameObject> tcSimState::GetObjectConst(int id) const
 {
     return maPlatformState.LookupConst(id);
 }
@@ -2729,7 +2729,7 @@ std::shared_ptr<const tcGameObject> tcSimState::GetObjectConst(long id) const
 std::shared_ptr<tcGameObject> tcSimState::GetObjectByName(const std::string& unitName)
 {
     // first try to lookup in map
-    std::map<std::string, long>::iterator iter = objectNameMap.find(unitName);
+    std::map<std::string, int>::iterator iter = objectNameMap.find(unitName);
     if (iter != objectNameMap.end())
     {
         if (std::shared_ptr<tcGameObject>obj = GetObject(iter->second))
@@ -2745,7 +2745,7 @@ std::shared_ptr<tcGameObject> tcSimState::GetObjectByName(const std::string& uni
     }
     else // check captiveObjectMap to see if this is a flightdeck object
     {
-        std::map<std::string, long>::iterator iter = captiveObjectMap.find(unitName);
+        std::map<std::string, int>::iterator iter = captiveObjectMap.find(unitName);
         if (iter != captiveObjectMap.end())
         {
             std::shared_ptr<tcGameObject> parent = GetObject(iter->second);
@@ -2780,7 +2780,7 @@ tcSensorMap* tcSimState::GetSensorMap()
 /**
 *
 */
-void tcSimState::GetDescription(long anKey, tcString& s) 
+void tcSimState::GetDescription(int anKey, tcString& s) 
 {
     int bFound;
     std::shared_ptr<tcGameObject>pplat;
@@ -2799,12 +2799,12 @@ void tcSimState::GetDescription(long anKey, tcString& s)
 /**
 * 
 */
-void tcSimState::GetPlatformsWithinRegion(std::vector<long>& keyList, tcRect *apRegion) 
+void tcSimState::GetPlatformsWithinRegion(std::vector<int>& keyList, tcRect *apRegion) 
 {
     std::shared_ptr<tcGameObject>pplat;
-    long cmappos = maPlatformState.GetStartPosition();
-    long nSize = maPlatformState.GetCount();
-    long nKey;
+    int cmappos = maPlatformState.GetStartPosition();
+    int nSize = maPlatformState.GetCount();
+    int nKey;
     //int nListIndex=0;
     tcKinematics *pKin = 0;
     GeoPoint p;
@@ -2815,7 +2815,7 @@ void tcSimState::GetPlatformsWithinRegion(std::vector<long>& keyList, tcRect *ap
     {
         //粗糙过滤
         // position registry returns a superset of all the platforms we want (coarse bins)
-        std::vector<long> temp =
+        std::vector<int> temp =
                 positionRegistry->GetAllWithinRegion(apRegion->GetLeft(), apRegion->GetRight(),
                                                      apRegion->GetBottom(), apRegion->GetTop());
 
@@ -2836,7 +2836,7 @@ void tcSimState::GetPlatformsWithinRegion(std::vector<long>& keyList, tcRect *ap
         return;
     }
 
-    for (long i=0; (i<nSize); i++)
+    for (int i=0; (i<nSize); i++)
     {
         maPlatformState.GetNextAssoc(cmappos,nKey,pplat);
         pKin = &pplat->mcKin;
@@ -2851,12 +2851,12 @@ void tcSimState::GetPlatformsWithinRegion(std::vector<long>& keyList, tcRect *ap
 /**
 *
 */
-long tcSimState::GetRandomPlatform() 
+int tcSimState::GetRandomPlatform() 
 {
     std::shared_ptr<tcGameObject>pplat;
-    long cmappos = maPlatformState.GetStartPosition();
-    long nSize = maPlatformState.GetCount();
-    long nKey;
+    int cmappos = maPlatformState.GetStartPosition();
+    int nSize = maPlatformState.GetCount();
+    int nKey;
 
     int k = rand() % nSize; // k [0,nSize-1]
     maPlatformState.GetNextAssoc(cmappos,nKey,pplat);
@@ -2874,7 +2874,7 @@ long tcSimState::GetRandomPlatform()
 */
 void tcSimState::GenerateRandomGoals()
 {
-    long key;
+    int key;
     std::shared_ptr<tcGameObject>obj;
 
     GetAlliancePlatforms(&key,1,1);
@@ -2894,16 +2894,16 @@ void tcSimState::GenerateRandomGoals()
 /**
 *
 */
-int tcSimState::GetAllSensorPlatforms(long *apKeyList, int anMaxLength) 
+int tcSimState::GetAllSensorPlatforms(int *apKeyList, int anMaxLength) 
 {
     std::shared_ptr<tcGameObject>pplat;
-    long cmappos = maPlatformState.GetStartPosition();
-    long nSize = maPlatformState.GetCount();
-    long nKey;
+    int cmappos = maPlatformState.GetStartPosition();
+    int nSize = maPlatformState.GetCount();
+    int nKey;
     int nListIndex=0;
     std::shared_ptr<tcSensorState>pSensorState;
 
-    for (long i=0;(i<nSize)&&(nListIndex<anMaxLength);i++)
+    for (int i=0;(i<nSize)&&(nListIndex<anMaxLength);i++)
     {
         maPlatformState.GetNextAssoc(cmappos,nKey,pplat);
         bool bActiveFound = false;
@@ -2928,13 +2928,13 @@ int tcSimState::GetAllSensorPlatforms(long *apKeyList, int anMaxLength)
 /**
 *
 */
-unsigned tcSimState::GetAlliancePlatforms(long *aaKeyList, unsigned anMaxLength, int anAlliance) 
+unsigned tcSimState::GetAlliancePlatforms(int *aaKeyList, unsigned anMaxLength, int anAlliance) 
 {
     std::shared_ptr<tcGameObject>pGameObj;
-    long cmappos = maPlatformState.GetStartPosition();
-    long nSize = maPlatformState.GetCount();
-    long nKey;
-    long nListIndex=0;
+    int cmappos = maPlatformState.GetStartPosition();
+    int nSize = maPlatformState.GetCount();
+    int nKey;
+    int nListIndex=0;
 
     for (int i=0;(i<nSize)&&(nListIndex<(int)anMaxLength);i++)
     {
@@ -2953,7 +2953,7 @@ unsigned tcSimState::GetAlliancePlatforms(long *aaKeyList, unsigned anMaxLength,
 * in the future to give simstate control over its own
 * time acceleration vs. having this at the main game loop level.
 */
-long tcSimState::GetTimeAcceleration() const
+int tcSimState::GetTimeAcceleration() const
 {
     return timeAcceleration;
 }
@@ -2964,7 +2964,7 @@ long tcSimState::GetTimeAcceleration() const
 * @param alliance alliance of requesting entity
 * @return true if successful, false if id not found
 */
-bool tcSimState::GetTrack(long id, unsigned alliance, tcSensorMapTrack& track)
+bool tcSimState::GetTrack(int id, unsigned alliance, tcSensorMapTrack& track)
 {
     std::shared_ptr<tcGameObject> obj = GetObject(id);
 
@@ -3001,7 +3001,7 @@ bool tcSimState::GetTrack(long id, unsigned alliance, tcSensorMapTrack& track)
 * Populates <track> with truth data
 * @return true if successful, false if id not found
 */
-bool tcSimState::GetTruthTrack(long id, tcTrack& track)
+bool tcSimState::GetTruthTrack(int id, tcTrack& track)
 {
     std::shared_ptr<tcGameObject> obj = GetObject(id);
     if (obj == 0) return false; // target not found
@@ -3175,12 +3175,12 @@ int tcSimState::Serialize(tcString scenname, bool mbLoad)
 
         // load game objects
         std::shared_ptr<tcGameObject>pGameObj;
-        long nSize;
+        int nSize;
 
         file.Read(&nSize,sizeof(nSize));
-        for (long i=0;i<nSize;i++)
+        for (int i=0;i<nSize;i++)
         {
-            long nDBKey;
+            int nDBKey;
             file.Read(&nDBKey,sizeof(nDBKey));
             std::shared_ptr<tcDatabaseObject> pDatabaseObj = mpDatabase->GetObject(nDBKey);
             pGameObj = CreateGameObject(pDatabaseObj);
@@ -3218,12 +3218,12 @@ int tcSimState::Serialize(tcString scenname, bool mbLoad)
 
         // save game objects
         std::shared_ptr<tcGameObject>pGameObj;
-        long cmappos = maPlatformState.GetStartPosition();
-        long nSize = maPlatformState.GetCount();
-        long nKey;
+        int cmappos = maPlatformState.GetStartPosition();
+        int nSize = maPlatformState.GetCount();
+        int nKey;
 
         file.Write(&nSize,sizeof(nSize));
-        for (long i=0;i<nSize;i++)
+        for (int i=0;i<nSize;i++)
         {
             maPlatformState.GetNextAssoc(cmappos,nKey,pGameObj);
             file.Write(&pGameObj->mnDBKey,sizeof(pGameObj->mnDBKey));
@@ -3370,7 +3370,7 @@ void tcSimState::SetScenarioName(const std::string& s)
 * in the future to give simstate control over its own
 * time acceleration vs. having this at the main game loop level.
 */
-void tcSimState::SetTimeAcceleration(long accel)
+void tcSimState::SetTimeAcceleration(int accel)
 {
     timeAcceleration = accel;
 }

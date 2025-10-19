@@ -57,6 +57,7 @@ namespace database
         static void AddSqlColumns(std::string& columnString);
         void ReadSql(tcSqlReader& entry);
         void WriteSql(std::string& valueString) const;
+        void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const override;
 
     };
 

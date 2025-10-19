@@ -65,6 +65,8 @@ namespace database
 		tcOpticalDBObject();
 		tcOpticalDBObject(const tcOpticalDBObject& obj); ///< copy constructor
 		virtual ~tcOpticalDBObject();
+        void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const override;
+
 	};
 
 } // namespace database

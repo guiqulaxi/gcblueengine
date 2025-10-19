@@ -419,11 +419,11 @@ const char* XMLUtil::ReadBOM( const char* p, bool* bom )
 }
 
 
-void XMLUtil::ConvertUTF32ToUTF8( unsigned long input, char* output, int* length )
+void XMLUtil::ConvertUTF32ToUTF8( unsigned int input, char* output, int* length )
 {
-    const unsigned long BYTE_MASK = 0xBF;
-    const unsigned long BYTE_MARK = 0x80;
-    const unsigned long FIRST_BYTE_MARK[7] = { 0x00, 0x00, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC };
+    const unsigned int BYTE_MASK = 0xBF;
+    const unsigned int BYTE_MARK = 0x80;
+    const unsigned int FIRST_BYTE_MARK[7] = { 0x00, 0x00, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC };
 
     if (input < 0x80) {
         *length = 1;
@@ -478,7 +478,7 @@ const char* XMLUtil::GetCharacterRef( const char* p, char* value, int* length )
     *length = 0;
 
     if ( *(p+1) == '#' && *(p+2) ) {
-        unsigned long ucs = 0;
+        unsigned int ucs = 0;
         TIXMLASSERT( sizeof( ucs ) >= 4 );
         ptrdiff_t delta = 0;
         unsigned mult = 1;
@@ -519,7 +519,7 @@ const char* XMLUtil::GetCharacterRef( const char* p, char* value, int* length )
                 TIXMLASSERT( digit < 16 );
                 TIXMLASSERT( digit == 0 || mult <= UINT_MAX / digit );
                 const unsigned int digitScaled = mult * digit;
-                TIXMLASSERT( ucs <= ULONG_MAX - digitScaled );
+                TIXMLASSERT( ucs <= Uint_MAX - digitScaled );
                 ucs += digitScaled;
                 TIXMLASSERT( mult <= UINT_MAX / 16 );
                 mult *= 16;
@@ -549,7 +549,7 @@ const char* XMLUtil::GetCharacterRef( const char* p, char* value, int* length )
                     TIXMLASSERT( digit < 10 );
                     TIXMLASSERT( digit == 0 || mult <= UINT_MAX / digit );
                     const unsigned int digitScaled = mult * digit;
-                    TIXMLASSERT( ucs <= ULONG_MAX - digitScaled );
+                    TIXMLASSERT( ucs <= Uint_MAX - digitScaled );
                     ucs += digitScaled;
                 }
                 else {
@@ -604,7 +604,7 @@ void XMLUtil::ToStr( double v, char* buffer, int bufferSize )
 void XMLUtil::ToStr( int64_t v, char* buffer, int bufferSize )
 {
 	// horrible syntax trick to make the compiler happy about %lld
-	TIXML_SNPRINTF(buffer, bufferSize, "%lld", static_cast<long long>(v));
+    TIXML_SNPRINTF(buffer, bufferSize, "%lld", static_cast<long long>(v));
 }
 
 void XMLUtil::ToStr( uint64_t v, char* buffer, int bufferSize )
@@ -2398,7 +2398,7 @@ XMLError XMLDocument::LoadFile( FILE* fp )
     }
 
     const size_t maxSizeT = static_cast<size_t>(-1);
-    // We'll do the comparison as an unsigned long long, because that's guaranteed to be at
+    // We'll do the comparison as an unsigned int int, because that's guaranteed to be at
     // least 8 bytes, even on a 32-bit platform.
     if ( filelength >= static_cast<unsigned long long>(maxSizeT) ) {
         // Cannot handle files which won't fit in buffer together with null terminator

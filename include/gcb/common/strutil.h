@@ -756,14 +756,14 @@ static std::string to_python_value(long data)
 
     return valueString;
 }
-static std::string to_python_value(unsigned long data)
+static std::string to_python_value(unsigned int data)
 {
     std::string valueString;
     valueString += std::to_string(data);
 
     return valueString;
 }
-static std::string to_python_value(unsigned int data)
+static std::string to_python_value(unsigned long data)
 {
     std::string valueString;
     valueString += std::to_string(data);

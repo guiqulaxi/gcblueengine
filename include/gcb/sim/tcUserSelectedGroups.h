@@ -40,12 +40,12 @@ class tcUserSelectedGroups
 {
 public:
 	void ClearGroups();
-	std::vector<long> GetGroup(int idx);
-	void SetGroup(int idx, const std::vector<long>& platforms);
+	std::vector<int> GetGroup(int idx);
+	void SetGroup(int idx, const std::vector<int>& platforms);
 
 	static tcUserSelectedGroups* Get();
 private:
-	std::map<int, std::vector<long> > groupMap;
+	std::map<int, std::vector<int> > groupMap;
 
 	tcUserSelectedGroups();
 	~tcUserSelectedGroups();

@@ -44,12 +44,12 @@ public:
    
    struct
    {
-      long mnID;
+      int mnID;
       float mfRange_km;
       bool mbEngaged;
    } maTrackInfo[MAX_ENGAGEMENTS];
    
-   void Update(long* aaTracks, float* afRanges, unsigned anCount);
+   void Update(int* aaTracks, float* afRanges, unsigned anCount);
    
    tcEngagementData();
 };

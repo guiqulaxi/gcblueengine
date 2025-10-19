@@ -23,9 +23,9 @@ public:
     static object GetInterface();
     void Clear();
     void ClearForNewScenario();
-    int CreateObjectCopy(long anKey);
-    int DeleteObject(long anKey);
-    long GetRandomKey();
+    int CreateObjectCopy(int anKey);
+    int DeleteObject(int anKey);
+    int GetRandomKey();
     std::shared_ptr<tcDatabaseObject> GetRandomOfType(UINT model_type);
     std::vector<std::string> GetPlatformNames(const std::string& className);
     std::vector<std::string> GetPlatformNamesByDate(const std::string& className, float dateYear);
@@ -35,22 +35,22 @@ public:
     bool CheckForErrors(const std::string& logFile);
     bool CheckTableReferences(const char* table, const char* field, const std::vector<std::string>& refTables, const char* refField,
                               std::ofstream &log, unsigned int& errorCount);
-    long GetSize();
-    long AddOrUpdateObject( std::shared_ptr<tcDatabaseObject> rpobj);
+    int GetSize();
+    int AddOrUpdateObject( std::shared_ptr<tcDatabaseObject> rpobj);
     void AddOrUpdateSignatureModelData(const tcSignatureModel&data);
     void AddOrUpdateAcousticModelData(const tcAcousticModel& data);
     void AddOrUpdateWeaponDamageData(const tcWeaponDamage& data);
     void AddOrUpdateDamageEffectData(const tcDamageEffect& data);
 
-    std::shared_ptr<tcDatabaseObject> GetObjectByKey(long anKey);
+    std::shared_ptr<tcDatabaseObject> GetObjectByKey(int anKey);
     std::shared_ptr<tcDatabaseObject> GetObjectByClassName(const std::string& className); ///< gets object by class name
-    const std::string& GetObjectClassName(long key);
+    const std::string& GetObjectClassName(int key);
     std::vector<std::string> WildcardSearch(const std::string& expression, const std::string& filter);
     std::vector<std::string> WildcardSearchLoaded(const std::string& expression, const std::string& filter);
-    int GetObjectClass(long anKey, std::string& rzClass);
-    long GetNextObjectOfSameClass(long anKey);
-    long GetPrevObjectOfSameClass(long anKey);
-    long GetKey(const char* s);
+    int GetObjectClass(int anKey, std::string& rzClass);
+    int GetNextObjectOfSameClass(int anKey);
+    int GetPrevObjectOfSameClass(int anKey);
+    int GetKey(const char* s);
     void GetVersion(int& v1, int& v2, int& v3);
 
 

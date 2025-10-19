@@ -40,6 +40,9 @@
 #include "tcSimState.h"
 ////#include "tcMessageInterface.h"
 #include "tcEventManager.h"
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
 #include <cassert>
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -83,6 +86,18 @@ tcUpdateStream& tcESMSensor::operator<<(tcUpdateStream& stream)
     stream >> rwrWarningLevel;
 
     return stream;
+}
+
+void tcESMSensor::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    tcSensorState::SerializeToJson(obj, allocator);
+
+    obj.AddMember(rapidjson::Value("rwrWarningLevel", allocator).Move(), rwrWarningLevel, allocator);
+    obj.AddMember(rapidjson::Value("lastRWRupdate", allocator).Move(), lastRWRupdate, allocator);
+    obj.AddMember(rapidjson::Value("targetRange_km", allocator).Move(), targetRange_km, allocator);
+    obj.AddMember(rapidjson::Value("last_margin_dB", allocator).Move(), last_margin_dB, allocator);
+    obj.AddMember(rapidjson::Value("last_ERP_dBW", allocator).Move(), last_ERP_dBW, allocator);
+    obj.AddMember(rapidjson::Value("rwrUpdate", allocator).Move(), rwrUpdate, allocator);
 }
 
 /**
@@ -164,7 +179,7 @@ bool tcESMSensor::CanDetectTarget( std::shared_ptr<const tcGameObject> target, f
 /**
 * @return false if key not found in database
 */
-bool tcESMSensor::InitFromDatabase(long key)
+bool tcESMSensor::InitFromDatabase(int key)
 {
 	assert(database);
 
@@ -388,7 +403,7 @@ void tcESMSensor::UpdateSeeker(double t)
     if (!UpdateScan(t)) return;
 
     // 目标ID
-    long nTargetID;
+    int nTargetID;
     // 目标对象指针
     std::shared_ptr<tcGameObject>ptarget = 0;
     // 是否找到目标的标志
@@ -459,7 +474,7 @@ void tcESMSensor::UpdateSeeker(double t)
         // 创建迭代器以遍历测试区域内的所有对象
         tcGameObjIterator iter(region);
         float minRange = 1e15f; // 初始化最小距离为极大值
-        long minID = NULL_INDEX; // 初始化最小距离对应的目标ID为无效值
+        int minID = NULL_INDEX; // 初始化最小距离对应的目标ID为无效值
 
         // 查找可检测到的最近目标
         for (iter.First(); iter.NotDone(); iter.Next())
@@ -518,12 +533,12 @@ void tcESMSensor::UpdateSurveillanceRWR(double t)
     rwrUpdate = true;
     rwrWarningLevel = 0;
 
-    std::vector<long> targetersToRemove;
+    std::vector<int> targetersToRemove;
 
     size_t nTargeters = parent->targeters.size();
     for (size_t n=0; n<nTargeters; n++)
     {
-        long targeterId = parent->targeters[n];
+        int targeterId = parent->targeters[n];
         if (std::shared_ptr<tcGameObject> target = simState->GetObject(targeterId))
         {
             float range_km = parent->RangeTo(*target);
@@ -556,7 +571,7 @@ void tcESMSensor::UpdateTrack(std::shared_ptr<const tcGameObject> target, double
     mcTrack.mfLat_rad = (float)target->mcKin.mfLat_rad;
     mcTrack.mfLon_rad = (float)target->mcKin.mfLon_rad;
 
-	// perturb the latitude to simulate track inaccuracy at longer range
+	// perturb the latitude to simulate track inaccuracy at inter range
 	if (targetRange_km > 1.0f)
 	{
 		mcTrack.mfLat_rad += randfc(1.6e-6 * targetRange_km); // about 100 m of error at 10 km
@@ -598,7 +613,7 @@ void tcESMSensor::ProcessESMDetection(std::shared_ptr<tcGameObject> target, doub
     // 初始化检测标志为false
     bool bDetected = false;
     // 用于存储检测到的发射器数据库键的数组
-    long maEmitter[MAX_EMITTERS];
+    int maEmitter[MAX_EMITTERS];
     // 初始化检测到的发射器数量为0
     int nEmitters = 0;
 
@@ -677,7 +692,7 @@ void tcESMSensor::ProcessESMDetection(std::shared_ptr<tcGameObject> target, doub
 /**
 * 在ESM检测后调用以更新传感器地图
 */
-void tcESMSensor::UpdateSensorMap(std::shared_ptr<const tcGameObject> target, long* emitters, unsigned int nEmitters,
+void tcESMSensor::UpdateSensorMap(std::shared_ptr<const tcGameObject> target, int* emitters, unsigned int nEmitters,
                                   float az_rad, double t)
 {
     std::shared_ptr<tcSensorMapTrack> pSMTrack = nullptr; // 初始化传感器地图跟踪指针为0

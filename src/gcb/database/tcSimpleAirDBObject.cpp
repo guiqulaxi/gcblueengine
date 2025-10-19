@@ -41,7 +41,6 @@
 namespace database
 {
 
-
 tcSimpleAirDBObject::tcSimpleAirDBObject() : tcAirDBObject()
 {
 }
@@ -95,6 +94,11 @@ void tcSimpleAirDBObject::WritePython(std::string &valueString) const
     WritePythonValue(valueString);
     valueString+="    dbObj.CalculateParams()\n";
     valueString+="    return dbObj\n";
+}
+
+void tcSimpleAirDBObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    tcAirDBObject::SerializeToJson(obj, allocator);
 }
 
 }

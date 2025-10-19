@@ -40,21 +40,21 @@
 class tcPositionRegistry
 {
 public:
-    std::vector<long>& GetAllWithinRegion(double lon_west, double lon_east, 
+    std::vector<int>& GetAllWithinRegion(double lon_west, double lon_east, 
         double lat_south, double lat_north);
     void RemoveAll();
-    void RemoveId(long id);
-    void UpdatePosition(long id, double lon, double lat);
+    void RemoveId(int id);
+    void UpdatePosition(int id, double lon, double lat);
 
     tcPositionRegistry();
     ~tcPositionRegistry();
 
 private:
     /// lookup of id map by bin location code
-    std::map<long, std::map<long, bool> > positionMap;
+    std::map<int, std::map<int, bool> > positionMap;
     
     /// lookup for bin location by id
-    std::map<long, long> entryLookup;
+    std::map<int, int> entryLookup;
     
     const double pi;
     const double twopi;
@@ -63,16 +63,16 @@ private:
     double invBinWidth; ///< 1.0 / binWidth
     double nLatBins; ///< number of latitude bins from -90 S to 90 N
     
-    void AddIdToBin(long id, long bin);
-    void RemoveIdFromBin(long id, long bin);
+    void AddIdToBin(int id, int bin);
+    void RemoveIdFromBin(int id, int bin);
     
-    void AppendBinContents(std::vector<long>& v, long bin);
+    void AppendBinContents(std::vector<int>& v, int bin);
     void ConformLonLat(double& lon_west, double& lon_east, 
         double& lat_south, double& lat_north);
         
-    long LatToIndex(double lat);
-    long LonToIndex(double lon);       
-    long LonLatToBinLocation(double lon, double lat);
+    int LatToIndex(double lat);
+    int LonToIndex(double lon);       
+    int LonLatToBinLocation(double lon, double lat);
 
     
 };

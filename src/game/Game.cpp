@@ -537,9 +537,9 @@ void tcGame::Init()
     float af = 3.2f;
     float bf = 3.7f;
     float cf = -3.7f;
-    long ai = long(af);
-    long bi = long(bf);
-    long ci = long(cf);
+    int ai = int(af);
+    int bi = int(bf);
+    int ci = int(cf);
 
     assert(ai == 3);
     assert(bi == 3);
@@ -728,7 +728,7 @@ void tcGame::SaveDatabaseToPython(const std::string& dirPath)
 
 
 
-    // unsigned long nIterated = 0;
+    // unsigned int nIterated = 0;
     // for (iter.First(); !iter.IsDone(); iter.Next())
     // {
     //     std::shared_ptr<tcDatabaseObject> obj = iter.Get();
@@ -996,7 +996,7 @@ void tcGame::SetTheater(float lat_deg, float lon_deg)
 * Time acceleration mode change
 * This is a more general version of SetPauseMode
 */
-void tcGame::SetTimeAccel(long accel)
+void tcGame::SetTimeAccel(int accel)
 {
 
     simState->SetTimeAcceleration(accel);
@@ -1060,7 +1060,7 @@ void tcGame::SetTimeAccel(long accel)
 
     //    if (simState->IsMultiplayerClient())
     //    {
-    //        long accelRequest = mbPaused ? 0 : accelerateTime + 1;
+    //        int accelRequest = mbPaused ? 0 : accelerateTime + 1;
 
     //        std::string commandText = strutil::format("//gamespeed %d", accelRequest);
     //        //tcMultiplayerInterface::Get()->BroadcastChatText(commandText);
@@ -1100,7 +1100,7 @@ void tcGame::SynchTimeAcceleration()
 
     if (multiplayerMode == 1) // client
     {
-        long accel = simState->GetTimeAcceleration();//获得服务器的倍数
+        int accel = simState->GetTimeAcceleration();//获得服务器的倍数
         if (accel == 0)
         {
             mbPaused = true;
@@ -1142,8 +1142,8 @@ bool tcGame::UpdateFrame()
 {
     tcTime::Get()->Update();
 
-    static unsigned long snFrameCount = 0;
-    static unsigned long snprevFrameCount = 0;//
+    static unsigned int snFrameCount = 0;
+    static unsigned int snprevFrameCount = 0;//
 
     static uint64_t  diff_ms;//时间差
     static double fps=0;
@@ -1186,7 +1186,7 @@ bool tcGame::UpdateFrame()
     gameTime = simState->GetTime();
     simState->GetDateTime(gameDateTime);
 
-    auto speedMax=(unsigned long)(fps*0.025);//全速最大推演倍数 snFrameCount%speedMax==0才推进就是1倍
+    auto speedMax=(unsigned int)(fps*0.025);//全速最大推演倍数 snFrameCount%speedMax==0才推进就是1倍
     if(simState->GetTimeAcceleration()>0)
     {
         auto delta=speedMax/simState->GetTimeAcceleration();//按指定倍数推进
@@ -1325,7 +1325,7 @@ float tcGame::GetClientSyncFactor()
 void tcGame::HookRandomFriendly()
 {
     const unsigned maxPlats = 32;
-    long id[maxPlats];
+    int id[maxPlats];
 
     int ownAlliance = userInfo->GetOwnAlliance();
     if (ownAlliance == 0) return; // no alliance selected yet (multiplayer)
@@ -1411,7 +1411,7 @@ void tcGame::ProcessCommandList()
     // commandStringMemory.lock();//给shareMemory枷锁
     // const char *from = (char*)commandStringMemory.data();
     // char *to = (char*)&commandStringData;
-    // memcpy(to,from,sizeof(unsigned long));//数据从该进程中拷贝到共享数据内存中
+    // memcpy(to,from,sizeof(unsigned int));//数据从该进程中拷贝到共享数据内存中
     // from+=sizeof (unsigned int);
     // to+=sizeof (unsigned int);
     // memcpy(to,from,commandStringData.length+1);//数据从该进程中拷贝到共享数据内存中
@@ -1469,7 +1469,7 @@ void tcGame::ProcessCommandList()
 //	// done this way for easy compatibility with old code body
 //	char* azCallback = cmd.mzString;
 //	char* azUserInput = cmd.mzUserInput;
-//	std::vector<long>& id = cmd.platformID;
+//	std::vector<int>& id = cmd.platformID;
 //	int param = cmd.mnData;
 //	const std::string& textParam = cmd.textParam;
 
@@ -1483,7 +1483,7 @@ void tcGame::ProcessCommandList()
 //	}
 //	else if (userInput == "Target")
 //	{
-//		long nTarget = tacticalMap->GetMapCmdTarget();
+//		int nTarget = tacticalMap->GetMapCmdTarget();
 //		pythonInterface->ProcessCallback(azCallback, id, nTarget, param, textParam);
 //	}
 //	else if (userInput == "Datum")
@@ -1539,7 +1539,7 @@ void tcGame::ProcessCommandList()
 //{
 //	const char* azCallback = cmd.mzString;
 //	const char* azUserInput = cmd.mzUserInput;
-//	std::vector<long> id = cmd.platformID;
+//	std::vector<int> id = cmd.platformID;
 //	int param = cmd.mnData;
 
 //	tacticalMap->SetMapCmdCallback(azCallback, id, param, cmd.textParam);
@@ -1767,7 +1767,7 @@ void tcGame::ProcessCommandList()
 
 //void tcGame::TextCommandSetFormationEditId(const tsCommandInfo& cmd)
 //{
-//    long id = long(cmd.mnData);
+//    int id = int(cmd.mnData);
 //    if (tacticalMap != 0)
 //    {
 //        tacticalMap->SetFormationEditId(id);
@@ -1950,7 +1950,7 @@ void tcGame::ProcessTextCommand(tsCommandInfo cmd_info)
     }
     else if (s == "SetFormationEditId")
     {
-        long id = long(cmd_info.mnData);
+        int id = int(cmd_info.mnData);
         if (tacticalMap != 0)
         {
             tacticalMap->SetFormationEditId(id);
@@ -1980,8 +1980,8 @@ void tcGame::AddCommand(const std::string &cmd)
 */
 //void tcGame::SecondaryHook(wxCommandEvent& event)
 //{
-//	long hookID = tacticalMap->GetHookID();
-//	long nSecondaryHookID = event.GetExtraLong(); // 2.6.3 m_extraLong;
+//	int hookID = tacticalMap->GetHookID();
+//	int nSecondaryHookID = event.GetExtraint(); // 2.6.3 m_extraint;
 
 //	if ((hookID == NULL_INDEX) || (hookID == nSecondaryHookID))
 //	{
@@ -2017,7 +2017,7 @@ void tcGame::AddCommand(const std::string &cmd)
 
 
 
-//    long hookID = tacticalMap->GetHookID();
+//    int hookID = tacticalMap->GetHookID();
 
 //    std::shared_ptr<tcGameObject> hookedObj = simState->GetObject(hookID);
 //    if (hookedObj == 0) return;
@@ -2089,7 +2089,7 @@ void tcGame::AddCommand(const std::string &cmd)
 //    float camy = -sinf(cameraEl); // up
 
 
-//    long hookID = tacticalMap->GetHookID();
+//    int hookID = tacticalMap->GetHookID();
 
 //    std::shared_ptr<tcGameObject> hookedObj = simState->GetObject(hookID);
 //    if (hookedObj == 0) return;
@@ -2118,11 +2118,11 @@ void tcGame::AddCommand(const std::string &cmd)
 void tcGame::ValidateHooked()
 {
     unsigned char playerAlliance = tcUserInfo::Get()->GetOwnAlliance();
-    std::vector<long> validHooks;
+    std::vector<int> validHooks;
 
     for (size_t n=0; n<hookedUnits.size(); n++)
     {
-        long id = hookedUnits[n];
+        int id = hookedUnits[n];
         if (simState->GetObject(id) != 0)
         {
             validHooks.push_back(id);
@@ -2432,6 +2432,9 @@ void  tcGameObjectToJson(const tcGameObject& obj,rapidjson::Value& unitinfo,rapi
     rapidjson::Value mfClimbAngle_radValue(rapidjson::kNumberType);
     mfClimbAngle_radValue.SetFloat(obj.mcKin.mfClimbAngle_rad); // 使用文档的分配器来分配内存
     unitinfo.AddMember("mfClimbAngle_rad",mfClimbAngle_radValue,document.GetAllocator());
+    rapidjson::Value mfSpeed_radValue(rapidjson::kNumberType);
+    mfSpeed_radValue.SetFloat(obj.mcKin.mfSpeed_kts); // 使用文档的分配器来分配内存
+    unitinfo.AddMember("mfSpeed_kts",mfSpeed_radValue,document.GetAllocator());
     rapidjson::Value mfYaw_radValue(rapidjson::kNumberType);
     mfYaw_radValue.SetFloat(obj.mcKin.mfYaw_rad); // 使用文档的分配器来分配内存
     unitinfo.AddMember("mfYaw_rad",mfYaw_radValue,document.GetAllocator());
@@ -2457,9 +2460,9 @@ void tcGame::UpdateOutSimData()
     document.SetObject();
     //更新对象位置
     std::shared_ptr<tcGameObject>obj;
-    long cmappos = simState->maPlatformState.GetStartPosition();
+    int cmappos = simState->maPlatformState.GetStartPosition();
     int nSize = simState->maPlatformState.GetCount();
-    long nKey;
+    int nKey;
     //遍历对象更新
     // sharedSimData.count=nSize;
 
@@ -2477,7 +2480,8 @@ void tcGame::UpdateOutSimData()
         simState->maPlatformState.GetNextAssoc(cmappos,nKey,obj);
         // 创建一个 Value 对象，用来存储字符串 "hello"
         rapidjson::Value unitinfo(rapidjson::kObjectType);
-        tcGameObjectToJson(*obj,unitinfo,document);
+        //tcGameObjectToJson(*obj,unitinfo,document);
+        obj->SerializeToJson(unitinfo,document.GetAllocator());
         unitinfos.PushBack(unitinfo,document.GetAllocator());
     }
     document.AddMember("unitInfo",unitinfos,document.GetAllocator());
@@ -2497,7 +2501,8 @@ void tcGame::UpdateOutSimData()
         {
             rapidjson::Value trackJson(rapidjson::kObjectType);
             std::shared_ptr<tcSensorMapTrack> track = iter.Get();
-            tcTrackToJson(*track,trackJson,document);
+            //tcTrackToJson(*track,trackJson,document);
+            track->SerializeToJson(trackJson, document.GetAllocator());
             tracksJson.PushBack(trackJson,document.GetAllocator());
         }
         allianceTrackJson.AddMember("tracks",tracksJson,document.GetAllocator());

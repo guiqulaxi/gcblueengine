@@ -34,6 +34,7 @@
 #include <vector>
 #include <sstream>
 
+#include <rapidjson/document.h>
 
 #include "tcSensorState.h"
 #include "tcLauncherState.h"
@@ -89,6 +90,8 @@ struct tsRelativePosition
 		: dx(0), dy(0), dz(0), yaw(0), pitch(0), roll(0), isVisible(false) {}
     tcStream& operator<<(tcStream& stream);
     tcStream& operator>>(tcStream& stream);
+    
+    void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const;
 };
 
 /**
@@ -104,12 +107,12 @@ public:
     std::vector<std::shared_ptr<tcGameObject>> toLaunch; ///< list of ex-children to launch
     //tc3DModel* model;           ///< 3D model
     UINT mnModelType;          ///< class MTYPE_ identifier
-    long mnID;
+    int mnID;
     std::string mzClass;        ///< name of database class
-    long mnDBKey;       ///< key of database entry
+    int mnDBKey;       ///< key of database entry
     std::string mzUnit;         ///< specific name of class instance
 
-    std::vector<long> targeters; ///< vector of ids of platforms that are targeting this one
+    std::vector<int> targeters; ///< vector of ids of platforms that are targeting this one
 
     /** derived objects can have different DB obj type in their scope
     /* mpDBObject should always point to relevant data for current model class */
@@ -119,7 +122,7 @@ public:
     tcTerrainInfo mcTerrain;    ///< ground height ASL, water depth
     bool isInvulnerable;        ///< test mode, true to make immune from damage
     virtual void SetKinematics(
-            double fLon_rad,              ///< longitude [rad]
+            double fLon_rad,              ///< intitude [rad]
             double fLat_rad,               ///< latitude [rad]
             float fAlt_m,                  ///< altitude, negative is subsurface depth [m]
             float fHeading_rad,           ///< relative to north [rad] 顺时针
@@ -136,8 +139,8 @@ public:
     void UpdateScoreForDamage(std::shared_ptr<tcGameObject> damager, float priorDamage);
     float GetDamageLevel() const;
 
-    void AddTargeter(long id);
-    void RemoveTargeter(long id);
+    void AddTargeter(int id);
+    void RemoveTargeter(int id);
     void CleanupTargeters();
 
     float RangeTo(const tcGameObject& p) const;
@@ -155,9 +158,9 @@ public:
     tcOBBBoundingBox  GetOBBBoundingBox() const ;
 
     void AddChild(std::shared_ptr<tcGameObject> child);
-    void AddChildWithId(std::shared_ptr<tcGameObject> child, long id_);
+    void AddChildWithId(std::shared_ptr<tcGameObject> child, int id_);
     std::shared_ptr<tcGameObject> GetChild(size_t idx);
-    std::shared_ptr<tcGameObject> GetChildById(long id) const;
+    std::shared_ptr<tcGameObject> GetChildById(int id) const;
     std::shared_ptr<tcGameObject> GetChildByName(const std::string& name) const;
     size_t GetNumberOfChildren() const;
     const char* GetName() const; ///< returns instance name of this obj (mzUnit)
@@ -214,8 +217,8 @@ public:
 //    virtual void UpdateEffects();
     virtual void DesignateDatum(tcPoint p) {}
     virtual void DesignateLauncherDatum(GeoPoint p, unsigned int anLauncher) {}
-    virtual bool DesignateLauncherTarget(long anID, unsigned anLauncher) {return false;}
-    virtual void DesignateTarget(long anID) {}
+    virtual bool DesignateLauncherTarget(int anID, unsigned anLauncher) {return false;}
+    virtual void DesignateTarget(int anID) {}
     virtual void GetDatum(GeoPoint& p) {}
     virtual void GetLauncherState(tcLauncherState*& pLauncherState) {pLauncherState = NULL;}
     virtual std::shared_ptr<tcLauncher> GetLauncher(unsigned idx) {return 0;}
@@ -225,6 +228,8 @@ public:
     virtual float GetOpticalCrossSection(float view_alt_m, float view_dist_km) const;
     virtual float GetIRSignature(float az_deg) const;
 
+    virtual void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const;
+
 	float GetSpan() const;
     float GetTerrainElevation() {return mcTerrain.mfHeight_m;}
     float GetZmin(); ///< return min height of model+
@@ -232,7 +237,7 @@ public:
 //	float GetZmaxConst() const; ///< return max height of model
     bool IsOwnAlliance() const;
     bool IsHooked() const;
-    virtual void Launch(long& rnKey, unsigned& rnLauncher) {}
+    virtual void Launch(int& rnKey, unsigned& rnLauncher) {}
     virtual void SetHeading(float afNewHeading) {}
     void SetRelativePosition(float dx, float dy, float dz);
     void SetRelativeOrientation(float yaw, float pitch, float roll);
@@ -254,7 +259,7 @@ public:
 	static void SetEditMode(bool state) {editMode = state;}
     static void SetGameObjectDatabase(database::tcDatabase *db) {database = db;}
     static void SetGameObjectMapData(tcMapData *md) {mapData = md;}
-    static void SetHookedId(long id) {hookedId = id;}
+    static void SetHookedId(int id) {hookedId = id;}
     static void SetSimState(tcSimState *ss) {simState = ss;}
     static void SetLastDamageDescription(const std::string& s);
     static const std::string& GetLastDamageDescription();
@@ -270,13 +275,13 @@ public:
 protected:
     float mfDamageLevel;       ///< 0 is no damage, 1 is fully damaged
 	bool recreateFlag; ///< workaround, true to resend create request for obj (multiplayer client only)
-    long nextChildId; ///< for assigning unique child id (until long is exhausted at least)
+    int nextChildId; ///< for assigning unique child id (until int is exhausted at least)
     float customCost; ///< custom cost assigned to this object for scoring
 
     static tcMapData* mapData;
     static database::tcDatabase* database;
     static tcSimState* simState;
-    static long hookedId; ///< id hooked by user, used for messaging only
+    static int hookedId; ///< id hooked by user, used for messaging only
     static bool clientMode; ///< true if running as multiplayer client
 	static bool editMode; ///< true if running mission editor
     static std::string lastDamageDescription; ///< tag for displaying info on last damage type that occurred

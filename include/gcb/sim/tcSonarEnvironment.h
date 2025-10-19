@@ -83,7 +83,7 @@ public:
 
     float GetAmbientNL(float freq_Hz) const;
 
-    float GetTL(long key, double t, float depth_m, float targetRange_m, float targetDepth_m, float bottomDepth_m);
+    float GetTL(int key, double t, float depth_m, float targetRange_m, float targetDepth_m, float bottomDepth_m);
 
     size_t GetBeamCount() const;
 
@@ -103,7 +103,7 @@ private:
         std::vector<tcSonarRay> beam; ///< rays over range of angles = "beam"
     };
 
-    std::map<long, BeamData> beamCache;
+    std::map<int, BeamData> beamCache;
 
     float surfaceLossFactor; ///< loss from surface reflection, power factor, 0-1
     float bottomLossFactor; ///< loss from bottom reflection, power factor, 0-1

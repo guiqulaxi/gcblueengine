@@ -47,6 +47,9 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
 
 /******************************************************************************/
 /****************************** tcSubObject *******************************/
@@ -242,6 +245,29 @@ void tcSubObject::Serialize(tcFile& file, bool mbLoad)
     else {
         SaveToFile(file);
     }
+}
+
+void tcSubObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    // serialize common platform fields
+    tcPlatformObject::SerializeToJson(obj, allocator);
+
+    // submarine-specific fields
+    obj.AddMember("periscopeRaised", rapidjson::Value().SetBool(periscopeRaised), allocator);
+    obj.AddMember("radarMastRaised", rapidjson::Value().SetBool(radarMastRaised), allocator);
+    obj.AddMember("isSnorkeling", rapidjson::Value().SetBool(isSnorkeling), allocator);
+
+    obj.AddMember("periscopeDepth_m", rapidjson::Value().SetDouble(periscopeDepth_m), allocator);
+    obj.AddMember("invPeriscopeDepth", rapidjson::Value().SetDouble(invPeriscopeDepth), allocator);
+    obj.AddMember("lastDepth_m", rapidjson::Value().SetDouble(lastDepth_m), allocator);
+
+    obj.AddMember("doneSinking", rapidjson::Value().SetBool(doneSinking), allocator);
+
+    // battery charge in kJ
+    obj.AddMember("batteryCharge_kJ", rapidjson::Value().SetDouble(batteryCharge), allocator);
+
+    // max pitch
+    obj.AddMember("maxPitch_rad", rapidjson::Value().SetDouble(maxPitch_rad), allocator);
 }
 
 float tcSubObject::GetBatteryCharge() const

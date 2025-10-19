@@ -52,7 +52,8 @@ namespace database
         std::string acousticModel;          ///< acoustic model for SL vs speed 声级（SL）与速度之间的声学模型
         std::string SL_Model;               ///< aspect variation model for radiated noise 辐射噪声的方位变化模型
 
-        
+        virtual void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const override;
+
 		static void AddSqlColumns(std::string& columnString);
 		void ReadSql(tcSqlReader& entry);
         void WriteSql(std::string& valueString) const;

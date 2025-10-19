@@ -59,13 +59,13 @@ public:
 
     bool isActive; ///< true if formation is active
     bool useNorthBearing; ///< true for brg relative north, false relative to leader course
-    long leaderId;
+    int leaderId;
     float range_center_km;
     float range_span_km;
     float bearing_center_rad; ///< bearing from leader to center of zone
     float bearing_span_rad;
     float altitudeOffset_m; ///< for air formations, the altitude offset
-    std::vector<long> followers;
+    std::vector<int> followers;
 
     void Update(std::shared_ptr<tcPlatformObject> platform);
     void Update( std::shared_ptr<tcAirObject> air);
@@ -85,8 +85,8 @@ public:
     void SetAltitudeOffset(float dh_m);
     void SetUseNorthBearing(bool state);
 
-    void AddFollower(long id);
-    void RemoveFollower(long id);
+    void AddFollower(int id);
+    void RemoveFollower(int id);
     void RemoveAllFollowers();
     void LeaveFormation();
 
@@ -94,7 +94,7 @@ public:
     void SetNewCommand();
     void ClearNewCommand();
 
-    void SetPlatformId(long id);
+    void SetPlatformId(int id);
 
     void SaveToPython(scriptinterface::tcScenarioLogger& logger);
 
@@ -118,7 +118,7 @@ private:
 	} maneuverType;
 
     bool hasNewCommand; ///< for multiplayer
-    long platformId;
+    int platformId;
 
     float GetInterceptHeading(float tgt_east_m, float tgt_north_m, float tgt_heading_rad, 
         float tgt_speed_mps, float own_speed_mps, bool& valid);

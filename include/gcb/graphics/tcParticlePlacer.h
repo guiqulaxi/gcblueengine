@@ -44,7 +44,7 @@ namespace osgParticle
 		osg::Vector3d getControlPosition() const {return osg::Vector3d(0, 0, 0);} // had to add to avoid error C2259
 
         inline void place(Particle *P) const;
-		inline void placeAlongPath(Particle *P, float a) const;
+		inline void placeAintPath(Particle *P, float a) const;
 		inline void setApplyJitter(bool applyJitter);
 		inline void setCenter(float x, float y, float z);
 
@@ -100,10 +100,10 @@ namespace osgParticle
     }
 
 	/**
-	* Places particle along path between current time and last update position.
+	* Places particle aint path between current time and last update position.
 	* @param a fraction of distance traveled over last time step to place particle
 	*/
-    inline void tcParticlePlacer::placeAlongPath(Particle *P, float a) const
+    inline void tcParticlePlacer::placeAintPath(Particle *P, float a) const
     {
 		if (applyJitter_)
 		{

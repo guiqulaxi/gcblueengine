@@ -33,6 +33,8 @@
 #include "tcMapData.h"
 #include "tcFloatCompressor.h"
 #include <cassert>
+#include "rapidjson/document.h"
+
 /**
 * Load state from stream
 */
@@ -444,4 +446,24 @@ tcTrack::tcTrack(const tcTrack& src)
 
 tcTrack::~tcTrack()
 {
+}
+
+void tcTrack::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    obj.SetObject();
+
+    obj.AddMember(rapidjson::Value("mfLon_rad", allocator).Move(), mfLon_rad, allocator);
+    obj.AddMember(rapidjson::Value("mfLat_rad", allocator).Move(), mfLat_rad, allocator);
+    obj.AddMember(rapidjson::Value("mfAlt_m", allocator).Move(), mfAlt_m, allocator);
+    obj.AddMember(rapidjson::Value("mfSpeed_kts", allocator).Move(), mfSpeed_kts, allocator);
+    obj.AddMember(rapidjson::Value("mfHeading_rad", allocator).Move(), mfHeading_rad, allocator);
+    obj.AddMember(rapidjson::Value("mfClimbAngle_rad", allocator).Move(), mfClimbAngle_rad, allocator);
+    obj.AddMember(rapidjson::Value("bearing_rad", allocator).Move(), bearing_rad, allocator);
+    obj.AddMember(rapidjson::Value("bearingRate_radps", allocator).Move(), bearingRate_radps, allocator);
+    obj.AddMember(rapidjson::Value("mfTimestamp", allocator).Move(), mfTimestamp, allocator);
+    obj.AddMember(rapidjson::Value("mnID", allocator).Move(), mnID, allocator);
+    obj.AddMember(rapidjson::Value("mnClassification", allocator).Move(), mnClassification, allocator);
+    obj.AddMember(rapidjson::Value("mnAffiliation", allocator).Move(), mnAffiliation, allocator);
+    obj.AddMember(rapidjson::Value("mnAlliance", allocator).Move(), mnAlliance, allocator);
+    obj.AddMember(rapidjson::Value("mnFlags", allocator).Move(), mnFlags, allocator);
 }

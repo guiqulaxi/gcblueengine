@@ -1523,7 +1523,7 @@ void tcLauncher::UpdateFireControlSensor()
     if (!needsFireControl) return;
 
     // *** Determine whether radar or laser designator is required
-    long seekerKey = -1;
+    int seekerKey = -1;
     if (missileData != 0)
     {
         seekerKey = missileData->GetSensorKey();
@@ -2023,9 +2023,9 @@ void tcLauncher::UpdateStatusSeekerTrack(std::shared_ptr<tcGameObject> target)
             }
         }
 
-        long nSensorKey = pMissileDBObj->GetSensorKey();
+        int nSensorKey = pMissileDBObj->GetSensorKey();
 
-        long fcID = parent->mnID;
+        int fcID = parent->mnID;
         unsigned int fcIdx = fireControlSensorIdx;
 
         bool canDetect = simState->SensorCanDetect(nSensorKey, target,
@@ -2072,9 +2072,9 @@ void tcLauncher::UpdateStatusSeekerTrack(std::shared_ptr<tcGameObject> target)
             }
         }
 
-        long nSensorKey = ballistic->GetSensorKey();
+        int nSensorKey = ballistic->GetSensorKey();
 
-        long fcID = parent->mnID;
+        int fcID = parent->mnID;
         unsigned int fcIdx = fireControlSensorIdx;
 
         bool canDetect = simState->SensorCanDetect(nSensorKey, target,

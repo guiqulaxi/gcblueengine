@@ -48,6 +48,7 @@ public:
 
     // 参数计算（例如将角度转为弧度、计算实际通信距离）
     void CalculateEffectiveParams();
+    virtual void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const override;
 
 protected:
     // 可扩展的保护成员（例如内部缓存机制）

@@ -111,9 +111,9 @@ public:
     void ClearDictionaries();
     void Clear();
     void ClearForNewScenario();
-    int CreateObjectCopy(long anKey);
-    int DeleteObject(long anKey);
-    long GetRandomKey();
+    int CreateObjectCopy(int anKey);
+    int DeleteObject(int anKey);
+    int GetRandomKey();
     std::shared_ptr<tcDatabaseObject> GetRandomOfType(UINT model_type);
     const std::vector<RecordSummary>& GetTableSummary(const std::string& tableName) const;
     const std::vector<RecordSummary>& GetItemSummary(const std::vector<std::string>& itemList) const;
@@ -126,25 +126,25 @@ public:
     bool CheckTableReferences(const char* table, const char* field, const std::vector<std::string>& refTables, const char* refField,
                               std::ofstream &log, unsigned int& errorCount);
 
-    long GetSize() {return mcObjectData.GetCount();}
-    bool GetObject(long anKey, std::shared_ptr<tcDatabaseObject> &rpobj);
-    long AddOrUpdateObject(std::shared_ptr<tcDatabaseObject> rpobj);
-    long AddOrUpdateObjectForceKey(std::shared_ptr<tcDatabaseObject> rpobj,long forceKey);
+    int GetSize() {return mcObjectData.GetCount();}
+    bool GetObject(int anKey, std::shared_ptr<tcDatabaseObject> &rpobj);
+    int AddOrUpdateObject(std::shared_ptr<tcDatabaseObject> rpobj);
+    int AddOrUpdateObjectForceKey(std::shared_ptr<tcDatabaseObject> rpobj,int forceKey);
 
     void AddOrUpdateSignatureModelData(const tcSignatureModel&data);
     void AddOrUpdateAcousticModelData(const tcAcousticModel& data);
     void AddOrUpdateWeaponDamageData(const tcWeaponDamage& data);
     void AddOrUpdateDamageEffectData(const tcDamageEffect&data);
 
-    std::shared_ptr<tcDatabaseObject> GetObject(long anKey);
+    std::shared_ptr<tcDatabaseObject> GetObject(int anKey);
     std::shared_ptr<tcDatabaseObject> GetObject(const std::string& className); ///< gets object by class name
-    const std::string& GetObjectClassName(long key);
+    const std::string& GetObjectClassName(int key);
     std::vector<std::string> WildcardSearch(const std::string& expression, const std::string& filter);
     std::vector<std::string> WildcardSearchLoaded(const std::string& expression, const std::string& filter);
-    int GetObjectClass(long anKey, std::string& rzClass);
-    long GetNextObjectOfSameClass(long anKey);
-    long GetPrevObjectOfSameClass(long anKey);
-    long GetKey(const char* s);
+    int GetObjectClass(int anKey, std::string& rzClass);
+    int GetNextObjectOfSameClass(int anKey);
+    int GetPrevObjectOfSameClass(int anKey);
+    int GetKey(const char* s);
     void GetVersion(int& v1, int& v2, int& v3);
     bool IsUsingDynamicLoad() const;
 
@@ -174,8 +174,8 @@ public:
     void ReadWriteSql(sqlite3x::sqlite3_connection* sqlConnectionNew, bool load);
     void ExportPlatformTables();
     void ExportLauncherConfigurations();
-    bool LoadRecordSqlForceKey(const char* databaseClass, long forcedKey);
-    void LoadRecordOtherTables(long key);
+    bool LoadRecordSqlForceKey(const char* databaseClass, int forcedKey);
+    void LoadRecordOtherTables(int key);
     void ReloadRecord(const char* databaseClass); // for dbeditor updates
 
     void UpdateSql(const std::string& fileName); ///< updates db with add-on database
@@ -196,11 +196,11 @@ public:
 private:
     sqlite3x::sqlite3_connection* sqlConnection; ///< pointer to allow external connection to be used
     sqlite3x::sqlite3_connection sqlConnectionLocal; ///< used for normal game mode
-    std::map<std::string, long> nameToKey; ///< dictionary of (className, key) pairs
+    std::map<std::string, int> nameToKey; ///< dictionary of (className, key) pairs
     std::map<std::string, std::string> nameToTable; ///< dictionary of (className, table name)
     std::map<std::string, std::vector<RecordSummary>> tableSummary; ///< dictionary of (table name, vector of RecordSummary)
     std::map<std::string, RecordSummary> classSummary;
-    std::map<std::string, long> tableToIndex; ///< dictionary of long index for each table name for switch statement
+    std::map<std::string, int> tableToIndex; ///< dictionary of int index for each table name for switch statement
     std::map<std::string, std::string> nameToDisplayName;
     std::map<std::string, std::string> crossReference; ///< cross-reference (lookup_name, db_name) for mapping multiple or old names to current record
 
@@ -228,11 +228,11 @@ private:
     void CleanSqlColumnText(std::string& columnText);
     bool IsVersionSupported();
     bool LoadRecordSql(const char* databaseClass);
-    bool LoadRecordSqlForceKeyExecute(const char* databaseClass, long forcedKey);
+    bool LoadRecordSqlForceKeyExecute(const char* databaseClass, int forcedKey);
 
     void LoadPlatformTables();
     void LoadLauncherConfigs();
-    long LoadLauncherData(const char* databaseClass, long forcedKey = -1);
+    int LoadLauncherData(const char* databaseClass, int forcedKey = -1);
     void LoadCrossReferenceTable();
 
     void ReadCountryData();

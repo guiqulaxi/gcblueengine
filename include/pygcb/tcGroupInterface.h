@@ -56,18 +56,18 @@ namespace scriptinterface
 		/// number of units in group, zero for none
 		int GetUnitCount();
 		/// unit id of unit <idx> in group, -1 for error
-		long GetUnitId(int idx) const;
+		int GetUnitId(int idx) const;
         bool IsPlatform(int idx) const; ///< @return true if this is a tcPlatformObject
         bool IsWeapon(int idx) const; ///< @return true if this is a tcWeaponObject
         /// return id of group member by name, or -1 if not found
-        long LookupUnit(const std::string& name);
+        int LookupUnit(const std::string& name);
         int LookupUnitIdx(const std::string& name);
         /// vector of unit ids
-        std::vector<long>& GetUnits();
+        std::vector<int>& GetUnits();
 		/// sets id vector for single unit in group
-		void SetUnit(long unit);
+		void SetUnit(int unit);
 		/// sets id vector for units in group
-		void SetUnits(const std::vector<long>& units);
+		void SetUnits(const std::vector<int>& units);
 		/// release control of this group (multiplayer)
 		void ReleaseControl();
 		/// take control of this group (multiplayer)
@@ -75,7 +75,7 @@ namespace scriptinterface
 
         void DeleteGroup();
 
-        void RemoveUnit(long unit);
+        void RemoveUnit(int unit);
 
         void GetUserInput(std::string callback, std::string uitype);
 
@@ -96,7 +96,7 @@ namespace scriptinterface
 //        static tcCommandQueue *mpCommandQueue; // for requesting GUI commands
         static tcScenarioInterface* scenarioInterface; ///< to allow hooked units access in edit mode
 
-		std::vector<long> groupUnits;
+		std::vector<int> groupUnits;
     };
 }
 

@@ -12,7 +12,7 @@ void tcGameInterface::SetEditMode(bool state)
     tcGameObject::SetEditMode(state);
 }
 
-void tcGameInterface::SetTimeAccel(long accel)
+void tcGameInterface::SetTimeAccel(int accel)
 {
      assert(mpSimState);
     mpSimState->SetTimeAcceleration(accel);

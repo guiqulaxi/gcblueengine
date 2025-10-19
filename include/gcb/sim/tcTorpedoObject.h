@@ -102,13 +102,16 @@ public:
     virtual void SetSpeed(float newSpeed);
     virtual std::shared_ptr<tcSonar> GetSensorState();
 	virtual float GetSonarSourceLevel(float az_deg) const;
-    virtual void DesignateTarget(long anID);
+    virtual void DesignateTarget(int anID);
     virtual int GetGuidanceParameters(tsGuidanceParameters& gp);
     float RuntimeRemaining();
     void PrintToFile(tcFile&) override;
     void SaveToFile(tcFile& file) override;
     void LoadFromFile(tcFile& file);
     virtual void Serialize(tcFile& file, bool mbLoad);
+
+    // JSON serialization
+    virtual void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const override;
 
     virtual tcUpdateStream& operator<<(tcUpdateStream& stream);
     virtual tcUpdateStream& operator>>(tcUpdateStream& stream);

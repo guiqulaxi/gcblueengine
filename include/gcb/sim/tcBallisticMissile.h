@@ -60,6 +60,9 @@ public:
     virtual tcGameStream& operator<<(tcGameStream& stream);
     virtual tcGameStream& operator>>(tcGameStream& stream);
 
+    // JSON serialization
+    virtual void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const;
+
     tcBallisticMissile(const tcBallisticMissile& obj);
     tcBallisticMissile(std::shared_ptr<tcBallisticMissileDBObject> obj);
     ~tcBallisticMissile();

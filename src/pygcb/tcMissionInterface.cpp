@@ -96,7 +96,7 @@ object tcMissionInterface::GetInterface()
         }
     }
 
-	long tcMissionInterface::GetAirborneAircraftId(unsigned int idx) const
+	int tcMissionInterface::GetAirborneAircraftId(unsigned int idx) const
 	{
         if (mission != 0)
         {

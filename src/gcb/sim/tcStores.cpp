@@ -109,7 +109,7 @@ tcStores::StoreItem::StoreItem(const StoreItem& src)
 {
 }
 
-tcStores::StoreItem::StoreItem(const std::string& name, unsigned long qty, unsigned int id)
+tcStores::StoreItem::StoreItem(const std::string& name, unsigned int qty, unsigned int id)
 :   className(name), 
     quantity(qty),
     itemId(id)
@@ -128,7 +128,7 @@ std::shared_ptr<tcGameObject> tcStores::StoreOperation::GetObj()
         }
         else
         {
-            return obj->GetChildById(long(childId));
+            return obj->GetChildById(int(childId));
         }
     }
     else
@@ -175,10 +175,10 @@ tcUpdateStream& tcStores::operator<<(tcUpdateStream& stream)
 
 	for (unsigned char n=0; n<nItems; n++)
 	{
-		long id;
+		int id;
 		stream >> id;
 		
-		unsigned long quantity;
+		unsigned int quantity;
 		stream >> quantity;
 
         unsigned int itemId;
@@ -210,8 +210,8 @@ tcUpdateStream& tcStores::operator>>(tcUpdateStream& stream)
 	for (unsigned char n=0; n<nItems; n++)
 	{
 		std::shared_ptr<tcDatabaseObject> databaseObj = stores[n].GetDatabaseObject();
-		long databaseId = databaseObj->mnKey;
-		unsigned long quantity = stores[n].quantity;
+		int databaseId = databaseObj->mnKey;
+		unsigned int quantity = stores[n].quantity;
         unsigned int itemId = stores[n].itemId;
 		
 		stream << databaseId;
@@ -238,8 +238,8 @@ tcCommandStream& tcStores::operator<<(tcCommandStream& stream)
 	{
 		short int id;
 		unsigned char op;
-		long itemId = -1;
-		unsigned long quantity = 0;
+		int itemId = -1;
+		unsigned int quantity = 0;
         unsigned char launcherIdx = 99;
 		std::string type;
 
@@ -364,7 +364,7 @@ tcGameStream& tcStores::operator<<(tcGameStream& stream)
         std::string itemName;
 		stream >> itemName;
 		
-		unsigned long quantity;
+		unsigned int quantity;
 		stream >> quantity;
 
 		std::shared_ptr<tcDatabaseObject> databaseObj = database->GetObject(itemName);
@@ -395,7 +395,7 @@ tcGameStream& tcStores::operator<<(tcGameStream& stream)
         stream >> op.platformId;
         stream >> op.childId;
 
-        //long objId; // = (ops[n].obj == 0) ? -1 : ops[n].obj->mnID;
+        //int objId; // = (ops[n].obj == 0) ? -1 : ops[n].obj->mnID;
         //stream >> objId;
         //if (objId == -1)
         //{
@@ -420,7 +420,7 @@ tcGameStream& tcStores::operator<<(tcGameStream& stream)
         stream >> autoOp.type;
         stream >> autoOp.stage;
 
-        long objId; // = (automationOps[n].obj == 0) ? -1 : automationOps[n].obj->mnID;
+        int objId; // = (automationOps[n].obj == 0) ? -1 : automationOps[n].obj->mnID;
         stream >> objId;
         if (objId == -1)
         {
@@ -472,7 +472,7 @@ tcGameStream& tcStores::operator>>(tcGameStream& stream)
 	{
 		//std::shared_ptr<tcDatabaseObject> databaseObj = stores[n].GetDatabaseObject();
         std::string itemName = stores[n].className;
-		unsigned long quantity = stores[n].quantity;
+		unsigned int quantity = stores[n].quantity;
 		
 		stream << itemName;
 		stream << quantity;
@@ -493,7 +493,7 @@ tcGameStream& tcStores::operator>>(tcGameStream& stream)
         stream << ops[n].platformId;
         stream << ops[n].childId;
 
-        //long objId = (ops[n].obj == 0) ? -1 : ops[n].obj->mnID;
+        //int objId = (ops[n].obj == 0) ? -1 : ops[n].obj->mnID;
         //stream << objId;
     }
 
@@ -505,7 +505,7 @@ tcGameStream& tcStores::operator>>(tcGameStream& stream)
         stream << automationOps[n].type;
         stream << automationOps[n].stage;
 
-        long objId = (automationOps[n].obj == 0) ? -1 : automationOps[n].obj->mnID;
+        int objId = (automationOps[n].obj == 0) ? -1 : automationOps[n].obj->mnID;
         stream << objId;
     }
 
@@ -606,7 +606,7 @@ void tcStores::AddAutomationOp(const std::string& type, std::shared_ptr<tcGameOb
 /**
 *
 */
-bool tcStores::AddItems(const std::string& item, unsigned long quantity)
+bool tcStores::AddItems(const std::string& item, unsigned int quantity)
 {
     std::shared_ptr<tcDatabaseObject> databaseObject = tcDatabase::Get()->GetObject(item);
 
@@ -616,7 +616,7 @@ bool tcStores::AddItems(const std::string& item, unsigned long quantity)
         return false; // not found in database
     }
 
-    unsigned long freeCapacity = GetFreeCapacityForItem(databaseObject->weight_kg, databaseObject->volume_m3);
+    unsigned int freeCapacity = GetFreeCapacityForItem(databaseObject->weight_kg, databaseObject->volume_m3);
 
     if ((freeCapacity > 0) && IsCompatible(item))
     {
@@ -645,7 +645,7 @@ bool tcStores::AddItems(const std::string& item, unsigned long quantity)
 	}
 }
 
-bool tcStores::AddItemsForceId(const std::string& item, unsigned long quantity, unsigned int itemId)
+bool tcStores::AddItemsForceId(const std::string& item, unsigned int quantity, unsigned int itemId)
 {
     std::shared_ptr<tcDatabaseObject> databaseObject = tcDatabase::Get()->GetObject(item);
 
@@ -655,7 +655,7 @@ bool tcStores::AddItemsForceId(const std::string& item, unsigned long quantity, 
         return false; // not found in database
     }
 
-    unsigned long freeCapacity = GetFreeCapacityForItem(databaseObject->weight_kg, databaseObject->volume_m3);
+    unsigned int freeCapacity = GetFreeCapacityForItem(databaseObject->weight_kg, databaseObject->volume_m3);
     if ((freeCapacity > 0) && IsCompatible(item))
     {
         if (quantity > (unsigned)freeCapacity) quantity = (unsigned)freeCapacity;
@@ -686,13 +686,13 @@ void tcStores::RemoveAllItems()
 * Removes specified items from stores.
 * @return true if any of specified type were removed
 */
-bool tcStores::RemoveItems(const std::string& item, unsigned long quantity)
+bool tcStores::RemoveItems(const std::string& item, unsigned int quantity)
 {
     assert(quantity > 0); // technically not a problem, but this shouldn't happen
 
     bool found = false;
     int nStores = (int)stores.size();
-    unsigned long removeQuantity = 0;
+    unsigned int removeQuantity = 0;
     for (int k=nStores-1; (k>=0) && !found; k--)
     {
         if (stores[k].className == item)
@@ -721,7 +721,7 @@ bool tcStores::RemoveItems(const std::string& item, unsigned long quantity)
 }
 
 
-bool tcStores::AddOperation(const std::string& itemName, unsigned int launcherIdx, unsigned long quantity, float transferTime_s,
+bool tcStores::AddOperation(const std::string& itemName, unsigned int launcherIdx, unsigned int quantity, float transferTime_s,
 							int opType, std::shared_ptr<tcGameObject> obj)
 {
 	/* Search for existing op with launcher (or platform for REFUEL)
@@ -955,7 +955,7 @@ void tcStores::CompleteOperation(tcStores::StoreOperation& op)
         assert(op.transferType == StoreOperation::UNLOAD);
         assert(op.quantity < std::numeric_limits<short>::max());
         assert(launcher->mnCurrent >= short(op.quantity));
-        op.quantity = std::min(op.quantity, (unsigned long)launcher->mnCurrent);
+        op.quantity = std::min(op.quantity, (unsigned int)launcher->mnCurrent);
         AddItems(op.item, op.quantity);
         launcher->SetChildQuantity(launcher->mnCurrent - short(op.quantity));
     }
@@ -996,7 +996,7 @@ void tcStores::CompleteMoveOperation(tcStores::StoreOperation& op, std::shared_p
 * Modified to use mask with ? and * characters. If more than one item match, this only returns info
 * on the first match
 */
-unsigned long tcStores::CurrentItemQuantity(const std::string& itemMask, std::string& matchingItem) const
+unsigned int tcStores::CurrentItemQuantity(const std::string& itemMask, std::string& matchingItem) const
 {
     std::string s;
 
@@ -1019,9 +1019,9 @@ unsigned long tcStores::CurrentItemQuantity(const std::string& itemMask, std::st
 * @return current quantity of stores, not including incoming unloads
 * @see tcStores::IncomingQuantity
 */
-unsigned long tcStores::CurrentQuantity() const
+unsigned int tcStores::CurrentQuantity() const
 {
-    unsigned long currentCount = 0;
+    unsigned int currentCount = 0;
     for (size_t n=0; n<stores.size(); n++)
     {
         currentCount += stores[n].quantity;
@@ -1119,30 +1119,30 @@ const std::string& tcStores::GetFilledStatusString() const
     return s;
 }
 
-unsigned long tcStores::GetFreeCapacityForItem(float itemWeight_kg, float itemVolume_m3) const
+unsigned int tcStores::GetFreeCapacityForItem(float itemWeight_kg, float itemVolume_m3) const
 {
     assert(storesDBObj);
 	assert((storesDBObj->capacity >= CurrentQuantity()) || (storesDBObj->capacity == 0));
 
-    long countCapacity = (storesDBObj->capacity > 0) ? (long)storesDBObj->capacity : std::numeric_limits<long>::max();
+    int countCapacity = (storesDBObj->capacity > 0) ? (int)storesDBObj->capacity : std::numeric_limits<int>::max();
         
-    long freeCapacity = countCapacity - CurrentQuantity();
+    int freeCapacity = countCapacity - CurrentQuantity();
 
-    long volumeCapacity = std::numeric_limits<long>::max();
+    int volumeCapacity = std::numeric_limits<int>::max();
     if ((storesDBObj->maxVolume_m3 > 0) && (itemVolume_m3 > 0))
     {
         volumeCapacity = floorf((storesDBObj->maxVolume_m3 - volume_m3) / itemVolume_m3);
         freeCapacity = std::min(freeCapacity, volumeCapacity);
     }
 
-    long weightCapacity = std::numeric_limits<long>::max();
+    int weightCapacity = std::numeric_limits<int>::max();
     if ((storesDBObj->maxWeight_kg > 0) && (itemWeight_kg > 0))
     {
         weightCapacity = floorf((storesDBObj->maxWeight_kg - weight_kg) / itemWeight_kg);
         freeCapacity = std::min(freeCapacity, weightCapacity);
     }
 
-    return (freeCapacity >= 0) ? (unsigned long)freeCapacity : 0;
+    return (freeCapacity >= 0) ? (unsigned int)freeCapacity : 0;
 }
 
 const tcStores::StoreItemInfo& tcStores::GetItemInfo(size_t idx) const
@@ -1242,9 +1242,9 @@ std::shared_ptr<tcGameObject> tcStores::GetParent() const
 * @return quantity of stores being unloaded into stores
 * @see tcStores::CurrentQuantity
 */
-unsigned long tcStores::IncomingQuantity() const
+unsigned int tcStores::IncomingQuantity() const
 {
-    unsigned long currentCount = 0;
+    unsigned int currentCount = 0;
 
     for (size_t k=0; k<ops.size(); k++)
     {
@@ -1282,8 +1282,8 @@ bool tcStores::IsCompatible(const std::string& item) const
 */
 bool tcStores::IsFull() const
 {
-    unsigned long currentQuantity = CurrentQuantity();
-	unsigned long incomingQuantity = IncomingQuantity();
+    unsigned int currentQuantity = CurrentQuantity();
+	unsigned int incomingQuantity = IncomingQuantity();
 
     return (storesDBObj->capacity > 0) && ((currentQuantity + incomingQuantity) >= storesDBObj->capacity);
 }
@@ -1371,7 +1371,7 @@ bool tcStores::LoadLauncher(unsigned int idx, const std::string& item,
     std::vector<StoreItem>::iterator iter;
     bool found = false;
     int nStores = (int)stores.size();
-    unsigned long loadQuantity = 0;
+    unsigned int loadQuantity = 0;
     for (int k=nStores-1; (k>=0) && !found; k--)
     {
         if (stores[k].className == item)
@@ -1465,8 +1465,8 @@ unsigned int tcStores::MoveStores(const std::string& item, unsigned int quantity
             return 0; // not found in database
         }
 
-        unsigned long freeCapacity = destStores->GetFreeCapacityForItem(itemData->weight_kg, itemData->volume_m3);        
-        unsigned int moveQuantity = (unsigned int)std::min((unsigned long)quantity, freeCapacity);
+        unsigned int freeCapacity = destStores->GetFreeCapacityForItem(itemData->weight_kg, itemData->volume_m3);        
+        unsigned int moveQuantity = (unsigned int)std::min((unsigned int)quantity, freeCapacity);
 
         float transferTime_s = storesDBObj->moveTime + destStores->GetDatabaseObject()->moveTime;
         RemoveItems(item, moveQuantity);
@@ -1490,13 +1490,13 @@ unsigned int tcStores::MoveStores(const std::string& item, unsigned int quantity
 /**
 * Used to load a non-launcher item (e.g. fuel) from stores to platform
 */
-bool tcStores::LoadOther(const std::string& item, unsigned long quantity, std::shared_ptr<tcGameObject> child)
+bool tcStores::LoadOther(const std::string& item, unsigned int quantity, std::shared_ptr<tcGameObject> child)
 {
-    long maxWeightFuel_kg = 9999999;
+    int maxWeightFuel_kg = 9999999;
     if ( std::shared_ptr<tcAirObject> air = std::dynamic_pointer_cast<tcAirObject>(child))
     {
         if (air->MaintenanceHold()) return false;
-        maxWeightFuel_kg = long(air->mpDBObject->maxTakeoffWeight_kg - air->GetTotalWeight());
+        maxWeightFuel_kg = int(air->mpDBObject->maxTakeoffWeight_kg - air->GetTotalWeight());
     }
 
     std::shared_ptr<tcGameObject> obj = GetChildOrParent(child);
@@ -1527,7 +1527,7 @@ bool tcStores::LoadOther(const std::string& item, unsigned long quantity, std::s
 		return false;
 	}
 
-	long fuelNeeded_kg = long(ceilf((platform->GetFuelCapacity() - platform->fuel_kg)));
+	int fuelNeeded_kg = int(ceilf((platform->GetFuelCapacity() - platform->fuel_kg)));
     fuelNeeded_kg = std::min(fuelNeeded_kg, maxWeightFuel_kg);
 
     if (fuelNeeded_kg <= 0)
@@ -1549,19 +1549,19 @@ bool tcStores::LoadOther(const std::string& item, unsigned long quantity, std::s
         return false; // item not compatible with launcher  
     }
 
-	fuelNeeded_kg = std::min((unsigned long)fuelNeeded_kg, quantity);
+	fuelNeeded_kg = std::min((unsigned int)fuelNeeded_kg, quantity);
 
     std::vector<StoreItem>::iterator iter;
     bool found = false;
     int nStores = (int)stores.size();
-    unsigned long loadQuantity = 0;
+    unsigned int loadQuantity = 0;
     for (int k=nStores-1; (k>=0) && !found; k--)
     {
         if (stores[k].className == item)
         {
             found = true;
             assert(stores[k].quantity);
-            if (stores[k].quantity >= (unsigned long)fuelNeeded_kg)
+            if (stores[k].quantity >= (unsigned int)fuelNeeded_kg)
             {
                 loadQuantity = fuelNeeded_kg;
             }
@@ -1606,7 +1606,7 @@ bool tcStores::LoadOther(const std::string& item, unsigned long quantity, std::s
 /**
 * Used to unload a non-launcher item (e.g. fuel) from platform to stores
 */
-bool tcStores::UnloadOther(const std::string& item, unsigned long quantity, std::shared_ptr<tcGameObject> child)
+bool tcStores::UnloadOther(const std::string& item, unsigned int quantity, std::shared_ptr<tcGameObject> child)
 {
     std::shared_ptr<tcGameObject> obj = GetChildOrParent(child);
     
@@ -1637,8 +1637,8 @@ bool tcStores::UnloadOther(const std::string& item, unsigned long quantity, std:
     if (!IsCompatible("Fuel")) return false;
 
     // don't defuel external tanks
-    long maxDefuel_kg = long(ceilf(std::min(platform->mpDBObject->GetInternalFuelCapacity(), (float)platform->fuel_kg)));
-    long defuel_kg = std::min(maxDefuel_kg, (long)quantity);
+    int maxDefuel_kg = int(ceilf(std::min(platform->mpDBObject->GetInternalFuelCapacity(), (float)platform->fuel_kg)));
+    int defuel_kg = std::min(maxDefuel_kg, (int)quantity);
 
 
     float transferTime_s = float(defuel_kg) * 0.02f; // 50 kg/s refuel rate, hard-coded
@@ -1680,7 +1680,7 @@ void tcStores::SetParent(std::shared_ptr<tcPlatformObject> obj)
 /**
 * Unloads all items from launcher
 */
-bool tcStores::UnloadLauncher(unsigned int idx, std::shared_ptr<tcGameObject> child, unsigned long maxToUnload)
+bool tcStores::UnloadLauncher(unsigned int idx, std::shared_ptr<tcGameObject> child, unsigned int maxToUnload)
 {
     std::shared_ptr<tcGameObject> obj = GetChildOrParent(child);
     
@@ -1739,7 +1739,7 @@ bool tcStores::UnloadLauncher(unsigned int idx, std::shared_ptr<tcGameObject> ch
     }
 
 	float transferTime_s = (tcOptions::Get()->fastLoad == 0) ? storesDBObj->moveTime : std::min(10.0f, storesDBObj->moveTime);
-    bool result = AddOperation(item, idx, std::min((unsigned long)launcher->mnCurrent, maxToUnload), transferTime_s, StoreOperation::UNLOAD, obj);
+    bool result = AddOperation(item, idx, std::min((unsigned int)launcher->mnCurrent, maxToUnload), transferTime_s, StoreOperation::UNLOAD, obj);
 
 	if (result == true)
 	{

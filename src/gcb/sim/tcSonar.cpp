@@ -45,6 +45,9 @@
 #include "tcAllianceInfo.h"
 #include "tcEventManager.h"
 #include <cassert>
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -287,7 +290,7 @@ bool tcSonar::CanDetectTarget(std::shared_ptr<const tcGameObject> target, float&
     // 使用平台和目标的平均底部深度
     float averageBottom_m = -0.5f*(parent->mcTerrain.mfHeight_m + target->mcTerrain.mfHeight_m);
     // 获取传输损失（TL），考虑了多种因素如声呐深度、范围、目标深度、底部深度等
-    long key = sensorId;
+    int key = sensorId;
     float TL = tcSonarEnvironment::Get()->GetTL(key, parent->mfStatusTime, -sonarAlt_m, range_m, -targetAlt_m, averageBottom_m);
     // 加上基于频率的衰减（目前不在tcSonarEnvironment中处理）
     TL += mpDBObj->alpha * range_km;
@@ -351,7 +354,7 @@ bool tcSonar::CountermeasureRejected(std::shared_ptr<const tcGameObject> target)
 /**
 * @return false if key not found in database
 */
-bool tcSonar::InitFromDatabase(long key)
+bool tcSonar::InitFromDatabase(int key)
 {
 	assert(database);
 
@@ -486,7 +489,7 @@ void tcSonar::UpdateSeeker(double t)
     }
 
 
-    long nTargetID;
+    int nTargetID;
     std::shared_ptr<tcGameObject>ptarget = 0;
     int bFound;
 
@@ -536,7 +539,7 @@ void tcSonar::UpdateSeeker(double t)
 
             tcGameObjIterator iter(region);
             float minParam = 1e15f;
-            long minID = -1;
+            int minID = -1;
 
             unsigned int detectMask = PTYPE_SURFACE;
             if (!mpDBObj->isWakeHoming) detectMask |= PTYPE_SUBSURFACE;
@@ -609,7 +612,7 @@ void tcSonar::UpdateSeekerWakeHoming(double t)
     case SSMODE_SEEKERACQUIRE:        // fall through to SEEKERTRACK
     case SSMODE_SEEKERTRACK:
         {
-            long nTargetID = mcTrack.mnID;
+            int nTargetID = mcTrack.mnID;
             if (nTargetID == parent->mnID) // no self detection
             { 
                 mcTrack.mnID = -1; 
@@ -1070,4 +1073,17 @@ tcSonar::tcSonar( std::shared_ptr<tcSonarDBObject> dbObj)
 */
 tcSonar::~tcSonar() 
 {
+}
+
+void tcSonar::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    tcSensorState::SerializeToJson(obj, allocator);
+
+    obj.AddMember(rapidjson::Value("isPassive", allocator).Move(), isPassive, allocator);
+    obj.AddMember(rapidjson::Value("scope_m", allocator).Move(), scope_m, allocator);
+    obj.AddMember(rapidjson::Value("depth_m", allocator).Move(), depth_m, allocator);
+    obj.AddMember(rapidjson::Value("last_az_rad", allocator).Move(), last_az_rad, allocator);
+    obj.AddMember(rapidjson::Value("last_range_km", allocator).Move(), last_range_km, allocator);
+    obj.AddMember(rapidjson::Value("last_snr_excess", allocator).Move(), last_snr_excess, allocator);
+    obj.AddMember(rapidjson::Value("emitterId", allocator).Move(), emitterId, allocator);
 }

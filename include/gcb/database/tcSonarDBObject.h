@@ -72,6 +72,8 @@ namespace database
         tcSonarDBObject(tcSonarDBObject& obj); ///< copy constructor
         virtual ~tcSonarDBObject();
         void CalculateParams();
+        void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const override;
+
     private:
 
     };

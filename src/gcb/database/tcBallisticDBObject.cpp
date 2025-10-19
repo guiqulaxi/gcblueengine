@@ -38,6 +38,7 @@
 #include "tcGuidedBomb.h""
 #include "tcRocket.h"
 #include "tcBallisticWeapon.h"
+#include "rapidjson/document.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -326,7 +327,7 @@ namespace database
         }
     }
 
-    long tcBallisticDBObject::GetSensorKey()
+    int tcBallisticDBObject::GetSensorKey()
     {
         assert(database);
         if (sensorKey != -1) return sensorKey;
@@ -545,5 +546,21 @@ namespace database
         }
     }
 
+}
+
+void tcBallisticDBObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    tcWeaponDBObject::SerializeToJson(obj, allocator);
+
+    obj.AddMember(rapidjson::Value("ballisticType", allocator).Move(), ballisticType, allocator);
+    obj.AddMember(rapidjson::Value("angleError_rad", allocator).Move(), angleError_rad, allocator);
+    obj.AddMember(rapidjson::Value("burstCount", allocator).Move(), burstCount, allocator);
+    obj.AddMember(rapidjson::Value("burstDuration_s", allocator).Move(), burstDuration_s, allocator);
+    obj.AddMember(rapidjson::Value("clusterCount", allocator).Move(), clusterCount, allocator);
+    obj.AddMember(rapidjson::Value("clusterEffectRadius_m", allocator).Move(), clusterEffectRadius_m, allocator);
+    if (!sensorClass.empty()) obj.AddMember(rapidjson::Value("sensorClass", allocator).Move(), rapidjson::Value(sensorClass.c_str(), allocator).Move(), allocator);
+    obj.AddMember(rapidjson::Value("smartMaxClimb_rad", allocator).Move(), smartMaxClimb_rad, allocator);
+    obj.AddMember(rapidjson::Value("smartError_m", allocator).Move(), smartError_m, allocator);
+    obj.AddMember(rapidjson::Value("lockOnAfterLaunch", allocator).Move(), lockOnAfterLaunch ? 1 : 0, allocator);
 }
 

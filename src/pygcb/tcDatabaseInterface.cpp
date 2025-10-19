@@ -32,7 +32,7 @@ void tcDatabaseInterface::ClearForNewScenario()
 
 
 
-int tcDatabaseInterface::DeleteObject(long anKey)
+int tcDatabaseInterface::DeleteObject(int anKey)
 {
     return tcDatabase::Get()->DeleteObject(anKey);
 }
@@ -75,7 +75,7 @@ const std::string& tcDatabaseInterface::GetDisplayName(const std::string& classN
     return tcDatabase::Get()->GetDisplayName(className);
 }
 
-long tcDatabaseInterface::GetSize()
+int tcDatabaseInterface::GetSize()
 {
     return tcDatabase::Get()->GetSize();
 }
@@ -90,7 +90,7 @@ std::shared_ptr<tcDatabaseObject> tcDatabaseInterface::GetRandomOfType(UINT mode
 * @return random tcPlatformDBObject, tcMissileDBObject,
 * or tcJetDBObject key.
 */
-long tcDatabaseInterface::GetRandomKey() {
+int tcDatabaseInterface::GetRandomKey() {
       return tcDatabase::Get()->GetRandomKey();
 }
 
@@ -100,7 +100,7 @@ const tcSignatureModel* tcDatabaseInterface::GetSignatureModel(const std::string
 }
 
 
-long tcDatabaseInterface::AddOrUpdateObject(std::shared_ptr<tcDatabaseObject>rpobj)
+int tcDatabaseInterface::AddOrUpdateObject(std::shared_ptr<tcDatabaseObject>rpobj)
 {
     return tcDatabase::Get()->AddOrUpdateObject(rpobj);
 }
@@ -129,7 +129,7 @@ void tcDatabaseInterface::AddOrUpdateDamageEffectData(const tcDamageEffect&data)
 /**
 * @return NULL if not found
 */
-std::shared_ptr<tcDatabaseObject> tcDatabaseInterface::GetObjectByKey(long anKey)
+std::shared_ptr<tcDatabaseObject> tcDatabaseInterface::GetObjectByKey(int anKey)
 {
     return tcDatabase::Get()->GetObject(anKey);
 }
@@ -138,12 +138,12 @@ std::shared_ptr<tcDatabaseObject> tcDatabaseInterface::GetObjectByKey(long anKey
 * Lookup and return object database class name by key
 * @return empty string reference if not found
 */
-const std::string& tcDatabaseInterface::GetObjectClassName(long key)
+const std::string& tcDatabaseInterface::GetObjectClassName(int key)
 {
 return tcDatabase::Get()->GetObjectClassName(key);
 }
 
-long tcDatabaseInterface::GetKey(const char* s)
+int tcDatabaseInterface::GetKey(const char* s)
 {
 return tcDatabase::Get()->GetKey(s);
 }
@@ -166,7 +166,7 @@ return tcDatabase::Get()->ObjectExists(className);
 /**
 * find key of next object of same mnClassID as anKey
 */
-long tcDatabaseInterface::GetNextObjectOfSameClass(long anKey)
+int tcDatabaseInterface::GetNextObjectOfSameClass(int anKey)
 {
     return tcDatabase::Get()->GetNextObjectOfSameClass(anKey);
 }
@@ -182,14 +182,14 @@ return tcDatabase::Get()->GetPlatformNames(className);
 /**
 * Find key of previous object of same mnClassID as anKey
 */
-long tcDatabaseInterface::GetPrevObjectOfSameClass(long anKey)
+int tcDatabaseInterface::GetPrevObjectOfSameClass(int anKey)
 {
    return tcDatabase::Get()->GetPrevObjectOfSameClass(anKey);
 }
 
 
 // lookup class string associated with key
-int tcDatabaseInterface::GetObjectClass(long anKey, std::string& rzClass) {
+int tcDatabaseInterface::GetObjectClass(int anKey, std::string& rzClass) {
 return tcDatabase::Get()->GetObjectClass(anKey,rzClass);
 }
 

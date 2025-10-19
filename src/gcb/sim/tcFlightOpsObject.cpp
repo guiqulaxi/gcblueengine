@@ -29,6 +29,8 @@
 #include "tcGameObject.h"
 #include "tcAirObject.h"
 #include "tcAeroAirObject.h"
+#include "rapidjson/document.h"
+
 #include "tcHeloObject.h"
 #include "tcJetDBObject.h"
 #include "tcFlightportDBObject.h"
@@ -83,7 +85,7 @@ tcCreateStream& tcFlightOpsObject::operator<<(tcCreateStream& stream)
 
 	for (unsigned short k=0; k < nChildren; k++)
 	{
-		long key;
+		int key;
 		stream >> key;
 
 		std::shared_ptr<tcDatabaseObject> databaseObj = database->GetObject(key);
@@ -104,7 +106,7 @@ tcCreateStream& tcFlightOpsObject::operator<<(tcCreateStream& stream)
         if (idx == -1)
         {
             std::shared_ptr<tcGameObject> child = AddChildToFlightDeck(databaseObj, unitName, teLocation(loc), pos);
-            child->mnID = long(localId); // override default localId assigned by flightport
+            child->mnID = int(localId); // override default localId assigned by flightport
 
             // initialize launchers to empty, since this info isn't updated for hangar aircraft
             if (std::shared_ptr<tcPlatformObject> platform = std::dynamic_pointer_cast<tcPlatformObject>(child))
@@ -140,7 +142,7 @@ tcCreateStream& tcFlightOpsObject::operator<<(tcCreateStream& stream)
 */
 tcCreateStream& tcFlightOpsObject::operator>>(tcCreateStream& stream)
 {
-    long freeSpace = stream.GetMaxSize() - stream.size() - 1; // 1 byte for update count header
+    int freeSpace = stream.GetMaxSize() - stream.size() - 1; // 1 byte for update count header
     //assert(freeSpace > 0);
 
     tcCreateStream tempStream1;
@@ -173,7 +175,7 @@ tcCreateStream& tcFlightOpsObject::operator>>(tcCreateStream& stream)
         unsigned char pos = (unsigned char)(airState->current_spot); // doesn't matter for HANGAR loc
 		tempStream1 << pos;
 
-        if ((long)tempStream1.size() <= freeSpace)
+        if ((int)tempStream1.size() <= freeSpace)
         {
             tempStream2 << tempStream1;
             freeSpace -= tempStream1.size();
@@ -580,7 +582,7 @@ tcTrack tcFlightOpsObject::GetLandingData()
 /**
 * @return id of parent game object or -1 if error
 */
-long tcFlightOpsObject::GetParentId() const
+int tcFlightOpsObject::GetParentId() const
 {
     if (gameObj != 0)
     {
@@ -731,7 +733,7 @@ void tcFlightOpsObject::Update(double afStatusTime)
 /* Check if flight_deck has an objects in the toLaunch vector. If so, move them
 ** to the tcGameObject::toLaunch vector and delete the matching pointer in the
 ** child list. This is a bit awkward because tcGameObject is holding an object
-** in its child list that functionally belongs to the flight deck.
+** in its child list that functionally beints to the flight deck.
 */
 void tcFlightOpsObject::UpdateLaunch()
 {
@@ -798,4 +800,25 @@ void tcFlightOpsObject::SetGameObject(std::shared_ptr<tcGameObject> obj)
     assert(gameObj);
     flight_deck.SetParent(gameObj);
 
+}
+
+void tcFlightOpsObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    obj.SetObject();
+    
+    // Serialize flight deck
+    rapidjson::Value flightDeckObj(rapidjson::kObjectType);
+    rapidjson::Value typeName;
+    typeName.SetString(GetType().c_str(), static_cast<rapidjson::SizeType>(GetType().length()), allocator);
+    obj.AddMember(rapidjson::Value("typeName", allocator).Move(), typeName, allocator);
+
+    // TODO: Implement tcFlightPort serialization when available
+    // flight_deck.SerializeToJson(flightDeckObj, allocator);
+    obj.AddMember(rapidjson::Value("flight_deck", allocator).Move(), flightDeckObj, allocator);
+    
+    // Serialize nextUpdateIdx
+    obj.AddMember(rapidjson::Value("nextUpdateIdx", allocator).Move(), nextUpdateIdx, allocator);
+    
+    // Note: gameObj is a shared_ptr to tcGameObject and should be handled separately
+    // to avoid circular references and duplication of data
 }

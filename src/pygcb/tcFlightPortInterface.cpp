@@ -166,7 +166,7 @@ object tcFlightPortInterface::GetInterface()
 
     }
 
-	void tcFlightPortInterface::AddAttackMission(long targetId)
+	void tcFlightPortInterface::AddAttackMission(int targetId)
 	{
 		if ((flightport == 0) || (flightport->parent == 0)) return;
         ai::tcMissionManager* missionManager = flightport->GetOrCreateMissionManager();
@@ -496,7 +496,7 @@ object tcFlightPortInterface::GetInterface()
     }
 
     void tcFlightPortInterface::EditMissionWaypointReference(unsigned int missionId, unsigned int idx, 
-                                         unsigned char referenceMode, long referencePlatform)
+                                         unsigned char referenceMode, int referencePlatform)
     {
         if (ai::Route* route = GetMissionRoute(missionId))
         {
@@ -725,7 +725,7 @@ object tcFlightPortInterface::GetInterface()
         return (int)flightport->units.size();
     }
 
-    long tcFlightPortInterface::GetUnitID(int n)
+    int tcFlightPortInterface::GetUnitID(int n)
     {
         if (flightport==0) return -1;
         if ((n<0)||(n>=(int)flightport->units.size())) return -1;
@@ -831,7 +831,7 @@ object tcFlightPortInterface::GetInterface()
         {
             tcAirState* airState = flightport->GetAirState((unsigned int)n);
 
-            long id = airState->obj->mnID;
+            int id = airState->obj->mnID;
             if (!missionManager->IsAircraftReserved(id))
             {
                 std::shared_ptr<tcPlatformObject> platform = std::dynamic_pointer_cast<tcPlatformObject>(airState->obj);
@@ -858,7 +858,7 @@ object tcFlightPortInterface::GetInterface()
         flightport->LaunchRunway(runway);
     }
 
-    void tcFlightPortInterface::LaunchID(long id)
+    void tcFlightPortInterface::LaunchID(int id)
     {
         if (flightport==0) return;
         flightport->LaunchID(id);

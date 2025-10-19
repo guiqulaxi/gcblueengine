@@ -100,19 +100,19 @@ void tcDateTime::AdjustTimeHours(double dt_hr)
 {
       AdjustTimeMilliseconds((uint64_t)(dt_hr*3600000));
 //    double floor_current_hour = std::floor(hour);
-//    long long_current_hour = long(floor_current_hour);
+//    int int_current_hour = int(floor_current_hour);
 //    double fract_current_hour = hour - floor_current_hour;
 
 //    std::chrono::system_clock::time_point current(GetJulianDate());
-//    //const std::chrono::system_clock::time_point current(day, const std::chrono::system_clock::time_point::Month(month-1), year, long_current_hour, 0, 0, 0);
+//    //const std::chrono::system_clock::time_point current(day, const std::chrono::system_clock::time_point::Month(month-1), year, int_current_hour, 0, 0, 0);
 //    //current.MakeUTC();
 
 //    double floor_dt_hr = std::floor(dt_hr);
 //    double fract_dt_hr = dt_hr - floor_dt_hr; // fractional part of dt_hr
 
-//    long long_dt_hr = long(floor_dt_hr);
-//    wxTimeSpan span(long_dt_hr, 0, 0, 0);
-//    //span.Set(long(floor_dt_hr));
+//    int int_dt_hr = int(floor_dt_hr);
+//    wxTimeSpan span(int_dt_hr, 0, 0, 0);
+//    //span.Set(int(floor_dt_hr));
 
 //    current = current.Add(span);
 

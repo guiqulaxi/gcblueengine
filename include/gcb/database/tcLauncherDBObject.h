@@ -81,6 +81,7 @@ namespace database
         tcLauncherDBObject(const std::string& databaseClass);
         virtual ~tcLauncherDBObject();
         
+        void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const override;
 
             
     };

@@ -57,13 +57,13 @@ namespace database
         std::vector<std::string> sensorClass;
 
         
-		std::vector<long> sensorId; ///< database id's of sensors
+		std::vector<int> sensorId; ///< database id's of sensors
         std::vector<float> sensorAz; ///< pointing angles of sensors in degrees
 
 
         virtual const char* GetClassName() const {return "Generic";} ///< returns class name of database object
        
-		bool HasAllEmitters(std::vector<long>& emitters);
+		bool HasAllEmitters(std::vector<int>& emitters);
         
         void PrintToFile(tcFile& file);
       
@@ -78,6 +78,7 @@ namespace database
         tcSensorPlatformDBObject(const tcSensorPlatformDBObject& obj); ///< copy constructor
         virtual ~tcSensorPlatformDBObject();
         void UpdateSensorList();
+        void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const override;
 
 	private:
         

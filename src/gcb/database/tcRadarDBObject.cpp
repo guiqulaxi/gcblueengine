@@ -43,11 +43,36 @@
 #define new DEBUG_NEW
 #endif
 
-namespace database
+
+void tcRadarDBObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
 {
+    tcSensorDBObject::SerializeToJson(obj, allocator);
 
-
-
+    obj.AddMember(rapidjson::Value("ERPpeak_dBW", allocator).Move(), ERPpeak_dBW, allocator);
+    obj.AddMember(rapidjson::Value("ERPaverage_dBW", allocator).Move(), ERPaverage_dBW, allocator);
+    obj.AddMember(rapidjson::Value("maxFireControlTracks", allocator).Move(), maxFireControlTracks, allocator);
+    obj.AddMember(rapidjson::Value("isSemiactive", allocator).Move(), isSemiactive ? 1 : 0, allocator);
+    obj.AddMember(rapidjson::Value("blindSpeed_mps", allocator).Move(), blindSpeed_mps, allocator);
+    obj.AddMember(rapidjson::Value("lookdownWater_dB", allocator).Move(), lookdownWater_dB, allocator);
+    obj.AddMember(rapidjson::Value("lookdownLand_dB", allocator).Move(), lookdownLand_dB, allocator);
+    obj.AddMember(rapidjson::Value("bandwidth_Hz", allocator).Move(), bandwidth_Hz, allocator);
+    obj.AddMember(rapidjson::Value("azimuthBeamwidth_deg", allocator).Move(), azimuthBeamwidth_deg, allocator);
+    obj.AddMember(rapidjson::Value("elevationBeamwidth_deg", allocator).Move(), elevationBeamwidth_deg, allocator);
+    obj.AddMember(rapidjson::Value("effectiveSidelobes_dB", allocator).Move(), effectiveSidelobes_dB, allocator);
+    obj.AddMember(rapidjson::Value("mbDetectsSurface", allocator).Move(), mbDetectsSurface ? 1 : 0, allocator);
+    obj.AddMember(rapidjson::Value("mbDetectsAir", allocator).Move(), mbDetectsAir ? 1 : 0, allocator);
+    obj.AddMember(rapidjson::Value("mbDetectsMissile", allocator).Move(), mbDetectsMissile ? 1 : 0, allocator);
+    obj.AddMember(rapidjson::Value("mbDetectsGround", allocator).Move(), mbDetectsGround ? 1 : 0, allocator);
+    
+    // calculated parameters
+    obj.AddMember(rapidjson::Value("invBlindSpeed_mps", allocator).Move(), invBlindSpeed_mps, allocator);
+    obj.AddMember(rapidjson::Value("antennaGain", allocator).Move(), antennaGain, allocator);
+    obj.AddMember(rapidjson::Value("antennaGain_dBi", allocator).Move(), antennaGain_dBi, allocator);
+    obj.AddMember(rapidjson::Value("invAzBeamwidth_deg", allocator).Move(), invAzBeamwidth_deg, allocator);
+    obj.AddMember(rapidjson::Value("invElBeamwidth_deg", allocator).Move(), invElBeamwidth_deg, allocator);
+    obj.AddMember(rapidjson::Value("cpi_s", allocator).Move(), cpi_s, allocator);
+    obj.AddMember(rapidjson::Value("jamConstant_dB", allocator).Move(), jamConstant_dB, allocator);
+}
 
 std::shared_ptr<tcSensorState> tcRadarDBObject::CreateSensor(std::shared_ptr<tcGameObject> parent)
 {
@@ -228,8 +253,8 @@ void tcRadarDBObject::WriteSql(std::string& valueString) const
 
 	s << ERPpeak_dBW << ",";
     s << ERPaverage_dBW << ",";
-	s << (long)maxFireControlTracks << ",";
-	s << (long)isSemiactive << ",";
+    s << (int)maxFireControlTracks << ",";
+    s << (int)isSemiactive << ",";
     s << blindSpeed_mps << ",";
     s << lookdownWater_dB << ",";
     s << lookdownLand_dB << ",";
@@ -237,10 +262,10 @@ void tcRadarDBObject::WriteSql(std::string& valueString) const
     s << azimuthBeamwidth_deg << ",";
     s << elevationBeamwidth_deg << ",";
     s << effectiveSidelobes_dB << ",";
-	s << (long)mbDetectsSurface << ",";
-	s << (long)mbDetectsAir << ",";
-	s << (long)mbDetectsMissile << ",";
-	s << (long)mbDetectsGround;
+    s << (int)mbDetectsSurface << ",";
+    s << (int)mbDetectsAir << ",";
+    s << (int)mbDetectsMissile << ",";
+    s << (int)mbDetectsGround;
 
 	valueString += s.str();
 
@@ -331,5 +356,4 @@ tcRadarDBObject::~tcRadarDBObject()
 }
 
 
-}
 

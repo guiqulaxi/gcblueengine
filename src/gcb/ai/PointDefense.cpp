@@ -203,7 +203,7 @@ void PointDefense::Update(double t)
             // 计算目标索引
             size_t target_idx = (k + random_offset) % nTargets;
             // 获取目标ID
-            long targetId = targets[target_idx].mnID;
+            int targetId = targets[target_idx].mnID;
             // 为发射器指定目标
             platform->DesignateLauncherTarget(targetId, launcher_idx);
 
@@ -231,7 +231,7 @@ void PointDefense::Update(double t)
     FinishUpdate(t);
 }
 PointDefense::PointDefense(std::shared_ptr<tcPlatformObject> platform_, Blackboard* bb, 
-                                   long id_, double priority_, int attributes_, const std::string& taskName_)
+                                   int id_, double priority_, int attributes_, const std::string& taskName_)
 : Task(platform_, bb, id_, priority_, attributes_, taskName_)
 {
     assert(platform);

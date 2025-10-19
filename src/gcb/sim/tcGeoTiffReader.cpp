@@ -225,7 +225,7 @@ float tcGeoTiffReader::GetTerrainHeight(double afLon_deg, double afLat_deg)
     }
     else
     {
-        for (long i = 0; i < mnHeight; i++) {
+        for (int i = 0; i < mnHeight; i++) {
             if (TIFFReadScanline(mTif, mDataBuf, (unsigned int)i, 0) == -1) {
                 return value;
             }

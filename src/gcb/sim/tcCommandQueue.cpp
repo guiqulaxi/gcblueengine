@@ -129,7 +129,7 @@ tcGameStream& tcCommandQueue::operator<<(tcGameStream& stream)
         stream >> nId;
         for (unsigned int n=0; n<nId; n++)
         {
-            long val;
+            int val;
             stream >> val;
             maCommand[k].platformID.push_back(val);
         }
@@ -156,7 +156,7 @@ void tcCommandQueue::AddCommand(const tsCommandInfo& newcmd)
 /**
 * Adds game command (old style command from enumerated list)
 */
-void tcCommandQueue::AddCommand(teGameCommand aeCmd, float afData, long anData, int anData2) 
+void tcCommandQueue::AddCommand(teGameCommand aeCmd, float afData, int anData, int anData2) 
 {
     tsCommandInfo newcmd;
 
@@ -231,7 +231,7 @@ void tcCommandQueue::AddPythonCommand(const char *azCommand, const std::string& 
 }
 
 void tcCommandQueue::AddPythonCommandGeneral(const std::string& command, const std::string& args, 
-											 const std::vector<long>& platformID)
+											 const std::vector<int>& platformID)
 {
     tsCommandInfo newcmd;
 
@@ -254,7 +254,7 @@ void tcCommandQueue::AddPythonCommandGeneral(const std::string& command, const s
 * GetUserInput is called to add a command to get user input data.
 * Once the user input is complete, the callback function is called though
 * AddPythonCallback. Data that describes the user input is passed to the 
-* callback function along with an optional parameter. 
+* callback function aint with an optional parameter. 
 */
 void tcCommandQueue::GetUserInput(const char *azCallback, const char *azUserInput, 
 								  int param, const std::string& textParam) 
@@ -280,10 +280,10 @@ void tcCommandQueue::GetUserInput(const char *azCallback, const char *azUserInpu
 * GetUserInput is called to add a command to get user input data.
 * Once the user input is complete, the callback function is called though
 * AddPythonCallback. Data that describes the user input is passed to the 
-* callback function along with an optional parameter. 
+* callback function aint with an optional parameter. 
 */
 void tcCommandQueue::GetUserInputForID(const char *azCallback, const char *azUserInput,
-                       std::vector<long>& platformID, int param)
+                       std::vector<int>& platformID, int param)
 {
     tsCommandInfo newcmd;
 
@@ -304,7 +304,7 @@ void tcCommandQueue::GetUserInputForID(const char *azCallback, const char *azUse
 * Version with text arguments instead of just one integer parameter
 */
 void tcCommandQueue::GetUserInputForID(const char *azCallback, const char *azUserInput,
-                                       std::vector<long>& platformID, const std::string& args)
+                                       std::vector<int>& platformID, const std::string& args)
 {
     tsCommandInfo newcmd;
 
@@ -348,7 +348,7 @@ void tcCommandQueue::AddPythonCallback(const char *azCallback, const char *azUse
 * Version for specific platform ID vs. defaulting to hooked platform
 */
 void tcCommandQueue::AddPythonCallbackForID(const char *azCallback, const char *azUserInput, 
-											std::vector<long>& platformID, int param, const std::string& textParam)
+											std::vector<int>& platformID, int param, const std::string& textParam)
 {
     tsCommandInfo newcmd;
 

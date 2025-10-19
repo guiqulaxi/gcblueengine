@@ -95,7 +95,7 @@ BlackboardInterface BlackboardInterface::GetBlackboardInterface()
     return BlackboardInterface(*this);
 }
 
-long BlackboardInterface::GetAuthor() const
+int BlackboardInterface::GetAuthor() const
 {
     return author;
 }
@@ -126,7 +126,7 @@ BlackboardItem BlackboardInterface::Read(const std::string& key)
     return board->Read(key);
 }
 
-long BlackboardInterface::ReadAuthor(const std::string& key)
+int BlackboardInterface::ReadAuthor(const std::string& key)
 {
     return board->ReadAuthor(key);
 }
@@ -186,7 +186,7 @@ BlackboardInterface::BlackboardInterface(const BlackboardInterface& source)
 }
 
 BlackboardInterface::BlackboardInterface(Blackboard* bb, 
-        long author_, double priority_)
+        int author_, double priority_)
 : author(author_),
   priority(priority_),
   board(bb)

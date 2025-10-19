@@ -76,7 +76,7 @@ namespace database
 
 		while ((nIterated <= nSize) && searching)
 		{
-			long id;
+			int id;
 			if (nIterated < nSize) // kind of a hack, nIterated > nSize is used for end condition
 			{
 				database->mcObjectData.GetNextAssoc(currentPos, id, currentObj);

@@ -75,7 +75,7 @@ namespace scriptinterface
 		std::string GetPlatformClass();
         /// get platform alliance
         unsigned int GetPlatformAlliance() const;
-        float GetLongitude() const;
+        float Getintitude() const;
         float GetLatitude() const;
 		float GetAltitude() const; 
 		/// gets current platform speed in kts

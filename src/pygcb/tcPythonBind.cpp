@@ -153,7 +153,7 @@ PYBIND11_EMBEDDED_MODULE(pygcb, m) {
         .def("GetPlatformName", &tcWeaponInterface::GetPlatformName)
         .def("GetPlatformClass", &tcWeaponInterface::GetPlatformClass)
         .def("GetPlatformAlliance", &tcWeaponInterface::GetPlatformAlliance)
-        .def("GetLongitude", &tcWeaponInterface::GetLongitude)
+        .def("Getintitude", &tcWeaponInterface::Getintitude)
         .def("GetLatitude", &tcWeaponInterface::GetLatitude)
         .def("GetAltitude", &tcWeaponInterface::GetAltitude)
         .def("GetHeading", &tcWeaponInterface::GetHeading)

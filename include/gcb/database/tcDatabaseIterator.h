@@ -52,8 +52,8 @@ namespace database
 
 	private:
 		static tcDatabase* database;
-		long firstPos; ///< index of first game object, last advances to first
-		long currentPos; ///< current position index
+		int firstPos; ///< index of first game object, last advances to first
+		int currentPos; ///< current position index
 		std::shared_ptr<tcDatabaseObject> currentObj;
 		const unsigned int mask;
 		unsigned nIterated; ///< count of elements iterated

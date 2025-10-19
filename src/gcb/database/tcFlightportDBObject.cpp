@@ -130,7 +130,7 @@ namespace database
             if (i<numSpots) 
             {
                 spotDBInfo info = spotInfo[i];
-                s << (long)info.isLaunch << ",";
+                s << (int)info.isLaunch << ",";
                 s << info.x << ",";
                 s << info.y << ","; // y and z swapped in header due to OSG coord change
                 s << info.z << ",";
@@ -181,6 +181,26 @@ namespace database
         valueString+="    return dbObj\n";
     }
 
+    void tcFlightportDBObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+    {
+        tcDatabaseObject::SerializeToJson(obj, allocator);
+
+        obj.AddMember(rapidjson::Value("heloOnly", allocator).Move(), heloOnly, allocator);
+        obj.AddMember(rapidjson::Value("hangarCapacity", allocator).Move(), hangarCapacity, allocator);
+
+        rapidjson::Value spots(rapidjson::kArrayType);
+        for (const auto& spot : spotInfo) {
+            rapidjson::Value spotObj(rapidjson::kObjectType);
+            spotObj.AddMember(rapidjson::Value("isLaunch", allocator).Move(), spot.isLaunch, allocator);
+            spotObj.AddMember(rapidjson::Value("x", allocator).Move(), spot.x, allocator);
+            spotObj.AddMember(rapidjson::Value("y", allocator).Move(), spot.y, allocator);
+            spotObj.AddMember(rapidjson::Value("z", allocator).Move(), spot.z, allocator);
+            spotObj.AddMember(rapidjson::Value("orientation_deg", allocator).Move(), spot.orientation_deg, allocator);
+            spotObj.AddMember(rapidjson::Value("length", allocator).Move(), spot.length, allocator);
+            spots.PushBack(spotObj, allocator);
+        }
+        obj.AddMember(rapidjson::Value("spotInfo", allocator).Move(), spots, allocator);
+    }
 
     tcFlightportDBObject::tcFlightportDBObject() : tcDatabaseObject() 
     {

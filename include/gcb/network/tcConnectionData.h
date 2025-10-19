@@ -64,17 +64,17 @@ public:
     std::deque<unsigned int> sendAck; ///< dequeue of received messages to send acks for
     std::deque<unsigned int> recentReceipts; ///< duplicate checking, message indices recently received and processed
 
-    unsigned long readCount; ///< number of bytes read from this connection
-    unsigned long writeCount; ///< number of bytes written to this connection
+    unsigned int readCount; ///< number of bytes read from this connection
+    unsigned int writeCount; ///< number of bytes written to this connection
 
     // free all queued messages
     void ClearAllMessages();
 	const char* GetIdString() const;
 	const wxIPV4address& GetPeerAddress() const;
-    unsigned long GetReadCount() const;
+    unsigned int GetReadCount() const;
 	unsigned int GetResentCount() const;
 	wxSocketBase* GetSocket();
-    unsigned long GetWriteCount() const;
+    unsigned int GetWriteCount() const;
     unsigned int GetReadCountSec() const;
     unsigned int GetWriteCountSec() const; 
     float GetPingTime() const;
@@ -98,9 +98,9 @@ private:
 
     wxSocketBase *socket;   ///< socket associated with this connection
     tcMessage tempMessage; ///< message to use for temporary storage
-    unsigned long lastReadCount; ///< read count at last second mark
-    unsigned long lastWriteCount; ///< write count at last second mark
-	unsigned long lastResentCount; ///< resent count at last second mark
+    unsigned int lastReadCount; ///< read count at last second mark
+    unsigned int lastWriteCount; ///< write count at last second mark
+	unsigned int lastResentCount; ///< resent count at last second mark
 
     unsigned int readCount_sec; ///< bytes read over last full second
     unsigned int writeCount_sec; ///< bytes written over last full second
@@ -111,7 +111,7 @@ private:
 	wxString peerName;
 	unsigned int lastCountUpdate;
 	unsigned int lastResendUpdate;
-	unsigned long resentCount; ///< number of packets resent because of ack timeout
+	unsigned int resentCount; ///< number of packets resent because of ack timeout
     unsigned int socketErrorCount; ///< count of socket errors
 
     /** max number of packets that will be held waiting for ack. If this is exceeded

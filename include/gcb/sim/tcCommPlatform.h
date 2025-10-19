@@ -6,6 +6,7 @@
 #include "tcScenarioLogger.h"
 #include "tcObjStream.h"
 #include <vector>
+#include "rapidjson/document.h"
 class tcStream;
 class tcCommandStream;
 class tcCreateStream;
@@ -36,6 +37,7 @@ public:
     std::vector<std::shared_ptr<tcCommDevice>> commDevice;
 
 
+    virtual std::string GetType() const override{return "tcCommPlatform" ;}
 
     unsigned int GetCommCount() const;
     bool HasActivatedComm();
@@ -44,7 +46,7 @@ public:
     std::shared_ptr<tcCommDevice> GetCommMutable(unsigned idx) const;
     std::shared_ptr<tcCommDevice> GetCommMutable(const std::string& commClass) const;
     std::shared_ptr<tcCommDevice> GetCommMutable(const std::string& commClass, unsigned int& idx) const;
-    std::shared_ptr<const tcCommDevice> GetCommByDatabaseID(long id) const;
+    std::shared_ptr<const tcCommDevice> GetCommByDatabaseID(int id) const;
     void Init(std::shared_ptr<tcCommPlatformDBObject> obj, std::shared_ptr<tcGameObject> parent);
     void Init(const char* databaseClass, std::shared_ptr<tcGameObject> parent);
     void SetActivityFlag(unsigned int flag);
@@ -72,6 +74,8 @@ public:
 
     void ClearNewCommand();
     bool HasNewCommand() const;
+    
+    void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const;
 
     tcCommPlatform();
     tcCommPlatform(const tcCommPlatform&);

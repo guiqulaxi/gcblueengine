@@ -39,6 +39,9 @@
 #include "tcSimState.h"
 #include "tcSonobuoyDBObject.h"
 #include "common/tcGameStream.h"
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
 #include <cassert>
 
 #ifdef _DEBUG
@@ -265,6 +268,15 @@ void tcSonobuoy::UpdateDrop(float dt_s)
     }
 
 	
+}
+
+void tcSonobuoy::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    tcGameObject::SerializeToJson(obj, allocator);
+
+    obj.AddMember(rapidjson::Value("batteryTimeRemaining_s", allocator).Move(), batteryTimeRemaining_s, allocator);
+    obj.AddMember(rapidjson::Value("parentId", allocator).Move(), parentId, allocator);
+    obj.AddMember(rapidjson::Value("sonobuoyDepth_m", allocator).Move(), sonobuoyDepth_m, allocator);
 }
 
 /**

@@ -104,7 +104,7 @@ tcGameStream& tcBallisticWeapon::operator>>(tcGameStream& stream)
 /**
 * @return targeting solution or (0,0,0) if targetId not valid
 */
-const GeoPoint& tcBallisticWeapon::CalculateGunSolution(long targetId)
+const GeoPoint& tcBallisticWeapon::CalculateGunSolution(int targetId)
 {
     static GeoPoint targetDatum;
     tcTrack targetTrack;
@@ -570,23 +570,23 @@ bool tcBallisticWeapon::CheckGravityBombImpact()
     if (east >= C_PI) east -= C_TWOPI;
     checkRegion.Set(west, east, south, north); // 设置检查区域
 
-    std::vector<long> nearbyPlatsAll; // 存储所有在检查区域内的平台ID
+    std::vector<int> nearbyPlatsAll; // 存储所有在检查区域内的平台ID
     // 从模拟状态中获取在检查区域内的所有平台
     simState->GetPlatformsWithinRegion(nearbyPlatsAll, &checkRegion);
 
     // 从列表中移除自己的平台（9JUL2011的注释说明）
-    std::vector<long> nearbyPlats;
+    std::vector<int> nearbyPlats;
     size_t nPlatsAll = nearbyPlatsAll.size(); // 获取所有平台的数量
     for (size_t n=0; n<nPlatsAll; n++)
     {
-        long id_n = nearbyPlatsAll[n]; // 获取当前平台的ID
+        int id_n = nearbyPlatsAll[n]; // 获取当前平台的ID
         // 如果当前平台不是自己的平台，则添加到附近平台列表中
         if (id_n != this->mnID) nearbyPlats.push_back(id_n);
     }
 
     int nPlats = (int)nearbyPlats.size(); // 获取附近平台的数量
 
-    long initialTarget = intendedTarget; // 保存原始的目标ID
+    int initialTarget = intendedTarget; // 保存原始的目标ID
 
     // 遍历所有附近的平台
     for (int idx = 0; idx < nPlats; idx++)

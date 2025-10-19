@@ -102,9 +102,9 @@ namespace database
         maxRange_km = entry.GetDouble("MaxRange_km");
         probNoFaults = entry.GetDouble("ProbNoFaults");
         payloadClass = entry.GetString("PayloadClass");
-		payloadQuantity = (unsigned int)entry.GetLong("PayloadQuantity");
+		payloadQuantity = (unsigned int)entry.Getint("PayloadQuantity");
         datalinkRange_km = entry.GetDouble("DatalinkRange_km");
-        acceptsUserCommands = entry.GetLong("AcceptsUserCommands") != 0;
+        acceptsUserCommands = entry.Getint("AcceptsUserCommands") != 0;
         detonationRange_m = entry.GetDouble("DetonationRange_m");
 
 		payloadQuantity = std::max(std::min(payloadQuantity, (unsigned int)16), (unsigned int)1);
@@ -226,5 +226,25 @@ namespace database
     {
     }
 
+void tcWeaponDBObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    tcDatabaseObject::SerializeToJson(obj, allocator);
+
+    obj.AddMember(rapidjson::Value("mfDamage", allocator).Move(), mfDamage, allocator);
+    if (!damageModel.empty()) obj.AddMember(rapidjson::Value("damageModel", allocator).Move(), rapidjson::Value(damageModel.c_str(), allocator).Move(), allocator);
+    if (!damageEffect.empty()) obj.AddMember(rapidjson::Value("damageEffect", allocator).Move(), rapidjson::Value(damageEffect.c_str(), allocator).Move(), allocator);
+    obj.AddMember(rapidjson::Value("launchSpeed_mps", allocator).Move(), launchSpeed_mps, allocator);
+    obj.AddMember(rapidjson::Value("targetFlags", allocator).Move(), targetFlags, allocator);
+    obj.AddMember(rapidjson::Value("minLaunchAlt_m", allocator).Move(), minLaunchAlt_m, allocator);
+    obj.AddMember(rapidjson::Value("maxLaunchAlt_m", allocator).Move(), maxLaunchAlt_m, allocator);
+    obj.AddMember(rapidjson::Value("minRange_km", allocator).Move(), minRange_km, allocator);
+    obj.AddMember(rapidjson::Value("maxRange_km", allocator).Move(), maxRange_km, allocator);
+    obj.AddMember(rapidjson::Value("probNoFaults", allocator).Move(), probNoFaults, allocator);
+    if (!payloadClass.empty()) obj.AddMember(rapidjson::Value("payloadClass", allocator).Move(), rapidjson::Value(payloadClass.c_str(), allocator).Move(), allocator);
+    obj.AddMember(rapidjson::Value("payloadQuantity", allocator).Move(), payloadQuantity, allocator);
+    obj.AddMember(rapidjson::Value("datalinkRange_km", allocator).Move(), datalinkRange_km, allocator);
+    obj.AddMember(rapidjson::Value("acceptsUserCommands", allocator).Move(), acceptsUserCommands ? 1 : 0, allocator);
+    obj.AddMember(rapidjson::Value("detonationRange_m", allocator).Move(), detonationRange_m, allocator);
+}
 }
 

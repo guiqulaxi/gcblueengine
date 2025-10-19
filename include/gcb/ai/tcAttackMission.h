@@ -70,7 +70,7 @@ public:
     const char* GetLaunchTimeString() const;
     void SetLaunchTimeFromString(const char* s);
 
-    long GetSecondsToLaunch() const;
+    int GetSecondsToLaunch() const;
 
     unsigned int GetAirborneAircraftCount() const;
 

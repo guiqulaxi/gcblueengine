@@ -44,7 +44,7 @@
 namespace scriptinterface {
 
    tcAllianceSensorMap* tcTrackInterface::mpSensorMap = NULL;
-   long tcTrackInterface::mnTrackID = -1;
+   int tcTrackInterface::mnTrackID = -1;
 
 
    void tcTrackInterface::SetSensorMap(tcAllianceSensorMap *apSM) 

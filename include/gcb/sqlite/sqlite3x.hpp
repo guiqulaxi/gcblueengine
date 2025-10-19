@@ -50,7 +50,7 @@ public:
 		void open(const wchar_t *db);
 		void close();
 
-		long long insertid();
+        long long insertid();
 		void setbusytimeout(int ms);
 
 		void executenonquery(const char *sql);
@@ -63,10 +63,10 @@ public:
 		int executeint(const std::string &sql);
 		int executeint(const std::wstring &sql);
 
-		long long executeint64(const char *sql);
-		long long executeint64(const wchar_t *sql);
-		long long executeint64(const std::string &sql);
-		long long executeint64(const std::wstring &sql);
+        long long executeint64(const char *sql);
+        long long  executeint64(const wchar_t *sql);
+        long long  executeint64(const std::string &sql);
+        long long  executeint64(const std::wstring &sql);
 
 		double executedouble(const char *sql);
 		double executedouble(const wchar_t *sql);
@@ -126,8 +126,8 @@ public:
 		void close();
 
 		int getint(int index);
-		long getlong(int index); ///< modified code, Dewitt
-		long long getint64(int index);
+        //int getint(int index); ///< modified code, Dewitt
+        long long getint64(int index);
 		double getdouble(int index);
 		std::string getstring(int index);
 		std::wstring getstring16(int index);

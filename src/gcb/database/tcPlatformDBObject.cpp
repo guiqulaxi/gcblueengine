@@ -30,6 +30,7 @@
 #endif
 
 #include "tcPlatformDBObject.h"
+#include "rapidjson/document.h"
 #include "tcDatabase.h"
 #include "tcFlightportDBObject.h"
 #include "tcLauncherDBObject.h"
@@ -255,7 +256,7 @@ void tcPlatformDBObject::ReorderMagazines()
     if (maMagazineClass.size() <= 1) return;
 
     size_t maxIdx = 0;
-    unsigned long maxCapacity = 0;
+    unsigned int maxCapacity = 0;
     for (size_t n=0; n<maMagazineClass.size(); n++)
     {
         std::shared_ptr<tcDatabaseObject> databaseObject = database->GetObject(maMagazineClass[n].c_str());       
@@ -388,7 +389,7 @@ void tcPlatformDBObject::ReadSql(tcSqlReader& entry)
     launcherFireControl.clear();
     launcherId.clear();
 
-    // no longer needed since covered by platform_launchers table
+    // no inter needed since covered by platform_launchers table
     /*
 	int i;
 	for(i=0;i<MAXLAUNCHERS;i++) 
@@ -419,7 +420,7 @@ void tcPlatformDBObject::ReadSql(tcSqlReader& entry)
     maMagazineClass.clear();
     magazineId.clear();
 
-    // no longer needed since all covered by platform_magazines table
+    // no inter needed since all covered by platform_magazines table
     /*
     for (i=0; i<MAXMAGAZINES; i++) 
 	{
@@ -608,4 +609,62 @@ tcPlatformDBObject::~tcPlatformDBObject()
 
 
 
+
+// SerializeToJson override added to expose JSON API for platform DB objects
+void tcPlatformDBObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    tcDatabaseObject::SerializeToJson(obj, allocator);
+
+    obj.AddMember(rapidjson::Value("maxSpeed_kts", allocator).Move(), mfMaxSpeed_kts, allocator);
+    obj.AddMember(rapidjson::Value("accel_ktsps", allocator).Move(), mfAccel_ktsps, allocator);
+    obj.AddMember(rapidjson::Value("turnRate_degps", allocator).Move(), mfTurnRate_degps, allocator);
+    obj.AddMember(rapidjson::Value("fuelCapacity_kg", allocator).Move(), mfFuelCapacity_kg, allocator);
+    obj.AddMember(rapidjson::Value("fuelRate_kgps", allocator).Move(), mfFuelRate_kgps, allocator);
+    obj.AddMember(rapidjson::Value("toughness", allocator).Move(), mfToughness, allocator);
+
+    if (!damageEffect.empty()) obj.AddMember(rapidjson::Value("damageEffect", allocator).Move(), rapidjson::Value(damageEffect.c_str(), allocator).Move(), allocator);
+
+    obj.AddMember(rapidjson::Value("numLaunchers", allocator).Move(), mnNumLaunchers, allocator);
+    obj.AddMember(rapidjson::Value("numMagazines", allocator).Move(), mnNumMagazines, allocator);
+
+    // arrays of strings/numbers
+    rapidjson::Value arrStr(rapidjson::kArrayType);
+    for (const auto& s : maLauncherClass) arrStr.PushBack(rapidjson::Value(s.c_str(), allocator).Move(), allocator);
+    obj.AddMember(rapidjson::Value("launcherClass", allocator).Move(), arrStr, allocator);
+
+    rapidjson::Value arrMag(rapidjson::kArrayType);
+    for (const auto& s : maMagazineClass) arrMag.PushBack(rapidjson::Value(s.c_str(), allocator).Move(), allocator);
+    obj.AddMember(rapidjson::Value("magazineClass", allocator).Move(), arrMag, allocator);
+
+    rapidjson::Value arrMagId(rapidjson::kArrayType);
+    for (const auto& id : magazineId) arrMagId.PushBack(id, allocator);
+    obj.AddMember(rapidjson::Value("magazineId", allocator).Move(), arrMagId, allocator);
+
+    rapidjson::Value arrLId(rapidjson::kArrayType);
+    for (const auto& id : launcherId) arrLId.PushBack(id, allocator);
+    obj.AddMember(rapidjson::Value("launcherId", allocator).Move(), arrLId, allocator);
+
+    rapidjson::Value arrLName(rapidjson::kArrayType);
+    for (const auto& s : launcherName) arrLName.PushBack(rapidjson::Value(s.c_str(), allocator).Move(), allocator);
+    obj.AddMember(rapidjson::Value("launcherName", allocator).Move(), arrLName, allocator);
+
+    rapidjson::Value arrFOV(rapidjson::kArrayType);
+    for (const auto& f : launcherFOV_deg) arrFOV.PushBack(f, allocator);
+    obj.AddMember(rapidjson::Value("launcherFOV_deg", allocator).Move(), arrFOV, allocator);
+
+    rapidjson::Value arrAz(rapidjson::kArrayType);
+    for (const auto& f : launcherAz_deg) arrAz.PushBack(f, allocator);
+    obj.AddMember(rapidjson::Value("launcherAz_deg", allocator).Move(), arrAz, allocator);
+
+    rapidjson::Value arrEl(rapidjson::kArrayType);
+    for (const auto& f : launcherEl_deg) arrEl.PushBack(f, allocator);
+    obj.AddMember(rapidjson::Value("launcherEl_deg", allocator).Move(), arrEl, allocator);
+
+    rapidjson::Value arrReload(rapidjson::kArrayType);
+    for (const auto& b : launcherIsReloadable) arrReload.PushBack(b ? 1 : 0, allocator);
+    obj.AddMember(rapidjson::Value("launcherIsReloadable", allocator).Move(), arrReload, allocator);
+
+
 }
+}
+

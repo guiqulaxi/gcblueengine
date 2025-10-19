@@ -116,7 +116,7 @@ teWeaponLaunchMode tcMissileDBObject::GetLaunchMode() const
     }
 }
 
-long tcMissileDBObject::GetSensorKey()
+int tcMissileDBObject::GetSensorKey()
 {
     assert(database);
     if (sensorKey != NULL_INDEX) return sensorKey;
@@ -138,7 +138,7 @@ float tcMissileDBObject::GetSeekerFOV()
 {
     if (seekerFOV_rad >= 0) return seekerFOV_rad;
 
-    long seekerKey = GetSensorKey();
+    int seekerKey = GetSensorKey();
     std::shared_ptr<tcDatabaseObject> obj = database->GetObject(seekerKey);
     if (std::shared_ptr<tcSensorDBObject> sensor =  std::dynamic_pointer_cast<tcSensorDBObject>(obj))
     {
@@ -166,15 +166,15 @@ float tcMissileDBObject::GetSeekerFOV()
 * @see tcPlatformDBObject::HasAllEmitters
 * @return true if this database object has all of the emitters
 */
-bool tcMissileDBObject::HasAllEmitters(std::vector<long>& emitters)
+bool tcMissileDBObject::HasAllEmitters(std::vector<int>& emitters)
 {
     size_t nEmitters = emitters.size();
 
-    long seekerKey = GetSensorKey();
+    int seekerKey = GetSensorKey();
 
     for (size_t k=0; k<nEmitters; k++)
     {
-        long emitterId = emitters[k];
+        int emitterId = emitters[k];
 
         if (seekerKey != emitterId) return false;
     }
@@ -419,8 +419,8 @@ void tcMissileDBObject::WriteSql(std::string& valueString) const
         {
             s << maFlightProfile[i].mfRange_km << ",";
             s << maFlightProfile[i].mfAltitude_m << ",";
-            s << (long)maFlightProfile[i].meAltitudeMode << ",";
-            s << (long)maFlightProfile[i].meGuidanceMode;
+            s << (int)maFlightProfile[i].meAltitudeMode << ",";
+            s << (int)maFlightProfile[i].meGuidanceMode;
         }
         else
         {
@@ -622,6 +622,48 @@ std::string tcMissileDBObject::teGuidanceModeToString(teGuidanceMode data) const
     return "";
 }
 
+void tcMissileDBObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    tcWeaponDBObject::SerializeToJson(obj, allocator);
 
-} // namespace database
+    // Flight model parameters
+    obj.AddMember(rapidjson::Value("mfDragArea_sm", allocator).Move(), mfDragArea_sm, allocator);
+    obj.AddMember(rapidjson::Value("mfGmax", allocator).Move(), mfGmax, allocator);
+    obj.AddMember(rapidjson::Value("mfMaxTurnRate_degps", allocator).Move(), mfMaxTurnRate_degps, allocator);
+    obj.AddMember(rapidjson::Value("mfCdpsub", allocator).Move(), mfCdpsub, allocator);
+    obj.AddMember(rapidjson::Value("mfCdptran", allocator).Move(), mfCdptran, allocator);
+    obj.AddMember(rapidjson::Value("mfCdpsup", allocator).Move(), mfCdpsup, allocator);
+    obj.AddMember(rapidjson::Value("mfMcm", allocator).Move(), mfMcm, allocator);
+    obj.AddMember(rapidjson::Value("mfMsupm", allocator).Move(), mfMsupm, allocator);
+    obj.AddMember(rapidjson::Value("mfBoostThrust_N", allocator).Move(), mfBoostThrust_N, allocator);
+    obj.AddMember(rapidjson::Value("mfBoostTime_s", allocator).Move(), mfBoostTime_s, allocator);
+    obj.AddMember(rapidjson::Value("mfSustThrust_N", allocator).Move(), mfSustThrust_N, allocator);
+    obj.AddMember(rapidjson::Value("mfSustTime_s", allocator).Move(), mfSustTime_s, allocator);
+    obj.AddMember(rapidjson::Value("mfShutdownSpeed_mps", allocator).Move(), mfShutdownSpeed_mps, allocator);
 
+    // Sensor info
+    if (!maSensorClass.empty()) obj.AddMember(rapidjson::Value("maSensorClass", allocator).Move(), rapidjson::Value(maSensorClass.c_str(), allocator).Move(), allocator);
+    obj.AddMember(rapidjson::Value("sensorKey", allocator).Move(), sensorKey, allocator);
+    obj.AddMember(rapidjson::Value("needsFireControl", allocator).Move(), needsFireControl ? 1 : 0, allocator);
+    obj.AddMember(rapidjson::Value("acceptsWaypoints", allocator).Move(), acceptsWaypoints ? 1 : 0, allocator);
+    obj.AddMember(rapidjson::Value("fireAndForget", allocator).Move(), fireAndForget, allocator);
+    obj.AddMember(rapidjson::Value("isARM", allocator).Move(), isARM, allocator);
+    obj.AddMember(rapidjson::Value("seekerFOV_rad", allocator).Move(), seekerFOV_rad, allocator);
+    obj.AddMember(rapidjson::Value("aczConstant_kts", allocator).Move(), aczConstant_kts, allocator);
+    obj.AddMember(rapidjson::Value("invMass_kg", allocator).Move(), invMass_kg, allocator);
+
+    // Flight profile
+    obj.AddMember(rapidjson::Value("mnNumSegments", allocator).Move(), mnNumSegments, allocator);
+
+    rapidjson::Value segments(rapidjson::kArrayType);
+    for (const auto& segment : maFlightProfile) {
+        rapidjson::Value segObj(rapidjson::kObjectType);
+        segObj.AddMember(rapidjson::Value("mfRange_km", allocator).Move(), segment.mfRange_km, allocator);
+        segObj.AddMember(rapidjson::Value("mfAltitude_m", allocator).Move(), segment.mfAltitude_m, allocator);
+        segObj.AddMember(rapidjson::Value("meAltitudeMode", allocator).Move(), segment.meAltitudeMode, allocator);
+        segObj.AddMember(rapidjson::Value("meGuidanceMode", allocator).Move(), segment.meGuidanceMode, allocator);
+        segments.PushBack(segObj, allocator);
+    }
+    obj.AddMember(rapidjson::Value("maFlightProfile", allocator).Move(), segments, allocator);
+}
+}

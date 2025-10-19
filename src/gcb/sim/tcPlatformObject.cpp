@@ -94,7 +94,7 @@ void tcPlatformObject::DesignateLauncherDatum(GeoPoint p, unsigned int anLaunche
 * @return false if target cannot be designated, out of seeker coverage or no fire
 * @return false control support available.
 */
-bool tcPlatformObject::DesignateLauncherTarget(long anID, unsigned anLauncher) 
+bool tcPlatformObject::DesignateLauncherTarget(int anID, unsigned anLauncher) 
 {
     if (std::shared_ptr<tcLauncher> launcher = mcLauncherState.GetLauncher(anLauncher))
     {
@@ -108,7 +108,7 @@ bool tcPlatformObject::DesignateLauncherTarget(long anID, unsigned anLauncher)
 * set AI target, also set all launcher targets. This
 * may have some undesirable side effects !?
 */
-void tcPlatformObject::DesignateTarget(long anID)
+void tcPlatformObject::DesignateTarget(int anID)
 {
     if (anID == -1)
     {
@@ -414,7 +414,7 @@ std::shared_ptr<Brain>  tcPlatformObject::GetBrain()
     return brain;
 }
 
-long tcPlatformObject::GetFormationLeader() const
+int tcPlatformObject::GetFormationLeader() const
 {
     return formation.leaderId;
 }
@@ -627,8 +627,8 @@ void tcPlatformObject::ParseLoadoutCommand(const std::string& cmd,
 //        itemText.Trim(true); // remove spaces at beginning and end
 //        itemText.Trim(false);
         
-//        unsigned long qty = 0;
-//        if (qtyText.ToULong(&qty, 10))
+//        unsigned int qty = 0;
+//        if (qtyText.ToUint(&qty, 10))
 //        {
 //            item.push_back(std::string(itemText.c_str()));
 //            quantity.push_back((unsigned int)(qty));
@@ -659,7 +659,7 @@ void tcPlatformObject::SetMaxTurnRate(float rate_degps)
 /**
 * @return true if platform is intercepting (has targeted) track with id
 */
-bool tcPlatformObject::IsInterceptingTrack(long id)
+bool tcPlatformObject::IsInterceptingTrack(int id)
 {
     assert(id >= 0);
 
@@ -962,7 +962,7 @@ void tcPlatformObject::AutoConfigureMagazines(const std::vector<database::Magazi
     {
         if (std::shared_ptr<tcStores> stores = GetMagazineById(magazineLoadout[k].magazineId))
         {
-            stores->AddItems(magazineLoadout[k].item, (unsigned long)magazineLoadout[k].quantity);
+            stores->AddItems(magazineLoadout[k].item, (unsigned int)magazineLoadout[k].quantity);
         }
         else
         {
@@ -1497,7 +1497,7 @@ bool tcPlatformObject::IsRefueling() const
 /**
 * @return key of object to launch, otherwise NULL_INDEX
 */
-void tcPlatformObject::Launch(long& rnKey, unsigned& rnLauncher) 
+void tcPlatformObject::Launch(int& rnKey, unsigned& rnLauncher) 
 {
     mcLauncherState.Launch(rnKey, rnLauncher);
 }
@@ -1587,7 +1587,7 @@ void tcPlatformObject::RandInitNear(float afLon_deg, float afLat_deg)
 	fuel_kg = mpDBObject->GetInternalFuelCapacity();
     lastHeadingDelta = 0;
 }
-void tcPlatformObject::SetLongitude(float aflon_deg )
+void tcPlatformObject::Setintitude(float aflon_deg )
 {
     mcKin.mfLon_rad = C_PIOVER180*(aflon_deg);
 }
@@ -1667,6 +1667,71 @@ void tcPlatformObject::Serialize(tcFile& file, bool mbLoad)
     {
         SaveToFile(file);
     }
+}
+
+/**
+ * Serialize platform-specific fields to JSON. Calls base class serialization
+ * to include common fields.
+ */
+void tcPlatformObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    // start with base fields
+    tcGameObject::SerializeToJson(obj, allocator);
+
+    // add platform-specific fields
+    obj.AddMember(rapidjson::Value("fuel_kg", allocator).Move(), fuel_kg, allocator);
+    obj.AddMember(rapidjson::Value("externalFuelCapacity_kg", allocator).Move(), externalFuelCapacity_kg, allocator);
+
+    obj.AddMember(rapidjson::Value("launcherCount", allocator).Move(), (int)GetLauncherCount(), allocator);
+    obj.AddMember(rapidjson::Value("magazineCount", allocator).Move(), (int)GetMagazineCount(), allocator);
+
+    obj.AddMember(rapidjson::Value("isRefueling", allocator).Move(), isRefueling, allocator);
+
+    // formation info
+    obj.AddMember(rapidjson::Value("formationLeader", allocator).Move(), (int)formation.leaderId, allocator);
+
+    // simple launcher summary array: for each launcher push current quantity
+    rapidjson::Value launchersArr(rapidjson::kArrayType);
+    unsigned int nLaunchers = GetLauncherCount();
+    for (unsigned int n=0; n<nLaunchers; ++n)
+    {
+        auto launcher = GetLauncher(n);
+        if (launcher)
+        {
+            rapidjson::Value lobj(rapidjson::kObjectType);
+            lobj.AddMember("current", launcher->mnCurrent, allocator);
+            lobj.AddMember("capacity", launcher->capacity, allocator);
+            rapidjson::Value childClass;
+            std::string childCls = launcher->GetChildClassName();
+            childClass.SetString(childCls.c_str(), static_cast<rapidjson::SizeType>(childCls.length()), allocator);
+            lobj.AddMember("childClass", childClass, allocator);
+            launchersArr.PushBack(lobj, allocator);
+        }
+        else
+        {
+            launchersArr.PushBack(-1, allocator);
+        }
+    }
+    obj.AddMember(rapidjson::Value("launchers", allocator).Move(), launchersArr, allocator);
+
+    // magazines: push counts
+    rapidjson::Value magsArr(rapidjson::kArrayType);
+    for (size_t n=0; n<magazines.size(); ++n)
+    {
+        auto mag = magazines[n];
+        if (mag)
+        {
+            rapidjson::Value mobj(rapidjson::kObjectType);
+            mobj.AddMember("numItemTypes", (int)mag->GetNumberItemTypes(), allocator);
+            mobj.AddMember("itemCount", (int)mag->CurrentQuantity(), allocator);
+            magsArr.PushBack(mobj, allocator);
+        }
+        else
+        {
+            magsArr.PushBack(-1, allocator);
+        }
+    }
+    obj.AddMember(rapidjson::Value("magazines", allocator).Move(), magsArr, allocator);
 }
 
 void tcPlatformObject::SaveToPython(scriptinterface::tcScenarioLogger& logger)
@@ -2219,7 +2284,7 @@ bool tcPlatformObject::IsSub() const
 {
     return (mnModelType == MTYPE_SUBMARINE);
 }
-void tcPlatformObject::LoadOther(const std::string& item, unsigned long quantity)
+void tcPlatformObject::LoadOther(const std::string& item, unsigned int quantity)
 {
     if (!IsControlled()) return;
 
@@ -2270,7 +2335,7 @@ std::vector<tcSensorMapTrack> tcPlatformObject::GetTrackListValidROE(int anClass
         return trackList;
     }
 
-    long nPos = sensorMap->GetStartTrackPosition();
+    int nPos = sensorMap->GetStartTrackPosition();
     for(int n=0;n<nCount;n++)
     {
         sensorMap->GetNextTrack(nPos, pTrack);
@@ -2348,7 +2413,7 @@ void tcPlatformObject::SetFormationAltitudeOffset(float dh_m)
     formation.SetAltitudeOffset(dh_m);
 }
 
-void tcPlatformObject::SetFormationLeader(long id)
+void tcPlatformObject::SetFormationLeader(int id)
 {
     formation.SetPlatformId(mnID);
 
@@ -2561,7 +2626,7 @@ void tcPlatformObject::Construct()
 
     for (int nLauncher=0; nLauncher<mpDBObject->mnNumLaunchers; nLauncher++)
     {
-        long nLauncherKey = database->GetKey(mpDBObject->maLauncherClass[nLauncher].c_str());
+        int nLauncherKey = database->GetKey(mpDBObject->maLauncherClass[nLauncher].c_str());
         if (nLauncherKey != -1)
         {
             Vector2d attitude = mpDBObject->GetLauncherAttitude(nLauncher);

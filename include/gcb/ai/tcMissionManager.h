@@ -88,15 +88,15 @@ public:
     void Clear();
 
 	std::vector<MissionAircraftInfo>& GetAvailableAircraft(int targetMask);
-    std::shared_ptr<tcAirObject> GetAircraft(long id);
+    std::shared_ptr<tcAirObject> GetAircraft(int id);
     std::shared_ptr<tcAirObject> GetAircraft(const std::string& unitName);
 
-    unsigned int GetAircraftMissionId(long aircraftId);
+    unsigned int GetAircraftMissionId(int aircraftId);
     unsigned int GetAircraftMissionId(const std::string& unitName);
-	long GetFlightportParentId() const;
+	int GetFlightportParentId() const;
 	std::shared_ptr<tcGameObject> GetFlightportParent();
-	bool IsAircraftReserved(long id) const;
-	void LaunchAircraft(long id);
+	bool IsAircraftReserved(int id) const;
+	void LaunchAircraft(int id);
 	void Update(double t);
 
     void UpdateReserved(); // update map of aircraft involved in missions
@@ -129,7 +129,7 @@ public:
 private:
 	tcFlightPort* flightPort;
 	std::vector<tcMission*> missions;
-	std::map<long, unsigned int> reserved; ///< map of reserved aircraft (aircraft id, mission id)
+	std::map<int, unsigned int> reserved; ///< map of reserved aircraft (aircraft id, mission id)
     std::map<std::string, unsigned int> reserved2; ///< map of reserved aircraft (aircraft name, mission id)
 
 	double lastUpdate;

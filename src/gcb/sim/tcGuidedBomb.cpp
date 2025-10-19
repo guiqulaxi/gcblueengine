@@ -335,7 +335,7 @@ void tcGuidedBomb::UpdateSensor(std::shared_ptr<tcSensorState> sensor, double t)
 
         tcGameObjIterator iter(region);
         float closestRange_km = 1e15f;
-        long closestID = -1;
+        int closestID = -1;
 
         // find closest detectable target to targetPos
         for (iter.First();iter.NotDone();iter.Next())

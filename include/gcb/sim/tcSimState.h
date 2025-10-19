@@ -108,16 +108,16 @@ public:
     double mfLastSensorUpdate;
     double mfLastSensorAgeOut;
     double mfLastTileAgeOut; // for tcMapData high res tiles
-    std::vector<long> flightportPlatforms;
-    std::vector<long> landingPlatforms;
+    std::vector<int> flightportPlatforms;
+    std::vector<int> landingPlatforms;
     double lastLandingStateUpdate;
     tsScenarioInfo msScenarioInfo;
 
     static tcSimState* Get(); ///< accessor for singleton instance
 
-    void AddLaunchedPlatform(long newKey, std::shared_ptr<tcGameObject> launchingPlatform, unsigned nLauncher);
+    void AddLaunchedPlatform(int newKey, std::shared_ptr<tcGameObject> launchingPlatform, unsigned nLauncher);
     void AddPlatform(std::shared_ptr<tcGameObject>pplat);
-    void AddPlatformWithKey(std::shared_ptr<tcGameObject>pplat, long key);
+    void AddPlatformWithKey(std::shared_ptr<tcGameObject>pplat, int key);
     void AddRandomPlatform();
 //    void AttachCommandInterface(tcCommandQueue *apCommandInterface) {mpCommandInterface=apCommandInterface;}
     void AttachDB(tcDatabase *pDatabase);
@@ -127,51 +127,51 @@ public:
     void AttachWeaponTester();
 
     void BuildCollisionGroups();
-    void ChangeHeading(long anKey, float afNewHeading);
-    void ChangeHeadingForced(long anKey, float afNewHeading); // for scen edit mode
-    void ChangeHeadingToLocation(long anKey, float afLon, float afLat);
-    void ChangeLocation(long anKey, float afLon_rad, float afLat_rad);
-    void ChangeNormSpeed(long anKey, float afNewNormSpeed);
+    void ChangeHeading(int anKey, float afNewHeading);
+    void ChangeHeadingForced(int anKey, float afNewHeading); // for scen edit mode
+    void ChangeHeadingToLocation(int anKey, float afLon, float afLat);
+    void ChangeLocation(int anKey, float afLon_rad, float afLat_rad);
+    void ChangeNormSpeed(int anKey, float afNewNormSpeed);
     void Clear(); ///< clear all objects and reset simstate
     void ClearSensorMaps();
     std::shared_ptr<tcGameObject> CreateGameObject(std::shared_ptr<tcDatabaseObject> apDBObject);
      std::shared_ptr<tcGameObject> CreateRandomPlatform(UINT platform_type);
     void DeleteAllPlatforms();
-    void DeleteObject(long key);
-    void DesignateTarget(long anKey, long anTargetKey);
-    void DesignateDatum(long anKey, tcPoint p);
-    void DesignateLauncherDatum(long anKey, GeoPoint p, unsigned anLauncher);
-    bool DesignateLauncherTarget(long anKey, long anTargetKey, unsigned anLauncher);
+    void DeleteObject(int key);
+    void DesignateTarget(int anKey, int anTargetKey);
+    void DesignateDatum(int anKey, tcPoint p);
+    void DesignateLauncherDatum(int anKey, GeoPoint p, unsigned anLauncher);
+    bool DesignateLauncherTarget(int anKey, int anTargetKey, unsigned anLauncher);
     void GenerateRandomGoals();
-    int GetAllSensorPlatforms(long *apKeyList, int anMaxLength);
-    unsigned GetAlliancePlatforms(long *aaKeyList, unsigned anMaxLength, int anAlliance);
-    int GetAllWeaponObjects(long *apKeyList,int anMaxLength);
+    int GetAllSensorPlatforms(int *apKeyList, int anMaxLength);
+    unsigned GetAlliancePlatforms(int *aaKeyList, unsigned anMaxLength, int anAlliance);
+    int GetAllWeaponObjects(int *apKeyList,int anMaxLength);
     void GetDateTime(tcDateTime& dt) const;
     const tcDateTime& GetDateTime() const;
-    void GetDescription(long anKey, tcString& s);
-    void GetNextPlatform(long& pos, long& key, std::shared_ptr<tcGameObject>& obj)
+    void GetDescription(int anKey, tcString& s);
+    void GetNextPlatform(int& pos, int& key, std::shared_ptr<tcGameObject>& obj)
     {
         maPlatformState.GetNextAssoc(pos,key,obj);
     }
-    int GetPlatformAlliance(long anKey, UINT& rnAlliance);
+    int GetPlatformAlliance(int anKey, UINT& rnAlliance);
     unsigned int GetPlatformCount() {return maPlatformState.GetCount();}
-    long GetPlatformStartPosition() {return maPlatformState.GetStartPosition();}
-    int GetPlatformState(long anKey, std::shared_ptr<tcGameObject>& pplat);
-    std::shared_ptr<tcGameObject> GetObject(long anKey);
-    std::shared_ptr<const tcGameObject> GetObjectConst(long id) const;
+    int GetPlatformStartPosition() {return maPlatformState.GetStartPosition();}
+    int GetPlatformState(int anKey, std::shared_ptr<tcGameObject>& pplat);
+    std::shared_ptr<tcGameObject> GetObject(int anKey);
+    std::shared_ptr<const tcGameObject> GetObjectConst(int id) const;
     std::shared_ptr<tcGameObject> GetObjectByName(const std::string& unitName);
-    void GetPlatformsWithinRegion(std::vector<long>& keyList, tcRect *apRegion);
-    long GetRandomPlatform();
+    void GetPlatformsWithinRegion(std::vector<int>& keyList, tcRect *apRegion);
+    int GetRandomPlatform();
 	const char* GetScenarioDescription() const;
     const char* GetScenarioName() const;
     tcSensorMap* GetSensorMap();
     double GetTime() {return mfSimTime;}
-    long GetTimeAcceleration() const;
-    bool GetTrack(long id, unsigned alliance, tcSensorMapTrack& track);
-    bool GetTruthTrack(long id, tcTrack& track);
+    int GetTimeAcceleration() const;
+    bool GetTrack(int id, unsigned alliance, tcSensorMapTrack& track);
+    bool GetTruthTrack(int id, tcTrack& track);
 
     bool IsLauncherReady(std::shared_ptr<tcGameObject>apGameObj, unsigned anLauncher);
-    bool IsLauncherReady(long anKey, unsigned anLauncher);
+    bool IsLauncherReady(int anKey, unsigned anLauncher);
 	bool IsScenarioLoaded() const;
     bool IsMultiplayerGameStarted() const;
     void SetMultiplayerGameStarted(bool state);
@@ -179,14 +179,14 @@ public:
     void PrintToFile(tcString);
     void ProcessLanding(std::shared_ptr<tcGameObject>receiver, std::shared_ptr<tcGameObject>landing_unit);
 
-    bool RadarCanDetect(long anSensorKey, std::shared_ptr<const tcGameObject> target,
-        std::shared_ptr<tcGameObject> reference, float afSensorAz, long fcID = -1, unsigned fcIdx = 0);
-    bool SensorCanDetect(long sensorKey, std::shared_ptr<const tcGameObject> target,
-        std::shared_ptr<tcGameObject> reference, float sensorAz, long fcID = -1, unsigned fcIdx = 0);
+    bool RadarCanDetect(int anSensorKey, std::shared_ptr<const tcGameObject> target,
+        std::shared_ptr<tcGameObject> reference, float afSensorAz, int fcID = -1, unsigned fcIdx = 0);
+    bool SensorCanDetect(int sensorKey, std::shared_ptr<const tcGameObject> target,
+        std::shared_ptr<tcGameObject> reference, float sensorAz, int fcID = -1, unsigned fcIdx = 0);
     void RegisterChildObject(const std::string& name, std::shared_ptr<tcGameObject> parent); ///< call when adding child to flightdeck
     void RemoveDestroyedObjects();
     void RenameObject(std::shared_ptr<tcGameObject> obj, const std::string& s);
-    void RequestLaunch(long anKey,int anLauncher);
+    void RequestLaunch(int anKey,int anLauncher);
     void SaveTimeToStream(tcStream& stream);
 
 	void SaveToPython(const std::string& scenarioName);
@@ -206,7 +206,7 @@ public:
     void SetScenarioLoaded(bool state);
     void SetScenarioName(const std::string& s);
     void SetTime(double afNewTime) {mfSimTime=afNewTime;} /////< Sets sim time, normally 0 at start of sim
-    void SetTimeAcceleration(long accel);
+    void SetTimeAcceleration(int accel);
     void UnregisterChildObject(const std::string& name);
     void Update();
     void UpdateLandings(double afSimTime);
@@ -228,9 +228,9 @@ private:
     double mfSimTime;
     tcDateTime dateTime;
     MultiplayerMode multiplayerMode; ///< multiplayer mode, default = MM_OFF
-	long timeAcceleration; ///< 0 - paused, 1 - normal, N - Nx accelerated time
-    std::map<std::string, long> objectNameMap; ///< for fast lookup by object name
-    std::map<std::string, long> captiveObjectMap; ///< lookup of captive flightdeck objects, secondary key is parent id
+	int timeAcceleration; ///< 0 - paused, 1 - normal, N - Nx accelerated time
+    std::map<std::string, int> objectNameMap; ///< for fast lookup by object name
+    std::map<std::string, int> captiveObjectMap; ///< lookup of captive flightdeck objects, secondary key is parent id
     tcPositionRegistry* positionRegistry; ///< for fast(er) lookup by region
 #ifdef USE_TEST
     tcWeaponTester* weaponTester;

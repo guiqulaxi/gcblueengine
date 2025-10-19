@@ -151,7 +151,7 @@ unsigned int tcSensorTrackIterator::Size() const
     unsigned int result = 0;
 
     int nTotal = map->GetTrackCount();
-    long poolpos = map->GetStartTrackPosition();
+    int poolpos = map->GetStartTrackPosition();
     int n = 0;
     while(n++ < nTotal)  
     {    

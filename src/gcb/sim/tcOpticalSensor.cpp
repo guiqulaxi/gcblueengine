@@ -47,6 +47,9 @@
 #include "tcSonarEnvironment.h"
 //#include "tcMessageInterface.h"
 #include <cassert>
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -299,7 +302,7 @@ bool tcOpticalSensor::CanDetectTarget(std::shared_ptr<const tcGameObject> target
 /**
 * @return false if key not found in database
 */
-bool tcOpticalSensor::InitFromDatabase(long key)
+bool tcOpticalSensor::InitFromDatabase(int key)
 {
     assert(database);
 
@@ -489,7 +492,7 @@ bool tcOpticalSensor::IsTrackAvailable()
 * Calling method must check if target is detectable for this to
 * work properly.
 */
-bool tcOpticalSensor::RequestTrack(long targetId)
+bool tcOpticalSensor::RequestTrack(int targetId)
 {
     if (IsTrackAvailable())
     {
@@ -502,7 +505,7 @@ bool tcOpticalSensor::RequestTrack(long targetId)
     }
 }
 
-bool tcOpticalSensor::ReleaseTrack(long targetId)
+bool tcOpticalSensor::ReleaseTrack(int targetId)
 {
     if (fireControlTrackCount > 0)
     {
@@ -522,7 +525,7 @@ bool tcOpticalSensor::ReleaseTrack(long targetId)
 */
 void tcOpticalSensor::UpdateSeeker(double t)
 {
-    long nTargetID; // 目标ID
+    int nTargetID; // 目标ID
     std::shared_ptr<tcGameObject>ptarget = 0; // 目标对象指针，初始化为0（空）
     int bFound; // 是否找到目标的标志
     std::shared_ptr<tcMissileObject> missile = 0; // 导弹对象指针，初始化为0（空）
@@ -595,7 +598,7 @@ void tcOpticalSensor::UpdateSeeker(double t)
         // 创建迭代器，遍历搜索区域内的对象
         tcGameObjIterator iter(region);
         float minRange = 1e15f; // 初始化最小距离为极大值
-        long minID = NULL_INDEX; // 初始化最小距离的目标ID为空
+        int minID = NULL_INDEX; // 初始化最小距离的目标ID为空
 
         // 查找可检测到的最近目标
         for (iter.First();iter.NotDone();iter.Next())
@@ -834,4 +837,15 @@ tcOpticalSensor::tcOpticalSensor(std::shared_ptr<tcOpticalDBObject> dbObj)
 tcOpticalSensor::~tcOpticalSensor() 
 {
 
+}
+
+void tcOpticalSensor::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    tcSensorState::SerializeToJson(obj, allocator);
+
+    obj.AddMember(rapidjson::Value("fireControlTrackCount", allocator).Move(), fireControlTrackCount, allocator);
+    obj.AddMember(rapidjson::Value("isSemiactive", allocator).Move(), isSemiactive, allocator);
+    obj.AddMember(rapidjson::Value("isDesignator", allocator).Move(), isDesignator, allocator);
+    obj.AddMember(rapidjson::Value("detectionCandidate", allocator).Move(), detectionCandidate, allocator);
+    obj.AddMember(rapidjson::Value("last_margin_dB", allocator).Move(), last_margin_dB, allocator);
 }

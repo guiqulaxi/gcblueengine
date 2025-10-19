@@ -135,7 +135,7 @@ void tcSensorPlatform::ClearActivityFlags()
 /**
 * @return first sensor with matching database id
 */
-std::shared_ptr<const tcSensorState> tcSensorPlatform::GetSensorByDatabaseID(long id) const
+std::shared_ptr<const tcSensorState> tcSensorPlatform::GetSensorByDatabaseID(int id) const
 {
     unsigned nSensors = GetSensorCount();
 	for (unsigned n=0; n < nSensors; n++)
@@ -691,6 +691,41 @@ tcSensorPlatform::~tcSensorPlatform()
     {
         //delete sensorState[n];
     }
+}
+
+/**
+* Serialize sensor platform data to JSON
+*/
+void tcSensorPlatform::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    obj.SetObject();
+    
+    // Serialize sensorActivityFlags
+    obj.AddMember(rapidjson::Value("sensorActivityFlags", allocator).Move(), sensorActivityFlags, allocator);
+    rapidjson::Value typeName;
+    typeName.SetString(GetType().c_str(), static_cast<rapidjson::SizeType>(GetType().length()), allocator);
+    obj.AddMember(rapidjson::Value("typeName", allocator).Move(), typeName, allocator);
+    // Serialize sensor states
+    if (!sensorState.empty())
+    {
+        rapidjson::Value sensorsArray(rapidjson::kArrayType);
+        for (const auto& sensor : sensorState)
+        {
+            if (sensor)
+            {
+                rapidjson::Value sensorObj(rapidjson::kObjectType);
+                sensor->SerializeToJson(sensorObj, allocator);
+                sensorsArray.PushBack(sensorObj, allocator);
+            }
+        }
+        obj.AddMember(rapidjson::Value("sensorState", allocator).Move(), sensorsArray, allocator);
+    }
+    
+    // Serialize sensor command object
+    rapidjson::Value commandObj(rapidjson::kObjectType);
+    // TODO: Implement tcCommandObject serialization when available
+    // sensorCommandObj.SerializeToJson(commandObj, allocator);
+    obj.AddMember(rapidjson::Value("sensorCommandObj", allocator).Move(), commandObj, allocator);
 }
 
 

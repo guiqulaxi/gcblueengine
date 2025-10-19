@@ -57,6 +57,8 @@ namespace database
         tcFuelTankDBObject();
         tcFuelTankDBObject(const tcFuelTankDBObject& obj);
         virtual ~tcFuelTankDBObject();
+        void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const override;
+
     };
 
 } // namespace database

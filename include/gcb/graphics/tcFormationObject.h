@@ -57,14 +57,14 @@ public:
     virtual tcStream& operator>>(tcStream& stream);
 
     tcFormationObject();
-    tcFormationObject(long id);
+    tcFormationObject(int id);
     virtual ~tcFormationObject();
 
     static void LoadCornerMarker(const std::string& filename_on, const std::string& filename_off, const std::string& filename_off2);
 
 private:
     enum {DRAG_ALL = 0, DRAG_BL = 1, DRAG_BR = 2, DRAG_TL = 3, DRAG_TR = 4};
-    long platformId;
+    int platformId;
     int dragMode;
 
     float range_km, min_range_km, max_range_km;

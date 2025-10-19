@@ -31,6 +31,7 @@
 
 #include "tcPlatformObject.h"
 #include "tcCommandObject.h"
+#include "rapidjson/document.h"
 
 namespace database
 {
@@ -77,7 +78,7 @@ public:
     virtual float GetCruiseAltitude() const;
     virtual float GetStallSpeedForAltitude(float alt_m) const;
 
-    bool AddFuelTarget(long id);
+    bool AddFuelTarget(int id);
     bool CanRefuelInFlight() const;
     bool IsTanker() const;
     unsigned int TankerSpotsFree() const;
@@ -97,6 +98,9 @@ public:
     void SaveToFile(tcFile &file) override;
     void LoadFromFile(tcFile &file);
     virtual void Serialize(tcFile &file, bool mbLoad);
+
+    // JSON serialization
+    virtual void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const override;
 
     virtual tcCommandStream &operator<<(tcCommandStream &stream);
     virtual tcUpdateStream &operator<<(tcUpdateStream &stream);
@@ -132,7 +136,7 @@ protected:
     float maxPitch_rad;     ///< user imposed restriction to pitch angle
     float climbCommand_rad; ///< user/ai override on climb angle, zero for no command
     bool doneCrashing;
-    std::vector<long> fuelTargets; ///< for tanker
+    std::vector<int> fuelTargets; ///< for tanker
 };
 
 #endif

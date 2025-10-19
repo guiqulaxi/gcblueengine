@@ -40,8 +40,8 @@
 
 using namespace std;
 
-namespace database
-{
+namespace database {
+
 
 void tcSonobuoyDBObject::PrintToFile(tcFile& file)
 {
@@ -143,6 +143,14 @@ std::shared_ptr<tcGameObject>tcSonobuoyDBObject::CreateGameObject()
     obj->Construct();
     return obj;
 }
+void tcSonobuoyDBObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    tcDatabaseObject::SerializeToJson(obj, allocator);
+    GetComponent<tcSensorPlatformDBObject>()->SerializeToJson(obj, allocator);
+    GetComponent<tcWaterDetectionDBObject>()->SerializeToJson(obj, allocator);
+    obj.AddMember("batteryLife_s", batteryLife_s, allocator);
+    obj.AddMember("commRange_km", commRange_km, allocator);
 
+}
 }
 

@@ -1818,7 +1818,7 @@ void tcTorpedoObject::Clear()
 /**
 *
 */
-void tcTorpedoObject::DesignateTarget(long anID) 
+void tcTorpedoObject::DesignateTarget(int anID) 
 {
     seeker->mcTrack.mnID = anID;
 
@@ -1999,6 +1999,28 @@ tcTorpedoObject::tcTorpedoObject(std::shared_ptr<tcTorpedoDBObject> obj)
 */
 tcTorpedoObject::~tcTorpedoObject() 
 {
+}
+
+void tcTorpedoObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const
+{
+    tcWeaponObject::SerializeToJson(obj, allocator);
+
+    obj.AddMember("goalDepth_m", rapidjson::Value().SetFloat(goalDepth_m), allocator);
+    obj.AddMember("goalHeading_rad", rapidjson::Value().SetFloat(goalHeading_rad), allocator);
+    obj.AddMember("goalPitch_rad", rapidjson::Value().SetFloat(goalPitch_rad), allocator);
+    obj.AddMember("goalSpeed_kts", rapidjson::Value().SetFloat(goalSpeed_kts), allocator);
+    obj.AddMember("interceptTime", rapidjson::Value().SetDouble(interceptTime), allocator);
+    obj.AddMember("runTime", rapidjson::Value().SetFloat(runTime), allocator);
+    obj.AddMember("isWireActive", rapidjson::Value().SetBool(isWireActive), allocator);
+    obj.AddMember("autoWireUpdates", rapidjson::Value().SetBool(autoWireUpdates), allocator);
+    obj.AddMember("battery_kJ", rapidjson::Value().SetFloat(battery_kJ), allocator);
+    obj.AddMember("searchMode", rapidjson::Value().SetInt(searchMode), allocator);
+
+    rapidjson::Value wp(rapidjson::kObjectType);
+    wp.AddMember("lon_rad", rapidjson::Value().SetDouble(waypoint.mfLon_rad), allocator);
+    wp.AddMember("lat_rad", rapidjson::Value().SetDouble(waypoint.mfLat_rad), allocator);
+    wp.AddMember("alt_m", rapidjson::Value().SetDouble(waypoint.mfAlt_m), allocator);
+    obj.AddMember("waypoint", wp, allocator);
 }
 
 

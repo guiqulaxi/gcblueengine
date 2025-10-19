@@ -65,14 +65,14 @@ public:
 
     double timeStamp; ///< 报告的时间戳
     double startTime; ///< 传感器开始跟踪目标的时间
-    long platformID;  ///< 传感器的平台ID（如飞机、舰船等）
-    long sensorID;    ///< 传感器的数据库ID
+    int platformID;  ///< 传感器的平台ID（如飞机、舰船等）
+    int sensorID;    ///< 传感器的数据库ID
     unsigned int validFlags; ///< 有效标志位，表示哪些字段是有效的（使用枚举值进行位运算）
 
-    std::vector<long> emitterList; ///< 目标的发射器列表（如雷达、通信设备等）
+    std::vector<int> emitterList; ///< 目标的发射器列表（如雷达、通信设备等）
     unsigned int classification; ///< 目标的分类（如空中目标、潜艇等），0 表示未知
     unsigned char alliance; ///< 目标的阵营编号，0 表示未知
-    long databaseID; ///< 目标在数据库中的具体ID，-1 表示未知
+    int databaseID; ///< 目标在数据库中的具体ID，-1 表示未知
 
     // 目标的位置估计（经度、纬度）及其协方差
     float lonEstimate_rad; ///< 经度估计值（弧度）
