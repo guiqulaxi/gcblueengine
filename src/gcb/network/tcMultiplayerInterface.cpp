@@ -23,13 +23,14 @@
 **  IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "stdwx.h" // precompiled header file
+// #include "stdwx.h" // precompiled header file
 
-#ifndef WX_PRECOMP
-#include "wx/wx.h" 
-#endif
+// #ifndef WX_PRECOMP
+// #include "wx/wx.h" 
+// #endif
+// 修复 Windows SDK 宏冲突问题
 
-#include "wx/ffile.h"
+// #include "wx/ffile.h"
 #include "network/tcNetworkInterface.h"
 #include "network/tcMultiplayerInterface.h"
 #include "network/tcMessageHandler.h"
@@ -37,33 +38,60 @@
 #include "network/tcAuthenticationMessageHandler.h"
 #include "network/tcTextMessageHandler.h"
 #include "network/tcControlMessageHandler.h"
-#include "network/tcUpdateMessageHandler.h"
+//#include "network/tcUpdateMessageHandler.h"
 #include "common/tcStream.h"
 #include "common/tcObjStream.h"
 #include <iostream>
 #include <queue>
-#include "tcSound.h"
+#include <sstream>
+#include <cassert>
+//#include "tcSound.h"
 #include "tcTime.h"
+#ifdef GetObject
+// a former included windows.h might have defined a macro called GetObject, which affects
+// GetObject defined here. This ensures the macro does not get applied
+#pragma push_macro("GetObject")
+#define TC_WINDOWS_GETOBJECT_WORKAROUND_APPLIED
+#undef GetObject
+#endif
 #include "tcSimState.h"
 #include "tcGameObjIterator.h"
-#include "tcConsoleBox.h"
+//#include "tcConsoleBox.h"
 #include "tcAccountDatabase.h"
 #include "tcUserInfo.h"
-#include "scriptinterface/tcSimPythonInterface.h"
-#include "scriptinterface/tcScenarioInterface.h"
-#include "tcScenarioSelectView.h"
-#include "wxcommands.h"
+// #include "scriptinterface/tcSimPythonInterface.h"
+// #include "scriptinterface/tcScenarioInterface.h"
+// #include "tcScenarioSelectView.h"
+// #include "wxcommands.h"
 #include "ai/tcMissionManager.h"
 #include "database/tcDatabaseIterator.h"
 #include "tcAllianceSensorMap.h"
+//#include "tcConsoleBox.h"
+#include "tcAccountDatabase.h"
+#include "tcUserInfo.h"
+// #include "scriptinterface/tcSimPythonInterface.h"
+// #include "scriptinterface/tcScenarioInterface.h"
+// #include "tcScenarioSelectView.h"
+// #include "wxcommands.h"
+#include "ai/tcMissionManager.h"
+#include "database/tcDatabaseIterator.h"
+#include "tcAllianceSensorMap.h"
+#include "tcMultiplayerInterface.h"
+#include "tcUpdateMessageHandler.h"
+//#include "tcScenarioInterface.h"
 
 
+
+using namespace network;
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 
 BEGIN_NAMESPACE(network)
 
+// BEGIN_EVENT_TABLE(tcMultiplayerInterface, wxEvtHandler)
+//     EVT_SOCKET(-1, tcMultiplayerInterface::OnSocketEvent)
+// END_EVENT_TABLE()
 
 /**
 * Erases map entry for id. Used to force server to resend
@@ -273,28 +301,28 @@ bool tcMultiplayerInterface::EntityUpdateReceived()
 * Adds tcConsoleBox to chat subscriber vector. Chat text will be printed
 * to the tcConsoleBox when new text arrives.
 */
-void tcMultiplayerInterface::AddChatSubscriber(tcConsoleBox* subscriber)
-{
-    chatSubscribers.push_back(subscriber);
-}
+// void tcMultiplayerInterface::AddChatSubscriber(tcConsoleBox* subscriber)
+// {
+//     chatSubscribers.push_back(subscriber);
+// }
 
 /**
 * Removes tcConsoleBox from chat subscriber list
 */
-void tcMultiplayerInterface::RemoveChatSubscriber(tcConsoleBox* subscriber)
-{
+// void tcMultiplayerInterface::RemoveChatSubscriber(tcConsoleBox* subscriber)
+// {
 
-    for(std::vector<tcConsoleBox*>::iterator iter = chatSubscribers.begin()
-        ; iter != chatSubscribers.end(); ++iter)
-    {
-        if ((*iter) == subscriber)
-        {
-            chatSubscribers.erase(iter);
-            return;
-        }
-    }
-    fprintf(stderr, "Error - RemoveChatSubscriber - Not found\n");
-}
+//     for(std::vector<tcConsoleBox*>::iterator iter = chatSubscribers.begin()
+//         ; iter != chatSubscribers.end(); ++iter)
+//     {
+//         if ((*iter) == subscriber)
+//         {
+//             chatSubscribers.erase(iter);
+//             return;
+//         }
+//     }
+//     fprintf(stderr, "Error - RemoveChatSubscriber - Not found\n");
+// }
 
 /**
 * Adds message handler for message with messageId.
@@ -318,7 +346,7 @@ void tcMultiplayerInterface::AddMessageHandler(int messageId, tcMessageHandler* 
     {
         // add handler to existing map pair
         mapIter->second.push_back(handler);
-		wxASSERT(false); // duplicate handler
+		assert(false); // duplicate handler
     }
 }
 
@@ -373,17 +401,17 @@ void tcMultiplayerInterface::AssignNewCommander(unsigned char alliance)
 }
 
 
-void tcMultiplayerInterface::AttachMPGameView(tcMPGameView* gv)
-{
-	mpGameView = gv;
-	wxASSERT(mpGameView != 0);
-}
+// void tcMultiplayerInterface::AttachMPGameView(tcMPGameView* gv)
+// {
+// 	mpGameView = gv;
+// 	assert(mpGameView != 0);
+// }
 
-void tcMultiplayerInterface::AttachScenarioSelectView(tcScenarioSelectView* ssv)
-{
-	scenarioSelectView = ssv;
-	wxASSERT(scenarioSelectView != 0);
-}
+// void tcMultiplayerInterface::AttachScenarioSelectView(tcScenarioSelectView* ssv)
+// {
+// 	scenarioSelectView = ssv;
+// 	assert(scenarioSelectView != 0);
+// }
 
 
 /**
@@ -406,22 +434,28 @@ void tcMultiplayerInterface::AuthenticatePlayer(int connectionId, const std::str
     // first check for valid username
     if ((username.length() < 3) || (username == "NoName"))
     {
-        wxString s = wxString::Format("Invalid or missing username (%s)", username.c_str());
-        SendChatText(connectionId, s.ToStdString());
+        std::ostringstream s;
+        s << "Invalid or missing username (" << username << ")";
+        SendChatText(connectionId, s.str());
         return;
     }
+    
+    std::ostringstream s;
+    s << "*** " << playerStatus.GetNameWithRank() << " has entered the game (new player)";
+    std::string welcomeMsg = s.str();
 
     if (GetPlayerConnectionId(username) != -1)
     {
-        wxString s = wxString::Format("A player with your username is already logged in (%s)", username.c_str());
-        SendChatText(connectionId, s.ToStdString());
+        std::ostringstream s;
+        s << "A player with your username is already logged in (" << username << ")";
+        SendChatText(connectionId, s.str());
         return;
     }
 
 
 	int status = tcAccountDatabase::Get()->AuthenticateUser(username, passwordHash);
 
-	wxString msg;
+	std::string msg;
 	if (status == tcAccountDatabase::SUCCESS)
 	{
 		playerStatus.name = username;
@@ -439,8 +473,9 @@ void tcMultiplayerInterface::AuthenticatePlayer(int connectionId, const std::str
 
             SendDatabaseInfo(connectionId);
 
-			wxString s = wxString::Format("*** %s has entered the game", playerStatus.GetNameWithRank().c_str());
-			BroadcastChatText(s.ToStdString());
+			std::ostringstream s;
+            s << "*** " << playerStatus.GetNameWithRank() << " has entered the game";
+			BroadcastChatText(s.str());
 		}
 		else if (loginStatus == tcAccountDatabase::DUPLICATE_LOGIN)
 		{
@@ -456,7 +491,9 @@ void tcMultiplayerInterface::AuthenticatePlayer(int connectionId, const std::str
 			int status = tcAccountDatabase::Get()->AddUser(username, passwordHash, "unk");
 			if (status == tcAccountDatabase::SUCCESS)
 			{
-				msg.Printf("*** Added account for %s", username.c_str());
+				std::ostringstream oss;
+                oss << "*** Added account for " << username;
+                msg = oss.str();
 				playerStatus.name = username;
 
 				int loginStatus = LogInPlayer(username, connectionId, playerStatus, msg);
@@ -472,8 +509,9 @@ void tcMultiplayerInterface::AuthenticatePlayer(int connectionId, const std::str
 
                     SendDatabaseInfo(connectionId);
 
-					wxString s = wxString::Format("*** %s has entered the game (new player)", playerStatus.GetNameWithRank().c_str());
-					BroadcastChatText(s.ToStdString());
+					std::ostringstream s;
+                    s << "*** " << playerStatus.GetNameWithRank() << " has entered the game (new player)";
+					BroadcastChatText(s.str());
 					SendChatText(connectionId, "A new account has been created for you.\n");
 					SendChatText(connectionId, "Please choose your alliance with the '/alliance <#>' command");
 				}
@@ -486,24 +524,30 @@ void tcMultiplayerInterface::AuthenticatePlayer(int connectionId, const std::str
 			}
 			else
 			{
-				msg.Printf("*** Error adding account %s (%d)", username.c_str(), status);
+				std::ostringstream oss;
+                oss << "*** Error adding account " << username << " (" << status << ")";
+                msg = oss.str();
 			}
 		}
 		else
 		{
-			msg = wxString::Format("Username, %s, is not registered\n", username.c_str());
+			std::ostringstream oss;
+            oss << "Username, " << username << ", is not registered\n";
+            msg = oss.str();
 		}
 	}
 	else if (status == tcAccountDatabase::PASSWORD_INVALID)
 	{
-		msg = wxString::Format("Invalid password for username, %s\n", username.c_str());
+		std::ostringstream oss;
+        oss << "Invalid password for username, " << username << "\n";
+        msg = oss.str();
 	}
 	else
 	{
 		msg = "Unknown login error.";
 	}
 
-	SendChatText(connectionId, msg.ToStdString());
+	SendChatText(connectionId, msg);
 
 }
 
@@ -513,7 +557,7 @@ void tcMultiplayerInterface::AuthenticatePlayer(int connectionId, const std::str
 * @return tcAccountDatabase::SUCCESS if successful
 */
 int tcMultiplayerInterface::LogInPlayer(const std::string& username, int connectionId, 
-										tcPlayerStatus& playerStatus, wxString& msg)
+										tcPlayerStatus& playerStatus, std::string& msg)
 {
 	tcConnectionData* connection = networkInterface->GetConnection(connectionId);
 	tcSimState* simState = tcSimState::Get();
@@ -540,7 +584,7 @@ int tcMultiplayerInterface::LogInPlayer(const std::string& username, int connect
 		else
 		{
 			playerStatus.SetReady(true); // always ready if game is in progress
-            playerStatus.SetGameSpeed(unsigned char(simState->GetTimeAcceleration()));
+            playerStatus.SetGameSpeed((unsigned char)(simState->GetTimeAcceleration()));
 		}
 
         playerStatus.SetXmlObserver(false);
@@ -572,20 +616,25 @@ int tcMultiplayerInterface::LogInPlayer(const std::string& username, int connect
 			playerStatus.isCommander = true;
 		}
 
-		msg = wxString::Format("Welcome %s (Alliance %d)\n", playerStatus.GetNameWithRank().c_str(), 
-			playerStatus.GetAlliance());
+        std::ostringstream oss;
+        oss << "Welcome " << playerStatus.GetNameWithRank() << " (Alliance " << (int)playerStatus.GetAlliance() << ")\n";
+        msg = oss.str();
 
-        wxString eventString = wxString::Format("%s logged on (%s)", playerStatus.GetName().c_str(),
-            wxDateTime::Now().FormatISOTime().c_str());
-        recentEvents.push_back(eventString);
+        std::ostringstream eventString;
+        eventString << playerStatus.GetName() << " logged on (" << "time" << ")";
+        recentEvents.push_back(eventString.str());
 	}
 	else if (loginStatus == tcAccountDatabase::DUPLICATE_LOGIN)
 	{
-		msg = wxString::Format("Username, %s, is already logged in\n", username.c_str());
+        std::ostringstream oss;
+        oss << "Username, " << username << ", is already logged in\n";
+        msg = oss.str();
 	}
 	else
 	{
-		msg = wxString::Format("Unknown login error for username, %s\n", username.c_str());
+        std::ostringstream oss;
+        oss << "Unknown login error for username, " << username << "\n";
+        msg = oss.str();
 	}
 
 	return loginStatus;
@@ -626,8 +675,8 @@ void tcMultiplayerInterface::LogOutPlayer(const std::string& username)
 	bool playerWasCommander = playerStatus.IsCommander();
 	unsigned char playerAlliance = playerStatus.GetAlliance();
 
-    wxString eventString = wxString::Format("%s logged off (%s)", playerStatus.GetName().c_str(),
-        wxDateTime::Now().FormatISOTime().c_str());
+    std::string eventString = strutil::format("%s logged off (%s)", playerStatus.GetName().c_str(),
+        tcDateTime::Now().asStringTOD());
     recentEvents.push_back(eventString);
 
 
@@ -691,12 +740,14 @@ void tcMultiplayerInterface::BroadcastChatText(const std::string& message, unsig
         // save for html status log (don't save alliance-only chat)
         if (alliance == 0)
         {
-            wxString message2 = message;
-            message2.Replace("<", "&lt;");
-            message2.Replace(">", "&gt;");
+            std::string message2 = message;
+            strutil::replace_all(message2,"<", "&lt;");
+            strutil::replace_all(message2,">", "&gt;");
+            // message2.Replace("<", "&lt;");
+            // message2.Replace(">", "&gt;");
 
-            wxString s;
-            s.Printf("%s (%s)", message2.c_str(), wxDateTime::Now().FormatISOTime().c_str());
+            std::string s;
+            s = message2 + " (time)";
             recentChat.push_back(s);
         }
 	}
@@ -766,7 +817,7 @@ void tcMultiplayerInterface::ClearMessageMap()
         size_t nHandlers = mm.size();
         for (size_t n = 0; n < nHandlers; n++)
         {
-            wxASSERT(mm[n]);
+            assert(mm[n]);
             delete mm[n];
         }
         mm.clear();
@@ -798,12 +849,11 @@ const std::list<int>& tcMultiplayerInterface::GetConnectionList() const
 const std::string& tcMultiplayerInterface::GetConnectionStatus(int connectionId)
 {
 	static std::string s;
-
 	if (!IsConnecting())
 	{
 		const tcPlayerStatus& status = GetPlayerStatus(connectionId);
 
-		wxString s2 = wxString::Format("%s (%d) ", status.GetName().c_str(), 
+        std::string s2 = strutil::format("%s (%d) ", status.GetName().c_str(),
 			status.GetAlliance());
 
 		s = s2.c_str();
@@ -836,11 +886,11 @@ const std::vector<int>& tcMultiplayerInterface::GetConnectionVector() const
 	return connectionVector;
 }
 
-wxEvtHandler* tcMultiplayerInterface::GetEvtHandler() const
-{
-    wxASSERT(evtHandler);
-    return evtHandler;
-}
+// EventHandler* tcMultiplayerInterface::GetEvtHandler() const
+// {
+//     assert(evtHandler);
+//     return evtHandler;
+// }
 
 /**
 * @return identification name string for player using this interface
@@ -906,19 +956,19 @@ tcPlayerStatus& tcMultiplayerInterface::GetPlayerStatus(int connectionId)
 }
 
 
-unsigned tcMultiplayerInterface::GetTeamGameSpeed() const
-{
-    wxASSERT(mpGameView != 0);
+// unsigned tcMultiplayerInterface::GetTeamGameSpeed() const
+// {
+//     assert(mpGameView != 0);
 
-    return mpGameView->GetTeamSpeed();
-}
+//     return mpGameView->GetTeamSpeed();
+// }
 
-unsigned tcMultiplayerInterface::GetFastestGameSpeed() const
-{
-    wxASSERT(mpGameView != 0);
+// unsigned tcMultiplayerInterface::GetFastestGameSpeed() const
+// {
+//     assert(mpGameView != 0);
 
-    return mpGameView->GetFastestSpeed();
-}
+//     return mpGameView->GetFastestSpeed();
+// }
 
 
 /**
@@ -958,7 +1008,7 @@ bool tcMultiplayerInterface::IsChatTextAvail()
 */
 bool tcMultiplayerInterface::IsCommand(const std::string& text)
 {
-    wxString candidate(text.c_str());
+    std::string candidate(text);
     return ((candidate.find('/') == 0));
 }
 
@@ -972,11 +1022,11 @@ bool tcMultiplayerInterface::IsConnecting() const
 /**
 * Check for mutually agreed end of game, or surrender of one team
 */
-bool tcMultiplayerInterface::IsGameOver(wxString& message) const
+bool tcMultiplayerInterface::IsGameOver(std::string& message) const
 {
     message.clear();
 
-    std::vector<tcMPGameView::TeamInfo>& teamList = tcUpdateMessageHandler::GetLatestTeamList();
+    std::vector<TeamInfo>& teamList = tcUpdateMessageHandler::GetLatestTeamList();
 
 	size_t nTeams = teamList.size();
 
@@ -988,7 +1038,7 @@ bool tcMultiplayerInterface::IsGameOver(wxString& message) const
 
 	for (size_t n=0; n<nTeams; n++)
 	{
-		tcMPGameView::TeamInfo& teamInfo = teamList[n];
+        TeamInfo& teamInfo = teamList[n];
 
 		size_t nPlayers = teamList[n].playerList.size();
 		
@@ -1016,15 +1066,15 @@ bool tcMultiplayerInterface::IsGameOver(wxString& message) const
     {
         if (noplayerTimeout)
         {
-            message.Printf("Game ended, no players remaining");
+            message+=("Game ended, no players remaining");
         }
         else if (allPlayersEndGame)
         {
-            message.Printf("Game ended by agreement between players");
+            message+="Game ended by agreement between players";
         }
         else
         {
-            message.Printf("Game ended when %s surrendered", surrenderName.c_str());
+            message+=strutil::format("Game ended when %s surrendered", surrenderName.c_str());
         }
         return true;
     }
@@ -1108,15 +1158,28 @@ void tcMultiplayerInterface::ResetGame()
         player.isInGame = false;
         player.wantsGameEnd = false;
         player.wantsSurrender = false;
+        std::ostringstream eventString;
+        eventString << player.GetName() << " logged on (" << "time" << ")";
+        recentEvents.push_back(eventString.str());
 	}
 
-    wxString eventString = wxString::Format("Game reset (%s)", wxDateTime::Now().FormatISOTime().c_str());
-    recentEvents.push_back(eventString);
+
 
     BroadcastScenarioInfo();
-
-    lastOptionsUpdate = tcTime::Get()->GetUpdated30HzCount() - 60;
 }
+
+// void tcMultiplayerInterface::PlayerLoggedOff(const tcPlayerStatus& playerStatus)
+// {
+//     // wxString eventString = wxString::Format("%s logged off (%s)", playerStatus.GetName().c_str(),
+//     //     wxDateTime::Now().FormatISOTime().c_str());
+//     std::ostringstream eventString;
+//     eventString << playerStatus.GetName() << " logged off (" << "time" << ")";
+//     recentEvents.push_back(eventString.str());
+
+//     BroadcastScenarioInfo();
+
+//     lastOptionsUpdate = tcTime::Get()->GetUpdated30HzCount() - 60;
+// }
 
 
 /**
@@ -1125,7 +1188,7 @@ void tcMultiplayerInterface::ResetGame()
 void tcMultiplayerInterface::OnLostServer()
 {
     chatText.push(std::string("Lost connection to server"));
-    wxMessageBox("Lost connection to server", "Network", wxICON_WARNING);
+    fprintf(stderr, "Lost connection to server\n");
 
     MakeClient();
 }
@@ -1148,11 +1211,11 @@ void tcMultiplayerInterface::DistributeChatText()
         std::string text = chatText.front();
         chatText.pop();
 
-        for(std::vector<tcConsoleBox*>::iterator iter = chatSubscribers.begin()
-            ; iter != chatSubscribers.end(); ++iter)
-        {
-            (*iter)->Print(text.c_str());
-        }
+        // for(std::vector<tcConsoleBox*>::iterator iter = chatSubscribers.begin()
+        //     ; iter != chatSubscribers.end(); ++iter)
+        // {
+        //     (*iter)->Print(text.c_str());
+        // }
     }
 
 }
@@ -1160,9 +1223,13 @@ void tcMultiplayerInterface::DistributeChatText()
 /**
 * Process command to change alliance of player
 */
-void tcMultiplayerInterface::ProcessAllianceCommand(tcPlayerStatus& player, const wxString& args)
+void tcMultiplayerInterface::ProcessAllianceCommand(tcPlayerStatus& player, const std::string& args)
 {
-    wxString msg;
+    // wxString msg;
+    std::string msg;
+    // wxString message2 = message;
+    //std::string message2 = args;
+
     
     int connectionId = player.GetConnectionId();
     
@@ -1173,15 +1240,14 @@ void tcMultiplayerInterface::ProcessAllianceCommand(tcPlayerStatus& player, cons
 
     if (changeAllowed)
     {
-    	wxString allianceText = args; 
-    	int alliance;
-    	if (allianceText.Toint(&alliance))
+        int alliance;
+        if (sscanf(args.c_str(), "%d", &alliance) == 1)
     	{
     		player.alliance = alliance;
     		tcAccountDatabase::Get()->SetUserAlliance(player.GetName(), player.alliance);
     
 			SendControlMessage(connectionId, tcControlMessageHandler::CM_ALLIANCE, alliance);
-			msg = wxString::Format("*** Success - alliance set to %d", alliance);
+            msg = "*** Success - alliance set to " + std::to_string(alliance);
 
 			// update briefing text for new alliance
 			if (alliance != 0)
@@ -1204,8 +1270,7 @@ void tcMultiplayerInterface::ProcessAllianceCommand(tcPlayerStatus& player, cons
 		}
     	else
     	{
-            msg = wxString::Format("*** Error - bad alliance change argument (%s)",
-                      allianceText.c_str());
+            msg = "*** Error - bad alliance change argument (" + args + ")";
     	}
     }
     else
@@ -1213,118 +1278,116 @@ void tcMultiplayerInterface::ProcessAllianceCommand(tcPlayerStatus& player, cons
         msg = "*** Team change not allowed while game in progress";
     } 
     
-    SendChatText(connectionId, msg.ToStdString());
+    SendChatText(connectionId, msg);
 }
+
+/**
+*
+*/
+void tcMultiplayerInterface::ProcessChangeCommander(tcPlayerStatus& player, const std::string& args)
+{
+    std::string msg;
+
+    int connectionId = player.GetConnectionId();
+
+    unsigned char alliance = player.GetAlliance();
+
+    if (alliance == 0)
+    {
+        msg = "*** Cannot change commander while on Observer team";
+        SendChatText(connectionId, msg);
+        return;
+    }
+
+    if (player.IsCommander() || (!AllianceHasCommander(alliance)))
+    {
+        int newCommanderId = GetPlayerConnectionId(args);
+        if (newCommanderId != -1)
+        {
+            tcPlayerStatus& pstatus = GetPlayerStatus(newCommanderId);
+            player.isCommander = false;
+            pstatus.isCommander = true;
+
+            msg=strutil::format("*** %s is now team commander", pstatus.GetNameWithRank().c_str());
+            BroadcastChatText(msg);
+            return;
+        }
+        else
+        {
+            msg=strutil::format("*** player %s not found", args);
+        }
+
+    }
+    else
+    {
+        msg = "*** Failed. Ask team commander to change commander";
+    }
+
+    SendChatText(connectionId, msg);
+}
+
 
 
 /**
 *
 */
-void tcMultiplayerInterface::ProcessChangeCommander(tcPlayerStatus& player, const wxString& args)
+void tcMultiplayerInterface::ProcessChangeReady(tcPlayerStatus& player, const std::string& args)
 {
-	wxString msg;
-    
+    std::string msg;
+
     int connectionId = player.GetConnectionId();
 
-	unsigned char alliance = player.GetAlliance();
 
-	if (alliance == 0)
-	{
-		msg = "*** Cannot change commander while on Observer team";
-		SendChatText(connectionId, msg.ToStdString());
-		return;
-	}
+    if (args != "0")
+    {
+        if (!player.IsReady())
+        {
+            player.SetReady(true);
+            msg = "*** Your status is now READY";
+        }
+        else
+        {
+            msg = "*** Status already is ready";
+        }
+    }
+    else
+    {
+        if (player.IsReady())
+        {
+            player.SetReady(false);
+            msg = "*** Your status is now STAND DOWN";
+        }
+        else
+        {
+            msg = "*** Status already is stand down";
+        }
+    }
 
-	if (player.IsCommander() || (!AllianceHasCommander(alliance)))
-	{
-		int newCommanderId = GetPlayerConnectionId(args.ToStdString());
-		if (newCommanderId != -1)
-		{
-			tcPlayerStatus& pstatus = GetPlayerStatus(newCommanderId);
-			player.isCommander = false;
-			pstatus.isCommander = true;
-			
-			msg.Printf("*** %s is now team commander", pstatus.GetNameWithRank().c_str());
-			BroadcastChatText(msg.ToStdString());
-			return;
-		}
-		else
-		{
-			msg.Printf("*** player %s not found", args.ToAscii());
-		}
-
-	}
-	else
-	{
-		msg = "*** Failed. Ask team commander to change commander";
-	}
-
-	SendChatText(connectionId, msg.ToStdString());
+     SendChatText(connectionId, msg);
 }
 
 
 
-/**
-*
-*/
-void tcMultiplayerInterface::ProcessChangeReady(tcPlayerStatus& player, const wxString& args)
+void tcMultiplayerInterface::ProcessGameMasterCommand(tcPlayerStatus& player, const std::string& args)
 {
-	wxString msg;
+    // assert(IsServer());
     
-    int connectionId = player.GetConnectionId();
-
-
-	if (args != "0")
-	{
-		if (!player.IsReady())
-		{
-			player.SetReady(true);
-			msg = "*** Your status is now READY";
-		}
-		else
-		{
-			msg = "*** Status already is ready";
-		}
-	}
-	else
-	{
-		if (player.IsReady())
-		{
-			player.SetReady(false);
-			msg = "*** Your status is now STAND DOWN";
-		}
-		else
-		{
-			msg = "*** Status already is stand down";
-		}
-	}
-
-	SendChatText(connectionId, msg.ToStdString());
-}
-
-
-/**
-* Process game master commands from player
-*/
-void tcMultiplayerInterface::ProcessGameMasterCommand(tcPlayerStatus& player, const wxString& args)
-{
-    wxASSERT(IsServer());
-    
-    using scriptinterface::tcScenarioInterface;
-    tcScenarioInterface* scenarioInterface = tcSimPythonInterface::Get()->GetScenarioInterface();
-    wxASSERT(scenarioInterface);
-    tcSimState* simState = tcSimState::Get();
+    // using scriptinterface::tcScenarioInterface;
+    // tcScenarioInterface* scenarioInterface = tcSimPythonInterface::Get()->GetScenarioInterface();
+    // // assert(scenarioInterface);
+    tcSimState *simState = tcSimState::Get();
     
     int connectionId = player.GetConnectionId();
 
     bool syntaxError = true;
-    wxString msg;
+    std::string msg;
     
     if (player.IsGM())
     {
-        wxString command = args.BeforeFirst(' ');
-        wxString params = args.AfterFirst(' '); 
- 
+        size_t spacePos = args.find(' ');
+        std::string command = (spacePos != std::string::npos) ? args.substr(0, spacePos) : args;
+        std::string params = (spacePos != std::string::npos) ? args.substr(spacePos + 1) : "";
+
         if ((command == "help") || (command == ""))
         {
             syntaxError = false;
@@ -1343,66 +1406,66 @@ void tcMultiplayerInterface::ProcessGameMasterCommand(tcPlayerStatus& player, co
             SendChatText(connectionId, "    /gm setcontroller <id> '<player>'");
             SendChatText(connectionId, "    /gm setteamchanges <0 or 1>");
         }
-		else if (command == "addaccount")
-		{
-			syntaxError = false;
+        else if (command == "addaccount")
+        {
+            syntaxError = false;
 
-			ProcessGMAddAccount(args, msg);
-		}
+            ProcessGMAddAccount(params, msg);
+        }
         else if (command == "create")
         {
             syntaxError = false;
             
-            ProcessGMCreate(args, msg);
+            ProcessGMCreate(params, msg);
         }
         else if (command == "destroy")
         {
-    	    int id;
-    	    if (params.Toint(&id))
-    	    {
+            int id;
+            if (sscanf(params.c_str(), "%d", &id) == 1)
+            {
                 syntaxError = false;
                 simState->DeleteObject(id);
-                msg = wxString::Format("*** Entity %d destroyed", id);
+                msg = "*** Entity " + std::to_string(id) + " destroyed";
             }
         }
         else if (command == "kick")
         {
             syntaxError = false;
 
-    	    ProcessGMKick(args, msg);
+            ProcessGMKick(params, msg);
         }
         else if (command == "move")
         {
             syntaxError = false;
             
-            ProcessGMMove(args, msg);
+            ProcessGMMove(params, msg);
         }
         else if (command == "repair")
         {
             int id;
-    	    if (params.Toint(&id))
-    	    {
+            if (sscanf(params.c_str(), "%d", &id) == 1)
+            {
                 syntaxError = false;
                 if (std::shared_ptr<tcGameObject> obj = simState->GetObject(id))
                 {
                     obj->ApplyRepairs(2.0f);
-                    msg = wxString::Format("*** Entity %d repaired", id);
+                    msg = "*** Entity " + std::to_string(id) + " repaired";
                 }
                 else
                 {
-                    msg = wxString::Format("*** Entity %d not found", id);
+                    msg = "*** Entity " + std::to_string(id) + " not found";
                 }
             }
         }
         else if (command == "setcontroller")
         {
             syntaxError = false;
-            ProcessGMSetController(args, msg);
+            ProcessGMSetController(params, msg);
         }
         else if (command == "setteamchanges")
         {
             syntaxError = false;
-            ProcessGMSetTeamChanges(args, msg);
+            ProcessGMSetTeamChanges(params, msg);
         }
     }
     else
@@ -1413,33 +1476,32 @@ void tcMultiplayerInterface::ProcessGameMasterCommand(tcPlayerStatus& player, co
     
     if (syntaxError)
     {
-        msg = wxString::Format("*** Syntax error (%s)", args.c_str());
+        msg = "*** Syntax error (" + args + ")";
     }
     
-    SendChatText(connectionId, msg.ToStdString());
+    SendChatText(connectionId, msg);
 }
 
-void tcMultiplayerInterface::ProcessGameSpeed(tcPlayerStatus& player, const wxString& args)
+void tcMultiplayerInterface::ProcessGameSpeed(tcPlayerStatus& player, const std::string& args)
 {
     int connectionId = player.GetConnectionId();
    
 	//tcSimState* simState = tcSimState::Get();
 
     int val;
-    if (!args.Toint(&val) || (val < 0) || (val > 32))
+    if (sscanf(args.c_str(), "%d", &val) != 1 || (val < 0) || (val > 32))
     {
-        wxString msg = wxString::Format("*** Error - bad game speed argument (%s)",
-                      args.c_str());
-        SendChatText(connectionId, msg.ToStdString());
+        std::string msg = "*** Error - bad game speed argument (" + args + ")";
+        SendChatText(connectionId, msg);
         return;
     }
 
-    //wxString msg = wxString::Format("*** Updated game speed request from %dX to %dX",
-    //        player.GetGameSpeed(), val);
+    //std::string msg = "*** Updated game speed request from " + 
+    //        std::to_string(player.GetGameSpeed()) + "X to " + std::to_string(val) + "X";
 
-    player.SetGameSpeed(unsigned char(val));
+    player.SetGameSpeed((unsigned char)(val));
 
-    //SendChatText(connectionId, msg.c_str());
+    //SendChatText(connectionId, msg);
 }
 
 
@@ -1449,31 +1511,39 @@ void tcMultiplayerInterface::ProcessGameSpeed(tcPlayerStatus& player, const wxSt
 * @param args argument string
 * @param msg message text to be returned
 */
-void tcMultiplayerInterface::ProcessGMAddAccount(const wxString& args, wxString& msg)
+void tcMultiplayerInterface::ProcessGMAddAccount(const std::string& args, std::string& msg)
 {
+    size_t firstQuote = args.find('\'');
+    if (firstQuote == std::string::npos) return;
+    
+    size_t secondQuote = args.find('\'', firstQuote + 1);
+    if (secondQuote == std::string::npos) return;
+    
+    std::string username = args.substr(firstQuote + 1, secondQuote - firstQuote - 1);
+    
+    size_t thirdQuote = args.find('\'', secondQuote + 1);
+    if (thirdQuote == std::string::npos) return;
+    
+    size_t fourthQuote = args.find('\'', thirdQuote + 1);
+    if (fourthQuote == std::string::npos) return;
+    
+    std::string email = args.substr(thirdQuote + 1, fourthQuote - thirdQuote - 1);
 
-    const char delim = '\'';
-    wxString s1 = args.AfterFirst(delim);
-	std::string username = s1.BeforeFirst(delim).c_str();
-    s1 = s1.AfterFirst(delim);
-    s1 = s1.AfterFirst(delim);
-	std::string email = s1.BeforeFirst(delim).c_str();
- 
-	if (username.size() < 3)
-	{
-		msg.Printf("*** Username too short (%s)", username.c_str());
-		return;
-	}
+    if (username.size() < 3)
+    {
+        msg = "*** Username too short (" + username + ")";
+        return;
+    }
 
-	int status = tcAccountDatabase::Get()->AddUser(username, "", email);
-	if (status == tcAccountDatabase::SUCCESS)
-	{
-		msg.Printf("*** Added account for %s", username.c_str());
-	}
-	else
-	{
-		msg.Printf("*** Error adding account %s (%d)", username.c_str(), status);
-	}
+    int status = tcAccountDatabase::Get()->AddUser(username, "", email);
+    if (status == tcAccountDatabase::SUCCESS)
+    {
+        msg = "*** Added account for " + username;
+    }
+    else
+    {
+        msg = "*** Error adding account " + username + " (" + std::to_string(status) + ")";
+    }
 }
 
 
@@ -1483,85 +1553,98 @@ void tcMultiplayerInterface::ProcessGMAddAccount(const wxString& args, wxString&
 * @param args argument string
 * @param msg message text to be returned
 */
-void tcMultiplayerInterface::ProcessGMCreate(const wxString& args, wxString& msg)
+void tcMultiplayerInterface::ProcessGMCreate(const std::string& args, std::string& msg)
 {
     const char delim = '\'';
-    wxString params = args.AfterFirst(delim);
-    wxString unitClass = params.BeforeFirst(delim);
-    params = params.AfterFirst(delim);
-    params = params.AfterFirst(delim);
-    wxString unitName = params.BeforeFirst(delim);
-    params = params.AfterFirst(delim);
-    
-	
-	params = params.AfterFirst(' ');
-	wxString s1 = params.BeforeFirst(' ');
-
-    int alliance = 0;
-    if ((!s1.Toint(&alliance)) || (alliance < 0))
-    {
-        msg = wxString::Format("*** Bad alliance value for create, class '%s', unit '%s'",
-           unitClass.c_str(), unitName.c_str());   
+    size_t firstDelim = args.find(delim);
+    if (firstDelim == std::string::npos) {
+        msg = "*** Syntax error in create command";
         return;
     }
+    
+    size_t secondDelim = args.find(delim, firstDelim + 1);
+    if (secondDelim == std::string::npos) {
+        msg = "*** Syntax error in create command";
+        return;
+    }
+    
+    std::string unitClass = args.substr(firstDelim + 1, secondDelim - firstDelim - 1);
+    
+    size_t thirdDelim = args.find(delim, secondDelim + 1);
+    if (thirdDelim == std::string::npos) {
+        msg = "*** Syntax error in create command";
+        return;
+    }
+    
+    size_t fourthDelim = args.find(delim, thirdDelim + 1);
+    if (fourthDelim == std::string::npos) {
+        msg = "*** Syntax error in create command";
+        return;
+    }
+    
+    std::string unitName = args.substr(thirdDelim + 1, fourthDelim - thirdDelim - 1);
+    
+    size_t posAfterFourthDelim = args.find_first_not_of(' ', fourthDelim + 1);
+    if (posAfterFourthDelim == std::string::npos) {
+        msg = "*** Syntax error in create command";
+        return;
+    }
+    
+    size_t nextSpace = args.find(' ', posAfterFourthDelim);
+    std::string s1 = (nextSpace != std::string::npos) ? 
+        args.substr(posAfterFourthDelim, nextSpace - posAfterFourthDelim) : 
+        args.substr(posAfterFourthDelim);
+
+    int alliance = 0;
+    int val;
+    if ((sscanf(s1.c_str(), "%d", &val) != 1) || (val < 0))
+    {
+        msg = "*** Bad alliance value for create, class '" + unitClass + "', unit '" + unitName + "'";
+        return;
+    }
+    alliance = val;
 
     double lat_deg = 0;
-    params = params.AfterFirst(' ');
-    s1 = params.BeforeFirst(' ');
-    if (!s1.ToDouble(&lat_deg))
+    std::string params = args.substr(nextSpace + 1);
+    size_t firstSpace = params.find(' ');
+    s1 = (firstSpace != std::string::npos) ? params.substr(0, firstSpace) : params;
+    
+    if (sscanf(s1.c_str(), "%lf", &lat_deg) != 1)
     {
-        msg = wxString::Format("*** Bad latitude for /gm create");
+        msg = "*** Bad latitude for /gm create";
         return;  
     }
     
     double lon_deg = 0;
-    params = params.AfterFirst(' ');
-    s1 = params.BeforeFirst(' ');
-    if (!s1.ToDouble(&lon_deg))
+    std::string remaining = (firstSpace != std::string::npos) ? params.substr(firstSpace + 1) : "";
+    firstSpace = remaining.find(' ');
+    s1 = (firstSpace != std::string::npos) ? remaining.substr(0, firstSpace) : remaining;
+    
+    if (sscanf(s1.c_str(), "%lf", &lon_deg) != 1)
     {
-        msg = wxString::Format("*** Bad intitude for /gm create");
+        msg = "*** Bad longitude for /gm create";
         return;  
     }
-    
-    double alt_m = 0;
-    params = params.AfterFirst(' ');
-    s1 = params.BeforeFirst(' ');
-    if (!s1.ToDouble(&alt_m))
+
+    float alt_m = 0;
+    if (firstSpace != std::string::npos)
     {
-        alt_m = 0;
+        std::string altStr = remaining.substr(firstSpace + 1);
+        sscanf(altStr.c_str(), "%f", &alt_m);
     }
 
+    tcSimState* simState = tcSimState::Get();
+    // long id = simState->CreateGameObject(unitClass, unitName, alliance, lat_deg, lon_deg, alt_m);
 
+    // if (id != -1)
+    // {
+    //     msg = "*** Created object id " + std::to_string(id) + ", class '" + unitClass + "', unit '" + unitName + "'";
+    // }
+    // else
+    // {
+    //     msg = "*** Error creating object, class '" + unitClass + "', unit '" + unitName + "'";
+    // }
 
-
-    tcScenarioInterface* scenarioInterface = tcSimPythonInterface::Get()->GetScenarioInterface();
-    wxASSERT(scenarioInterface);
-    
-    tcScenarioUnit unit;
-    
-    unit.className = unitClass.c_str();
-    unit.unitName = unitName.c_str();
-    unit.lat = lat_deg;
-    unit.lon = lon_deg;
-    unit.alt = alt_m;
-    unit.heading = 0;
-    unit.speed = 0;
-    unit.throttle = 1.0;
-    
-    if (scenarioInterface->AddUnitToAlliance(unit, alliance))
-    {
-        std::shared_ptr<tcGameObject> obj = scenarioInterface->GetLastObjectAdded();
-        wxASSERT(obj);
-        int id = obj->mnID;
-        
-        msg = wxString::Format("*** Created %d, class '%s', unit '%s' alliance %d",
-            id, unitClass.c_str(), unitName.c_str(), alliance);    
-    }
-    else
-    {
-        msg = wxString::Format("*** Create FAILED, class '%s', unit '%s' alliance %d",
-            unitClass.c_str(), unitName.c_str(), alliance);   
-    }
 
 }
 
@@ -1571,11 +1654,16 @@ void tcMultiplayerInterface::ProcessGMCreate(const wxString& args, wxString& msg
 * @param args argument string
 * @param msg message text to be returned
 */
-void tcMultiplayerInterface::ProcessGMKick(const wxString& args, wxString& msg)
+void tcMultiplayerInterface::ProcessGMKick(const std::string& args, std::string& msg)
 {
     const char delim = '\'';
-    wxString s1 = args.AfterFirst(delim);
-	std::string playername = s1.BeforeFirst(delim).c_str();
+    size_t firstDelim = args.find(delim);
+    if (firstDelim == std::string::npos) return;
+    
+    size_t secondDelim = args.find(delim, firstDelim + 1);
+    if (secondDelim == std::string::npos) return;
+    
+    std::string playername = args.substr(firstDelim + 1, secondDelim - firstDelim - 1);
     
     int playerId = GetPlayerConnectionId(playername);
     if (playerId == -1) return;
@@ -1596,43 +1684,53 @@ void tcMultiplayerInterface::ProcessGMKick(const wxString& args, wxString& msg)
 * @param args argument string
 * @param msg message text to be returned
 */
-void tcMultiplayerInterface::ProcessGMMove(const wxString& args, wxString& msg)
+void tcMultiplayerInterface::ProcessGMMove(const std::string& args, std::string& msg)
 {
-    wxString params = args.AfterFirst(' ');
-    wxString s1 = params.BeforeFirst(' ');
+    size_t firstSpace = args.find(' ');
+    if (firstSpace == std::string::npos) {
+        msg = "*** Syntax error for /gm move";
+        return;
+    }
+    
+    std::string params = args.substr(firstSpace + 1);
+    firstSpace = params.find(' ');
+    std::string s1 = (firstSpace != std::string::npos) ? params.substr(0, firstSpace) : params;
     
     int id = -1;
-    if (!s1.Toint(&id))
+    if (sscanf(s1.c_str(), "%d", &id) != 1)
     {
-        msg = wxString::Format("*** Syntax error for /gm move");
+        msg = "*** Syntax error for /gm move";
         return;
     }
     
     double lat_deg = 0;
-    params = params.AfterFirst(' ');
-    s1 = params.BeforeFirst(' ');
-    if (!s1.ToDouble(&lat_deg))
+    std::string remaining = (firstSpace != std::string::npos) ? params.substr(firstSpace + 1) : "";
+    firstSpace = remaining.find(' ');
+    s1 = (firstSpace != std::string::npos) ? remaining.substr(0, firstSpace) : remaining;
+    
+    if (sscanf(s1.c_str(), "%lf", &lat_deg) != 1)
     {
-        msg = wxString::Format("*** Syntax error for /gm move");
-        return;  
+        msg = "*** Syntax error for /gm move";
+        return;
     }
     
     double lon_deg = 0;
-    params = params.AfterFirst(' ');
-    s1 = params.BeforeFirst(' ');
-    if (!s1.ToDouble(&lon_deg))
+    std::string remaining2 = (firstSpace != std::string::npos) ? remaining.substr(firstSpace + 1) : "";
+    firstSpace = remaining2.find(' ');
+    s1 = (firstSpace != std::string::npos) ? remaining2.substr(0, firstSpace) : remaining2;
+    
+    if (sscanf(s1.c_str(), "%lf", &lon_deg) != 1)
     {
-        msg = wxString::Format("*** Syntax error for /gm move");
-        return;  
+        msg = "*** Syntax error for /gm move";
+        return;
     }
     
     bool changeLatLon = (lat_deg != 0) || (lon_deg != 0);
     
     double alt_m = 0;
     bool changeAlt = true;
-    params = params.AfterFirst(' ');
-    s1 = params.BeforeFirst(' ');
-    if (!s1.ToDouble(&alt_m))
+    std::string altStr = (firstSpace != std::string::npos) ? remaining2.substr(firstSpace + 1) : "";
+    if (sscanf(altStr.c_str(), "%lf", &alt_m) != 1)
     {
         changeAlt = false;
     }
@@ -1651,12 +1749,12 @@ void tcMultiplayerInterface::ProcessGMMove(const wxString& args, wxString& msg)
             obj->mcKin.mfAlt_m = (float)alt_m;
         }
     
-        msg = wxString::Format("*** Entity %d moved", id);
+        msg = "*** Entity " + std::to_string(id) + " moved";
     }
     else
     {
-        msg = wxString::Format("*** Entity %d not found", id);
-    }    
+        msg = "*** Entity " + std::to_string(id) + " not found";
+    }
     
 }
 
@@ -1667,15 +1765,22 @@ void tcMultiplayerInterface::ProcessGMMove(const wxString& args, wxString& msg)
 * @param args argument string
 * @param msg message text to be returned
 */
-void tcMultiplayerInterface::ProcessGMSetController(const wxString& args, wxString& msg)
+void tcMultiplayerInterface::ProcessGMSetController(const std::string& args, std::string& msg)
 {
-    wxString params = args.AfterFirst(' ');
-    wxString s1 = params.BeforeFirst(' ');
+    size_t firstSpace = args.find(' ');
+    if (firstSpace == std::string::npos) {
+        msg = "*** Syntax error for /gm setcontroller, bad id";
+        return;
+    }
+    
+    std::string params = args.substr(firstSpace + 1);
+    firstSpace = params.find(' ');
+    std::string s1 = (firstSpace != std::string::npos) ? params.substr(0, firstSpace) : params;
     
     int id = -1;
-    if (!s1.Toint(&id))
+    if (sscanf(s1.c_str(), "%d", &id) != 1)
     {
-        msg = wxString::Format("*** Syntax error for /gm setcontroller, bad id");
+        msg = "*** Syntax error for /gm setcontroller, bad id";
         return;
     }
 
@@ -1683,28 +1788,37 @@ void tcMultiplayerInterface::ProcessGMSetController(const wxString& args, wxStri
     std::shared_ptr<tcGameObject> obj = simState->GetObject(id);
     if (obj == 0)
     {
-        msg = wxString::Format("*** entity not found (%d)", id);
+        msg = "*** entity not found (" + std::to_string(id) + ")";
         return;
     }
     
 
-    params = params.AfterFirst('\'');
-    std::string playername = params.BeforeFirst('\'').c_str(); // player name
+    size_t firstQuote = params.find('\'');
+    if (firstQuote == std::string::npos) {
+        msg = "*** Syntax error for /gm setcontroller, missing quote";
+        return;
+    }
+    
+    size_t secondQuote = params.find('\'', firstQuote + 1);
+    if (secondQuote == std::string::npos) {
+        msg = "*** Syntax error for /gm setcontroller, missing quote";
+        return;
+    }
+    
+    std::string playername = params.substr(firstQuote + 1, secondQuote - firstQuote - 1);
 
     if (playername.size() > 0)
     {
         int playerId = GetPlayerConnectionId(playername);
         if (playerId == -1)
         {
-            msg = wxString::Format("*** player not found (%s)",
-                playername.c_str());
+            msg = "*** player not found (" + playername + ")";
             return;
         }
         else
         {
             obj->SetController(playername);
-            msg = wxString::Format("*** entity %d controller is now %s",
-                id, playername.c_str());
+            msg = "*** entity " + std::to_string(id) + " controller is now " + playername;
             return;
         }
 
@@ -1712,21 +1826,17 @@ void tcMultiplayerInterface::ProcessGMSetController(const wxString& args, wxStri
     else
     {
         obj->SetController("");
-        msg = wxString::Format("*** entity %d controller cleared", id);
+        msg = "*** entity " + std::to_string(id) + " controller cleared";
         return;
     }
-
-
 }
 
-void tcMultiplayerInterface::ProcessGMSetTeamChanges(const wxString& args, wxString& msg)
+void tcMultiplayerInterface::ProcessGMSetTeamChanges(const std::string& args, std::string& msg)
 {
-    wxString s1 = args.BeforeFirst(' ');
-    
     int id = -1;
-    if (!s1.Toint(&id))
+    if (sscanf(args.c_str(), "%d", &id) != 1)
     {
-        msg = wxString::Format("*** Syntax error for /gm setteamchanges, parameter should be 0 or 1");
+        msg = "*** Syntax error for /gm setteamchanges, parameter should be 0 or 1";
         return;
     }
 
@@ -1759,11 +1869,27 @@ void tcMultiplayerInterface::ProcessCommandClient(int connectionId,
         return;
     }
     
-    wxString candidate(text.c_str());
-
-    wxString commandLine = candidate.AfterFirst('/');
-    wxString command = commandLine.BeforeFirst(' ');
-    wxString args = commandLine.AfterFirst(' ');
+    // Find the first '/' character
+    size_t slashPos = text.find('/');
+    if (slashPos == std::string::npos) {
+        SendChatText(connectionId, "*** invalid command format");
+        return;
+    }
+    
+    // Extract everything after the first '/'
+    std::string commandLine = text.substr(slashPos + 1);
+    
+    // Find the first space to separate command from arguments
+    size_t spacePos = commandLine.find(' ');
+    std::string command, args;
+    
+    if (spacePos != std::string::npos) {
+        command = commandLine.substr(0, spacePos);
+        args = commandLine.substr(spacePos + 1);
+    } else {
+        command = commandLine;
+        args = "";
+    }
 
 	// check for double slash command. These are silent with no echo back
 	if (command.find('/') != 0)
@@ -1772,76 +1898,65 @@ void tcMultiplayerInterface::ProcessCommandClient(int connectionId,
 	}
 	else
 	{		
-		command.Remove(0, 1); // remove leading slash
+		command = command.substr(1); // remove leading slash
 	}
 
     // replace this with map lookup if it grows too large
     if (command == "help")
     {
-        SendChatText(connectionId, "*** Help ***");
-        SendChatText(connectionId, "    /alliance <int> - choose alliance");
-		SendChatText(connectionId, "    /commander <name> - change or take team command");
-        SendChatText(connectionId, "    /gamespeed <uint> - request game speed change");
-        SendChatText(connectionId, "    /endgame - end game (commanders only)");
-        SendChatText(connectionId, "    /surrender - surrender (commanders only)");
-
-        if (pstatus.IsGM())
-        {
-            SendChatText(connectionId, "    /gm - game master commands");
-        }
-        SendChatText(connectionId, "    /help - print command list");
-		SendChatText(connectionId, "    /scenario <name> - change scenario");
+        SendChatText(connectionId, "*** Command list:");
+        SendChatText(connectionId, "    /help - print this command list");
+        SendChatText(connectionId, "    /alliance <team> - change teams");
+        SendChatText(connectionId, "    /commander <playername> - change team commander");
+        SendChatText(connectionId, "    /ready - toggle ready status");
+        SendChatText(connectionId, "    /scenario <name> - change scenario");
+        SendChatText(connectionId, "    /start - start game (commander only)");
+        SendChatText(connectionId, "    /surrender - end game with loss for your team");
+        SendChatText(connectionId, "    /teamchat <message> - send message to team only");
         SendChatText(connectionId, "    /who - list players");
+        SendChatText(connectionId, "    // - GM commands (if authorized)");
     }
     else if (command == "alliance")
-	{
+    {
         ProcessAllianceCommand(pstatus, args);
     }
-    else if (command == "gm")
+    else if (command == "commander")
     {
-        ProcessGameMasterCommand(pstatus, args);
+        ProcessChangeCommander(pstatus, args);
     }
-	else if (command == "scenario")
-	{
-		ProcessScenarioCommand(pstatus, args);
-	}
-    else if (command == "team")
+    else if (command == "ready")
     {
-        ProcessTeamChat(pstatus, args);
+        ProcessChangeReady(pstatus, args);
     }
-	else if (command == "commander")
-	{
-		ProcessChangeCommander(pstatus, args);
-	}
-	else if (command == "ready")
-	{
-		ProcessChangeReady(pstatus, args);
-	}
-	else if (command == "startgame")
-	{
-		ProcessStartGame(pstatus, args);
-	}
-	else if (command == "who")
-	{
-		ProcessWho(pstatus, args);
-	}
-    else if (command == "gamespeed")
+    else if (command == "scenario")
     {
-        ProcessGameSpeed(pstatus, args);
+        ProcessScenarioCommand(pstatus, args);
     }
-    else if (command == "endgame")
+    else if (command == "start")
     {
-        ProcessEndGame(pstatus, args);
+        ProcessStartGame(pstatus, args);
     }
     else if (command == "surrender")
     {
         ProcessSurrender(pstatus, args);
     }
+    else if (command == "teamchat")
+    {
+        ProcessTeamChat(pstatus, args);
+    }
+    else if (command == "who")
+    {
+        ProcessWho(pstatus, args);
+    }
+    else if (command == "") // GM command
+    {
+        ProcessGameMasterCommand(pstatus, args);
+    }
     else
     {
-        wxString msg = wxString::Format("*** Unrecognized command (%s)", command.c_str());
-        SendChatText(connectionId, msg.ToStdString());
-    } 
+        std::string msg = "*** Unknown command: " + command;
+        SendChatText(connectionId, msg);
+    }
 }
 
 /**
@@ -1850,12 +1965,13 @@ void tcMultiplayerInterface::ProcessCommandClient(int connectionId,
 */
 void tcMultiplayerInterface::ProcessCommandServer(const std::string& text)
 {
-    wxASSERT(IsServer());
-    wxString candidate(text.c_str());
+    assert(IsServer());
+    std::string candidate(text);
 
-    wxString commandLine = candidate.AfterFirst('/');
-    wxString command = commandLine.BeforeFirst(' ');
-    wxString args = commandLine.AfterFirst(' ');
+     std::string commandLine = strutil::after_first(candidate,'/');
+
+    std::string command = strutil::before_first(candidate,' ');
+    std::string args =strutil::after_first(candidate,' ');
 
     /* replace this with a std::map<std::string, handle> registry system
     ** when it outgrows this switch */
@@ -1877,17 +1993,17 @@ void tcMultiplayerInterface::ProcessCommandServer(const std::string& text)
     else
     {
         chatText.push(std::string("*** unrecognized command ***"));
-        tcSound::Get()->PlayEffect("intercom");
+        //tcSound::Get()->PlayEffect("intercom");
     }
     
 }
 
 
-void tcMultiplayerInterface::ProcessEndGame(tcPlayerStatus& player, const wxString& args)
+void tcMultiplayerInterface::ProcessEndGame(tcPlayerStatus& player, const std::string& args)
 {
-	wxASSERT(IsServer());
+    // assert(IsServer());
 
-    wxString msg;
+    std::string msg;
     
     int connectionId = player.GetConnectionId();
     
@@ -1901,7 +2017,28 @@ void tcMultiplayerInterface::ProcessEndGame(tcPlayerStatus& player, const wxStri
         msg = "*** Only team commander or GM can end game";
     } 
     
-    SendChatText(connectionId, msg.ToStdString());
+    SendChatText(connectionId, msg);
+}
+
+void tcMultiplayerInterface::ProcessSurrender(tcPlayerStatus& player, const std::string& args)
+{
+    // assert(IsServer());
+
+    std::string msg;
+    
+    int connectionId = player.GetConnectionId();
+    
+	if (player.IsCommander())
+    {
+        player.SetSurrender(true);
+        msg = "*** Surrender requested";
+    }
+    else
+    {
+        msg = "*** Only team commander can surrender game";
+    } 
+    
+    SendChatText(connectionId, msg);
 }
 
 /**
@@ -1927,7 +2064,7 @@ void tcMultiplayerInterface::ProcessMessage(int messageId, int connectionId,
     size_t nHandlers = mm.size();
     for (size_t n = 0; n < nHandlers; n++)
     {
-        wxASSERT(mm[n]);
+        assert(mm[n]);
         mm[n]->Handle(connectionId, messageSize, data);
     }
 }
@@ -1966,52 +2103,52 @@ void tcMultiplayerInterface::ProcessReceiveMessages()
 /**
 * Process command to change scenario
 */
-void tcMultiplayerInterface::ProcessScenarioCommand(tcPlayerStatus& player, const wxString& args)
+void tcMultiplayerInterface::ProcessScenarioCommand(tcPlayerStatus& player, const std::string& args)
 {
-	wxASSERT(IsServer());
+    // assert(IsServer());
 
-    wxString msg;
+ //    std::string msg;
     
-    int connectionId = player.GetConnectionId();
+ //    int connectionId = player.GetConnectionId();
     
-    tcSimState* simState = tcSimState::Get();
-    if (simState->IsScenarioLoaded() && (simState->GetTime() > 0))
-    {
-        msg = "*** Cannot change scenario after game started";
-		SendChatText(connectionId, msg.ToStdString());
-        return;
-    }
+ //    tcSimState* simState = tcSimState::Get();
+ //    if (simState->IsScenarioLoaded() && (simState->GetTime() > 0))
+ //    {
+ //        msg = "*** Cannot change scenario after game started";
+    // 	SendChatText(connectionId, msg);
+ //        return;
+ //    }
 
-	if (true) // allow any player for now, used to be: player.IsCommander())
-    {
-    	wxString scenario = args;
-		if (scenario.Find('"') > -1) // isolate text between quotes
-		{
-			scenario = scenario.AfterFirst('"');
-			scenario = scenario.BeforeFirst('"');
-		}
+    // if (true) // allow any player for now, used to be: player.IsCommander())
+ //    {
+ //    	std::string scenario = args;
+    // 	size_t firstQuote = scenario.find('"');
+    // 	size_t secondQuote = (firstQuote != std::string::npos) ? scenario.find('"', firstQuote + 1) : std::string::npos;
+    // 	if (firstQuote != std::string::npos && secondQuote != std::string::npos) // isolate text between quotes
+    // 	{
+    // 		scenario = scenario.substr(firstQuote + 1, secondQuote - firstQuote - 1);
+    // 	}
 
-		bool success = scenarioSelectView->LoadScenarioByName(scenario.ToStdString(), false);
-		if (success)
-		{
-			msg.Printf("*** Change scenario success: %s", scenario.c_str());
-			SendChatText(connectionId, msg.ToStdString());
+    // 	bool success = scenarioSelectView->LoadScenarioByName(scenario, false);
+    // 	if (success)
+    // 	{
+    // 		msg = "*** Change scenario success: " + scenario;
+    // 		SendChatText(connectionId, msg);
 
-			msg.Printf("*** %s changed scenario to %s", player.GetNameWithRank().c_str(), scenario.c_str());
-			BroadcastChatText(msg.ToStdString());
-
-		}
-		else
-		{
-			msg.Printf("*** Change scenario failed, did not find scenario: %s", scenario.c_str());
-			SendChatText(connectionId, msg.ToStdString());
-		}
-    }
-    else
-    {
-        msg = "*** Only team commander can change scenario";
-		SendChatText(connectionId, msg.ToStdString());
-    } 
+    // 		msg = "*** " + player.GetNameWithRank() + " changed scenario to " + scenario;
+    // 		BroadcastChatText(msg);
+    // 	}
+    // 	else
+    // 	{
+    // 		msg = "*** Change scenario failed, did not find scenario: " + scenario;
+    // 		SendChatText(connectionId, msg);
+    // 	}
+ //    }
+ //    else
+ //    {
+ //        msg = "*** Only team commander can change scenario";
+    // 	SendChatText(connectionId, msg);
+ //    }
     
     
 }
@@ -2021,76 +2158,63 @@ void tcMultiplayerInterface::ProcessScenarioCommand(tcPlayerStatus& player, cons
 /**
 * Process command to start game
 */
-void tcMultiplayerInterface::ProcessStartGame(tcPlayerStatus& player, const wxString& args)
+void tcMultiplayerInterface::ProcessStartGame(tcPlayerStatus& player, const std::string& args)
 {
-	wxASSERT(IsServer());
+    // assert(IsServer());
 
-    wxString msg;
+ //    std::string msg;
     
-    int connectionId = player.GetConnectionId();
+ //    int connectionId = player.GetConnectionId();
     
-	if (player.IsCommander())
-    {
-		bool allReady = mpGameView->IsEveryoneReady();
+    // if (player.IsCommander())
+ //    {
+    // 	bool allReady = mpGameView->IsEveryoneReady();
 
-		if (allReady)
-		{
-			// post start game event
-			wxEvtHandler* evtHandler = this->GetEvtHandler();
-			wxCommandEvent command(wxEVT_COMMAND_BUTTON_CLICKED, ID_STARTGAME);    
-			evtHandler->AddPendingEvent(command);
+    // 	if (allReady)
+    // 	{
+    // 		// post start game event
+    // 		EventHandler* evtHandler = this->GetEvtHandler();
+    // 		// TODO: Create appropriate event structure for non-wx implementation
+    // 		// For now, we'll just call the start game method directly
+    // 		// wxCommandEvent command(wxEVT_COMMAND_BUTTON_CLICKED, ID_STARTGAME);
+    // 		// evtHandler->AddPendingEvent(command);
 
-			msg.Printf("*** %s started game", player.GetNameWithRank().c_str());
-			BroadcastChatText(msg.ToStdString());
+    // 		std::ostringstream oss;
+ //            oss << "*** " << player.GetNameWithRank() << " started game";
+    // 		BroadcastChatText(oss.str());
 
-            wxString eventString = wxString::Format("Game start (%s)", wxDateTime::Now().FormatISOTime().c_str());
-            recentEvents.push_back(eventString);
-        }
-		else
-		{
-			msg.Printf("*** Start game failed. All players are not ready.");
-			SendChatText(connectionId, msg.ToStdString());
-		}
-    }
-    else
-    {
-        msg = "*** Only team commander can start game";
-		SendChatText(connectionId, msg.ToStdString());
-    } 
+ //            // TODO: Replace wxDateTime with standard C++ time functions
+ //            // wxString eventString = wxString::Format("Game start (%s)", wxDateTime::Now().FormatISOTime().c_str());
+ //            // recentEvents.push_back(eventString);
+ //            recentEvents.push_back("Game start");
+ //        }
+    // 	else
+    // 	{
+    // 		msg = "*** Start game failed. All players are not ready.";
+    // 		SendChatText(connectionId, msg);
+    // 	}
+ //    }
+ //    else
+ //    {
+ //        msg = "*** Only team commander can start game";
+    // 	SendChatText(connectionId, msg);
+ //    }
+
     
     
 }
 
-void tcMultiplayerInterface::ProcessSurrender(tcPlayerStatus& player, const wxString& args)
-{
-	wxASSERT(IsServer());
 
-    wxString msg;
-    
-    int connectionId = player.GetConnectionId();
-    
-	if (player.IsCommander())
-    {
-        player.SetSurrender(true);
-        msg = "*** Surrender requested";
-    }
-    else
-    {
-        msg = "*** Only team commander can surrender game";
-    } 
-    
-    SendChatText(connectionId, msg.ToStdString());
-}
 
 
 /**
 * Send chat text to all players with matching alliance
 */
-void tcMultiplayerInterface::ProcessTeamChat(const tcPlayerStatus& player, const wxString& msg)
+void tcMultiplayerInterface::ProcessTeamChat(const tcPlayerStatus& player, const std::string& msg)
 {
     // create string with name prepended to text to identify source
     std::string namedText = std::string("[TEAM] <") + player.GetNameWithRank() + std::string("> ") + 
-        std::string(msg.c_str());
+        msg;
 
     BroadcastChatText(namedText, player.GetAlliance());
 }
@@ -2099,7 +2223,7 @@ void tcMultiplayerInterface::ProcessTeamChat(const tcPlayerStatus& player, const
 /**
 * Send list of players currently in game back to client
 */
-void tcMultiplayerInterface::ProcessWho(tcPlayerStatus& player, const wxString& args)
+void tcMultiplayerInterface::ProcessWho(tcPlayerStatus& player, const std::string& args)
 {
 	const std::list<int>& connectionList = networkInterface->GetConnectionList();
     std::list<int>::const_iterator iter = connectionList.begin();
@@ -2111,10 +2235,10 @@ void tcMultiplayerInterface::ProcessWho(tcPlayerStatus& player, const wxString& 
 		tcPlayerStatus& playerInfo = GetPlayerStatus(*iter);
 		const std::string& connectionStatus = networkInterface->GetConnectionStatus(*iter, 0);
 
-		wxString s = wxString::Format("%s [%d] %s", playerInfo.GetNameWithRank().c_str(),
-			playerInfo.GetAlliance(), connectionStatus.c_str());
+		std::string s = playerInfo.GetNameWithRank() + " [" + 
+			std::to_string(playerInfo.GetAlliance()) + "] " + connectionStatus;
 
-		SendChatText(player.connectionId, s.ToStdString());
+		SendChatText(player.connectionId, s);
     }
 }
 
@@ -2151,7 +2275,7 @@ void tcMultiplayerInterface::SendBriefingText(int destination, int alliance)
 {
 	tcUpdateStream stream;
 	tcUpdateMessageHandler::InitializeMessage(tcUpdateMessageHandler::BRIEFING_TEXT, stream);
-	tcUpdateMessageHandler::AddBriefingText(alliance, stream);
+    //tcUpdateMessageHandler::AddBriefingText(alliance, stream);
 
 	SendUpdateMessageTCP(destination, stream);
 }
@@ -2243,13 +2367,13 @@ void tcMultiplayerInterface::SendControlRelease(const std::vector<int>& id)
 	if (IsServer())
 	{
 		fprintf(stderr, "tcMultiplayerInterface::SendControlRelease - called by server\n");
-		wxASSERT(false);
+        assert(false);
 		return;
 	}
 
     if (id.size() == 0)
     {
-        wxASSERT(false);
+        assert(false);
         return;
     }
 
@@ -2258,7 +2382,7 @@ void tcMultiplayerInterface::SendControlRelease(const std::vector<int>& id)
 	if (connectionList.size() == 0)
 	{
 		fprintf(stderr, "tcMultiplayerInterface::SendControlRelease - no connections\n");
-		wxASSERT(false);
+        assert(false);
 		return;
 	}
 
@@ -2270,7 +2394,7 @@ void tcMultiplayerInterface::SendControlRelease(const std::vector<int>& id)
 
     for (size_t k=0; k<id.size(); k++)
     {
-	    tcUpdateMessageHandler::AddControlRelease(id[k], stream);
+        tcUpdateMessageHandler::AddControlRelease(id[k], stream);
     }
 
 	SendUpdateMessageAck(destination, stream);
@@ -2299,13 +2423,13 @@ void tcMultiplayerInterface::SendControlRequest(const std::vector<int>& id)
 	if (IsServer())
 	{
 		fprintf(stderr, "tcMultiplayerInterface::SendControlRequest - called by server\n");
-		wxASSERT(false);
+        assert(false);
 		return;
 	}
 
     if (id.size() == 0)
     {
-        wxASSERT(false);
+        assert(false);
         return;
     }
 
@@ -2314,7 +2438,7 @@ void tcMultiplayerInterface::SendControlRequest(const std::vector<int>& id)
 	if (connectionList.size() == 0)
 	{
 		fprintf(stderr, "tcMultiplayerInterface::SendControlRequest - no connections\n");
-		wxASSERT(false);
+        assert(false);
 		return;
 	}
 
@@ -2385,7 +2509,7 @@ void tcMultiplayerInterface::SendDatabaseInfo(const std::vector<int>& destinatio
 */
 void tcMultiplayerInterface::SendDatabaseInfo(int destination)
 {
-    wxASSERT(IsServer());
+    assert(IsServer());
 
     tcDatabaseIterator iter(0); // 0 is pass all
 
@@ -2399,8 +2523,8 @@ void tcMultiplayerInterface::SendDatabaseInfo(int destination)
     {
         std::shared_ptr<tcDatabaseObject> obj = iter.Get();
 
-        wxASSERT(obj != 0);
-        wxASSERT(obj->mnKey != -1);
+        assert(obj != 0);
+        assert(obj->mnKey != -1);
 
         stream << obj->mnKey;
         stream << std::string(obj->mzClass.c_str());
@@ -2500,7 +2624,7 @@ void tcMultiplayerInterface::SetAllEndGameState(bool state)
 {
     if (!IsServer())
     {
-        wxASSERT(false);
+        assert(false);
         return;
     }
 
@@ -2521,7 +2645,7 @@ void tcMultiplayerInterface::SetAllReadyState(bool state)
 {
     if (!IsServer())
     {
-        wxASSERT(false);
+        assert(false);
         return;
     }
 
@@ -2556,10 +2680,10 @@ void tcMultiplayerInterface::SetChatProtocol(int code)
 /**
 * Sets wxWidgets event handler for posting messages to application.
 */
-void tcMultiplayerInterface::SetEvtHandler(wxEvtHandler *eh)
-{
-    evtHandler = eh;
-}
+// void tcMultiplayerInterface::SetEvtHandler(wxEvtHandler *eh)
+// {
+//     evtHandler = eh;
+// }
 
 /**
 * Sets identification name string for player using this interface
@@ -2671,7 +2795,7 @@ void tcMultiplayerInterface::UpdateDestroyedEntities(tcPlayerStatus& pstatus)
     int connId = pstatus.connectionId;
 
     tcSimState* simState = tcSimState::Get();
-    wxASSERT(simState);
+    assert(simState);
 
     /* iterate through all pstatus objects and add to destroy stream if
     ** the object no inter exists
@@ -2681,7 +2805,7 @@ void tcMultiplayerInterface::UpdateDestroyedEntities(tcPlayerStatus& pstatus)
 
     unsigned destroyCount = 0;
     for (std::map<int, tcPlayerStatus::UpdateInfo>::iterator iter = pstatus.lastUpdate.begin();
-        iter != pstatus.lastUpdate.end(); ) 
+        iter != pstatus.lastUpdate.end(); )
     {
         int id = iter->first;
         if (simState->GetObject(id))
@@ -2712,7 +2836,7 @@ void tcMultiplayerInterface::UpdateEntityCommands(tcPlayerStatus& pstatus, bool 
     int connId = pstatus.connectionId;
 
     tcSimState* simState = tcSimState::Get();
-    wxASSERT(simState);
+    assert(simState);
 
 #ifdef _DEBUG
     double t = simState->GetTime();
@@ -2769,7 +2893,7 @@ void tcMultiplayerInterface::UpdateEntitiesXml(tcPlayerStatus& pstatus)
 {
     if (!pstatus.IsXmlObserver())
     {
-        wxASSERT(false);
+        assert(false);
         return;
     }
 }
@@ -2782,7 +2906,7 @@ void tcMultiplayerInterface::UpdateGoalStatus()
 {
 	static unsigned int lastUpdate = 0;
 
-	wxASSERT(IsServer());
+    assert(IsServer());
 
 	unsigned t = tcTime::Get()->Get30HzCount();
 	if (t - lastUpdate < goalUpdateInterval) return;
@@ -2820,23 +2944,23 @@ void tcMultiplayerInterface::UpdateGoalStatus()
 */
 void tcMultiplayerInterface::UpdateScriptCommands(int connectionId)
 {
-	wxASSERT(!IsServer());
+//     assert(!IsServer());
 
-	tcSimPythonInterface* pythonInterface = tcSimPythonInterface::Get();
+// 	tcSimPythonInterface* pythonInterface = tcSimPythonInterface::Get();
 
-	if (!pythonInterface->HasNewCommand()) return;
+// 	if (!pythonInterface->HasNewCommand()) return;
 
-	tcCommandStream commandStream;
-	tcUpdateMessageHandler::InitializeMessage(tcUpdateMessageHandler::SCRIPT_COMMANDS, commandStream);
+// 	tcCommandStream commandStream;
+// 	tcUpdateMessageHandler::InitializeMessage(tcUpdateMessageHandler::SCRIPT_COMMANDS, commandStream);
 
-	pythonInterface->operator>>(commandStream);
+// 	pythonInterface->operator>>(commandStream);
 
-	pythonInterface->ClearNewCommand();
+// 	pythonInterface->ClearNewCommand();
 
-	SendUpdateMessage(connectionId, commandStream);
-#ifdef _DEBUG
-	fprintf(stdout, "Sent script commands\n");
-#endif
+// 	SendUpdateMessage(connectionId, commandStream);
+// #ifdef _DEBUG
+// 	fprintf(stdout, "Sent script commands\n");
+// #endif
 
 }
 
@@ -3294,7 +3418,7 @@ void tcMultiplayerInterface::UpdatePlayerInfo()
 			}           
 			
 			playerInfo[connId] = stat;
-            tcSound::Get()->PlayEffect("intercom");
+            //tcSound::Get()->PlayEffect("intercom");
         }
         else
         {
@@ -3315,19 +3439,19 @@ void tcMultiplayerInterface::UpdatePlayerInfo()
               (currentTime - iter->second.startTime > 240))
 		{
             eraseKeys.push(iter->first);
-            tcSound::Get()->PlayEffect("fslide");
+            //tcSound::Get()->PlayEffect("fslide");
 		}
         else if (currentTime - t > 15)
         {
             eraseKeys.push(iter->first);
-            tcSound::Get()->PlayEffect("fslide");
+            //tcSound::Get()->PlayEffect("fslide");
 			LogOutPlayer(iter->second.name);
 
 			if (IsServer())
 			{
-				wxString msg = wxString::Format("*** %s has left the game", 
+                std::string msg = strutil::format("*** %s has left the game",
 					iter->second.GetNameWithRank().c_str());
-				BroadcastChatText(msg.ToStdString());
+                BroadcastChatText(msg);
 			}
 			else
 			{
@@ -3355,7 +3479,7 @@ void tcMultiplayerInterface::UpdateSensorMap(tcPlayerStatus& pstatus)
     int alliance = pstatus.alliance;
 
     tcSimState* simState = tcSimState::Get();
-    wxASSERT(simState);
+    assert(simState);
 
     tcSensorMap* sensorMap = simState->GetSensorMap();
     tcAllianceSensorMap* allianceSensorMap = sensorMap->GetMap(alliance);
@@ -3405,7 +3529,7 @@ void tcMultiplayerInterface::UpdateSensorMap(tcPlayerStatus& pstatus)
 */
 void tcMultiplayerInterface::UpdateSensorMaps()
 {
-    wxASSERT(IsServer());
+    assert(IsServer());
 
     unsigned int t = tcTime::Get()->Get30HzCount();
 
@@ -3443,7 +3567,7 @@ void tcMultiplayerInterface::UpdateServerStatus()
 
 void tcMultiplayerInterface::UpdateTeamStatus()
 {
-	wxASSERT(IsServer());
+    assert(IsServer());
 
 	unsigned int updateInterval = teamUpdateInterval;
 
@@ -3476,7 +3600,7 @@ void tcMultiplayerInterface::UpdateTeamStatus()
         SendUpdateMessageTCP(id, connStream);
 	}
 
-	mpGameView->SetTeamList(tcUpdateMessageHandler::GetLatestTeamList());
+    //mpGameView->SetTeamList(tcUpdateMessageHandler::GetLatestTeamList());
 }
 
 
@@ -3529,11 +3653,13 @@ void tcMultiplayerInterface::UpdateTime()
         ((minVal > currentAccel) && (minVal == maxVal));
     if ((maxVal != -1) && legalChange)
     {
-        wxEvtHandler* evtHandler = this->GetEvtHandler();
-		wxCommandEvent command(wxEVT_COMMAND_BUTTON_CLICKED, ID_SETTIMEACCEL);
+        //EventHandler* evtHandler = this->GetEvtHandler();
+		// wxCommandEvent command(wxEVT_COMMAND_BUTTON_CLICKED, ID_SETTIMEACCEL);
         //command.m_extraint = minVal; // 2.6.3 code
-        command.SetExtraint(minVal);
-		evtHandler->AddPendingEvent(command);
+        // command.SetExtraint(minVal);
+        // evtHandler->AddPendingEvent(command);
+		
+		// TODO: 实现适当的事件处理机制来替代wxWidgets事件
     }
     
 
@@ -3546,127 +3672,175 @@ void tcMultiplayerInterface::UpdateTime()
 
 void tcMultiplayerInterface::WriteHtmlStatus(const std::string& filePath)
 {
-    wxASSERT(IsServer());
+    // assert(IsServer());
 
-    wxFFile outFile(filePath.c_str(), "w");
-    if (!outFile.IsOpened()) return;
+    // wxFFile outFile(filePath.c_str(), "w");
+    // if (!outFile.IsOpened()) return;
+	FILE* outFile = fopen(filePath.c_str(), "w");
+	if (!outFile) return;
 
     // trim length of recentEvents if necessary
     if (recentEvents.size() > 16)
     {
-        recentEvents.RemoveAt(0, recentEvents.size() - 16);
+        // recentEvents.RemoveAt(0, recentEvents.size() - 16);
+		recentEvents.erase(recentEvents.begin(), recentEvents.begin() + (recentEvents.size() - 16));
     }
 
     if (recentChat.size() > 16)
     {
-        recentChat.RemoveAt(0, recentChat.size() - 16);
+        // recentChat.RemoveAt(0, recentChat.size() - 16);
+		recentChat.erase(recentChat.begin(), recentChat.begin() + (recentChat.size() - 16));
     }
 
 
-    wxDateTime dateTime = wxDateTime::Now();
-    wxDateTime dateTimeUTC = dateTime;
-    dateTimeUTC.MakeTimezone(wxDateTime::UTC);
+    // wxDateTime dateTime = wxDateTime::Now();
+    // wxDateTime dateTimeUTC = dateTime;
+    // dateTimeUTC.MakeTimezone(wxDateTime::UTC);
 
-    wxString timeStamp;
-    timeStamp.Printf("<P>%s %sZ %sL\n%s</P>\n", dateTimeUTC.FormatISODate().c_str(), dateTimeUTC.FormatISOTime().c_str(),
-        dateTime.FormatISOTime().c_str(), versionString.c_str());
+    // wxString timeStamp;
+    // timeStamp.Printf("<P>%s %sZ %sL\n%s</P>\n", dateTimeUTC.FormatISODate().c_str(), dateTimeUTC.FormatISOTime().c_str(),
+    //     dateTime.FormatISOTime().c_str(), versionString.c_str());
+	std::ostringstream timeStamp;
+	timeStamp << "<P>TODO: Add timestamp here\n" << versionString << "</P>\n";
  
-    outFile.Write("<html>\n");
-    outFile.Write("<H2>GCB2 Server Status (gcblue.servegame.com)</H2>\n");    
-    outFile.Write(timeStamp.c_str());
+    // outFile.Write("<html>\n");
+    // outFile.Write("<H2>GCB2 Server Status (gcblue.servegame.com)</H2>\n");    
+    // outFile.Write(timeStamp.c_str());
+	fprintf(outFile, "<html>\n");
+	fprintf(outFile, "<H2>GCB2 Server Status (gcblue.servegame.com)</H2>\n");
+	fprintf(outFile, "%s", timeStamp.str().c_str());
     
-    wxString s; 
+	// wxString s; 
+	std::ostringstream s;
     // scenario
     double simTime = 0.016667 * tcSimState::Get()->GetTime();
     if (simTime > 0)
     {
-        s.Printf("<H3>Current Scenario: %s (%.0f min)</H3>\n", tcSimState::Get()->GetScenarioName(),
-            simTime);
+        // s.Printf("<H3>Current Scenario: %s (%.0f min)</H3>\n", tcSimState::Get()->GetScenarioName(),
+        //     simTime);
+		s << "<H3>Current Scenario: " << tcSimState::Get()->GetScenarioName() << " (" << (int)simTime << " min)</H3>\n";
     }
     else
     {
-        s.Printf("<H3>Current Scenario: %s (not started)</H3>\n", tcSimState::Get()->GetScenarioName());
+        // s.Printf("<H3>Current Scenario: %s (not started)</H3>\n", tcSimState::Get()->GetScenarioName());
+		s << "<H3>Current Scenario: " << tcSimState::Get()->GetScenarioName() << " (not started)</H3>\n";
     }
-    outFile.Write(s);
+    // outFile.Write(s);
+	fprintf(outFile, "%s", s.str().c_str());
 
-    s.Printf("<P>%s</P><BR>\n", tcSimState::Get()->GetScenarioDescription());
-    outFile.Write(s);
+    // s.Printf("<P>%s</P><BR>\n", tcSimState::Get()->GetScenarioDescription());
+	s.str(""); // 清空ostringstream
+	s << "<P>" << tcSimState::Get()->GetScenarioDescription() << "</P><BR>\n";
+    // outFile.Write(s);
+	fprintf(outFile, "%s", s.str().c_str());
 
     // players in game
-    tcAllianceInfo* allianceInfo = tcAllianceInfo::Get();
-    outFile.Write("<H3>Current Players</H3>\n");
-    s = "<P>\n";
+    // tcAllianceInfo* allianceInfo = tcAllianceInfo::Get();
+    // outFile.Write("<H3>Current Players</H3>\n");
+	s.str("");
+	s << "<H3>Current Players</H3>\n";
+	// outFile.Write(s);
+	fprintf(outFile, "%s", s.str().c_str());
+	
+    // s = "<P>\n";
+	s.str("");
+	s << "<P>\n";
     std::map<int, tcPlayerStatus>::iterator iter = playerInfo.begin();
 
     for( ; iter != playerInfo.end(); ++iter)
     {
         tcPlayerStatus& player = iter->second;
-        s += "<B>";
-        s += player.GetName();
-        s += "</B> (";
+        s << "<B>" << player.GetName() << "</B> (";
         unsigned char alliance =  player.GetAlliance();
         if (alliance != 0)
         {
-            s += allianceInfo->GetAllianceName(alliance);
+            // s += allianceInfo->GetAllianceName(alliance);
+			s << "Alliance " << (int)alliance; // 简化处理，实际应该获取联盟名称
         }
         else
         {
-            s += "Observers";
+            s << "Observers";
         }
-        s += wxString::Format(") Ping: %4.0f ms\n", 1000.0f*player.ping_s);
+        // s += wxString::Format(") Ping: %4.0f ms\n", 1000.0f*player.ping_s);
+		s << ") Ping: " << (int)(1000.0f*player.ping_s) << " ms\n";
 
     }
-    s += "</P><BR>\n";
-    outFile.Write(s);
+    // s += "</P><BR>\n";
+	s << "</P><BR>\n";
+    // outFile.Write(s);
+	fprintf(outFile, "%s", s.str().c_str());
 
 
     // recent log ins / log outs
-    outFile.Write("<H3>Recent Events</H3>\n");
-    s = "<P>";
+    // outFile.Write("<H3>Recent Events</H3>\n");
+	s.str("");
+	s << "<H3>Recent Events</H3>\n";
+	// outFile.Write(s);
+	fprintf(outFile, "%s", s.str().c_str());
+	
+    // s = "<P>";
+	s.str("");
+	s << "<P>";
     for (size_t k=0; k<recentEvents.size(); k++)
     {
-        s += recentEvents[k];
-        s += "<BR>\n";
+        // s += recentEvents[k];
+        // s += "<BR>\n";
+		s << recentEvents[k] << "<BR>\n";
         
     }
-    s += "</P>\n";
-    outFile.Write(s);
+    // s += "</P>\n";
+	s << "</P>\n";
+    // outFile.Write(s);
+	fprintf(outFile, "%s", s.str().c_str());
 
     // recent chat text
-    outFile.Write("<H3>Recent Chat</H3>\n");
-    s = "<P>";
+    // outFile.Write("<H3>Recent Chat</H3>\n");
+	s.str("");
+	s << "<H3>Recent Chat</H3>\n";
+	// outFile.Write(s);
+	fprintf(outFile, "%s", s.str().c_str());
+	
+    // s = "<P>";
+	s.str("");
+	s << "<P>";
     for (size_t k=0; k<recentChat.size(); k++)
     {
-        s += recentChat[k];
-        s += "<BR>\n";
+        // s += recentChat[k];
+        // s += "<BR>\n";
+		s << recentChat[k] << "<BR>\n";
         
     }
-    s += "</P>\n";
-    outFile.Write(s);
+    // s += "</P>\n";
+	s << "</P>\n";
+    // outFile.Write(s);
+	fprintf(outFile, "%s", s.str().c_str());
 
 
-    outFile.Write("</html>\n");
+    // outFile.Write("</html>\n");
+	fprintf(outFile, "</html>\n");
+	
+	// if (outFile) outFile.Close();
+	if (outFile) fclose(outFile);
 }
 
-
 tcMultiplayerInterface::tcMultiplayerInterface()
-:   tcpChat(true), 
-    myName("NoName"), 
-    evtHandler(0), 
+:   mpGameView(0),
+    scenarioSelectView(0),
+    myName("NoName"),
+    tcpChat(true),
+    acceptAllClients(true),
+    allowAllTeamChanges(true),
+    //evtHandler(0),
     entityUpdateInterval(0),
     sensorUpdateInterval(30),
-	goalUpdateInterval(600),
-	teamUpdateInterval(39),
+    goalUpdateInterval(600),
+    teamUpdateInterval(39),
     missionUpdateInterval(87),
-    lastOptionsUpdate(0),
     sendDetailedTrackInfo(false),
-	acceptAllClients(true),
-    allowAllTeamChanges(true),
-	mpGameView(0),
-	scenarioSelectView(0)
+    lastOptionsUpdate(0)
 {
     networkInterface = new tcNetworkInterface();
-    wxASSERT(networkInterface);
+    assert(networkInterface);
 
     errorPlayerStatus.name = "error";
     errorPlayerStatus.timestamp = 0;
@@ -3694,7 +3868,7 @@ tcMultiplayerInterface::tcMultiplayerInterface(const tcMultiplayerInterface& sou
 	teamUpdateInterval(source.teamUpdateInterval),
     missionUpdateInterval(source.missionUpdateInterval)
 {
-    wxASSERT(false);
+    assert(false);
 }
 
 tcMultiplayerInterface::~tcMultiplayerInterface()
@@ -3709,3 +3883,7 @@ tcMultiplayerInterface::~tcMultiplayerInterface()
 
 END_NAMESPACE
 
+#ifdef TC_WINDOWS_GETOBJECT_WORKAROUND_APPLIED
+#pragma pop_macro("GetObject")
+#undef TC_WINDOWS_GETOBJECT_WORKAROUND_APPLIED
+#endif

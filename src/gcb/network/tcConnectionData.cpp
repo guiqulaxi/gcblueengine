@@ -23,10 +23,10 @@
 **  IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "stdwx.h" // precompiled header file
+//#include "stdwx.h" // precompiled header file
 
 #ifndef WX_PRECOMP
-#include "wx/wx.h" 
+//#include "wx/wx.h"
 #endif
 
 #include "network/tcConnectionData.h"
@@ -34,6 +34,8 @@
 #include "tcTime.h"
 #include <iostream>
 #include <math.h>
+#include <cassert>
+#include <sys/types.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -143,8 +145,9 @@ void tcConnectionData::ProcessAckRider(tcMessage* message)
 
 void tcConnectionData::ClearAllMessages()
 {
-    wxASSERT(networkInterface);
-    
+    // wxASSERT(networkInterface);
+    assert(networkInterface);
+
     networkInterface->ReturnMessagesFromQueue(readQueueTCP);
     networkInterface->ReturnMessagesFromQueue(readQueueUDP); 
     networkInterface->ReturnMessagesFromQueue(writeQueueTCP); 
@@ -167,7 +170,7 @@ const char* tcConnectionData::GetIdString() const
 	return idString.c_str();
 }
 
-const wxIPV4address& tcConnectionData::GetPeerAddress() const
+const sockpp::inet_address& tcConnectionData::GetPeerAddress() const
 {
 	return UDPaddress;
 }
@@ -203,7 +206,7 @@ unsigned int tcConnectionData::GetResentCount() const
 	return resentCount;
 }
 
-wxSocketBase* tcConnectionData::GetSocket()
+sockpp::tcp_socket* tcConnectionData::GetSocket()
 {
 	return socket;
 }
@@ -232,30 +235,35 @@ unsigned int tcConnectionData::GetWriteCountSec() const
 */
 void tcConnectionData::ReadNextMessageTCP()
 {    
-    wxASSERT(socket);
+    // wxASSERT(socket);
+    assert(socket);
 
     // read size field first
     if (tempMessage.bufferIdx == 0)
     {
-        socket->Read(tempMessage.data.buffer, tcMessage::SIZE_SIZE);
-        tempMessage.bufferIdx += socket->LastCount();
+        ssize_t result = socket->read(tempMessage.data.buffer, tcMessage::SIZE_SIZE);
+        if (result > 0) {
+            tempMessage.bufferIdx += static_cast<unsigned int>(result);
+        }
     }
 
     if (tempMessage.bufferIdx == 0)
     {
-        std::cerr << "Warning - tcConnectionData::ReadNextMessage() called with empty read buffer"
-            << std::endl;
+        // No data available, not necessarily an error
         return;
     }
 
-
     // Read message
-    socket->Read(tempMessage.data.buffer + tempMessage.bufferIdx, 
+    ssize_t result = socket->read(tempMessage.data.buffer + tempMessage.bufferIdx, 
         tempMessage.data.header.messageSize - tempMessage.bufferIdx);
-    tempMessage.bufferIdx += socket->LastCount();
+    
+    if (result > 0) {
+        tempMessage.bufferIdx += static_cast<unsigned int>(result);
+    }
     
     if (tempMessage.bufferIdx >= tempMessage.data.header.messageSize)
     {
+        // Complete message received
     }
     else
     {
@@ -264,8 +272,6 @@ void tcConnectionData::ReadNextMessageTCP()
 #endif
         return;
     }
-
-
 
     std::string testString;
     testString = (const char*)tempMessage.GetMessageData();
@@ -334,7 +340,7 @@ void tcConnectionData::ReadNextMessageUDP(unsigned int messageSize,
 
     unsigned int ackId = message->GetAckId();
 
-    if (!WasRecentlyReceived(ackId))
+    if (!IsDuplicate(ackId))
     {
         recentReceipts.push_back(ackId);
         if (recentReceipts.size() > DUPLICATE_HISTORY) recentReceipts.pop_front();
@@ -399,7 +405,8 @@ void tcConnectionData::ResendFailedAcks()
     {
         unsigned int bufferId = *iter;
         tcMessage* msg = networkInterface->GetMessage(bufferId);
-        wxASSERT(msg);
+        // wxASSERT(msg);
+        assert(msg);
         if ((msg->GetMessageTimestamp() - t) > ackTimeout)
         {
             if ((msg->resendCount < maxResends) && (resentCount_sec < resendLimit_sec))
@@ -461,16 +468,22 @@ void tcConnectionData::SetPingTime(float ping_s)
     pingCount++;
 }
 
-void tcConnectionData::SetSocket(wxSocketBase* sock)
+void tcConnectionData::SetSocket(sockpp::tcp_socket* sock)
 {
-	socket = sock;
-	wxASSERT(socket);
+    socket = sock;
 
-	
-    socket->GetPeer(UDPaddress);
-    UDPaddress.Service(tcNetworkInterface::UDP_PORT);
-
-    peerName = UDPaddress.IPAddress().c_str();
+    if (socket != NULL)
+    {
+        // get peer name for id string and UDP address
+        sockpp::inet_address peerAddr = socket->peer_address();
+        if (peerAddr.is_set()) {  // 使用is_set()方法检查地址是否有效
+            idString = peerAddr.to_string();
+            UDPaddress = peerAddr; // 设置UDP通信地址
+        }
+        else {
+            idString = "Unknown";
+        }
+    }
 }
 
 /**
@@ -478,7 +491,8 @@ void tcConnectionData::SetSocket(wxSocketBase* sock)
 */
 void tcConnectionData::Update()
 {
-    wxASSERT(networkInterface);
+    // wxASSERT(networkInterface);
+    assert(networkInterface);
 
     //ReadNextMessage();
     WriteQueuedMessages();
@@ -510,7 +524,7 @@ void tcConnectionData::Update()
 * Iterate through recentReceipts and check for match with recently
 * received messages. Match indicates duplicate packet.
 */
-bool tcConnectionData::WasRecentlyReceived(unsigned int id) const
+bool tcConnectionData::IsDuplicate(unsigned int id) const
 {
     std::deque<unsigned int>::const_iterator iter = recentReceipts.begin();
 
@@ -529,9 +543,7 @@ bool tcConnectionData::WasRecentlyReceived(unsigned int id) const
 */
 void tcConnectionData::WriteQueuedMessages()
 {
-
     WriteTCP();
-
     WriteUDP();
 }
 
@@ -553,26 +565,21 @@ void tcConnectionData::WriteTCP()
         return;
     }
 
-    //socket->SetFlags(wxSOCKET_WAITALL);
-
-    socket->Write(message->data.buffer + message->bufferIdx, 
+    // 确保socket是一个对象实例而不是函数指针
+    int result = socket->write(message->data.buffer + message->bufferIdx, 
         message->data.header.messageSize - message->bufferIdx);
 
-    if (socket->Error())
-    {
+    if (result < 0) {
         socketErrorCount++;
-        wxSocketError err = socket->LastError();
-        fprintf(stderr, "Error - TCP SocketError %d\n", err);
+        std::cerr << "Error - TCP SocketError: " << socket->last_error_str() << std::endl;
 
-        if ((err == wxSOCKET_WOULDBLOCK) && (socketErrorCount > 32))
-        {
-            fprintf(stderr, "     socket->Discard(), flushing buffer\n");
-            socket->Discard(); // flush buffer
+        if ((socket->last_error() == EWOULDBLOCK || socket->last_error() == EAGAIN) && (socketErrorCount > 32)) {
+            std::cerr << "     Flushing buffer due to repeated blocking errors" << std::endl;
             socketErrorCount = 0;
         }
+    } else if (result > 0) {
+        message->bufferIdx += static_cast<unsigned int>(result);
     }
-
-    message->bufferIdx += socket->LastCount();
 
     // pop message from queue and return message buffer if entire
     // message has been written
@@ -589,16 +596,13 @@ void tcConnectionData::WriteTCP()
         fprintf(stdout,"Sent partial message, buff_idx:%d, id:%d, t:%d\n",
             message->bufferIdx, message->GetId(), tcTime::Get()->Get30HzCount());
     }
-
-
-    //socket->SetFlags(wxSOCKET_NOWAIT);
 }
 
 void tcConnectionData::WriteUDP()
 {
     if (writeQueueUDP.empty()) return;
 
-    wxASSERT(networkInterface->GetDatagramSocket());
+    //wxASSERT(networkInterface->GetDatagramSocket());
 
     unsigned int bufferId = writeQueueUDP.front();
 
@@ -607,43 +611,41 @@ void tcConnectionData::WriteUDP()
     if (message == 0)
     {
         std::cerr << "Error - bad message buffer idx." << std::endl;
-        writeQueueTCP.pop();
+        writeQueueUDP.pop();
         return;
     }
     
-	// cancel ack if maxWaitingForAck has been exceeded
-	if (message->GetAck() && (waitForAck.size() > maxWaitingForAck))
-	{
-		message->SetAck(false);
+    // cancel ack if maxWaitingForAck has been exceeded
+    if (message->GetAck() && (waitForAck.size() > maxWaitingForAck))
+    {
+        message->SetAck(false);
 
-		static unsigned errorCount = 0;
-		if (errorCount++ < 8)
-		{
-			fprintf(stderr, "tcConnectionData::WriteUDP() - Ack canceled due to overload (id:%d)\n",
-				message->GetId());
-		}
-	}
+        static unsigned errorCount = 0;
+        if (errorCount++ < 8)
+        {
+            fprintf(stderr, "tcConnectionData::WriteUDP() - Ack canceled due to overload (id:%d)\n",
+                message->GetId());
+        }
+    }
 
     // attach rider to message with ids of packets to ack
     AttachAckRider(message);
     
-    wxDatagramSocket *datagramSock = networkInterface->GetDatagramSocket();
+    DatagramSocket *datagramSock = networkInterface->GetDatagramSocket();
     if (datagramSock == NULL)
     {
         std::cerr << "Error - NULL datagram socket" << std::endl;
         return;
     }
-    datagramSock->SendTo(UDPaddress, message->data.buffer, message->data.header.messageSize);
-    if (datagramSock->Error())
-    {
+    
+    // Send message via UDP
+    int result = datagramSock->send_to(message->data.buffer, message->data.header.messageSize, UDPaddress);
+    if (result < 0) {
         socketErrorCount++;
-        wxSocketError err = socket->LastError();
-        fprintf(stderr, "Error - UDP SocketError %d\n", err);
+        std::cerr << "Error - UDP SocketError: " << datagramSock->last_error_str() << std::endl;
 
-        if ((err == wxSOCKET_WOULDBLOCK) && (socketErrorCount > 32))
-        {
-            fprintf(stderr, "     socket->Discard(), flushing buffer\n");
-            socket->Discard(); // flush buffer
+        if ((datagramSock->last_error() == EWOULDBLOCK || datagramSock->last_error() == EAGAIN) && (socketErrorCount > 32)) {
+            std::cerr << "     Flushing buffer due to repeated blocking errors" << std::endl;
             socketErrorCount = 0;
         }
     }
@@ -664,32 +666,30 @@ void tcConnectionData::WriteUDP()
         // otherwise return the message buffer
         networkInterface->ReturnMessage(bufferId);
     }
-
 }
 
 
 tcConnectionData::tcConnectionData()
-    :
-    socket(0),
-    idString("Err"),
-    id(-1),
-    readCount(0),
-    writeCount(0),
-    lastReadCount(0),
-    lastWriteCount(0),
-	lastResentCount(0),
-    readCount_sec(0),
-    writeCount_sec(0),
-	resentCount_sec(0),
-    pingTime_s(999.0f),
-    pingCount(0),
-    lastCountUpdate(0),
-    lastResendUpdate(0),
-	resentCount(0),
-	maxWaitingForAck(16),
-    socketErrorCount(0)
+    : idString("Err"),
+      id(-1),
+      readCount(0),
+      writeCount(0),
+      socket(0),
+      lastReadCount(0),
+      lastWriteCount(0),
+      lastResentCount(0),
+      readCount_sec(0),
+      writeCount_sec(0),
+      resentCount_sec(0),
+      pingCount(0),
+      pingTime_s(999.0f),
+      lastCountUpdate(0),
+      lastResendUpdate(0),
+      resentCount(0),
+      maxWaitingForAck(16),
+      socketErrorCount(0)
 {
-
+    // 构造函数体保持为空
 }
 
 tcConnectionData::~tcConnectionData()

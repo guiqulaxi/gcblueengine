@@ -384,3 +384,10 @@ tcDateTime::tcDateTime()
 tcDateTime::~tcDateTime() 
 {
 }
+
+tcDateTime tcDateTime::Now()
+{
+    tcDateTime dt;
+    dt.time_p = std::chrono::system_clock::now();
+    return dt;
+}

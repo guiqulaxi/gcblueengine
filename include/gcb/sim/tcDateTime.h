@@ -65,6 +65,7 @@ public:
     tcDateTime(int year_, int month_, int day_, double hour_utc);
     tcDateTime(int year_, int month_, int day_, int hour_, int min_, int sec_);
     ~tcDateTime();
+    static tcDateTime Now();
 
 private:
     static const int yearOrdinal[13]; ///< index 1 to 12 with months

@@ -28,9 +28,13 @@
 #pragma once
 #endif
 
-#include "wx/wx.h"
-#include "wx/socket.h"
-#include "wx/event.h"
+// sockpp includes
+#include "sockpp/tcp_connector.h"
+#include "sockpp/tcp_acceptor.h"
+#include "sockpp/tcp_socket.h"
+#include "sockpp/udp_socket.h"
+#include "sockpp/inet_address.h"
+
 #include <list>
 #include <vector>
 #include <queue>
@@ -38,14 +42,22 @@
 #include <string>
 #include "tcConnectionData.h"
 #include "tcMessage.h"
-#include "gctypes.h"
+#include "common/gctypes.h"
 
 #define BEGIN_NAMESPACE(x) namespace x {
 #define END_NAMESPACE }
 
 BEGIN_NAMESPACE(network)
 
-class tcNetworkInterface : public wxEvtHandler
+// Forward declarations for standard socket classes
+// Use sockpp classes directly instead of wrapper classes
+typedef sockpp::tcp_socket SocketBase;
+typedef sockpp::tcp_connector SocketClient;
+typedef sockpp::tcp_acceptor SocketServer;
+typedef sockpp::udp_socket DatagramSocket;
+typedef sockpp::inet_address IPV4address;
+
+class tcNetworkInterface
 {
     friend class tcConnectionData;
 public:
@@ -54,8 +66,8 @@ public:
         TCP = 1,
         UDP = 2,
         UDP_ACK = 3,
-        TCPIP_PORT = 3000, //6320,
-        UDP_PORT = 3011, //6331,
+        TCPIP_PORT = 55555, ///< TCP/IP port to use for connections
+        UDP_PORT = 55556,   ///< UDP port to use for connections
         MESSAGE_BUFFER_SIZE = 128,
         UDP_EVENT_ID = -123,
         MAX_UDP_SIZE = 4096
@@ -76,7 +88,7 @@ public:
     void MakeClient();
     void MakeServer();
     
-    void OpenConnection(wxString hostName);
+    void OpenConnection(const std::string& hostName);
     void CloseConnection();
     void RemoveConnection(int id);
     
@@ -103,11 +115,11 @@ private:
     int connectionIndex; ///< counter used to assigned connection id
     bool isServer; ///< true if this interface is acting as a server, false if client
     UINT32 connectionStartTime;
-    wxIPV4address hostAddress;
+    IPV4address hostAddress;
 
-    wxSocketClient *clientSock; ///< single socket that will be used in client mode
-    wxSocketServer *serverSock; ///< server socket for server mode
-    wxDatagramSocket *datagramSock; ///< UDP socket
+    SocketClient *clientSock; ///< single socket that will be used in client mode
+    SocketServer *serverSock; ///< server socket for server mode
+    DatagramSocket *datagramSock; ///< UDP socket
 
 	/// map of (connection id, connection data), access (and delete) in log time
     std::map<int, tcConnectionData*> connectionData;
@@ -118,7 +130,7 @@ private:
 
     std::map<std::string, int> peerMap; ///< another lookup (peername, connectionData idx)
 
-    void AddConnection(wxSocketBase *socket); // adds new connection using socket
+    void AddConnection(SocketBase *socket); // adds new connection using socket
 
 
     void ClearConnectionMessages(int id);
@@ -126,10 +138,10 @@ private:
 
 
     tcConnectionData* GetConnection(const std::string& peerName);
-    wxDatagramSocket* GetDatagramSocket() {return datagramSock;}
+    DatagramSocket* GetDatagramSocket() {return datagramSock;}
     void InitializeUDP();
 
-    void OnSocketEvent(wxSocketEvent& event);
+    void OnSocketEvent(/* parameters removed */);
     void RemoveDeadConnections();
     void RemoveBadConnections();
     void ResetMessageBuffer();
@@ -143,10 +155,9 @@ private:
 
     void UpdateServer();
 
-    DECLARE_EVENT_TABLE()
+    // Event table declaration removed - no longer needed without wxWidgets
 };
 
 END_NAMESPACE
 
 #endif
-

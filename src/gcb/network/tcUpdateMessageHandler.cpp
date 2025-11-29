@@ -23,13 +23,12 @@
 **  IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "stdwx.h" // precompiled header file
 
-#ifndef WX_PRECOMP
-#include "wx/wx.h" 
-#endif
-#include "wx/string.h"
-#include "wx/event.h"
+// #ifndef WX_PRECOMP
+// #include "wx/wx.h"
+// #endif
+// #include "wx/string.h"
+// #include "wx/event.h"
 
 #include "network/tcUpdateMessageHandler.h"
 #include "network/tcMultiplayerInterface.h"
@@ -39,15 +38,16 @@
 #include "common/tcStream.h"
 #include "common/tcObjStream.h"
 #include "tcGoalTracker.h"
-#include "tcSimPythonInterface.h"
-#include "tcScenarioInterface.h"
-#include "tcMapOverlay.h"
-#include "tcMessageInterface.h"
-#include "tcMPGameView.h"
+//#include "tcSimPythonInterface.h"
+// #include "tcScenarioInterface.h"
+// #include "tcMapOverlay.h"
+// #include "tcMessageInterface.h"
+//#include "tcMPGameView.h"
 #include "tcFlightOpsObject.h"
 #include "ai/tcMissionManager.h"
 #include "tcGameObjIterator.h"
 #include "tcAllianceSensorMap.h"
+
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -56,18 +56,18 @@
 BEGIN_NAMESPACE(network)
 
 
-tcMPGameView* tcUpdateMessageHandler::mpGameView = 0;
-std::vector<tcMPGameView::TeamInfo> tcUpdateMessageHandler::latestTeamList;
+// tcMPGameView* tcUpdateMessageHandler::mpGameView = 0;
+std::vector<TeamInfo> tcUpdateMessageHandler::latestTeamList;
 bool tcUpdateMessageHandler::entityUpdateReceived = false;
 
 
 
 
 
-void tcUpdateMessageHandler::AttachMPGameView(tcMPGameView* p)
-{
-	mpGameView = p;
-}
+// void tcUpdateMessageHandler::AttachMPGameView(tcMPGameView* p)
+// {
+// 	mpGameView = p;
+// }
 
 
 /**
@@ -75,39 +75,39 @@ void tcUpdateMessageHandler::AttachMPGameView(tcMPGameView* p)
 */
 void tcUpdateMessageHandler::AddAirMissionUpdate(std::shared_ptr<tcFlightOpsObject> obj, tcUpdateStream& stream)
 {
-    wxASSERT(obj != 0);
+    assert(obj != 0);
 
     tcFlightPort* flightPort = obj->GetFlightPort();
-    wxASSERT(flightPort != 0);
+    assert(flightPort != 0);
 
     int platformId = obj->GetParentId();
     stream << platformId;
 
-    tcMissionManager* missionManager = flightPort->GetMissionManager();
-    wxASSERT(missionManager != 0);
+    ai::tcMissionManager* missionManager = flightPort->GetMissionManager();
+    assert(missionManager != 0);
 
     missionManager->operator>>(stream);
 }
 
 
-void tcUpdateMessageHandler::AddBriefingText(int alliance, tcStream& stream)
-{
+// void tcUpdateMessageHandler::AddBriefingText(int alliance, tcStream& stream)
+// {
 
-	tcScenarioInterface* scenarioInterface = tcSimPythonInterface::Get()->GetScenarioInterface();
-	wxASSERT(scenarioInterface);
+// 	tcScenarioInterface* scenarioInterface = tcSimPythonInterface::Get()->GetScenarioInterface();
+// 	assert(scenarioInterface);
 
-	const std::string& briefingText = scenarioInterface->GetSimpleBriefing(alliance);
+// 	const std::string& briefingText = scenarioInterface->GetSimpleBriefing(alliance);
 
-	stream << alliance;
-	stream << briefingText;
-}
+// 	stream << alliance;
+// 	stream << briefingText;
+// }
 
 /**
 * stream must have SetAck(true) called first
 */
 void tcUpdateMessageHandler::AddCommandAck(std::shared_ptr<tcGameObject> obj, tcCommandStream& stream)
 {
-	wxASSERT(false);
+    assert(false);
 
 }
 
@@ -216,27 +216,27 @@ void tcUpdateMessageHandler::AddGoalStatus(int alliance, tcUpdateStream& stream)
 
 void tcUpdateMessageHandler::AddScenarioInfo(tcUpdateStream& stream)
 {
-	tcSimState* simState = tcSimState::Get();
-	tcSimPythonInterface* pythonInterface = tcSimPythonInterface::Get();
-	tcScenarioInterface* scenarioInterface = pythonInterface->GetScenarioInterface();
-	tcMapOverlay* overlay = scenarioInterface->GetMapOverlay();
-	tcAllianceInfo* allianceInfo = tcAllianceInfo::Get();
+    // tcSimState* simState = tcSimState::Get();
+    // tcSimPythonInterface* pythonInterface = tcSimPythonInterface::Get();
+    // tcScenarioInterface* scenarioInterface = pythonInterface->GetScenarioInterface();
+    // tcMapOverlay* overlay = scenarioInterface->GetMapOverlay();
+    // tcAllianceInfo* allianceInfo = tcAllianceInfo::Get();
 
-	std::string scenarioName = simState->GetScenarioName();
-	stream << scenarioName;
+    // std::string scenarioName = simState->GetScenarioName();
+    // stream << scenarioName;
 
-	std::string scenarioDescription = simState->GetScenarioDescription();
-	stream << scenarioDescription;
+    // std::string scenarioDescription = simState->GetScenarioDescription();
+    // stream << scenarioDescription;
 
-	double theater_lon;
-	double theater_lat;
-	scenarioInterface->GetStartTheater(theater_lon, theater_lat);
-	stream << theater_lon;
-	stream << theater_lat;
+    // double theater_lon;
+    // double theater_lat;
+    // scenarioInterface->GetStartTheater(theater_lon, theater_lat);
+    // stream << theater_lon;
+    // stream << theater_lat;
 
-	overlay->operator>>(stream);
+    // overlay->operator>>(stream);
 
-	allianceInfo->operator>>(stream);
+    // allianceInfo->operator>>(stream);
 
 }
 
@@ -266,7 +266,7 @@ void tcUpdateMessageHandler::AddTeamStatus(tcStream& stream)
 
 	UpdateTeamList(latestTeamList);
 
-	std::vector<tcMPGameView::TeamInfo>& teamList = latestTeamList;
+    std::vector<TeamInfo>& teamList = latestTeamList;
 
 
 	size_t nTeams = teamList.size();
@@ -274,7 +274,7 @@ void tcUpdateMessageHandler::AddTeamStatus(tcStream& stream)
 
 	for (size_t n=0; n<nTeams; n++)
 	{
-		tcMPGameView::TeamInfo& teamInfo = teamList[n];
+        TeamInfo& teamInfo = teamList[n];
 
 		stream << teamInfo.alliance;
 		stream << teamInfo.name;
@@ -370,7 +370,7 @@ bool tcUpdateMessageHandler::EntityUpdateReceived()
     return result;
 }
 
-std::vector<tcMPGameView::TeamInfo>& tcUpdateMessageHandler::GetLatestTeamList()
+std::vector<TeamInfo>& tcUpdateMessageHandler::GetLatestTeamList()
 {
 	return latestTeamList;
 }
@@ -435,7 +435,7 @@ void tcUpdateMessageHandler::InitializeMessage(int messageType, tcStream& stream
 void tcUpdateMessageHandler::Handle(int connectionId, unsigned messageSize, const unsigned char *data)
 {
     //tcSimState* simState = tcSimState::Get();
-    //wxASSERT(simState);
+    //assert(simState);
 
     // end up creating stream twice. could split to use multiple handlers to avoid this
     tcStream stream((const char*)data, messageSize);
@@ -593,7 +593,7 @@ void tcUpdateMessageHandler::Handle(int connectionId, unsigned messageSize, cons
 void tcUpdateMessageHandler::HandleAirMissionUpdate(tcUpdateStream& stream)
 {        
     tcSimState* simState = tcSimState::Get();
-    wxASSERT(simState);
+    assert(simState);
 
     // since updates are complete, clear all missions on non-updated platforms
     std::map<int, bool> updatedPlatforms;
@@ -607,7 +607,7 @@ void tcUpdateMessageHandler::HandleAirMissionUpdate(tcUpdateStream& stream)
         std::shared_ptr<tcGameObject> gameObj = simState->GetObject(platformId);
         if (gameObj == 0)
         {
-            wxASSERT(false);
+            assert(false);
             fprintf(stderr, "tcUpdateMessageHandler::HandleAirMissionUpdate - "
                 "game obj not found (%d)\n", platformId);
             return;
@@ -618,17 +618,17 @@ void tcUpdateMessageHandler::HandleAirMissionUpdate(tcUpdateStream& stream)
         if (std::shared_ptr<tcFlightOpsObject> obj =  std::dynamic_pointer_cast<tcFlightOpsObject>(gameObj))
         {
             tcFlightPort* flightPort = obj->GetFlightPort();
-            wxASSERT(flightPort != 0);
+            assert(flightPort != 0);
 
 
-            tcMissionManager* missionManager = flightPort->GetOrCreateMissionManager();
-            wxASSERT(missionManager != 0);
+            ai::tcMissionManager* missionManager = flightPort->GetOrCreateMissionManager();
+            assert(missionManager != 0);
 
             missionManager->operator<<(stream);
         }
         else
         {
-            wxASSERT(false);
+            assert(false);
             fprintf(stderr, "tcUpdateMessageHandler::HandleAirMissionUpdate - "
                 "obj not flight ops (%d)\n", platformId);
             return;
@@ -641,15 +641,15 @@ void tcUpdateMessageHandler::HandleAirMissionUpdate(tcUpdateStream& stream)
     for (iter.First();iter.NotDone();iter.Next())
 	{
 		std::shared_ptr<tcGameObject> gameObj = iter.Get();
-        wxASSERT(gameObj != 0);
+        assert(gameObj != 0);
 
 
         if (std::shared_ptr<tcFlightOpsObject> obj =  std::dynamic_pointer_cast<tcFlightOpsObject>(gameObj))
         {
             tcFlightPort* flightPort = obj->GetFlightPort();
-            wxASSERT(flightPort != 0);
+            assert(flightPort != 0);
 
-            tcMissionManager* missionManager = flightPort->GetMissionManager();
+            ai::tcMissionManager* missionManager = flightPort->GetMissionManager();
 
             std::map<int, bool>::const_iterator iter = 
                 updatedPlatforms.find(gameObj->mnID);
@@ -673,12 +673,12 @@ void tcUpdateMessageHandler::HandleBriefingText(tcStream& stream)
 	stream >> alliance;
 	stream >> briefingText;
 
-	tcScenarioInterface* scenarioInterface = tcSimPythonInterface::Get()->GetScenarioInterface();
+    // tcScenarioInterface* scenarioInterface = tcSimPythonInterface::Get()->GetScenarioInterface();
 
-	scenarioInterface->SetSimpleBriefing(alliance, briefingText);
+    // scenarioInterface->SetSimpleBriefing(alliance, briefingText);
 
-	tcMessageInterface::Get()->ClearChannel("Briefing");
-	tcMessageInterface::Get()->ChannelMessage("Briefing", briefingText, unsigned int(alliance));
+    // tcMessageInterface::Get()->ClearChannel("Briefing");
+    // tcMessageInterface::Get()->ChannelMessage("Briefing", briefingText, unsigned int(alliance));
 }
 
 
@@ -687,10 +687,10 @@ void tcUpdateMessageHandler::HandleBriefingText(tcStream& stream)
 */
 void tcUpdateMessageHandler::HandleCommandAck(tcCommandStream& stream)
 {
-	wxASSERT(false);
+    assert(false);
 
     tcSimState* simState = tcSimState::Get();
-    wxASSERT(simState);
+    assert(simState);
 
     fprintf(stdout, "<< Received obj cmd acks, time %.1f: ", simState->GetTime());
 
@@ -724,7 +724,7 @@ void tcUpdateMessageHandler::HandleCommandAck(tcCommandStream& stream)
 void tcUpdateMessageHandler::HandleCommandUpdate(tcCommandStream& stream, int connectionId)
 {
     tcSimState* simState = tcSimState::Get();
-    wxASSERT(simState);
+    assert(simState);
 
 
     unsigned nUnknowns = 0;
@@ -796,7 +796,7 @@ void tcUpdateMessageHandler::HandleControlRequest(tcStream& stream, int connecti
 	}
 
 	tcSimState* simState = tcSimState::Get();
-	wxASSERT(simState);
+    assert(simState);
 
     fprintf(stdout, "<< Received obj control req msg, time %.1f: ", simState->GetTime());
 
@@ -848,7 +848,7 @@ void tcUpdateMessageHandler::HandleControlRequest(tcStream& stream, int connecti
 void tcUpdateMessageHandler::HandleCreate(tcCreateStream& stream)
 {
     tcSimState* simState = tcSimState::Get();
-    wxASSERT(simState);
+    assert(simState);
     tcDatabase* database = simState->mpDatabase; // convert database to singleton eventually
 
     // command stream update is located after each create update to initialize command params
@@ -877,7 +877,7 @@ void tcUpdateMessageHandler::HandleCreate(tcCreateStream& stream)
 			}
 			else
 			{
-                wxASSERT(false);
+                assert(false);
 				fprintf(stderr, "Error - HandleCreate - obj %d already exists with different db class\n", id);
 				fprintf(stdout, "\n");
 				return;
@@ -898,7 +898,7 @@ void tcUpdateMessageHandler::HandleCreate(tcCreateStream& stream)
 			}
 			else
 			{
-                wxASSERT(false);
+                assert(false);
                 fprintf(stderr, "Bad update, database entry %s not found\n", databaseClass.c_str());
 				fprintf(stdout, "\n");
 				return;
@@ -914,7 +914,7 @@ void tcUpdateMessageHandler::HandleCreate(tcCreateStream& stream)
 */
 void tcUpdateMessageHandler::HandleCreateRequest(tcStream& stream, int connectionId)
 {
-    wxASSERT(isServer);
+    assert(isServer);
 
     tcPlayerStatus& pstatus = 
         tcMultiplayerInterface::Get()->GetPlayerStatus(connectionId);
@@ -939,7 +939,7 @@ void tcUpdateMessageHandler::HandleCreateRequest(tcStream& stream, int connectio
 void tcUpdateMessageHandler::HandleDatabaseInfo(tcStream& stream)
 {
     tcDatabase* database = tcDatabase::Get();
-    wxASSERT(!isServer);
+    assert(!isServer);
 
     size_t nInfo = 0;
 
@@ -981,7 +981,7 @@ void tcUpdateMessageHandler::HandleDatabaseInfo(tcStream& stream)
 void tcUpdateMessageHandler::HandleDestroy(tcStream& stream)
 {
     tcSimState* simState = tcSimState::Get();
-    wxASSERT(simState);
+    assert(simState);
 
     fprintf(stdout, "<< Received destroy objs msg, time %.1f: ", simState->GetTime());
 
@@ -1013,7 +1013,7 @@ void tcUpdateMessageHandler::HandleDestroy(tcStream& stream)
 */
 void tcUpdateMessageHandler::HandleGoalStatus(tcUpdateStream& stream)
 {
-	wxASSERT(tcSimState::Get()->IsMultiplayerClient());
+    assert(tcSimState::Get()->IsMultiplayerClient());
 
 	tcGoalTracker* goalTracker = tcGoalTracker::Get();
 
@@ -1023,40 +1023,40 @@ void tcUpdateMessageHandler::HandleGoalStatus(tcUpdateStream& stream)
 
 void tcUpdateMessageHandler::HandleScenarioInfo(tcUpdateStream& stream)
 {
-	tcSimState* simState = tcSimState::Get();
-	tcSimPythonInterface* pythonInterface = tcSimPythonInterface::Get();
-	tcScenarioInterface* scenarioInterface = pythonInterface->GetScenarioInterface();
-	tcMapOverlay* overlay = scenarioInterface->GetMapOverlay();
-	tcAllianceInfo* allianceInfo = tcAllianceInfo::Get();
+    // tcSimState* simState = tcSimState::Get();
+    // tcSimPythonInterface* pythonInterface = tcSimPythonInterface::Get();
+    // tcScenarioInterface* scenarioInterface = pythonInterface->GetScenarioInterface();
+    // tcMapOverlay* overlay = scenarioInterface->GetMapOverlay();
+    // tcAllianceInfo* allianceInfo = tcAllianceInfo::Get();
 
-	wxASSERT(simState->IsMultiplayerClient());
+ //    assert(simState->IsMultiplayerClient());
 
-	// clear previous scenario info
-	pythonInterface->SetMenuPlatform(-1);
-	simState->Clear();
+    // // clear previous scenario info
+    // pythonInterface->SetMenuPlatform(-1);
+    // simState->Clear();
 
-	std::string scenarioName;
-	stream >> scenarioName;
-	simState->SetScenarioName(scenarioName);
+    // std::string scenarioName;
+    // stream >> scenarioName;
+    // simState->SetScenarioName(scenarioName);
 
-	std::string scenarioDescription;
-	stream >> scenarioDescription;
-	simState->SetScenarioDescription(scenarioDescription);
+    // std::string scenarioDescription;
+    // stream >> scenarioDescription;
+    // simState->SetScenarioDescription(scenarioDescription);
 
-	simState->SetScenarioLoaded(true);
+    // simState->SetScenarioLoaded(true);
 
-	double theater_lon;
-	double theater_lat;
-	stream >> theater_lon;
-	stream >> theater_lat;
-	if ((theater_lon != 0) && (theater_lat != 0))
-	{
-		scenarioInterface->ChangeMapTheater(theater_lon, theater_lat);
-	}
+    // double theater_lon;
+    // double theater_lat;
+    // stream >> theater_lon;
+    // stream >> theater_lat;
+    // if ((theater_lon != 0) && (theater_lat != 0))
+    // {
+    // 	scenarioInterface->ChangeMapTheater(theater_lon, theater_lat);
+    // }
 
-	overlay->operator<<(stream);
+    // overlay->operator<<(stream);
 
-    allianceInfo->operator<<(stream);
+ //    allianceInfo->operator<<(stream);
 }
 
 /**
@@ -1064,18 +1064,18 @@ void tcUpdateMessageHandler::HandleScenarioInfo(tcUpdateStream& stream)
 */
 void tcUpdateMessageHandler::HandleScriptCommands(tcStream& stream, int connectionId)
 {
-    wxASSERT(isServer);
+    assert(isServer);
 
-    tcPlayerStatus& pstatus = 
-        tcMultiplayerInterface::Get()->GetPlayerStatus(connectionId);
+ //    tcPlayerStatus& pstatus =
+ //        tcMultiplayerInterface::Get()->GetPlayerStatus(connectionId);
 
-    fprintf(stdout, "<< Received script commands for connection %d\n", connectionId);
+ //    fprintf(stdout, "<< Received script commands for connection %d\n", connectionId);
 
-	stream.SetMetaString(pstatus.GetName());
+    // stream.SetMetaString(pstatus.GetName());
 	
-	tcCommandStream& commandStream = (tcCommandStream&)stream;
+    // tcCommandStream& commandStream = (tcCommandStream&)stream;
 
-	tcSimPythonInterface::Get()->operator<<(commandStream);
+    // tcSimPythonInterface::Get()->operator<<(commandStream);
 
 }
 
@@ -1085,7 +1085,7 @@ void tcUpdateMessageHandler::HandleScriptCommands(tcStream& stream, int connecti
 void tcUpdateMessageHandler::HandleSensorUpdate(tcUpdateStream& stream)
 {
     tcSimState* simState = tcSimState::Get();
-    wxASSERT(simState);
+    assert(simState);
 
     int alliance;
     stream >> alliance;
@@ -1116,7 +1116,7 @@ void tcUpdateMessageHandler::HandleSensorUpdate(tcUpdateStream& stream)
 */
 void tcUpdateMessageHandler::HandleSoundEffect(tcStream& stream)
 {
-	wxASSERT(!isServer);
+    assert(!isServer);
 
 	int id;
 	unsigned int nEffects = 0;
@@ -1126,7 +1126,7 @@ void tcUpdateMessageHandler::HandleSoundEffect(tcStream& stream)
 
 		stream >> effect;
 
-		tcSound::Get()->PlayEffect(effect);
+        //tcSound::Get()->PlayEffect(effect);
 	}
     
 }
@@ -1139,14 +1139,14 @@ void tcUpdateMessageHandler::HandleTeamStatus(tcStream& stream)
 //	tcMultiplayerInterface* multiplayerInterface = tcMultiplayerInterface::Get();
 
 	// data structure with description of each team, first team is always "observers" (unassigned)
-	std::vector<tcMPGameView::TeamInfo> teamList;
+    std::vector<TeamInfo> teamList;
 
 	size_t nTeams;
 	stream >> nTeams;
 
 	for (size_t n=0; n<nTeams; n++)
 	{
-		tcMPGameView::TeamInfo teamInfo;
+        TeamInfo teamInfo;
 
 		stream >> teamInfo.alliance;
 		stream >> teamInfo.name;
@@ -1156,13 +1156,13 @@ void tcUpdateMessageHandler::HandleTeamStatus(tcStream& stream)
 		stream >> nPlayers;
 		for (size_t k=0; k<nPlayers; k++)
 		{
-			tcMPGameView::PlayerInfo pi;
+            PlayerInfo pi;
 			
-			stream >> pi.isCommander;
-			stream >> pi.isReady;
+            stream >> pi.isCommander;
+            stream >> pi.isReady;
             stream >> pi.gameSpeed;
-			stream >> pi.name;
-            stream >> pi.inGame; 
+            stream >> pi.name;
+            stream >> pi.inGame;
             stream >> pi.endGame;
             stream >> pi.surrenderGame;
 
@@ -1173,13 +1173,13 @@ void tcUpdateMessageHandler::HandleTeamStatus(tcStream& stream)
 	}
 
 
-	if (mpGameView == 0)
-	{
-		wxASSERT(false);
-		return;
-	}
+    // if (mpGameView == 0)
+    // {
+ //        assert(false);
+    // 	return;
+    // }
 
-	mpGameView->SetTeamList(teamList);
+    // mpGameView->SetTeamList(teamList);
 }
 
 /**
@@ -1187,13 +1187,13 @@ void tcUpdateMessageHandler::HandleTeamStatus(tcStream& stream)
 */
 void tcUpdateMessageHandler::HandleUpdate(tcUpdateStream& stream, int connectionId)
 {
-    //wxASSERT(false);
+    //assert(false);
     //return; // DISABLED for current free version
 
-    wxASSERT(!isServer);
+    assert(!isServer);
 
     tcSimState* simState = tcSimState::Get();
-    wxASSERT(simState);
+    assert(simState);
 
 
     std::queue<int> missingIds;    // queue to keep track of ids that are missing locally
@@ -1269,7 +1269,7 @@ void tcUpdateMessageHandler::HandleUpdate(tcUpdateStream& stream, int connection
 
 
 
-void tcUpdateMessageHandler::UpdateTeamList(std::vector<tcMPGameView::TeamInfo>& teamList)
+void tcUpdateMessageHandler::UpdateTeamList(std::vector<TeamInfo>& teamList)
 {
 	teamList.clear();
 
@@ -1278,7 +1278,7 @@ void tcUpdateMessageHandler::UpdateTeamList(std::vector<tcMPGameView::TeamInfo>&
 	const std::vector<unsigned char>& allianceList = allianceInfo->GetAllianceList();
 
 	// add base info for observers team
-	tcMPGameView::TeamInfo observers;
+    TeamInfo observers;
 	observers.alliance = 0;
 	observers.name = "Observers";
 	observers.playerList.clear();
@@ -1287,7 +1287,7 @@ void tcUpdateMessageHandler::UpdateTeamList(std::vector<tcMPGameView::TeamInfo>&
 	// add each alliance reported by allianceInfo
 	for (size_t n=0; n<allianceList.size(); n++)
 	{
-		tcMPGameView::TeamInfo teamInfo;
+        TeamInfo teamInfo;
 		teamInfo.alliance = allianceList[n];
 		teamInfo.name = allianceInfo->GetAllianceName(allianceList[n]);
 		teamInfo.playerList.clear();
@@ -1311,7 +1311,7 @@ void tcUpdateMessageHandler::UpdateTeamList(std::vector<tcMPGameView::TeamInfo>&
 		{
 			if (teamList[n].alliance == alliance)
 			{
-				tcMPGameView::PlayerInfo pi;
+                PlayerInfo pi;
 				pi.isCommander = playerInfo.IsCommander();
 				pi.isReady = playerInfo.IsReady();
                 pi.gameSpeed = playerInfo.GetGameSpeed();

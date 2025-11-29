@@ -31,21 +31,18 @@
 #define _TCSIMSTATE_H_
 
 
-#include "tcDatabase.h"
 #include "tcSensorMap.h"
 #include "simmath.h"
 #include "tcGameObject.h"
 #include "tcPlatformObject.h"
 #include "tcSurfaceObject.h"
 #include "tcCarrierObject.h"
-#include "tcAirObject.h"
 #include "tcWeaponObject.h"
 //#include "tcSound.h"
 #include "tcMapData.h"
 #include "tcPool.h"
 #include "tcAero.h"
 #include "tcUserInfo.h"
-#include "commandlist.h"
 #include "tcString.h"
 #include "tcESMSensor.h"
 #include "tcRadar.h"

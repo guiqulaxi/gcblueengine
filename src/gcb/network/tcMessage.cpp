@@ -21,19 +21,11 @@
 **  IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "stdwx.h" // precompiled header file
-
-#ifndef WX_PRECOMP
-#include "wx/wx.h" 
-#endif
-
 #include "network/tcMessage.h"
 #include "tcTime.h"
 #include <iostream>
-
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
+#include <cassert>
+#include <cstring>
 
 BEGIN_NAMESPACE(network)
 
@@ -48,7 +40,7 @@ unsigned int tcMessage::GetMaxMessageSize()
 
 void tcMessage::ClearRider()
 {
-    wxASSERT(data.header.messageSize > data.header.riderSize);
+    assert(data.header.messageSize > data.header.riderSize);
     
     data.header.messageSize -= data.header.riderSize;
     data.header.riderSize = 0;
@@ -95,7 +87,7 @@ unsigned int tcMessage::GetMessageSize() const
     }
     else
     {
-        wxASSERT(data.header.messageSize >= HEADER_SIZE);
+        assert(data.header.messageSize >= HEADER_SIZE);
         return 0;
     }
 }
@@ -117,47 +109,33 @@ unsigned int tcMessage::GetMessageTimestamp() const
 * @param data pointer to messageSize bytes of message data
 */
 void tcMessage::PopulateMessage(int sourceId, int messageType, unsigned messageId,
-        unsigned int ack, unsigned int messageSize, 
-        const unsigned char *messageData)     
+    unsigned int ack, unsigned int messageSize, 
+    const unsigned char *messageData)
 {
-    if (messageSize > tcMessage::MESSAGE_SIZE)
-    {
-        wxString text;
-        text.Printf("Error - Attempted to send oversized message (%d/%d), truncating.\n", 
-            messageSize, tcMessage::MESSAGE_SIZE);
-        fprintf(stderr, text.c_str());
-        wxMessageBox(text);
-        messageSize = tcMessage::MESSAGE_SIZE;
-    }
+    assert(messageSize <= MESSAGE_SIZE);
+
     bufferIdx = 0;    
     timestamp = tcTime::Get()->Get30HzCount();
 
-    data.header.messageSize = messageSize + HEADER_SIZE;
     data.header.sourceId = sourceId;
     data.header.id = messageType;
     data.header.msgId = messageId;
     data.header.ackFlag = ack;
     data.header.riderSize = 0;
+    data.header.messageSize = (unsigned short)(messageSize + HEADER_SIZE);
 
     memcpy(data.buffer + HEADER_SIZE, messageData, messageSize);
-
-
 }
 
 /**
 * Reset message state to default / uninitialized
 */
 void tcMessage::Reset()
-{        
-    timestamp = 0;
+{
     bufferIdx = 0;
     resendCount = 0;
     data.header.messageSize = 0;
     data.header.riderSize = 0;
-    data.header.id = -1;
-    data.header.sourceId = -1;
-    data.header.ackFlag = 0;
-    data.header.msgId = unsigned int(-1);
 }
 
 /**
@@ -179,9 +157,11 @@ void tcMessage::StampTime()
 /**
 * tcMessage default constructor
 */
-tcMessage::tcMessage()
+tcMessage::tcMessage() 
+: timestamp(0), bufferIdx(0), resendCount(0)
 {
-    Reset();
+    data.header.messageSize = 0;
+    data.header.riderSize = 0;
 }
 
 /**
@@ -189,14 +169,7 @@ tcMessage::tcMessage()
 */
 tcMessage::tcMessage(const tcMessage& source)
 {
-    timestamp = source.timestamp;
-    bufferIdx = source.bufferIdx;
-
-    data.header.sourceId = source.data.header.sourceId;
-    data.header.messageSize = source.data.header.messageSize;
-    wxASSERT(data.header.messageSize <= BUFFER_SIZE);
-    if (data.header.messageSize > BUFFER_SIZE) data.header.messageSize = BUFFER_SIZE;
-    memcpy(data.buffer, source.data.buffer, data.header.messageSize);
+    memcpy((void*)this, &source, sizeof(tcMessage));
 }
 
 /**
@@ -204,17 +177,10 @@ tcMessage::tcMessage(const tcMessage& source)
 */
 const tcMessage& tcMessage::operator=(const tcMessage& rhs)
 {
-    timestamp = rhs.timestamp;
-    bufferIdx = rhs.bufferIdx;
-
-    data.header.id = rhs.data.header.id;;
-
-    data.header.sourceId = rhs.data.header.sourceId;
-
-    data.header.messageSize = rhs.data.header.messageSize;
-    wxASSERT(data.header.messageSize <= BUFFER_SIZE);
-    if (data.header.messageSize > BUFFER_SIZE) data.header.messageSize = BUFFER_SIZE;
-    memcpy(data.buffer, rhs.data.buffer, data.header.messageSize);
+    if (this != &rhs)
+    {
+        memcpy((void*)this, &rhs, sizeof(tcMessage));
+    }
 
     return *this;
 }

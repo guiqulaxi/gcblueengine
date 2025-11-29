@@ -23,13 +23,8 @@
 **  IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "stdwx.h" // precompiled header file
 
-#ifndef WX_PRECOMP
-#include "wx/wx.h" 
-#endif
-#include "wx/string.h"
-#include "wx/event.h"
+
 
 #include "network/tcAuthenticationMessageHandler.h"
 #include "network/tcMultiplayerInterface.h"

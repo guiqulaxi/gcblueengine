@@ -30,13 +30,14 @@
 #pragma once
 #endif
 
-#include "wx/wx.h"
-#include "wx/socket.h"
+// sockpp includes
+#include <sockpp/tcp_socket.h>
+#include <sockpp/inet_address.h>
 
 #include <deque>
 #include <list>
 #include <queue>
-#include <vector>
+#include <string>
 
 #include "network/tcMessage.h"
 
@@ -53,7 +54,7 @@ class tcConnectionData
 public:
     static tcNetworkInterface *networkInterface; ///< pointer to network interface
 
-    wxString idString; ///< identifier string for source of message
+    std::string idString; ///< identifier string for source of message
     unsigned int timestamp; ///< start time (tcTime 30 Hz counter) for connection
     int id; ///< identifier number for source of message, -1 for not assigned
     std::queue<unsigned int> readQueueTCP; ///< fifo of TCP received message indices
@@ -70,10 +71,10 @@ public:
     // free all queued messages
     void ClearAllMessages();
 	const char* GetIdString() const;
-	const wxIPV4address& GetPeerAddress() const;
+	const sockpp::inet_address& GetPeerAddress() const;
     unsigned int GetReadCount() const;
 	unsigned int GetResentCount() const;
-	wxSocketBase* GetSocket();
+	sockpp::tcp_socket* GetSocket();
     unsigned int GetWriteCount() const;
     unsigned int GetReadCountSec() const;
     unsigned int GetWriteCountSec() const; 
@@ -85,7 +86,7 @@ public:
     void SendTCP(unsigned int idx);
     void SendUDP(unsigned int idx);
     void SetPingTime(float ping_s);
-    void SetSocket(wxSocketBase* sock);
+    void SetSocket(sockpp::tcp_socket* sock);
 
     void Update(); ///< read and write data from socket
     void WriteQueuedMessages();
@@ -96,40 +97,38 @@ public:
 private:
     enum {DUPLICATE_HISTORY = 16}; ///< number of UDP packets to keep history for duplicate checking
 
-    wxSocketBase *socket;   ///< socket associated with this connection
+    sockpp::tcp_socket *socket;   ///< socket associated with this connection
     tcMessage tempMessage; ///< message to use for temporary storage
     unsigned int lastReadCount; ///< read count at last second mark
     unsigned int lastWriteCount; ///< write count at last second mark
-	unsigned int lastResentCount; ///< resent count at last second mark
-
-    unsigned int readCount_sec; ///< bytes read over last full second
-    unsigned int writeCount_sec; ///< bytes written over last full second
-	unsigned int resentCount_sec; ///< bytes resent over last full second
-    float pingTime_s; ///< last ping time for this connection
-    unsigned int pingCount; ///< number of times ping has been updated
-    wxIPV4address UDPaddress;
-	wxString peerName;
-	unsigned int lastCountUpdate;
-	unsigned int lastResendUpdate;
-	unsigned int resentCount; ///< number of packets resent because of ack timeout
+    unsigned int lastResentCount; ///< resent count at last second mark
+    unsigned int readCount_sec; ///< read count during last second
+    unsigned int writeCount_sec; ///< write count during last second
+    unsigned int resentCount_sec; ///< resent count during last second
+    unsigned int pingCount; ///< number of ping measurements accumulated
+    float pingTime_s; ///< round trip time for last message ack
+    float totalPingTime_s; ///< accumulated ping time for averaging
+    unsigned int lastPingSendTime; ///< last time (tcTime 30 Hz) that ping was sent
+    unsigned int lastCountUpdate; ///< last time count was updated
+    unsigned int lastResendUpdate; ///< last time resend was checked
+    unsigned int resentCount; ///< number of resent messages
+    unsigned int maxWaitingForAck; ///< maximum number of messages waiting for ack
     unsigned int socketErrorCount; ///< count of socket errors
-
-    /** max number of packets that will be held waiting for ack. If this is exceeded
-	 ** UDP packets will be sent without ack request
-	 */
-    const unsigned int maxWaitingForAck; 
+    sockpp::inet_address UDPaddress; ///< UDP address for this connection
 
     void AttachAckRider(tcMessage* message);
     void ProcessAckRider(tcMessage* message);
-    void ResendFailedAcks();
-    bool WasRecentlyReceived(unsigned int id) const;
-    void WriteTCP();
-    void WriteUDP();
-};
+    void AddToDuplicateHistory(unsigned int msgId);
+    void SendAck(unsigned int msgId);
+    void SendPendingAcks();
+    void UpdatePingTime();
+    void ResendFailedAcks(); ///< resend any messages waiting for ack
+    void WriteTCP(); ///< write TCP messages to socket
+    void WriteUDP(); ///< write UDP messages to socket
+    bool IsDuplicate(unsigned int id) const; ///< check if message was recently received
 
+};
 
 END_NAMESPACE
 
 #endif
-
-

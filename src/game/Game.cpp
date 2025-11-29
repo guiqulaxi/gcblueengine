@@ -940,6 +940,38 @@ void tcGame::LoadScenario(const std::string& filePath, const std::string& captio
     //SaveDatabaseToPython("./database/py");
 }
 
+string tcGame::GetOutDBData(int id)
+{
+    std::shared_ptr<tcGameObject> obj=simState->GetObject(id);
+    if(obj!=nullptr)
+    {
+        //返回mpDBObject 的json数据
+        rapidjson::Document document;
+        document.SetObject();
+        obj->mpDBObject->SerializeToJson(document, document.GetAllocator());
+        rapidjson::StringBuffer buffer;
+        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+        document.Accept(writer);
+        return std::string(buffer.GetString());    
+    }
+}
+
+    std::string tcGame::GetOutDBData(const std::string& name)
+    {
+        std::shared_ptr<tcGameObject> obj=simState->GetObjectByName(name);
+    if(obj!=nullptr)
+    {
+        //返回mpDBObject 的json数据
+        rapidjson::Document document;
+        document.SetObject();
+        obj->mpDBObject->SerializeToJson(document, document.GetAllocator());
+        rapidjson::StringBuffer buffer;
+        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+        document.Accept(writer);
+        return std::string(buffer.GetString());    
+    }
+    }
+
 string tcGame::GetOutSimData()
 {
     std::lock_guard<std::mutex> lock(mtx_outsimdata);

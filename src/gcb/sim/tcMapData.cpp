@@ -227,7 +227,7 @@ bool tcMapData::GetFarthestClearPoint(float lon1_rad, float lat1_rad, float lon2
 */
 float tcMapData::GetTerrainHeightHighRes(double afLon_deg, double afLat_deg) 
 {
-    GetTerrainHeight(afLon_deg,afLat_deg,0);
+    return GetTerrainHeight(afLon_deg,afLat_deg,0);
 }
 
 
@@ -236,7 +236,7 @@ float tcMapData::GetTerrainHeightHighRes(double afLon_deg, double afLat_deg)
 */
 float tcMapData::GetTerrainHeightLowRes(float afLon_deg, float afLat_deg) 
 {
-    GetTerrainHeight(afLon_deg,afLat_deg,0);
+    return GetTerrainHeight(afLon_deg,afLat_deg,0);
 }
 /**
 * Gets high resolution terrain height

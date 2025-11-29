@@ -23,7 +23,8 @@
 
 #include "network/tcTextMessageHandler.h"
 #include "network/tcMultiplayerInterface.h"
-#include "tcMessageInterface.h"
+#include <cstring>
+//#include "tcMessageInterface.h"
 
 BEGIN_NAMESPACE(network)
 
@@ -38,8 +39,11 @@ void tcTextMessageHandler::CreateMessage(unsigned& messageSize, unsigned char *d
     if (messageSize > maxSize) messageSize = maxSize;
 
     //strncpy((char*)data, text.c_str(), messageSize);
+#ifdef _MSC_VER
     strncpy_s((char*)data, maxSize, text.c_str(), messageSize);
-
+#else
+    strncpy((char*)data, text.c_str(), messageSize);
+#endif
     data[messageSize++] = 0; // append terminating null
 }
 
@@ -70,7 +74,7 @@ void tcTextMessageHandler::Handle(int connectionId, unsigned messageSize, const 
 	else
 	{
 		// send to tcMessageInterface in client mode (mode based popups of chat text)
-		tcMessageInterface::Get()->PostChatText(text);
+        //tcMessageInterface::Get()->PostChatText(text);
 		chatText.push(text);
 	}
 

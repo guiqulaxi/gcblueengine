@@ -27,6 +27,8 @@
 #ifndef _UPDATEMESSAGEHANDLER_H_
 #define _UPDATEMESSAGEHANDLER_H_
 
+#include "tcMultiplayerInterface.h"
+#include <memory>
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
@@ -36,7 +38,7 @@
 #include <string>
 
 #include "network/tcMessageHandler.h"
-#include "tcMPGameView.h"
+//#include "tcMPGameView.h"
 
 class tcGameObject;
 class tcFlightOpsObject;
@@ -45,7 +47,7 @@ class tcCommandStream;
 class tcCreateStream;
 class tcUpdateStream;
 
-class tcMPGameView;
+//class tcMPGameView;
 
 #define BEGIN_NAMESPACE(x) namespace x {
 #define END_NAMESPACE }
@@ -79,9 +81,9 @@ public:
 
     };
 
-	static tcMPGameView* mpGameView;
+    // static tcMPGameView* mpGameView;
 
-	static void AddBriefingText(int alliance, tcStream& stream);
+    // static void AddBriefingText(int alliance, tcStream& stream);
     static void AddCommandAck(std::shared_ptr<tcGameObject> obj, tcCommandStream& stream);
     static void AddCommandUpdate(std::shared_ptr<tcGameObject> obj, tcCommandStream& stream);
 	static void AddControlRelease(int id, tcStream& stream);
@@ -97,7 +99,7 @@ public:
     static bool AddUpdate(std::shared_ptr<tcGameObject> obj, tcUpdateStream& stream);
     static void AddAirMissionUpdate(std::shared_ptr<tcFlightOpsObject> obj, tcUpdateStream& stream);
 
-	static void AttachMPGameView(tcMPGameView* p);
+    // static void AttachMPGameView(tcMPGameView* p);
 
     static void InitializeMessage(int messageType, tcStream& stream);
 
@@ -119,17 +121,17 @@ public:
 	void HandleTeamStatus(tcStream& stream);
     void HandleUpdate(tcUpdateStream& stream, int connectionId);
 
-	static std::vector<tcMPGameView::TeamInfo>& GetLatestTeamList();
+    static std::vector<TeamInfo>& GetLatestTeamList();
     static bool EntityUpdateReceived();
 
     tcUpdateMessageHandler();
     virtual ~tcUpdateMessageHandler();
 
 private:
-	static std::vector<tcMPGameView::TeamInfo> latestTeamList; ///< got to be a better place to do this!
+    static std::vector<TeamInfo> latestTeamList; ///< got to be a better place to do this!
     static bool entityUpdateReceived; ///< set true when entity update received
 
-	static void UpdateTeamList(std::vector<tcMPGameView::TeamInfo>& teamList);
+    static void UpdateTeamList(std::vector<TeamInfo>& teamList);
 
 };
 

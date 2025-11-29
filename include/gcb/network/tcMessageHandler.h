@@ -53,7 +53,6 @@ protected:
     static bool isServer;
 };
 
-
 END_NAMESPACE
 
 #endif

@@ -6,7 +6,7 @@ file(GLOB SOURCE_FILES
     ${PROJECT_SOURCE_DIR}/src/gcb/common/*.cpp
     ${PROJECT_SOURCE_DIR}/src/gcb/database/*.cpp
     ${PROJECT_SOURCE_DIR}/src/gcb/graphics/*.cpp
-    #  ${PROJECT_SOURCE_DIR}/src/gcb/network/*.cpp
+    ${PROJECT_SOURCE_DIR}/src/gcb/network/*.cpp
     #${PROJECT_SOURCE_DIR}/src/gcb/scriptinterface/*.cpp
     ${PROJECT_SOURCE_DIR}/src/gcb/sim/*.cpp
     ${PROJECT_SOURCE_DIR}/src/gcb/sqlite/*.cpp
@@ -17,7 +17,9 @@ link_directories(
     ${PROJECT_SOURCE_DIR}/3rd/geotiff/lib
     ${PROJECT_SOURCE_DIR}/3rd/tiff/lib
     ${PROJECT_SOURCE_DIR}/3rd/proj/lib
-    ${PROJECT_SOURCE_DIR}/3rd/sqlite/lib)
+    ${PROJECT_SOURCE_DIR}/3rd/sqlite/lib
+     ${PROJECT_SOURCE_DIR}/3rd/sockpp/lib
+)
 
 # 添加  动态库，并链接 common 库（如果需要）
 add_library(gcb SHARED ${SOURCE_FILES})
@@ -28,7 +30,7 @@ target_include_directories(gcb PUBLIC
     ${PROJECT_SOURCE_DIR}/include/gcb/common
     ${PROJECT_SOURCE_DIR}/include/gcb/database
     ${PROJECT_SOURCE_DIR}/include/gcb/sim
-
+    ${PROJECT_SOURCE_DIR}/include/gcb/network
 
 )
 target_include_directories(gcb PRIVATE
@@ -43,6 +45,8 @@ target_include_directories(gcb PRIVATE
     ${PROJECT_SOURCE_DIR}/3rd/tiff/include
     ${PROJECT_SOURCE_DIR}/3rd/proj/include
     ${PROJECT_SOURCE_DIR}/3rd/rapidjson/include
+    ${PROJECT_SOURCE_DIR}/3rd/sockpp/include
+
 
 )
 target_compile_options(gcb
@@ -52,7 +56,7 @@ target_compile_options(gcb
     )
 
 
-target_link_libraries(gcb PRIVATE libgeotiff libtiff libproj sqlite3)
+target_link_libraries(gcb PRIVATE libgeotiff libtiff libproj sqlite3 libsockpp $<$<BOOL:${MINGW}>:ws2_32>)
 # target_link_libraries(lib2 PRIVATE common) # 如果需要链接 common  
 
 # 安装头文件和库（可选）  

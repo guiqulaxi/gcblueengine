@@ -565,6 +565,37 @@ static inline std::vector<T> reverse_copy(std::vector<T> strs)
     std::reverse(strs.begin(), strs.end());
     return strs;
 }
+
+/**
+     * @brief Returns the part of the string after the first occurrence of the specified delimiter.
+     * @param str - input std::string to be processed.
+     * @param delim - the delimiter character.
+     * @return The substring after the first occurrence of delim, or empty string if not found.
+     */
+static inline std::string after_first(const std::string & str, const char delim)
+{
+    size_t pos = str.find(delim);
+    if (pos == std::string::npos) {
+        return "";
+    }
+    return str.substr(pos + 1);
+}
+
+/**
+     * @brief Returns the part of the string before the first occurrence of the specified delimiter.
+     * @param str - input std::string to be processed.
+     * @param delim - the delimiter character.
+     * @return The substring before the first occurrence of delim, or the entire string if not found.
+     */
+static inline std::string before_first(const std::string & str, const char delim)
+{
+    size_t pos = str.find(delim);
+    if (pos == std::string::npos) {
+        return str;
+    }
+    return str.substr(0, pos);
+}
+
 template <typename... Args>
 static inline std::string format(const std::string & foramtstr,Args ...args)
 {

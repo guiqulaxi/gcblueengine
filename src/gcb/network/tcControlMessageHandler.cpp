@@ -23,13 +23,9 @@
 **  IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "stdwx.h" // precompiled header file
 
-#ifndef WX_PRECOMP
-#include "wx/wx.h" 
-#endif
-#include "wx/string.h"
-#include "wx/event.h"
+
+
 
 #include "network/tcControlMessageHandler.h"
 #include "network/tcMultiplayerInterface.h"
@@ -283,7 +279,7 @@ void tcControlMessageHandler::Handle(int connectionId, unsigned messageSize, con
         break;
     default:
         {
-            wxASSERT(false);
+            assert(false);
             fprintf(stderr, "Warning - Unrecognized control message "
                 "received by server or client (src:%d, id:%d)\n", connectionId, messageCode);
             return; 

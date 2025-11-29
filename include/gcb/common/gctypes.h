@@ -29,15 +29,18 @@ typedef unsigned int UINT;
 typedef unsigned char UCHAR;
 #endif
 
-#ifndef DWORD
-typedef unsigned int DWORD;
-#endif
+// Only define DWORD if not already defined by system headers
+
 
 //#ifndef Uint_PTR
 //typedef unsigned int Uint_PTR;
 //#endif
 
 #ifndef WIN32 // to avoid visual 7 error related to redefinition
+
+#ifndef DWORD
+typedef unsigned int DWORD;
+#endif
 
 #ifndef LARGE_INTEGER
 typedef long long LARGE_INTEGER;

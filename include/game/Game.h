@@ -219,6 +219,10 @@ public:
     void LoadScenario(const std::string& filePath, const std::string& caption, bool startInEditMode);
 
     std::string GetOutSimData();
+    //根据id 获得数据库性能数据
+    std::string GetOutDBData(int id);
+    //根据name 获得数据库性能数据
+    std::string GetOutDBData(const std::string& name);
     tcGame();
     ~tcGame();
 private:

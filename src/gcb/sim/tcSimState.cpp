@@ -2718,6 +2718,8 @@ std::shared_ptr<tcGameObject> tcSimState::GetObject(int anKey)
     return pGameObj; // tcPool sets pGameObj NULL if not found
 }
 
+
+
 std::shared_ptr<const tcGameObject> tcSimState::GetObjectConst(int id) const
 {
     return maPlatformState.LookupConst(id);

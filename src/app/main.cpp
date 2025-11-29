@@ -1,4 +1,4 @@
-﻿//#include <QCoreApplication>
+//#include <QCoreApplication>
 
 #include "Game.h"
 #include <thread>
@@ -23,6 +23,32 @@ void serverFunc( const std::string &ip, int port ,tcGame  *game) {
             return;
         }
         res.set_content(game->GetOutSimData(), "application/json");
+    });
+    svr.Get("/dbdata", [=](const httplib::Request & req, httplib::Response &res) {
+        res.set_header("Access-Control-Allow-Origin", "*");
+        res.set_header("Access-Control-Allow-Credentials", "true");
+        res.set_header("Access-Control-Expose-Headers", "content-type");
+        res.set_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+        res.set_header("Access-Control-Allow-Headers", "Content-Type,Access-Control-Allow-Headers,Authorization,X-Requested-With");
+        if(! req.method.compare("OPTIONS"))
+        {
+            return;
+        }
+        auto id_it = req.params.find("id");
+        auto name_it = req.params.find("name");
+        if (id_it != req.params.end()) {
+            int id = std::stoi(id_it->second);
+            std::string dbData = game->GetOutDBData(id);
+            res.set_content(dbData, "application/json");
+        } else if (name_it != req.params.end()) {
+            std::string name = name_it->second;
+            std::string dbData = game->GetOutDBData(name);
+            res.set_content(dbData, "application/json");
+        }
+         else {
+            res.status = 400;
+            res.set_content("{\"error\": \"Missing id parameter\"}", "application/json");
+        }
     });
     svr.Post("/cmd", [=](const httplib::Request &req, httplib::Response &res) {
         game->AddCommand(req.body);

@@ -25,6 +25,7 @@
 
 //#include "stdwx.h" // precompiled header file
 
+#include "tcAirObject.h"
 #ifndef WX_PRECOMP
 //#include "wx/wx.h"
 #ifdef WIN32

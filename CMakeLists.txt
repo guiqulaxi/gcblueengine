@@ -19,4 +19,3 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/src/pygcb)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/game)
 # add_subdirectory(${PROJECT_SOURCE_DIR}/src/pygame)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/app)
-
