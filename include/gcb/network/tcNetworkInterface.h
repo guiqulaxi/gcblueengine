@@ -28,34 +28,34 @@
 #pragma once
 #endif
 
-// sockpp includes
-#include "sockpp/tcp_connector.h"
-#include "sockpp/tcp_acceptor.h"
-#include "sockpp/tcp_socket.h"
-#include "sockpp/udp_socket.h"
-#include "sockpp/inet_address.h"
+
 
 #include <list>
 #include <vector>
 #include <queue>
 #include <map>
 #include <string>
+#include <set>
 #include "tcConnectionData.h"
 #include "tcMessage.h"
 #include "common/gctypes.h"
-
+#include "Socket.hh"
+#include "SocketTCPClient.hh"
+#include "SocketTCPServer.hh"
+#include "SocketUDP.hh"
 #define BEGIN_NAMESPACE(x) namespace x {
 #define END_NAMESPACE }
 
+// Forward declarations
+namespace network {
+    class SocketTCPClient;
+    class SocketTCPServer;
+    class SocketUDP;
+}
+
 BEGIN_NAMESPACE(network)
 
-// Forward declarations for standard socket classes
-// Use sockpp classes directly instead of wrapper classes
-typedef sockpp::tcp_socket SocketBase;
-typedef sockpp::tcp_connector SocketClient;
-typedef sockpp::tcp_acceptor SocketServer;
-typedef sockpp::udp_socket DatagramSocket;
-typedef sockpp::inet_address IPV4address;
+
 
 class tcNetworkInterface
 {
@@ -115,11 +115,12 @@ private:
     int connectionIndex; ///< counter used to assigned connection id
     bool isServer; ///< true if this interface is acting as a server, false if client
     UINT32 connectionStartTime;
-    IPV4address hostAddress;
+    in_addr_t hostAddress;
 
-    SocketClient *clientSock; ///< single socket that will be used in client mode
-    SocketServer *serverSock; ///< server socket for server mode
-    DatagramSocket *datagramSock; ///< UDP socket
+    SocketTCPClient *clientSock; ///< single socket that will be used in client mode
+    SocketTCPServer *serverSock; ///< server socket for server mode
+    SocketUDP *datagramSock; ///< UDP socket
+    fd_set fdset ;
 
 	/// map of (connection id, connection data), access (and delete) in log time
     std::map<int, tcConnectionData*> connectionData;
@@ -130,15 +131,17 @@ private:
 
     std::map<std::string, int> peerMap; ///< another lookup (peername, connectionData idx)
 
-    void AddConnection(SocketBase *socket); // adds new connection using socket
+    void AddConnection(SocketTCPClient *socket); // adds new connection using socket
 
 
     void ClearConnectionMessages(int id);
     int CheckoutMessage();
-
+    
+    tcConnectionData* GetConnection(SocketTCPClient* socket);
 
     tcConnectionData* GetConnection(const std::string& peerName);
-    DatagramSocket* GetDatagramSocket() {return datagramSock;}
+
+    SocketUDP* GetDatagramSocket() {return datagramSock;}
     void InitializeUDP();
 
     void OnSocketEvent(/* parameters removed */);

@@ -225,6 +225,10 @@ public:
     std::string GetOutDBData(const std::string& name);
     tcGame();
     ~tcGame();
+    //设置网络模式
+    void SetNetworkMode(const std::string&  mode);
+    //连接服务器
+    void ConnectToServer(const std::string& serverIp,const std::string& name ,const std::string& password);
 private:
 
     // struct UnitInfo{
@@ -268,6 +272,7 @@ private:
     std::mutex mtx_cmds;
     std::string outsimdata;//存储仿真数据
     std::mutex mtx_outsimdata;
+    int networkMode;//网络模式
     void UpdateOutSimData();
 
 };

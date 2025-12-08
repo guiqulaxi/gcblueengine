@@ -83,13 +83,14 @@ class tcSimState
         bool mbLoaded; ///< true if scenario is loaded
     };
 
+
+public:
     enum MultiplayerMode
     {
         MM_OFF = 0,
         MM_CLIENT = 1,
         MM_SERVER = 2
     }; ///< multiplayer mode options
-public:
     friend class tcGameSerializer;
     friend class scriptinterface::tcScenarioLogger;
     friend class tcWeaponTester;

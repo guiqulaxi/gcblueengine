@@ -170,7 +170,7 @@ const char* tcConnectionData::GetIdString() const
 	return idString.c_str();
 }
 
-const sockpp::inet_address& tcConnectionData::GetPeerAddress() const
+const in_addr_t& tcConnectionData::GetPeerAddress() const
 {
 	return UDPaddress;
 }
@@ -206,7 +206,7 @@ unsigned int tcConnectionData::GetResentCount() const
 	return resentCount;
 }
 
-sockpp::tcp_socket* tcConnectionData::GetSocket()
+SocketTCPClient* tcConnectionData::GetSocket()
 {
 	return socket;
 }
@@ -241,7 +241,7 @@ void tcConnectionData::ReadNextMessageTCP()
     // read size field first
     if (tempMessage.bufferIdx == 0)
     {
-        ssize_t result = socket->read(tempMessage.data.buffer, tcMessage::SIZE_SIZE);
+        size_t result = socket->receive(tempMessage.data.buffer, tcMessage::SIZE_SIZE);
         if (result > 0) {
             tempMessage.bufferIdx += static_cast<unsigned int>(result);
         }
@@ -254,7 +254,7 @@ void tcConnectionData::ReadNextMessageTCP()
     }
 
     // Read message
-    ssize_t result = socket->read(tempMessage.data.buffer + tempMessage.bufferIdx, 
+    size_t result = socket->receive(tempMessage.data.buffer + tempMessage.bufferIdx, 
         tempMessage.data.header.messageSize - tempMessage.bufferIdx);
     
     if (result > 0) {
@@ -468,21 +468,18 @@ void tcConnectionData::SetPingTime(float ping_s)
     pingCount++;
 }
 
-void tcConnectionData::SetSocket(sockpp::tcp_socket* sock)
+void tcConnectionData::SetSocket(SocketTCPClient *sock)
 {
     socket = sock;
 
     if (socket != NULL)
     {
         // get peer name for id string and UDP address
-        sockpp::inet_address peerAddr = socket->peer_address();
-        if (peerAddr.is_set()) {  // 使用is_set()方法检查地址是否有效
-            idString = peerAddr.to_string();
-            UDPaddress = peerAddr; // 设置UDP通信地址
-        }
-        else {
-            idString = "Unknown";
-        }
+        in_addr_t peerAddr = socket->getAddr();
+        idString = Socket::addr2string(peerAddr);
+        UDPaddress = peerAddr; // 设置UDP通信地址
+        networkInterface->GetDatagramSocket()->setDestination( UDPaddress,tcNetworkInterface::UDP_PORT);
+
     }
 }
 
@@ -566,14 +563,14 @@ void tcConnectionData::WriteTCP()
     }
 
     // 确保socket是一个对象实例而不是函数指针
-    int result = socket->write(message->data.buffer + message->bufferIdx, 
+    int result = socket->send(message->data.buffer + message->bufferIdx,
         message->data.header.messageSize - message->bufferIdx);
 
     if (result < 0) {
         socketErrorCount++;
-        std::cerr << "Error - TCP SocketError: " << socket->last_error_str() << std::endl;
+        std::cerr << "Error - TCP SocketError: " << socket->lastError() << std::endl;
 
-        if ((socket->last_error() == EWOULDBLOCK || socket->last_error() == EAGAIN) && (socketErrorCount > 32)) {
+        if ((socket->lastError() == EWOULDBLOCK || socket->lastError() == EAGAIN) && (socketErrorCount > 32)) {
             std::cerr << "     Flushing buffer due to repeated blocking errors" << std::endl;
             socketErrorCount = 0;
         }
@@ -631,7 +628,7 @@ void tcConnectionData::WriteUDP()
     // attach rider to message with ids of packets to ack
     AttachAckRider(message);
     
-    DatagramSocket *datagramSock = networkInterface->GetDatagramSocket();
+    SocketUDP *datagramSock = networkInterface->GetDatagramSocket();
     if (datagramSock == NULL)
     {
         std::cerr << "Error - NULL datagram socket" << std::endl;
@@ -639,12 +636,12 @@ void tcConnectionData::WriteUDP()
     }
     
     // Send message via UDP
-    int result = datagramSock->send_to(message->data.buffer, message->data.header.messageSize, UDPaddress);
+    int result = datagramSock->send(message->data.buffer, message->data.header.messageSize);
     if (result < 0) {
         socketErrorCount++;
-        std::cerr << "Error - UDP SocketError: " << datagramSock->last_error_str() << std::endl;
+        std::cerr << "Error - UDP SocketError: " << datagramSock->lastError() << std::endl;
 
-        if ((datagramSock->last_error() == EWOULDBLOCK || datagramSock->last_error() == EAGAIN) && (socketErrorCount > 32)) {
+        if ((datagramSock->lastError() == EWOULDBLOCK || datagramSock->lastError() == EAGAIN) && (socketErrorCount > 32)) {
             std::cerr << "     Flushing buffer due to repeated blocking errors" << std::endl;
             socketErrorCount = 0;
         }
@@ -698,9 +695,9 @@ tcConnectionData::~tcConnectionData()
     
     if (socket)
     {
+        socket->close();
         delete socket;
     }
 }
 
 END_NAMESPACE
-

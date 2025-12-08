@@ -26,14 +26,12 @@
 #ifndef _CONNECTIONDATA_H_
 #define _CONNECTIONDATA_H_
 
+#include "Socket.hh"
 #if _MSC_VER > 1000
 #pragma once
 #endif
 
-// sockpp includes
-#include <sockpp/tcp_socket.h>
-#include <sockpp/inet_address.h>
-
+#include "SocketTCPClient.hh" // 添加自定义Socket头文件
 #include <deque>
 #include <list>
 #include <queue>
@@ -71,10 +69,10 @@ public:
     // free all queued messages
     void ClearAllMessages();
 	const char* GetIdString() const;
-	const sockpp::inet_address& GetPeerAddress() const;
+    const in_addr_t& GetPeerAddress() const;
     unsigned int GetReadCount() const;
 	unsigned int GetResentCount() const;
-	sockpp::tcp_socket* GetSocket();
+    SocketTCPClient* GetSocket();
     unsigned int GetWriteCount() const;
     unsigned int GetReadCountSec() const;
     unsigned int GetWriteCountSec() const; 
@@ -86,7 +84,7 @@ public:
     void SendTCP(unsigned int idx);
     void SendUDP(unsigned int idx);
     void SetPingTime(float ping_s);
-    void SetSocket(sockpp::tcp_socket* sock);
+    void SetSocket(SocketTCPClient* sock);
 
     void Update(); ///< read and write data from socket
     void WriteQueuedMessages();
@@ -97,7 +95,7 @@ public:
 private:
     enum {DUPLICATE_HISTORY = 16}; ///< number of UDP packets to keep history for duplicate checking
 
-    sockpp::tcp_socket *socket;   ///< socket associated with this connection
+    SocketTCPClient *socket;   ///< socket associated with this connection
     tcMessage tempMessage; ///< message to use for temporary storage
     unsigned int lastReadCount; ///< read count at last second mark
     unsigned int lastWriteCount; ///< write count at last second mark
@@ -114,7 +112,8 @@ private:
     unsigned int resentCount; ///< number of resent messages
     unsigned int maxWaitingForAck; ///< maximum number of messages waiting for ack
     unsigned int socketErrorCount; ///< count of socket errors
-    sockpp::inet_address UDPaddress; ///< UDP address for this connection
+    in_addr_t UDPaddress; ///< UDP address for this connection
+    unsigned int UDPport; ///< UDP port for this connection
 
     void AttachAckRider(tcMessage* message);
     void ProcessAckRider(tcMessage* message);

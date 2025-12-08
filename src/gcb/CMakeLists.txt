@@ -18,7 +18,7 @@ link_directories(
     ${PROJECT_SOURCE_DIR}/3rd/tiff/lib
     ${PROJECT_SOURCE_DIR}/3rd/proj/lib
     ${PROJECT_SOURCE_DIR}/3rd/sqlite/lib
-     ${PROJECT_SOURCE_DIR}/3rd/sockpp/lib
+    #${PROJECT_SOURCE_DIR}/3rd/sockpp/lib
 )
 
 # 添加  动态库，并链接 common 库（如果需要）
@@ -45,7 +45,7 @@ target_include_directories(gcb PRIVATE
     ${PROJECT_SOURCE_DIR}/3rd/tiff/include
     ${PROJECT_SOURCE_DIR}/3rd/proj/include
     ${PROJECT_SOURCE_DIR}/3rd/rapidjson/include
-    ${PROJECT_SOURCE_DIR}/3rd/sockpp/include
+    #${PROJECT_SOURCE_DIR}/3rd/sockpp/include
 
 
 )
@@ -56,7 +56,7 @@ target_compile_options(gcb
     )
 
 
-target_link_libraries(gcb PRIVATE libgeotiff libtiff libproj sqlite3 libsockpp $<$<BOOL:${MINGW}>:ws2_32>)
+target_link_libraries(gcb PRIVATE libgeotiff libtiff libproj sqlite3 $<$<BOOL:${MINGW}>:ws2_32>)
 # target_link_libraries(lib2 PRIVATE common) # 如果需要链接 common  
 
 # 安装头文件和库（可选）  
