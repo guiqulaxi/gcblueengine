@@ -115,7 +115,8 @@ public:
 //    uint64_t nLastCount; // for timing 纳秒
 
     tcDateTime gameDateTime; ///< object combining date and time
-    std::chrono::system_clock::time_point prevRealTime;//推进时的真实时间
+    std::chrono::high_resolution_clock::time_point fpsStartTime;//fps开始统计的时间
+    std::chrono::high_resolution_clock::time_point prevFrameTime;//上一帧的时间点
 
 
 
@@ -139,7 +140,7 @@ public:
         ECS_NONE
     } meEditControlState;
 
-    int mbPaused;
+    bool mbPaused;
     bool mbQuit; ///< set to true to exit game to desktop
 	bool endGame; ///< set to true to exit game to start screen
     bool mbScenarioEdit; ///< scenario edit mode

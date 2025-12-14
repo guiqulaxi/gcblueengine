@@ -438,6 +438,7 @@ void tcNetworkInterface::MakeServer()
     isServer = true;
 
     serverSock = new SocketTCPServer();
+    serverSock->createServer(TCPIP_PORT);
     fprintf(stdout, "Server listening at port %d\n", TCPIP_PORT);
 
     InitializeUDP();
@@ -826,7 +827,7 @@ void tcNetworkInterface::UpdateConnections()
     }
     
     // Handle UDP traffic
-    RouteUDP();
+    //RouteUDP();
 }
 
 
@@ -854,22 +855,16 @@ void tcNetworkInterface::UpdateServer()
     int max_fd = 0; // not used for _WIN32
 
     int result = 0;	// Wait for an incoming message.
-    while (!result)
+    // while (!result)
     {
-        int test;
 
         FD_ZERO(&fdset);
         FD_SET(tcp_server_fd, &fdset);
         FD_SET(udp_server_fd, &fdset);
-
-        //  将所有客户端连接加入监控
+        //将服务器端socket加入监控
         SOCKET current_max_fd = std::max(tcp_server_fd, udp_server_fd);
-        // for (SocketTCPClient* sock : socketTCPClients) {
-        //     SOCKET fd = sock->returnSocket();
-        //     FD_SET(fd, &fdset);
-        //     if (fd > current_max_fd)
-        //         current_max_fd = fd;
-        // }
+        //  将所有客户端连接加入监控
+
         for (auto kv:connectionData) {
             SocketTCPClient* sock=kv.second->GetSocket();
             if(sock)
@@ -885,8 +880,9 @@ void tcNetworkInterface::UpdateServer()
 #endif
 
         timeval		timeout;
+        //立即返回，不等待	非阻塞轮询（如游戏主循环）
         timeout.tv_sec= 0;
-        timeout.tv_usec= 50000L;
+        timeout.tv_usec= 0L;
 #ifdef _WIN32
         result = select(0, &fdset, NULL, NULL, &timeout);
         if (result < 0) {
@@ -920,47 +916,71 @@ void tcNetworkInterface::UpdateServer()
 #endif
 
     }
+    //检查已有的客户端是否有数据
+    for (auto kv:connectionData)
+    {
+        SocketTCPClient* link=kv.second->GetSocket();
 
-    for (auto kv:connectionData) {
+        if (link != NULL&&FD_ISSET(link->returnSocket(), &fdset))//有数据
         {
-            SocketTCPClient* link=kv.second->GetSocket();
-            //获得准备好的
-            if (link != NULL) {
-                try {
-                    do {
-                        //从SocketTCPClient转为connectionData
-                        tcConnectionData * conn =GetConnection(link);
-                        if(conn)
-                        {
-                            conn->ReadNextMessageTCP();
-                        }
-                    } while (link->isDataReady());
-                }
-                catch (NetworkError &e) {
-                    if (!e._reason.empty())
-                        std::cout << "Catching Network Error, reason : "<<e._reason<< std::endl;
-                    else
-                        std::cout << "RTIG dropping client connection " << link->returnSocket()
-                                  << '.' << std::endl ;
-                    link->close();
-                    link = NULL ;
-                }
+            try {
+                do {
+                    //从SocketTCPClient转为connectionData
+                    tcConnectionData * conn =GetConnection(link);
+                    if(conn)
+                    {
+                        conn->ReadNextMessageTCP();
+                    }
+                } while (link->isDataReady());
+            }
+            catch (NetworkError &e) {
+                if (!e._reason.empty())
+                    std::cout << "Catching Network Error, reason : "<<e._reason<< std::endl;
+                else
+                    std::cout << "RTIG dropping client connection " << link->returnSocket()
+                              << '.' << std::endl ;
+                link->close();
+                link = NULL ;
             }
         }
-
-        if (FD_ISSET(tcp_server_fd, &fdset))//来了新的TCP连接
-        {
-            SocketTCPClient *newLink = serverSock->accept();
-            AddConnection(newLink);
-            max_fd = std::max<decltype(max_fd)>(max_fd, newLink->returnSocket());
-        }
-        else if (FD_ISSET(udp_server_fd, &fdset)) {//来了新的UDP连接 直接读了
-            tcMessage tcMessage;
-            datagramSock->receive(tcMessage.GetMessageData(),tcMessage::BUFFER_SIZE);
-        }
-
-
     }
+
+    if (FD_ISSET(tcp_server_fd, &fdset))//来了新的TCP连接
+    {
+        SocketTCPClient *newLink = serverSock->accept();
+        AddConnection(newLink);
+        max_fd = std::max<decltype(max_fd)>(max_fd, newLink->returnSocket());
+    }
+    else if (FD_ISSET(udp_server_fd, &fdset)) {//来了新的UDP连接 直接读了
+        static unsigned char buff[MAX_UDP_SIZE];
+
+        // tcMessage tcMessage;
+        // int result =datagramSock->receive(tcMessage.GetMessageData(),tcMessage::BUFFER_SIZE);
+        unsigned int messageSize= MAX_UDP_SIZE;
+        int result =datagramSock->receive(buff, messageSize);
+
+
+        if (result < 0) {
+
+            return;
+        }
+        // Get the actual number of bytes received
+        size_t readCount = static_cast<size_t>(result);
+
+        // Create a peer identifier from the source address
+        std::string peerName = Socket::addr2string(datagramSock->getLastSenderAddr());
+
+        tcConnectionData *conn = GetConnection(peerName);
+        if (conn == NULL)
+        {
+            // Create a new connection for this peer if it doesn't exist
+            // This is a simplified approach - in a real implementation you might want to handle this differently
+            std::cerr << "Warning - RouteUDP() peer " << peerName << " not found, creating temporary connection" << std::endl;
+            return;
+        }
+        conn->ReadNextMessageUDP(readCount, buff);
+    }
+
 }
 
 

@@ -109,9 +109,14 @@ int main(int argc, char *argv[])
         {
             game->LoadScenario( a.get<std::string>("scenario"),"",false);
             //先暂停 等待客户端连接
-            game->SetTimeAccel(0);
+            game->SetTimeAccel(times);
         }
-        
+        else if (networkmode=="single")
+        {
+            game->LoadScenario( a.get<std::string>("scenario"),"",false);
+            //先暂停 等待客户端连接
+            game->SetTimeAccel(times);
+        }
         std::string ip=a.get<std::string>("ip");
         int port=a.get<int>("port");
         std::thread serverThread(serverFunc,ip,port,game);

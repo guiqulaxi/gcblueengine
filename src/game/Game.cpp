@@ -987,6 +987,12 @@ void tcGame::SetTimeAccel(int accel)
         mbPaused = true;
         accelerateTime = 0;
     }
+    else
+    {
+        accelerateTime = accel - 1;
+        mbPaused = false;
+
+    }
     //    else if ((accel <= 60) || (accel == 120))
     //    {
     //        mbPaused = false;
@@ -1105,31 +1111,40 @@ bool tcGame::UpdateFrame()
 {
     tcTime::Get()->Update();
 
-    static unsigned int snFrameCount = 0;
+    static unsigned int snFrameCount = 0;// 帧计数器
     static unsigned int snprevFrameCount = 0; //
 
-    static uint64_t diff_ms; // 时间差
-    static double fps = 0;
+    static uint64_t fpstime_us=0; // 统计fps的间隔
+    static uint64_t diff_us; // 每一帧的运行时间
+
+    static double fps = 0.0;
     static float fdt = 0.025; // 推进步长秒
+
     if (snFrameCount == 0)    // 第一次
     {
-        prevRealTime = std::chrono::system_clock::now();
+        fpsStartTime = std::chrono::high_resolution_clock::now();
+        prevFrameTime = std::chrono::high_resolution_clock::now();
+
     }
     else
     {
-        auto curRealTime = std::chrono::system_clock::now();
-        auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(
-            curRealTime - prevRealTime);
-        diff_ms = diff.count();
-    }
+        auto curRealTime = std::chrono::high_resolution_clock::now();
+        auto diff = std::chrono::duration_cast<std::chrono::microseconds>(
+            curRealTime - prevFrameTime);
+        diff_us = diff.count();
+        fpstime_us+= diff_us;
+        prevFrameTime=curRealTime;
 
-    if (diff_ms >= 1000) // 隔一秒统计一遍帧数
+    }
+    // 隔一秒统计一遍帧数
+
+    if (fpstime_us >1000000) 
     {
 
-        fps = (snFrameCount - snprevFrameCount) * 1000.0 / diff_ms; // 计算帧率
+        fps = (snFrameCount - snprevFrameCount) * 1000000.0 / fpstime_us; // 计算帧率
         snprevFrameCount = snFrameCount;
-        diff_ms = 0;
-        prevRealTime = std::chrono::high_resolution_clock::now();
+        fpsStartTime = std::chrono::high_resolution_clock::now();//重新计算fps开始时间
+        fpstime_us=0;
     }
 
     const float dateTimeScale = 1.0f; // for testing sky effects
@@ -1145,7 +1160,7 @@ bool tcGame::UpdateFrame()
     gameTime = simState->GetTime();
     simState->GetDateTime(gameDateTime);
 
-    auto speedMax = (unsigned int)(fps * 0.025); // 全速最大推演倍数 snFrameCount%speedMax==0才推进就是1倍
+    auto speedMax = (unsigned int)(fps * fdt); // 全速最大推演倍数 snFrameCount%speedMax==0才推进就是1倍
     if (simState->GetTimeAcceleration() > 0)
     {
         auto delta = speedMax / simState->GetTimeAcceleration(); // 按指定倍数推进
@@ -1170,10 +1185,19 @@ bool tcGame::UpdateFrame()
     std::cout << std::left << std::setw(3) << simState->GetDateTime().GetSecond();
     int nSize = simState->maPlatformState.GetCount();
     std::cout << std::left << std::setw(5) << nSize;
-    // 更新输出数据
+    //FPS显示格式：保留两位小数，宽度固定6位，左对齐
+    std::cout << std::left << std::setw(8) << std::fixed << std::setprecision(2) << fps;
+    std::cout << std::left << std::setw(8) << snFrameCount;
+    // // 更新输出数据
     UpdateOutSimData();
     // 处理命令
     ProcessCommandList();
+
+    // // 在方法开始和结束时更新多人游戏接口
+    tcMultiplayerInterface::Get()->Update();
+    bool mpEntityUpdate = tcMultiplayerInterface::EntityUpdateReceived(); // 检查是否有实体更新
+
+
 
     if (snFrameCount % 90 == 0)
     {

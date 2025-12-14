@@ -91,7 +91,7 @@ void tcTime::Init()
 void tcTime::Update()
 {
     auto currentTime = std::chrono::high_resolution_clock::now();
-        auto delta = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - snLastTime).count();
+        auto delta = std::chrono::duration_cast<std::chrono::microseconds>(currentTime - snLastTime).count();
         // Update the counter if 30 milliseconds have passed
             while (delta >= 30)
             {
@@ -100,7 +100,7 @@ void tcTime::Update()
             }
 
             // Update the last time
-            snLastTime += std::chrono::milliseconds(delta);
+            snLastTime += std::chrono::microseconds(delta);
 //	LARGE_INTEGER nCurrentCount;
 
 //	QueryPerformanceCounter(&nCurrentCount);

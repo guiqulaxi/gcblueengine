@@ -2757,21 +2757,21 @@ void tcMultiplayerInterface::Update()
 
     if (IsServer())
     {
-        if (gameStarted) 
+        if (gameStarted)
         {
             UpdateSensorMaps();
             UpdateMissions();
         }
 
-		UpdateGoalStatus();
+        UpdateGoalStatus();
 
-		UpdateTeamStatus();
+        UpdateTeamStatus();
 
         UpdateServerStatus();
     }
 
     /* update time when paused only. This is redundant
-    ** with obj state update which also has time info, but is 
+    ** with obj state update which also has time info, but is
     ** included as a heartbeat message.
     **
     ** Modified to always update to accomodate game speed requests

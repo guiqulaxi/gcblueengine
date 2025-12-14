@@ -937,44 +937,44 @@ void tcSimPythonInterface::FlushLogs()
 */
 void tcSimPythonInterface::UpdateLogs()
 {
-    std::string errorText;
+    // std::string errorText;
 
-    try
-    {
-        py::exec(
-            "outfile = file('log\\pyout.txt', 'a')\n"
-            "errfile = file('log\\pyerr.txt', 'a')\n"
-            "outfile.write(myout.getvalue())\n"
-            "ErrorText = myerr.getvalue()\n"
-            "errfile.write(ErrorText)\n"
-            "outfile.close()\n"
-            "errfile.close()\n"
-            "myout.truncate(0)\n"
-            "myerr.truncate(0)\n" );
+    // try
+    // {
+    //     py::exec(
+    //         "outfile = file('log/pyout.txt', 'a')\n"
+    //         "errfile = file('log/pyerr.txt', 'a')\n"
+    //         "outfile.write(myout.getvalue())\n"
+    //         "ErrorText = myerr.getvalue()\n"
+    //         "errfile.write(ErrorText)\n"
+    //         "outfile.close()\n"
+    //         "errfile.close()\n"
+    //         "myout.truncate(0)\n"
+    //         "myerr.truncate(0)\n" );
 
-        if (showPythonErrors)
-        {
-            //			handle<> errorTextHandle(borrowed(PyDict_GetItemString(main_namespace.ptr(), "ErrorText")));
-            //			str textObject(errorTextHandle);
+    //     if (showPythonErrors)
+    //     {
+    //         //			handle<> errorTextHandle(borrowed(PyDict_GetItemString(main_namespace.ptr(), "ErrorText")));
+    //         //			str textObject(errorTextHandle);
 
-            //			errorText = extract<const char*>(textObject);
-        }
-    }
-    catch(error_already_set)
-    {
-        fprintf(stderr,"Exception occurred during SendTextToConsole\n");
-        //		PyErr_Print();
-    }
-    catch(...)
-    {
-        fprintf(stderr,"Unknown exception occurred during SendTextToConsole\n");
-        PyErr_Print();
-    }
+    //         //			errorText = extract<const char*>(textObject);
+    //     }
+    // }
+    // catch(error_already_set)
+    // {
+    //     fprintf(stderr,"Exception occurred during SendTextToConsole\n");
+    //     PyErr_Print();
+    // }
+    // catch(...)
+    // {
+    //     fprintf(stderr,"Unknown exception occurred during SendTextToConsole\n");
+    //     PyErr_Print();
+    // }
 
-    if (errorText.size() > 0)
-    {
+    // if (errorText.size() > 0)
+    // {
 
-    }
+    // }
 
 
 }
