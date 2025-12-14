@@ -321,6 +321,9 @@ public:
     void ClearScenario();
     void LoadScenario(const std::string &filePath);
 
+    void PrintSimState();
+
+
     tcScenarioInterface();
     ~tcScenarioInterface();
 private:

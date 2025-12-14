@@ -70,7 +70,18 @@ void serverFunc( const std::string &ip, int port ,tcGame  *game) {
         std::cerr << "Failed to start server." <<ip <<":"<<port<< std::endl;
     }
 }
+// 输入监听线程
 
+void inputThread(tcGame  *game) {
+
+    std::string cmd;
+    while (true) {
+        std::getline(std::cin, cmd);
+        if (!cmd.empty()) {
+          game->AddCommand(cmd);
+        }
+    }
+}
 
 
 int main(int argc, char *argv[])
@@ -131,7 +142,14 @@ int main(int argc, char *argv[])
         std::thread serverThread(serverFunc,ip,port,game);
         serverThread.detach();
     }
+    std::thread input_th(inputThread,game);
+
     while (!game->UpdateFrame()) {
+    }
+    // 启动输入监听线程
+
+    if (input_th.joinable()) {
+        input_th.join();
     }
     return  0;
 

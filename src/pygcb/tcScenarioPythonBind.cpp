@@ -130,5 +130,6 @@ void BindScenario(module &m)
         .def("SetTimeAccel", &tcScenarioInterface::SetTimeAccel)
         .def("ClearScenario", &tcScenarioInterface::ClearScenario)
         .def("LoadScenario", &tcScenarioInterface::LoadScenario)
+        .def("PrintSimState", &tcScenarioInterface::PrintSimState)
         ;
 }

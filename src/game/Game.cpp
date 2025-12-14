@@ -1175,19 +1175,19 @@ bool tcGame::UpdateFrame()
     }
 
     //    directorTime += fdt; // run director when not in simple brief mode
-    std::cout << "\r";
-    std::cout << std::setw(10) << std::fixed << std::setprecision(2) << std::setprecision(2) << simState->GetTime() << " ";
-    std::cout << simState->GetDateTime().GetYear() << "-";
-    std::cout << std::left << std::setw(2) << simState->GetDateTime().GetMonth() << "-";
-    std::cout << std::left << std::setw(2) << simState->GetDateTime().GetDay() << " ";
-    std::cout << std::left << std::setw(2) << simState->GetDateTime().GetHour() << ":";
-    std::cout << std::left << std::setw(2) << simState->GetDateTime().GetMinute() << ":";
-    std::cout << std::left << std::setw(3) << simState->GetDateTime().GetSecond();
-    int nSize = simState->maPlatformState.GetCount();
-    std::cout << std::left << std::setw(5) << nSize;
-    //FPS显示格式：保留两位小数，宽度固定6位，左对齐
-    std::cout << std::left << std::setw(8) << std::fixed << std::setprecision(2) << fps;
-    std::cout << std::left << std::setw(8) << snFrameCount;
+    // std::cout << "\r";
+    // std::cout << std::setw(10) << std::fixed << std::setprecision(2) << std::setprecision(2) << simState->GetTime() << " ";
+    // std::cout << simState->GetDateTime().GetYear() << "-";
+    // std::cout << std::left << std::setw(2) << simState->GetDateTime().GetMonth() << "-";
+    // std::cout << std::left << std::setw(2) << simState->GetDateTime().GetDay() << " ";
+    // std::cout << std::left << std::setw(2) << simState->GetDateTime().GetHour() << ":";
+    // std::cout << std::left << std::setw(2) << simState->GetDateTime().GetMinute() << ":";
+    // std::cout << std::left << std::setw(3) << simState->GetDateTime().GetSecond();
+    // int nSize = simState->maPlatformState.GetCount();
+    // std::cout << std::left << std::setw(5) << nSize;
+    // //FPS显示格式：保留两位小数，宽度固定6位，左对齐
+    // std::cout << std::left << std::setw(8) << std::fixed << std::setprecision(2) << fps;
+    // std::cout << std::left << std::setw(8) << snFrameCount;
     // // 更新输出数据
     UpdateOutSimData();
     // 处理命令

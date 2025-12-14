@@ -2354,6 +2354,22 @@ void tcScenarioInterface::LoadScenario(const std::string &filePath)
     //    }
 }
 
+void tcScenarioInterface::PrintSimState()
+{
+    assert(simState);
+
+    std::cout << std::setw(10) << std::fixed << std::setprecision(2) << std::setprecision(2) << simState->GetTime() << " ";
+    std::cout << simState->GetDateTime().GetYear() << "-";
+    std::cout << std::left << std::setw(2) << simState->GetDateTime().GetMonth() << "-";
+    std::cout << std::left << std::setw(2) << simState->GetDateTime().GetDay() << " ";
+    std::cout << std::left << std::setw(2) << simState->GetDateTime().GetHour() << ":";
+    std::cout << std::left << std::setw(2) << simState->GetDateTime().GetMinute() << ":";
+    std::cout << std::left << std::setw(3) << simState->GetDateTime().GetSecond();
+    int nSize = simState->maPlatformState.GetCount();
+    std::cout << std::left << std::setw(5) << nSize;
+    std::cout <<std::endl;
+}
+
 tcScenarioInterface::~tcScenarioInterface()
 {
 }
