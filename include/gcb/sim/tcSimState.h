@@ -217,6 +217,9 @@ public:
     void ResyncObjAlliance();
 
     void ToggleUserAlliance();
+    //最大倍数
+    double GetMaxSimAccel();
+    void SetMaxSimAccel(double accel);
 
 private:
     tcSimState();
@@ -238,6 +241,7 @@ private:
     tcFile damageLog;
     bool logDamage;
     bool isMultiplayerGameStarted;
+    double maxSimAccel;///<最大仿真倍数
 
     void EvaluateGuidedMissileHit(std::shared_ptr<tcMissileObject> missile, std::shared_ptr<tcGameObject> target);
 	void EvaluateImpactWeaponHit(std::shared_ptr<tcWeaponObject> weapon);

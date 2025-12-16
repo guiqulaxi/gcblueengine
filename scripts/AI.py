@@ -322,15 +322,15 @@ def EngageAllWrapper(TI, mtype):
     if (engage_mode == 1): # turn to target
         fcinfo = UI.GetFireControlInfo()
         
-        target_id = long(TI.GetMemoryValue(10))
+        target_id = int(TI.GetMemoryValue(10))
         target_track = UI.GetTargetTrackInfo()
-        launcher = long(TI.GetMemoryValue(11))
+        launcher = int(TI.GetMemoryValue(11))
         if ((target_id == -1) or (not target_track.IsValid()) or (target_track.IsDestroyed()) or (launcher == -1)): 
             TI.SetMemoryValue(2, 0)
             RejoinFormation(TI, UI)
             return
         UI.SetTarget(target_id)
-        launcher = long(TI.GetMemoryValue(11))
+        launcher = int(TI.GetMemoryValue(11))
         launcher_angle = TI.GetMemoryValue(12)
         sector_width = TI.GetMemoryValue(13)
         target_bearing = GetTargetBearing(UI)
@@ -385,7 +385,7 @@ def EngageAllWrapper(TI, mtype):
 
 # Used by Engage tasks
 def RejoinFormation(TI, UI):
-    formation_leader = long(TI.GetMemoryValue(14))
+    formation_leader = int(TI.GetMemoryValue(14))
     if (formation_leader != -1):
         UI.SetFormationLeader(formation_leader)
 
@@ -1380,7 +1380,7 @@ def AirFormation(TI):
     leader = BB.ReadMessage('FormationLeader')
     #UI.DisplayMessage('Leader is %s' % leader)
     
-    UI.SetFormationLeader(long(leader))
+    UI.SetFormationLeader(int(leader))
     UI.SetFormationPosition(0.2, 0.05, 3.1416, 0.05)
     UI.SetFormationMode(1) # 1 is follow, 2 is sprint-drift
     TI.EndTask()

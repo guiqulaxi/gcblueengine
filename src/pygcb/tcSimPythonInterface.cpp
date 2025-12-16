@@ -613,7 +613,7 @@ void tcSimPythonInterface::LoadDBObject(const std::string &filePath)
     py::exec("dbObj=CreateDBObject()\n");
     py::exec("DatabaseManager.AddOrUpdateObject(dbObj)\n");
        }catch (const pybind11::error_already_set& e) {
-            printf("%s\n",e.what());
+            printf("%s,%s\n",filePath.c_str(), e.what());
            return;
        }
 }

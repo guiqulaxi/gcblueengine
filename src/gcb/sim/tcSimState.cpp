@@ -3450,7 +3450,8 @@ tcSimState::tcSimState()
    weaponTester(0),// relevant in dev mode only
 #endif
 
-      isMultiplayerGameStarted(false)
+      isMultiplayerGameStarted(false),
+    maxSimAccel(0)
 { 
     const std::chrono::system_clock::time_point t =  std::chrono::system_clock::now();
     srand(t.time_since_epoch().count());
@@ -3530,4 +3531,11 @@ tcSimState::~tcSimState()
     }
 }
 
-
+double tcSimState::GetMaxSimAccel()
+{
+    return maxSimAccel;
+}
+void tcSimState::SetMaxSimAccel(double fps)
+{
+    this->maxSimAccel=fps;
+}

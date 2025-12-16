@@ -1161,6 +1161,7 @@ bool tcGame::UpdateFrame()
     simState->GetDateTime(gameDateTime);
 
     auto speedMax = (unsigned int)(fps * fdt); // 全速最大推演倍数 snFrameCount%speedMax==0才推进就是1倍
+    simState->SetMaxSimAccel(fps * fdt);
     if (simState->GetTimeAcceleration() > 0)
     {
         auto delta = speedMax / simState->GetTimeAcceleration(); // 按指定倍数推进

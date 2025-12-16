@@ -48,7 +48,7 @@ def CreateDBObject():
     dbObj.batteryRate_kW=0.000000
     dbObj.maxSpeed_kts=5.000000
     dbObj.acceleration_ktsps=5.000000
-    dbObj.sonarClass=''
+    dbObj.sonarClass='Mk-44 Torpedo Sonar'
     dbObj.wireGuidance=False
     dbObj.preEnableSpeed_kts=0.000000
     dbObj.weaponType=3

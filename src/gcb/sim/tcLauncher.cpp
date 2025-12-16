@@ -1304,7 +1304,7 @@ void tcLauncher::InitForNewChild(bool ignoreRestrictions)
         }
         else
         {
-            fprintf(stderr, "tcLauncher::InitForNewChild - no seeker\n");
+            fprintf(stderr, "%s tcLauncher::InitForNewChild - no sonarClass \n",torpDBObj->mzClass.c_str());
         }
 
         preEnableSpeed_kts = torpDBObj->preEnableSpeed_kts;

@@ -1116,28 +1116,28 @@ def CreateScenario(SM):
     SM.SetFlightDeckUnitLoadout('Gardermoen AB', 'Gard AAW-12', '4 AIM-9M;2 330 gallon wing tank;4 Skyflash SuperTEMP;30 27mm BK27 27x145mm;45 Flare-1;45 Chaff-1;')
     
     SM.AddUnitToFlightDeck('Gardermoen AB', 'Tornado GR.Mk.1B', 'Gard ASUW-1', 1)
-    SM.SetFlightDeckUnitLoadout('Gardermoen AB', 'Gard ASUW-1', '50 Chaff-1;50 Flare-1;1 AIM-9M;1 AIM-9M;1 330 gallon wing tank;1 330 gallon wing tank;1 Bae Sea Eagle;1 BAe Sea Eagle;1 ALARM;30 27mm BK27 27x145mm;30 27mm BK27 27x145mm;')
+    SM.SetFlightDeckUnitLoadout('Gardermoen AB', 'Gard ASUW-1', '50 Chaff-1;50 Flare-1;1 AIM-9M;1 AIM-9M;1 330 gallon wing tank;1 330 gallon wing tank;1 BAe Sea Eagle;1 ALARM;30 27mm BK27 27x145mm;30 27mm BK27 27x145mm;')
     
     SM.AddUnitToFlightDeck('Gardermoen AB', 'Tornado GR.Mk.1B', 'Gard ASUW-2', 1)
-    SM.SetFlightDeckUnitLoadout('Gardermoen AB', 'Gard ASUW-2', '50 Chaff-1;50 Flare-1;1 AIM-9M;1 AIM-9M;1 330 gallon wing tank;1 330 gallon wing tank;1 Bae Sea Eagle;1 BAe Sea Eagle;1 ALARM;30 27mm BK27 27x145mm;30 27mm BK27 27x145mm;')
+    SM.SetFlightDeckUnitLoadout('Gardermoen AB', 'Gard ASUW-2', '50 Chaff-1;50 Flare-1;1 AIM-9M;1 AIM-9M;1 330 gallon wing tank;1 330 gallon wing tank;1 BAe Sea Eagle;1 ALARM;30 27mm BK27 27x145mm;30 27mm BK27 27x145mm;')
     
     SM.AddUnitToFlightDeck('Gardermoen AB', 'Tornado GR.Mk.1B', 'Gard ASUW-3', 1)
-    SM.SetFlightDeckUnitLoadout('Gardermoen AB', 'Gard ASUW-3', '50 Chaff-1;50 Flare-1;1 AIM-9M;1 AIM-9M;1 330 gallon wing tank;1 330 gallon wing tank;1 Bae Sea Eagle;1 BAe Sea Eagle;1 ALARM;30 27mm BK27 27x145mm;30 27mm BK27 27x145mm;')
+    SM.SetFlightDeckUnitLoadout('Gardermoen AB', 'Gard ASUW-3', '50 Chaff-1;50 Flare-1;1 AIM-9M;1 AIM-9M;1 330 gallon wing tank;1 330 gallon wing tank;1 BAe Sea Eagle;1 ALARM;30 27mm BK27 27x145mm;30 27mm BK27 27x145mm;')
     
     SM.AddUnitToFlightDeck('Gardermoen AB', 'Tornado GR.Mk.1B', 'Gard ASUW-4', 1)
-    SM.SetFlightDeckUnitLoadout('Gardermoen AB', 'Gard ASUW-4', '50 Chaff-1;50 Flare-1;1 AIM-9M;1 AIM-9M;1 330 gallon wing tank;1 330 gallon wing tank;1 Bae Sea Eagle;1 BAe Sea Eagle;1 ALARM;30 27mm BK27 27x145mm;30 27mm BK27 27x145mm;')
+    SM.SetFlightDeckUnitLoadout('Gardermoen AB', 'Gard ASUW-4', '50 Chaff-1;50 Flare-1;1 AIM-9M;1 AIM-9M;1 330 gallon wing tank;1 330 gallon wing tank;1 BAe Sea Eagle;1 ALARM;30 27mm BK27 27x145mm;30 27mm BK27 27x145mm;')
     
     SM.AddUnitToFlightDeck('Gardermoen AB', 'Tornado GR.Mk.1B', 'Gard ASUW-5', 1)
-    SM.SetFlightDeckUnitLoadout('Gardermoen AB', 'Gard ASUW-5', '50 Chaff-1;50 Flare-1;1 AIM-9M;1 AIM-9M;1 330 gallon wing tank;1 330 gallon wing tank;1 Bae Sea Eagle;1 BAe Sea Eagle;1 ALARM;30 27mm BK27 27x145mm;30 27mm BK27 27x145mm;')
+    SM.SetFlightDeckUnitLoadout('Gardermoen AB', 'Gard ASUW-5', '50 Chaff-1;50 Flare-1;1 AIM-9M;1 AIM-9M;1 330 gallon wing tank;1 330 gallon wing tank;1 BAe Sea Eagle;1 ALARM;30 27mm BK27 27x145mm;30 27mm BK27 27x145mm;')
     
     SM.AddUnitToFlightDeck('Gardermoen AB', 'Tornado GR.Mk.1B', 'Gard ASUW-6', 1)
-    SM.SetFlightDeckUnitLoadout('Gardermoen AB', 'Gard ASUW-6', '50 Chaff-1;50 Flare-1;1 AIM-9M;1 AIM-9M;1 330 gallon wing tank;1 330 gallon wing tank;1 Bae Sea Eagle;1 BAe Sea Eagle;1 ALARM;30 27mm BK27 27x145mm;30 27mm BK27 27x145mm;')
+    SM.SetFlightDeckUnitLoadout('Gardermoen AB', 'Gard ASUW-6', '50 Chaff-1;50 Flare-1;1 AIM-9M;1 AIM-9M;1 330 gallon wing tank;1 330 gallon wing tank;1 BAe Sea Eagle;1 ALARM;30 27mm BK27 27x145mm;30 27mm BK27 27x145mm;')
     
     SM.AddUnitToFlightDeck('Gardermoen AB', 'Tornado GR.Mk.1B', 'Gard ASUW-7', 1)
-    SM.SetFlightDeckUnitLoadout('Gardermoen AB', 'Gard ASUW-7', '50 Chaff-1;50 Flare-1;1 AIM-9M;1 AIM-9M;1 330 gallon wing tank;1 330 gallon wing tank;1 Bae Sea Eagle;1 BAe Sea Eagle;1 ALARM;30 27mm BK27 27x145mm;30 27mm BK27 27x145mm;')
+    SM.SetFlightDeckUnitLoadout('Gardermoen AB', 'Gard ASUW-7', '50 Chaff-1;50 Flare-1;1 AIM-9M;1 AIM-9M;1 330 gallon wing tank;1 330 gallon wing tank;1 BAe Sea Eagle;1 ALARM;30 27mm BK27 27x145mm;30 27mm BK27 27x145mm;')
     
     SM.AddUnitToFlightDeck('Gardermoen AB', 'Tornado GR.Mk.1B', 'Gard ASUW-8', 1)
-    SM.SetFlightDeckUnitLoadout('Gardermoen AB', 'Gard ASUW-8', '50 Chaff-1;50 Flare-1;1 AIM-9M;1 AIM-9M;1 330 gallon wing tank;1 330 gallon wing tank;1 Bae Sea Eagle;1 BAe Sea Eagle;1 ALARM;30 27mm BK27 27x145mm;30 27mm BK27 27x145mm;')
+    SM.SetFlightDeckUnitLoadout('Gardermoen AB', 'Gard ASUW-8', '50 Chaff-1;50 Flare-1;1 AIM-9M;1 AIM-9M;1 330 gallon wing tank;1 330 gallon wing tank;1 BAe Sea Eagle;1 ALARM;30 27mm BK27 27x145mm;30 27mm BK27 27x145mm;')
     
     SM.AddUnitToFlightDeck('Gardermoen AB', 'Tornado IDS (Germany)', 'Gard STK-1', 1)
     SM.SetFlightDeckUnitLoadout('Gardermoen AB', 'Gard STK-1', '50 Chaff-1;50 Flare-1;1 AIM-9M;1 AIM-9M;1 330 gallon wing tank;1 330 gallon wing tank;2 AGM-65D;2 AGM-65D;1 ALARM;30 27mm BK27 27x145mm;30 27mm BK27 27x145mm;')
@@ -6308,10 +6308,4 @@ def CreateScenario(SM):
 
     SM.SetAllianceROEByType(3, 2, 2, 2, 2)
 
-    ##############################
-    ### Overlay Graphics
-    ##############################
-    SM.OverlayText('Bornholm', 14.8043, 55.1542, '0x000000FF')
-    ##############################
-    ### Randomization Info
-    ##############################
+ 

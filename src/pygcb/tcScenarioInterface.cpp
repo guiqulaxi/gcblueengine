@@ -2367,6 +2367,7 @@ void tcScenarioInterface::PrintSimState()
     std::cout << std::left << std::setw(3) << simState->GetDateTime().GetSecond();
     int nSize = simState->maPlatformState.GetCount();
     std::cout << std::left << std::setw(5) << nSize;
+    std::cout << std::left << std::setw(8) <<std::setprecision(2) <<simState->GetMaxSimAccel();
     std::cout <<std::endl;
 }
 

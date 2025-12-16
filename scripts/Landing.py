@@ -204,7 +204,7 @@ def LandHelo(TI):
     
     # 0 - init, 1 - distant, 2 - init approach, 3 - final approach
     land_state = TI.GetMemoryValue(2)
-    dest_id = long(TI.GetMemoryValue(3))
+    dest_id = int(TI.GetMemoryValue(3))
     track_info = UI.GetTrackById(dest_id)
 
     alt_m = track_info.Alt
@@ -456,7 +456,7 @@ def Refuel(TI):
     iteration = iteration + 1
     TI.SetMemoryValue(1, iteration)
     
-    dest_id = long(TI.GetMemoryValue(4))
+    dest_id = int(TI.GetMemoryValue(4))
     track_info = UI.GetTrackById(dest_id)
     range_km = UI.GetRangeToTrack(track_info)
     # IsTankerAircraft also returns false if tanker is out of fuel

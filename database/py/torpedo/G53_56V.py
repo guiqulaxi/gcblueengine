@@ -48,7 +48,7 @@ def CreateDBObject():
     dbObj.batteryRate_kW=1.000000
     dbObj.maxSpeed_kts=50.000000
     dbObj.acceleration_ktsps=1.500000
-    dbObj.sonarClass=''
+    dbObj.sonarClass='Passive wake homer'
     dbObj.wireGuidance=False
     dbObj.preEnableSpeed_kts=40.000000
     dbObj.weaponType=1
