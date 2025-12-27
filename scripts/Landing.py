@@ -5,6 +5,7 @@ import math
 
 from Amram_Utilities import *
 from Amram_AI_Scripts import CruiseEnforcement, CopyParentRules
+import functools
 
 #  added aerial refueling scripts to this, 
 # so now has both landing and aerial refueling with tanker aircraft
@@ -380,7 +381,7 @@ def GetNearbyAirfields(UI):
         rangename_list.append(info_n)
 
     # sort list by range
-    rangename_list.sort(RangeNameCompare)
+    rangename_list.sort(key=functools.cmp_to_key(RangeNameCompare))
 
     return rangename_list    
         

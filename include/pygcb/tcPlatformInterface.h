@@ -63,6 +63,7 @@ class tcTacticalMapView;
 namespace database
 {
     class tcWeaponDBObject;
+	class tcPlatformDBObject;
 }
 
 namespace scriptinterface {
@@ -161,8 +162,8 @@ namespace scriptinterface {
 	{
 	public:
 		double mfCurrentTime;
-		static void InitPythonClassesA();
-        static object InitPythonPlatformInterface();
+        //static void InitPythonClassesA();
+        //static object InitPythonPlatformInterface();
         static object GetPlatformInterface();
 
 		// basic nav commands: heading, speed, altitude
@@ -519,7 +520,7 @@ namespace scriptinterface {
         bool IsValid() const;
 //		void SendCommand(const std::string& command);
 		/// display text message in user console
-//		void DisplayMessage(const std::string& text);
+		void DisplayMessage(const std::string& text);
 		/// popup text message
 //		void DisplayPopupMessage(const std::string& text);
 		/// play sound effect
@@ -573,7 +574,7 @@ namespace scriptinterface {
 		void ApplyAdvancedDamage(bool isPen, float kinetic_J, float explosive_kg, float blast_psi,
 			float waterBlast_psi, float thermal_J_cm2,float fragHits,float fragEnergy_J);
 
-
+		 std::shared_ptr<tcPlatformDBObject> GetPlatformDBObject();
 		static void SetObj(std::shared_ptr<tcPlatformObject>apObj) {mpStaticPlatformObj = apObj;}
 		void GetLocalObj();
 		void SetPlatform(std::shared_ptr<tcPlatformObject>obj);

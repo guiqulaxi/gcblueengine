@@ -2153,6 +2153,90 @@ tcGameObject::~tcGameObject()
 //        delete model;
 //    }
 }
+std::string mnModelType2String(int mnModelType)
+{
+    std::string str = "OBJECT";
+    switch (mnModelType)
+    {
+
+    case MTYPE_OBJECT:
+        str = "MTYPE_OBJECT";
+        break;
+    case MTYPE_SURFACE:
+        str = "MTYPE_SURFACE";
+        break;
+    case MTYPE_CARRIER:
+        str = "MTYPE_CARRIER";
+        break;
+    case MTYPE_AIR:
+        str = "MTYPE_AIR";
+        break;
+    case MTYPE_FIXEDWING:
+        str = "MTYPE_FIXEDWING";
+        break;
+    case MTYPE_MISSILE:
+        str = "MTYPE_MISSILE";
+        break;
+    case MTYPE_HELO:
+        str = "MTYPE_HELO";
+        break;
+    case MTYPE_SUBSURFACE:
+        str = "MTYPE_SUBSURFACE";
+        break;
+    case MTYPE_SUBMARINE:
+        str = "MTYPE_SUBMARINE";
+        break;
+    case MTYPE_TORPEDO:
+        str = "MTYPE_TORPEDO";
+        break;
+    case MTYPE_FIXED:
+        str = "MTYPE_FIXED";
+        break;
+    case MTYPE_PLATFORM:
+        str = "MTYPE_PLATFORM";
+        break;
+    case MTYPE_FIXEDWINGX:
+        str = "MTYPE_FIXEDWINGX";
+        break; // model with more realism
+    case MTYPE_AIRFIELD:
+        str = "MTYPE_AIRFIELD";
+        break;
+    case MTYPE_BALLISTIC:
+        str = "MTYPE_BALLISTIC";
+        break;
+    case MTYPE_SONOBUOY:
+        str = "MTYPE_SONOBUOY";
+        break;
+    case MTYPE_AIRCM:
+        str = "MTYPE_AIRCM";
+        break; // air countermeasure model
+    case MTYPE_GROUNDVEHICLE:
+        str = "MTYPE_GROUNDVEHICLE";
+        break; // e.g. ground mobile SAM
+    case MTYPE_FUELTANK:
+        str = "MTYPE_FUELTANK";
+        break;
+    case MTYPE_LASERGUIDEDBOMB:
+        str = "LASERGUIDEDBOMB";
+        break;
+    case MTYPE_WATERCM:
+        str = "MTYPE_WATERCM";
+        break; // water countermeasure model
+    case MTYPE_BALLISTICMISSILE:
+        str = "BALLISTICMISSILE";
+        break;
+    case MTYPE_ROCKET:
+        str = "MTYPE_ROCKET";
+        break;
+    case MTYPE_SPACE:
+        str = "MTYPE_SPACE";
+        break;
+    default:
+        str = "MTYPE_OBJECT";
+        break;
+    }
+    return str;
+}
 
 /**
  * Serialize base tcGameObject fields to JSON. Derived classes should call
@@ -2175,7 +2259,9 @@ void tcGameObject::SerializeToJson(rapidjson::Value& obj, rapidjson::Document::A
     obj.AddMember(rapidjson::Value("unit", allocator).Move(), unitName, allocator);
 
     obj.AddMember(rapidjson::Value("dbKey", allocator).Move(), mnDBKey, allocator);
-
+    rapidjson::Value mnModelTypeValue(rapidjson::kStringType);
+    mnModelTypeValue.SetString(mnModelType2String(mnModelType).c_str(), allocator); // 使用文档的分配器来分配内存
+    obj.AddMember("model_type", mnModelTypeValue, allocator);
     // kinematics
     rapidjson::Value kinObj(rapidjson::kObjectType);
     kinObj.AddMember(rapidjson::Value("lon_rad", allocator).Move(), mcKin.mfLon_rad, allocator);

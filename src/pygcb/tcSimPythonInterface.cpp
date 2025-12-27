@@ -45,7 +45,7 @@
 #include "tcTime.h"
 // #include "network/tcMultiplayerInterface.h"
 
-#include "ScriptedTaskInterface.h"
+#include "tcScriptedTaskInterface.h"
 #include "common/tcStream.h"
 #include "common/tcObjStream.h"
 #include "common/tcOptions.h"
@@ -276,9 +276,9 @@ void tcSimPythonInterface::SetUnitInfo(std::shared_ptr<tcPlatformObject>apObj) {
 */
 bool tcSimPythonInterface::CallTaskScript(ScriptedTask* task, const char* azCommand) 
 {
-    assert(taskInterface);
+    assert(scriptedTaskInterface);
 
-    taskInterface->SetTask(task);
+    scriptedTaskInterface->SetTask(task);
 
     try 
     {   
@@ -287,11 +287,13 @@ bool tcSimPythonInterface::CallTaskScript(ScriptedTask* task, const char* azComm
         py::exec(azCommand);
         return true;
     }
-    catch (error_already_set) 
+    catch (error_already_set &e) 
     {
         // handle the exception in some way
-        fprintf(stderr,"Exception occured in CallTaskScript\n");
-        //        PyErr_Print();
+        // fprintf(stderr,"Exception occured in CallTaskScript\n");
+        // //        PyErr_Print();
+        std::cerr<< azCommand<<std::endl;
+        std::cerr << "Python error: " << e.what() << std::endl;
         return false;
     }
 }
@@ -1042,11 +1044,9 @@ tcSimPythonInterface::tcSimPythonInterface() :
     tcWeaponInterface::AttachScenarioInterface(scenarioInterface);
     tcGroupInterface::AttachScenarioInterface(scenarioInterface);
 
-    ScriptedTaskInterface tempInterface;
-
-
-    TaskInterfaceObject = py::cast(tempInterface);
-    taskInterface = py::cast<ScriptedTaskInterface*>(TaskInterfaceObject);
+    object scriptedTaskInterfaceType=tcScriptedTaskInterface::GetInterface();
+   TaskInterfaceObject = scriptedTaskInterfaceType();
+    scriptedTaskInterface = py::cast<tcScriptedTaskInterface*>(TaskInterfaceObject);
 
     object databaseInterfaceType = tcDatabaseInterface::GetInterface();
     DatabaseInterface = databaseInterfaceType();
@@ -1066,7 +1066,16 @@ tcSimPythonInterface::tcSimPythonInterface() :
     main_dict["TaskInterface"]=  TaskInterfaceObject.ptr();
     main_dict["WeaponInfo"]= WeaponInterface.ptr();
     main_dict["DatabaseManager"]= DatabaseInterface.ptr();
+    try 
+    {   
+        py::exec("import AI");
+    }
+    catch (error_already_set &e) 
+    {
 
+        std::cerr<< "import AI"<<std::endl;
+        std::cerr << "Python error: " << e.what() << std::endl;
+    }
     if (tcOptions::Get()->OptionStringExists("ShowPythonErrors"))
     {
         showPythonErrors = true;

@@ -57,7 +57,6 @@
 #include "ai/Brain.h"
 #include "tcPlatformInterface.h"
 #include "tcDatabaseIterator.h"
-#include "wxcommands.h"
 #include "tcAllianceInfo.h"
 //#include "tcCommandQueue.h"
 #include "tcGameSerializer.h"
@@ -72,6 +71,7 @@
 #include "tcTorpedoDBObject.h"
 //#include "tcMessageCenter.h"
 #include "tcStringTable.h"
+#include "tcPythonExecutorAdapter.h"
 #include <ctime>
 #include <iomanip>
 
@@ -390,6 +390,7 @@ bool tcScenarioInterface::AddUnitToAlliance(scriptinterface::tcScenarioUnit unit
         return false;
     }
 
+
     if ((unit.lon < -360) || (unit.lon > 360.0) || (unit.lat < -90) || (unit.lat > 90))
     {
         fprintf(stderr, "tcScenarioInterface::AddUnitToAlliance - %s coordinates out of bounds (lon: %.4f deg, lat: %.4f deg)\n",
@@ -406,7 +407,12 @@ bool tcScenarioInterface::AddUnitToAlliance(scriptinterface::tcScenarioUnit unit
         fprintf(stderr, "game obj creation error\n");
         return false;
     }
-
+    //设置脚本执行器
+    std::shared_ptr<tcPlatformObject> platObj = std::dynamic_pointer_cast<tcPlatformObject>(gameObj);
+    if (platObj != 0)
+    {
+        platObj->SetScriptExecutor(tcPythonExecutorAdapter::Get());
+    }
     tcKinematics& kin = gameObj->mcKin;
     gameObj->SetKinematics(
         C_PIOVER180*unit.lon,
@@ -435,7 +441,7 @@ bool tcScenarioInterface::AddUnitToAlliance(scriptinterface::tcScenarioUnit unit
     //float terrainHeight = mapData->GetTerrainHeight(unit.lon, unit.lat, 0);
         
     // // class-specific initialization
-     std::shared_ptr<tcPlatformObject> platObj = std::dynamic_pointer_cast<tcPlatformObject>(gameObj);
+
     // if (platObj != 0)
     // {
     //     // limit speed to max

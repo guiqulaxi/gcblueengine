@@ -2649,7 +2649,6 @@ void tcPlatformObject::Construct()
     //model->SetupAnimation(this);
 
     lastHeadingDelta = 0;
-
 }
 
 

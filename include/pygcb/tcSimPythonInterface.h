@@ -61,11 +61,11 @@ class tcTacticalMapView;
 namespace ai
 {
     class ScriptedTask;
-    class ScriptedTaskInterface;
+    class tcScriptedTaskInterface;
 
 }
 using ai::ScriptedTask;
-using ai::ScriptedTaskInterface;
+using ai::tcScriptedTaskInterface;
 
 
 /**
@@ -175,7 +175,6 @@ namespace scriptinterface
         object ScenarioInterface;
         tcScenarioInterface* scenarioInterface; ///< C++ handle to scenario interface
 
-
         object DatabaseInterface;
         tcDatabaseInterface* databaseInterface; ///< C++ handle to database interface
 
@@ -185,7 +184,7 @@ namespace scriptinterface
 //        tcSoundConsole *mpConsole;
 //        tcMapOverlay* overlay;
 
-        ScriptedTaskInterface* taskInterface;
+        tcScriptedTaskInterface* scriptedTaskInterface;
         object TaskInterfaceObject;
 
         enum teInterfaceMode 

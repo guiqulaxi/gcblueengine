@@ -76,6 +76,7 @@ void Task::EndTask()
 {
     // GetPlatformInterface().DeleteTask(taskName);
 
+    
     std::shared_ptr<Brain> brain = platform->GetBrain();
     assert(brain);
 

@@ -1,6 +1,6 @@
 #include "tcPythonBind.h"
 
-#include <ScriptedTaskInterface.h>
+#include <tcScriptedTaskInterface.h>
 #include "tcFlightPortInterface.h"
 #include "tcPlatformInterface.h"
 #include "tcMissionInterface.h"
@@ -41,7 +41,7 @@ PYBIND11_EMBEDDED_MODULE(pygcb, m) {
         .def("WriteGlobal", &BlackboardInterface::WriteGlobal)
         ;
 
-    BindPlatform(m);
+    BindPlatformInterface(m);
 
     py::class_<tcFormationPosition>(m,"FormationPosition")
         .def_readwrite("range_km",&tcFormationPosition::range_km)
@@ -218,17 +218,17 @@ PYBIND11_EMBEDDED_MODULE(pygcb, m) {
 
     BindScenario(m);
 
-    py::class_<ScriptedTaskInterface>(m,"ScriptedTaskInterface")
+    py::class_<tcScriptedTaskInterface>(m,"ScriptedTaskInterface")
         .def(py::init<>())
-        .def("EndTask", &ScriptedTaskInterface::EndTask)
-        .def("GetBlackboardInterface", &ScriptedTaskInterface::GetBlackboardInterface)
-        .def("GetPlatformInterface", &ScriptedTaskInterface::GetPlatformInterface)
-        .def("SetUpdateInterval", &ScriptedTaskInterface::SetUpdateInterval)
-        .def("SetTaskAttributes", &ScriptedTaskInterface::SetTaskAttributes)
-        .def("GetMemoryText", &ScriptedTaskInterface::GetMemoryText)
-        .def("SetMemoryText", &ScriptedTaskInterface::SetMemoryText)
-        .def("GetMemoryValue", &ScriptedTaskInterface::GetMemoryValue)
-        .def("SetMemoryValue", &ScriptedTaskInterface::SetMemoryValue)
+        .def("EndTask", &tcScriptedTaskInterface::EndTask)
+        .def("GetBlackboardInterface", &tcScriptedTaskInterface::GetBlackboardInterface)
+        .def("GetPlatformInterface", &tcScriptedTaskInterface::GetPlatformInterface)
+        .def("SetUpdateInterval", &tcScriptedTaskInterface::SetUpdateInterval)
+        .def("SetTaskAttributes", &tcScriptedTaskInterface::SetTaskAttributes)
+        .def("GetMemoryText", &tcScriptedTaskInterface::GetMemoryText)
+        .def("SetMemoryText", &tcScriptedTaskInterface::SetMemoryText)
+        .def("GetMemoryValue", &tcScriptedTaskInterface::GetMemoryValue)
+        .def("SetMemoryValue", &tcScriptedTaskInterface::SetMemoryValue)
         ;
     BindGoal(m);
     BindDamageDBObject(m);

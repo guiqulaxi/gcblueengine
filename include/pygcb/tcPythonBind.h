@@ -7,7 +7,9 @@
 namespace py = pybind11;
 using namespace py;
 
-void BindPlatform(module &m);
+void BindPlatformInterface(module &m);
+void BindPlatformDBInterface(module &m);
+
 void BindDBObject(module &m);
 void BindPlatformDBObject(module &m);
 void BindTorpedoDBObject(module &m);

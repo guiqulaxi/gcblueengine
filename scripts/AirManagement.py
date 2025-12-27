@@ -16,6 +16,14 @@ def RefuelAllAircraft(TI):
         if (UI_n.GetFuel() < 1.0) and (not UI_n.IsRefueling()) and (not UI_n.MaintenanceHold()) and (UI_n.GetWeightMargin() > 10):
             #UI_n.DisplayMessage('Refueling %s' % unitName)
             #UI_n.LoadOther('Fuel')   -LoadOther was changed, now requires quantity to stock.  Determine fuel need before attempting to load.
+            UDBI=UI_n.GetPlatformDBObject();
+            #print("111111111111111111") 
+            fuel_capacity = float(UDBI.mfFuelCapacity_kg)
+            #print(fuel_capacity)
+            fuel_qty = int((1 - UI_n.GetFuel()) * fuel_capacity + 1)
+            UI_n.LoadOther('Fuel', fuel_qty)
+            return # only start one refueling at a time
+
             name = UI_n.GetPlatformClass()
             if UI_n.HasThrottle():
                 fuel_capacity = UI.QueryDatabase('air',name,'FuelCapacity_kg').GetRow(0).GetString(0)

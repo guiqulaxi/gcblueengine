@@ -57,6 +57,7 @@ namespace scriptinterface
         static ai::tcAttackMission* static_mission;
         
         // Interface class management functions
+        /// 返回python的类型对象
         static object GetInterface();
         static void SetObj(ai::tcAttackMission* mission_);
 

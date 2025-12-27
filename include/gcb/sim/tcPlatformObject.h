@@ -46,7 +46,7 @@ class tcCreateStream;
 class tcUpdateStream;
 class tcGameStream;
 class tcStores;
-
+class IScriptExecutor;
 namespace database
 {
     class tcPlatformDBObject;
@@ -249,12 +249,16 @@ public:
     virtual ~tcPlatformObject();
     virtual void Construct() override;
     virtual void SerializeToJson(rapidjson::Value& obj, rapidjson::Document::AllocatorType& allocator) const override;
+        // 新增脚本执行器接口
+    void SetScriptExecutor(std::shared_ptr<IScriptExecutor> executor) { scriptExecutor = executor; }
+    std::shared_ptr<IScriptExecutor> GetScriptExecutor() const { return scriptExecutor; }
 protected:
     float lastHeadingDelta; // a workaround to smooth heading rate changes
 	bool isRefueling; ///< true if refuel is in progress
 	std::string loadoutTag; ///< string to identify current loadout type
     float reducedTurnRate_degps; ///< for slower turns, use for current turn only then reset
-
+    // 脚本执行器成员
+    std::shared_ptr<IScriptExecutor> scriptExecutor;
     virtual void ApplyRestrictions();
     virtual void SetFireControlSensors();
 

@@ -33,6 +33,8 @@
 //#include "scriptinterface/tcSimPythonInterface.h"
 #include "tcGameStream.h"
 #include "strutil.h"
+#include "tcPlatformObject.h"
+#include "tcScriptExecutor.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif 
@@ -195,15 +197,19 @@ void ScriptedTask::Update(double t)
 {
      if (IsReadyForUpdate(t))
      {
-//         bool success = tcSimPythonInterface::Get()->CallTaskScript(this, GetCommandString());
+        // bool success = tcSimPythonInterface::Get()->CallTaskScript(this, GetCommandString());
+        std::shared_ptr<IScriptExecutor> executor = platform->GetScriptExecutor();
+        bool success = false;
+        if (executor) {
+            success = executor->CallTaskScript(this, GetCommandString());
+        }
+        FinishUpdate(t);
 
-//         FinishUpdate(t);
-
-//         if (!success)
-//         {
-//             fprintf(stderr, "Deleting task that errored (%s)\n", GetTaskName().c_str());
-//             EndTask();
-//         }
+        if (!success)
+        {
+            fprintf(stderr, "Deleting task that errored (%s)\n", GetTaskName().c_str());
+            EndTask();
+        }
      }
 }
 

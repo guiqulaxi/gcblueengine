@@ -2623,7 +2623,7 @@ namespace scriptinterface {
     {
         if (mpPlatformObj == 0) return;
 
-		//if (mpPlatformObj->IsClientMode()) return; // changed to send remove requests to server
+		if (mpPlatformObj->IsClientMode()) return; // changed to send remove requests to server
 
         std::shared_ptr<Brain>  brain = mpPlatformObj->GetBrain();
         assert(brain);
@@ -3323,24 +3323,24 @@ namespace scriptinterface {
     /**
     * print message to user console
     */
-//    void tcPlatformInterface::DisplayMessage(const std::string& text)
-//    {
-//        assert(mpConsole);
-//        assert(mpPlatformObj != 0);
-//        if (mpPlatformObj == 0) return;
+   void tcPlatformInterface::DisplayMessage(const std::string& text)
+   {
+       //assert(mpConsole);
+       assert(mpPlatformObj != 0);
+       if (mpPlatformObj == 0) return;
 
-//        if (isPlatformOwnAlliance)
-//		{
-//			mpConsole->Print(text.c_str());
-//			fprintf(stdout, "* msg from platform:%d %s\n", mpPlatformObj->mnID, text.c_str());
-//		}
-//#ifdef _DEBUG
-//		else
-//		{
-//			fprintf(stdout, "* msg from OPFOR:%d %s\n", mpPlatformObj->mnID, text.c_str());
-//		}
-//#endif
-//    }
+       if (isPlatformOwnAlliance)
+		{
+			//mpConsole->Print(text.c_str());
+			fprintf(stdout, "* msg from platform:%d %s\n", mpPlatformObj->mnID, text.c_str());
+		}
+#ifdef _DEBUG
+		else
+		{
+			fprintf(stdout, "* msg from OPFOR:%d %s\n", mpPlatformObj->mnID, text.c_str());
+		}
+#endif
+   }
 
 
     /**
@@ -4046,6 +4046,15 @@ namespace scriptinterface {
 				(mpSimState->mpUserInfo->IsOwnAlliance(mpPlatformObj->GetAlliance()) != 0) : false;
 		}
     } 
+
+    std::shared_ptr<tcPlatformDBObject> tcPlatformInterface::GetPlatformDBObject()
+    {
+        if(mpPlatformObj)
+        {
+            return mpPlatformObj->mpDBObject;
+        }
+        return nullptr;
+    }
 
 	void tcPlatformInterface::SetDateFiltering(bool state)
 	{
