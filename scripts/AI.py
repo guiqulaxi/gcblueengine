@@ -51,8 +51,9 @@ def TestTask(TI):
 
 
 def AirEvade(TI):
+    #print("22222222222222222222222222")  
     UI = TI.GetPlatformInterface()
-
+    #print(UI.GetPlatformName())
     track = UI.GetClosestMissileTrack(20, 4, 0) # 4 for all non-friendly affiliations
     if (not track.IsValid()):
         TI.SetUpdateInterval(15.0)
@@ -64,7 +65,6 @@ def AirEvade(TI):
     bearing_deg = UI.GetHeadingToDatum(track.Lon, track.Lat)
 
     #UI.DisplayMessage('Missile %.1f km' % range_km)
-
     if (range_km < 4.0):
         LaunchChaffAndFlare(UI)
         

@@ -36,7 +36,7 @@
 #include <string>
 
 class tcGameStream;
-
+class IScriptExecutor;
 namespace ai
 {
 
@@ -62,7 +62,8 @@ public:
     ScriptedTask(std::shared_ptr<tcPlatformObject> platform_, Blackboard* bb, 
         int id_, double priority_, int attributes_, const std::string& scriptName_);
     ~ScriptedTask();
-    
+    static void SetScriptExecutor(IScriptExecutor *executor){scriptExecutor=executor;}
+    static IScriptExecutor* GetScriptExecutor()  { return scriptExecutor; }
 protected:
     std::map<std::string, std::string> textMemory;
     std::map<int, double> numberMemory;
@@ -71,6 +72,8 @@ protected:
     const char* GetCommandString();
 private:
     std::string commandString;
+
+    static IScriptExecutor* scriptExecutor;
 };
 
 }

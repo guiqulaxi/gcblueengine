@@ -409,10 +409,8 @@ bool tcScenarioInterface::AddUnitToAlliance(scriptinterface::tcScenarioUnit unit
     }
     //设置脚本执行器
     std::shared_ptr<tcPlatformObject> platObj = std::dynamic_pointer_cast<tcPlatformObject>(gameObj);
-    if (platObj != 0)
-    {
-        platObj->SetScriptExecutor(tcPythonExecutorAdapter::Get());
-    }
+
+
     tcKinematics& kin = gameObj->mcKin;
     gameObj->SetKinematics(
         C_PIOVER180*unit.lon,

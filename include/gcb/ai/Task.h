@@ -39,7 +39,7 @@
 
 namespace scriptinterface
 {
-    class tcPlatformInterface;
+class tcPlatformInterface;
 }
 
 using scriptinterface::tcPlatformInterface;
@@ -58,26 +58,26 @@ class Blackboard;
 class Task : public BlackboardInterface
 {
 public:
-	/** task type bit field */
-	enum
-	{
-		DEFAULT_ATTRIBUTES = 0,
-		HIDDEN = 1, ///< task not displayed on user task list
-		PERMANENT = 2 ///< task not removed when user clears tasks
-	};
+    /** task type bit field */
+    enum
+    {
+        DEFAULT_ATTRIBUTES = 0,
+        HIDDEN = 1, ///< task not displayed on user task list
+        PERMANENT = 2 ///< task not removed when user clears tasks
+    };
 
 
-   tcPlatformInterface GetPlatformInterface();
+    tcPlatformInterface GetPlatformInterface();
     
     void EndTask();
     void FinishUpdate(double t);
     const std::string& GetTaskName() const;
     bool IsReadyForUpdate(double t) const;
 
-	int GetAttributes() const;
-	void SetAttributes(int attributes_);
-	bool IsHidden() const;
-	bool IsPermanent() const;
+    int GetAttributes() const;
+    void SetAttributes(int attributes_);
+    bool IsHidden() const;
+    bool IsPermanent() const;
 
     bool IsRunning() const;
     void SetRunState(bool state);
@@ -86,17 +86,17 @@ public:
     virtual void Update(double t);
 
     virtual tcGameStream& operator<<(tcGameStream& stream);
-	virtual tcGameStream& operator>>(tcGameStream& stream);
+    virtual tcGameStream& operator>>(tcGameStream& stream);
 
     Task(std::shared_ptr<tcPlatformObject> platform_, Blackboard* bb, 
-        int id_, double priority_, int attributes_, const std::string& taskName_);
+         int id_, double priority_, int attributes_, const std::string& taskName_);
     virtual ~Task();
     
 
     std::shared_ptr<tcPlatformObject>  platform;
 protected:
-   	const std::string taskName;
-	int attributes; ///< bitfield of task attributes
+    const std::string taskName;
+    int attributes; ///< bitfield of task attributes
     bool isRunning; ///< true if task should receive updates
 
 private:

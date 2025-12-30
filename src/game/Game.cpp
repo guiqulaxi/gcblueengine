@@ -25,6 +25,7 @@
 
 // #include "stdwx.h" // precompiled header file
 
+#include "ScriptedTask.h"
 #include "tcAcousticModel.h"
 #ifndef WX_PRECOMP
 // #include "wx/wx.h"
@@ -52,6 +53,7 @@
 #include "tcString.h"
 #include "tcSimPythonInterface.h"
 #include "tcScenarioInterface.h"
+#include "tcPythonExecutorAdapter.h"
 // #include "tcDirector.h"
 // #include "tcXmlWindow.h"
 #include "tcMapData.h"
@@ -431,12 +433,13 @@ void tcGame::Init()
         //  }
 
         tcGameObject::SetGameObjectDatabase(database); // added to allow objects to init themselves
-
+        tcGameObject::SetScriptExecutor(scriptExecutor);
+        ScriptedTask::SetScriptExecutor(scriptExecutor);
         simState->AttachDB(database);
         simState->AttachMapData(mapData);
         // simState->AttachPythonInterface(pythonInterface);
         simState->AttachUserInfo(userInfo);
-
+        simState->AttachScriptExcutor(scriptExecutor);
         pythonInterface->AttachMapData(mapData);
 
         tcLauncherState::mpDatabase = database;
@@ -2112,6 +2115,7 @@ tcGame::tcGame()
 
     simState = tcSimState::Get();
     database = tcDatabase::Get();
+    scriptExecutor =tcPythonExecutorAdapter::Get();
     //    commandQueue = tcCommandQueue::Get();
 
 #ifdef _DEBUG

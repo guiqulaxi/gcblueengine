@@ -2263,7 +2263,7 @@ void tcSimState::AddLaunchedPlatform(int newKey, std::shared_ptr<tcGameObject> l
 */
 std::shared_ptr<tcGameObject> tcSimState::CreateGameObject(std::shared_ptr<tcDatabaseObject>apDBObject)
 {
-    return apDBObject->CreateGameObject();
+    return  apDBObject->CreateGameObject();
 }
 // std::shared_ptr<tcGameObject> tcSimState::CreateGameObject(std::shared_ptr<tcDatabaseObject>apDBObject)
 // {
@@ -2585,6 +2585,10 @@ std::shared_ptr<tcGameObject> tcSimState::CreateRandomPlatform(UINT platform_typ
 void tcSimState::AttachDB(tcDatabase *pDatabase) 
 {
     mpDatabase = pDatabase;
+}
+void tcSimState::AttachScriptExcutor(IScriptExecutor *scriptExecutor)
+{
+    this->scriptExecutor=scriptExecutor;
 }
 
 /**

@@ -23,6 +23,7 @@
 **  IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "tcScriptExecutor.h"
 #if !defined _GAME_H_
 #define _GAME_H_
 
@@ -65,7 +66,7 @@ class tcMapData;
 //class tcMPGameView;
 //class tcTVEngine;
 //class wxProgressDialog;
-
+class IScriptExecutor;
 using namespace scriptinterface;
 
 #define MAX_COMMAND_STRING_LEN (1024*100)
@@ -122,6 +123,7 @@ public:
 
 
     database::tcDatabase* database;
+    IScriptExecutor *scriptExecutor;
     tcSimState* simState;
     tcMapData* mapData;
 //    tcCommandQueue* commandQueue;

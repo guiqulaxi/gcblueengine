@@ -10,8 +10,8 @@ int tcPythonExecutorAdapter::CallScript(const char *commandtext, const char *err
 {
     return tcSimPythonInterface::Get()->CallPython(commandtext, errortext);
 }
-std::shared_ptr<IScriptExecutor> tcPythonExecutorAdapter::Get()
+IScriptExecutor* tcPythonExecutorAdapter::Get()
 {
-    static auto adapter = std::make_shared<tcPythonExecutorAdapter>();
-    return adapter;
+    static tcPythonExecutorAdapter instance;
+    return &instance;
 }

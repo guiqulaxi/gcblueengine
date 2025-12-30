@@ -122,7 +122,7 @@ tcSimState* tcGameObject::simState = NULL;
 int tcGameObject::hookedId = -1;
 unsigned short tcGameObject::launchedCounter = 0;
 bool tcGameObject::addTasksOnCreate = true;
-
+IScriptExecutor *tcGameObject::scriptExecutor=nullptr;
 std::string tcGameObject::lastDamageDescription;
 
 void tcGameObject::SetLastDamageDescription(const std::string& s)

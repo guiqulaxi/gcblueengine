@@ -332,6 +332,8 @@ namespace scriptinterface {
 		void Launch(int anLauncher, int quantity);
 		/// get class name of launcher weapon
 		std::string GetLauncherWeaponName(int anLauncher);
+        /// get DatabaseObject of launcher weapon
+        std::shared_ptr<tcDatabaseObject>  GetLauncherWeapon(int anLauncher);
 		/// get quantity available for launch in launcher
 		int GetLauncherQuantity(int anLauncher);
 		/// true if launcher can launch using datum only (i.e. no track just a set of coordinates)

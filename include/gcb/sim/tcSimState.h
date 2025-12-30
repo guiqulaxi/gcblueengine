@@ -67,7 +67,7 @@ class tcTorpedoObject;
 class tcBallisticWeapon;
 class tcPositionRegistry;
 class tcWeaponTester;
-
+class IScriptExecutor;
 #define N_GAME_OBJECTS 8192 // have to match tcAllianceSensorMap::MAX_TRACKS and ::MAX_SMTRACKS
 #define SCEN_STRING_LENGTH 1024
 
@@ -119,6 +119,8 @@ public:
     void AddRandomPlatform();
 //    void AttachCommandInterface(tcCommandQueue *apCommandInterface) {mpCommandInterface=apCommandInterface;}
     void AttachDB(tcDatabase *pDatabase);
+    void AttachScriptExcutor(IScriptExecutor *scriptExecutor);
+
     void AttachMapData(tcMapData *apMapData) {mpMapData=apMapData;}
     // void AttachPythonInterface(tcSimPythonInterface *apIF) {mpPythonInterface = apIF;}
     void AttachUserInfo(tcUserInfo *apUserInfo) {mpUserInfo=apUserInfo;}
@@ -233,6 +235,7 @@ private:
     std::map<std::string, int> objectNameMap; ///< for fast lookup by object name
     std::map<std::string, int> captiveObjectMap; ///< lookup of captive flightdeck objects, secondary key is parent id
     tcPositionRegistry* positionRegistry; ///< for fast(er) lookup by region
+    IScriptExecutor *scriptExecutor;///脚本执行器
 #ifdef USE_TEST
     tcWeaponTester* weaponTester;
 #endif

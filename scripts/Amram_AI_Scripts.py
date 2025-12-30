@@ -393,7 +393,9 @@ def BombRun(TI):
     if BB.KeyExists('Style'):
         style = BB.ReadMessage('Style')
     else:
-        if UI.QueryDatabase('air', UI.GetPlatformClass(),'Designation').GetRow(0).GetString(0) == 'Bomber' or UI.QueryDatabase('simpleair', UI.GetPlatformClass(),'Designation').GetRow(0).GetString(0) == 'Bomber':
+        UDBI=UI.GetPlatformDBObject();
+        if UDBI.designation == 'Bomber':
+        # if UI.QueryDatabase('air', UI.GetPlatformClass(),'Designation').GetRow(0).GetString(0) == 'Bomber' or UI.QueryDatabase('simpleair', UI.GetPlatformClass(),'Designation').GetRow(0).GetString(0) == 'Bomber':
             style = 'level'
         else:
             if target:
@@ -581,11 +583,14 @@ def GBUBombRun(TI):
     #use launcher.MaxRange_km since its altitude dependent and produces a good range reading.
     #request waypoint(s) for mission?
     noGBU = 1
-    for launcher in xrange(UI.GetLauncherCount()):
-        weapon = UI.GetLauncherWeaponName(launcher)
-        if UI.QueryDatabase('ballistic',weapon,'BallisticType').GetRow(0).GetString(0) == '3':
+    for launcher in range(UI.GetLauncherCount()):
+        if UI.GetLauncherWeapon(launcher).ballisticType == 3:  #guided bomb
             noGBU = 0
             break
+        # weapon = UI.GetLauncherWeaponName(launcher)
+        # if UI.QueryDatabase('ballistic',weapon,'BallisticType').GetRow(0).GetString(0) == '3':
+        #     noGBU = 0
+        #     break
     if noGBU:
         UI.DisplayMessage('No Guided Bombs')
         TI.EndTask()

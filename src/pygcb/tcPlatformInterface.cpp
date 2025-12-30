@@ -1650,6 +1650,25 @@ namespace scriptinterface {
             return s;
         }
     }
+    std::shared_ptr<tcDatabaseObject>  tcPlatformInterface::GetLauncherWeapon(int anLauncher)
+    {
+        if (mpPlatformObj == 0)
+        {
+            return nullptr;
+        }
+
+        int nCount = GetLauncherCount();
+        if ((anLauncher < 0)||(anLauncher >= nCount))
+        {
+
+            return nullptr;
+        }
+
+        std::string s = mpPlatformObj->mcLauncherState.GetLauncherChildClass(anLauncher);
+        tcDatabase* database = tcDatabase::Get();
+        return  database->GetObject(s);
+
+    }
 
     void tcPlatformInterface::SendDatumToLauncher(float afLon_rad, float afLat_rad, 
 		float alt_m, int anLauncher) 

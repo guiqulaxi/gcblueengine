@@ -69,6 +69,7 @@ class tcLauncher;
 
 class tcDamageModel;
 struct Damage;
+class IScriptExecutor;
 
 
 
@@ -258,6 +259,8 @@ public:
     static void SetClientMode(bool state) {clientMode = state;}
 	static void SetEditMode(bool state) {editMode = state;}
     static void SetGameObjectDatabase(database::tcDatabase *db) {database = db;}
+    static void SetScriptExecutor(IScriptExecutor *executor){scriptExecutor=executor;}
+    static IScriptExecutor* GetScriptExecutor()  { return scriptExecutor; }
     static void SetGameObjectMapData(tcMapData *md) {mapData = md;}
     static void SetHookedId(int id) {hookedId = id;}
     static void SetSimState(tcSimState *ss) {simState = ss;}
@@ -270,6 +273,8 @@ public:
     tcGameObject(tcGameObject&);
     tcGameObject(std::shared_ptr<tcDatabaseObject>obj); ///< construct using database object
     virtual ~tcGameObject();
+    // 新增脚本执行器接口
+
     //在创建后调用
     virtual void Construct(){};
 protected:
@@ -287,9 +292,11 @@ protected:
     static std::string lastDamageDescription; ///< tag for displaying info on last damage type that occurred
     static unsigned short launchedCounter; /// for assigning unique unit name to launched items
 	static bool addTasksOnCreate; ///< true (default) to automatically add some default AI tasks when obj is created
-
+    static IScriptExecutor* scriptExecutor;///脚本执行器
     std::shared_ptr<tcGameObject> CreateObject(const std::string& databaseClass);
     std::vector<std::shared_ptr<tcComponent>>  components;///组件
+    // 脚本执行器成员
+
 //    void Update3D();
     //CTVMesh* GetDatabaseMesh();
 };
